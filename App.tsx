@@ -15,6 +15,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { uploadAudio } from './services/storageService';
 import { Dialer } from './components/Dialer';
+import { supabase } from './lib/supabaseClient'; // Import supabase client
 
 const AppContent: React.FC = () => {
     const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.LOGIN);
@@ -67,14 +68,42 @@ const AppContent: React.FC = () => {
 
     useEffect(() => {
         if (supabaseUser && supabaseUser.email) {
-            // In a real app, fetch profile from DB here. 
-            // For now, simple hydration
-            setUser(prev => ({
-                ...prev,
-                id: supabaseUser.id, // Critical for Stripe
-                email: supabaseUser.email || prev.email,
-                role: 'Member', // Default to member for real auth
-            }));
+            // Fetch real profile from DB
+            const fetchProfile = async () => {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', supabaseUser.id)
+                    .single();
+
+                if (data && !error) {
+                    console.log("Profile loaded form DB:", data);
+                    setUser(prev => ({
+                        ...prev,
+                        id: supabaseUser.id,
+                        email: supabaseUser.email || prev.email,
+                        firstName: data.first_name || prev.firstName,
+                        lastName: data.last_name || prev.lastName,
+                        // Hydrate Subscription from DB
+                        subscription: {
+                            ...prev.subscription,
+                            planId: data.plan_id || 'free',
+                            status: data.subscription_status || 'active',
+                            minutesLimit: data.minutes_limit || 24,
+                            // we keep other fields as default/calculated for now
+                        }
+                    }));
+                } else {
+                    // Fallback if no profile yet
+                    setUser(prev => ({
+                        ...prev,
+                        id: supabaseUser.id,
+                        email: supabaseUser.email || prev.email,
+                    }));
+                }
+            };
+
+            fetchProfile();
             navigate(AppRoute.DASHBOARD);
         } else if (!supabaseUser) {
             navigate(AppRoute.LOGIN);
