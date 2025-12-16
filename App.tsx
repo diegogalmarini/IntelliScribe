@@ -104,6 +104,20 @@ const AppContent: React.FC = () => {
             };
 
             fetchProfile();
+
+            // Special Check: If returning from Stripe Payment, poll DB to get updated plan
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('payment') === 'success') {
+                console.log("Payment success detected! Polling for plan update...");
+                // Retry fetching profile 3 times with delay to allow Webhook to finish
+                setTimeout(() => { console.log("Polling #1..."); fetchProfile(); }, 2000);
+                setTimeout(() => { console.log("Polling #2..."); fetchProfile(); }, 5000);
+                setTimeout(() => { console.log("Polling #3..."); fetchProfile(); }, 8000);
+
+                // Remove query param to clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             navigate(AppRoute.DASHBOARD);
         } else if (!supabaseUser) {
             navigate(AppRoute.LOGIN);
