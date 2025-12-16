@@ -66,6 +66,7 @@ export interface UserSubscription {
 }
 
 export interface UserProfile {
+  id?: string; // Added for Stripe/DB linking
   firstName: string;
   lastName: string;
   email: string;
