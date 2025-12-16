@@ -33,9 +33,14 @@ async function buffer(readable) {
 }
 
 export default async function handler(req, res) {
+    // Health check for browser testing
+    if (req.method === 'GET') {
+        return res.status(200).send('Webhook Endpoint Active 🟢');
+    }
+
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
-        return res.status(405).end('Method Not Allowed');
+        return res.status(405).send(`Method Not Allowed. Received: ${req.method}`);
     }
 
     let event;
