@@ -1,7 +1,14 @@
 
-// Webhook with Dynamic Imports to prevent Startup Crash
+import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
-// HELPER: Read raw body safely
+// Configuration for API Route (disable body parser)
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
 async function buffer(readable) {
     const chunks = [];
     for await (const chunk of readable) {
@@ -10,7 +17,6 @@ async function buffer(readable) {
     return Buffer.concat(chunks);
 }
 
-// HELPER: Send JSON response safely (Node.js native)
 const sendJson = (res, statusCode, data) => {
     res.statusCode = statusCode;
     res.setHeader('Content-Type', 'application/json');
@@ -23,40 +29,20 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, stripe-signature');
 
-    if (req.method === 'OPTIONS') {
-        res.statusCode = 200;
-        res.end();
-        return;
-    }
+    if (req.method === 'OPTIONS') return sendJson(res, 200, {});
 
-    // DIAGNOSTIC GET: Check Environment & Imports
+    // DIAGNOSTIC GET
     if (req.method === 'GET') {
-        const diagnostics: any = {
+        return sendJson(res, 200, {
             status: 'active',
+            type: 'ESM Module',
             env: {
                 stripeKey: !!process.env.STRIPE_SECRET_KEY,
                 stripeSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
                 supabaseUrl: !!process.env.VITE_SUPABASE_URL,
                 supabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
-            },
-            modules: {}
-        };
-
-        try {
-            require('stripe');
-            diagnostics.modules.stripe = 'OK';
-        } catch (e: any) {
-            diagnostics.modules.stripe = `FAILED: ${e.message}`;
-        }
-
-        try {
-            require('@supabase/supabase-js');
-            diagnostics.modules.supabase = 'OK';
-        } catch (e: any) {
-            diagnostics.modules.supabase = `FAILED: ${e.message}`;
-        }
-
-        return sendJson(res, 200, diagnostics);
+            }
+        });
     }
 
     if (req.method !== 'POST') {
@@ -64,19 +50,13 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log("[Webhook] Loading Modules...");
-
-        // DYNAMIC IMPORTS
-        const Stripe = require('stripe');
-        const { createClient } = require('@supabase/supabase-js');
+        console.log("[Webhook] POST received");
 
         if (!process.env.STRIPE_SECRET_KEY) throw new Error("Missing STRIPE_SECRET_KEY");
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-            apiVersion: '2024-12-18.acacia',
+            apiVersion: '2024-12-18.acacia' as any,
         });
 
-        // Parse Body
-        console.log("[Webhook] Reading Body...");
         const buf = await buffer(req);
         const signature = req.headers['stripe-signature'];
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -87,13 +67,13 @@ export default async function handler(req, res) {
             if (webhookSecret && signature) {
                 event = stripe.webhooks.constructEvent(buf, signature, webhookSecret);
             } else {
-                console.log("Unsafe parsing...");
                 event = JSON.parse(buf.toString());
             }
         } catch (e: any) {
-            return sendJson(res, 200, { status: "error", message: `Signature Failed: ${e.message}` });
+            return sendJson(res, 200, { status: "error", message: `Signature Verification Failed: ${e.message}` });
         }
 
+        // Ignore Invoice Events safely
         if (event.type.startsWith('invoice.')) {
             return sendJson(res, 200, { status: "ignored", type: event.type });
         }
@@ -103,8 +83,10 @@ export default async function handler(req, res) {
             const userId = session.metadata?.userId;
 
             if (!userId) {
-                return sendJson(res, 200, { status: "skipped", message: "No userId" });
+                return sendJson(res, 200, { status: "skipped", message: "No userId in session metadata" });
             }
+
+            console.log(`[Webhook] Processing User: ${userId}`);
 
             const supabaseUrl = process.env.VITE_SUPABASE_URL;
             const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -112,8 +94,7 @@ export default async function handler(req, res) {
             if (!supabaseUrl || !supabaseKey) {
                 return sendJson(res, 200, {
                     status: "error",
-                    message: "Missing Supabase Config (Service Key missing?)",
-                    env: process.env
+                    message: "Missing Supabase Config. Check SUPABASE_SERVICE_ROLE_KEY."
                 });
             }
 
@@ -125,6 +106,24 @@ export default async function handler(req, res) {
             if (amount >= 2000) { planId = 'business_plus'; limit = 999999; }
             else if (amount >= 1200) { planId = 'business'; limit = 600; }
 
+            // 1. First, CHECK if user exists
+            const { data: userCheck, error: checkError } = await supabase
+                .from('profiles')
+                .select('id, email')
+                .eq('id', userId)
+                .single();
+
+            if (checkError || !userCheck) {
+                console.error(`[Webhook] User Check Failed: ${userId}`);
+                return sendJson(res, 200, {
+                    status: "error",
+                    message: `User Not Found in Profile Table`,
+                    details: checkError ? checkError.message : "No row found",
+                    searchedId: userId
+                });
+            }
+
+            // 2. Perform Update
             const { data, error } = await supabase.from('profiles').update({
                 plan_id: planId,
                 minutes_limit: limit,
@@ -135,22 +134,18 @@ export default async function handler(req, res) {
                 .eq('id', userId)
                 .select();
 
-            if (error) throw new Error(`DB Error: ${error.message}`);
-
-            if (!data || data.length === 0) {
-                return sendJson(res, 200, {
-                    status: "error",
-                    message: `User Not Found: ${userId} in profiles table.`,
-                });
+            if (error) {
+                return sendJson(res, 200, { status: "error", message: `Update Failed: ${error.message}` });
             }
 
-            return sendJson(res, 200, { status: "success", userId, planId });
+            return sendJson(res, 200, { status: "success", userId, planId, updated_email: userCheck.email });
         }
 
         return sendJson(res, 200, { received: true });
 
     } catch (err: any) {
-        console.error(`[Webhook] CRASH: ${err.message}`);
+        console.error(`CRASH: ${err.message}`);
+        // Return 200 with error info to ensure visibility in Dashboard
         return sendJson(res, 200, {
             status: "crash",
             error: err.message,
