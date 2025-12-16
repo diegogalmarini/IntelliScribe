@@ -44,6 +44,7 @@ const AppContent: React.FC = () => {
 
     // User State Template
     const defaultUser: UserProfile = {
+        id: '',
         firstName: 'Guest',
         lastName: '',
         email: '',
@@ -70,6 +71,7 @@ const AppContent: React.FC = () => {
             // For now, simple hydration
             setUser(prev => ({
                 ...prev,
+                id: supabaseUser.id, // Critical for Stripe
                 email: supabaseUser.email || prev.email,
                 role: 'Member', // Default to member for real auth
             }));
