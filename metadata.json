@@ -1,0 +1,7 @@
+{
+  "name": "Diktalo",
+  "description": "Enterprise Conversational Intelligence Platform with AI-powered transcription, analysis, and workflow automation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
