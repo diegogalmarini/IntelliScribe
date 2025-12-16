@@ -20,8 +20,8 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     const [isSignUp, setIsSignUp] = useState(false);
 
     // Form State
-    const [email, setEmail] = useState('admin@diktalo.com');
-    const [password, setPassword] = useState('test123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
 
@@ -39,9 +39,9 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             setFirstName('');
             setLastName('');
         } else {
-            // Switching back to Login: restore demo credentials
-            setEmail('admin@diktalo.com');
-            setPassword('test123');
+            // Switching back to Login
+            setEmail('');
+            setPassword('');
         }
     };
 
@@ -126,21 +126,6 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         </p>
                     </div>
 
-                    {/* Test User Info Box (Only show on Login) */}
-                    {!isSignUp && (
-                        <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-lg text-sm">
-                            <p className="font-bold text-primary mb-2 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">info</span>
-                                {t('testEnv')}
-                            </p>
-                            <div className="grid grid-cols-[60px_1fr] gap-1 text-slate-600 dark:text-slate-300">
-                                <span className="font-medium">User:</span>
-                                <span className="font-mono select-all">admin@diktalo.com</span>
-                                <span className="font-medium">Pass:</span>
-                                <span className="font-mono select-all">test123</span>
-                            </div>
-                        </div>
-                    )}
 
                     <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
                         {/* Registration Fields */}
