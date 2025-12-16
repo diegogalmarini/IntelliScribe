@@ -15,7 +15,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { uploadAudio } from './services/storageService';
 import { Dialer } from './components/Dialer';
-import { supabase } from './lib/supabaseClient'; // Import supabase client
+import { supabase } from './lib/supabase'; // Corrected import path
 
 const AppContent: React.FC = () => {
     const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.LOGIN);
