@@ -54,7 +54,13 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
         }
 
         if (!priceId) {
-            alert("Error: Price ID not configured in .env");
+            // Debugging Aid: Show exactly which key failed
+            let debugKey = '';
+            if (planType === 'pro') debugKey = 'VITE_STRIPE_PRICE_PRO';
+            else if (planType === 'business') debugKey = 'VITE_STRIPE_PRICE_BUSINESS';
+            else debugKey = 'VITE_STRIPE_PRICE_BUSINESS_PLUS';
+
+            alert(`Error: Price ID not configured! \nTesting Key: ${debugKey} \nValue: ${priceId || 'undefined'}`);
             return;
         }
 
