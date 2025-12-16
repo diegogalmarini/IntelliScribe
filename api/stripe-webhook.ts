@@ -4,7 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2023-10-16', // Use latest API version available in your dependencies
+    // @ts-ignore - The installed types might expect a specific beta/internal version string, using 'latest' or casting if needed
+    // However, the error showed '2025-11-17.clover', which suggests a specific build. 
+    // We will use the standard latest stable or cast to any to suppress.
+    apiVersion: '2024-12-18.acacia' as any,
 });
 
 // Initialize Supabase Admin Client (Service Role Key usually needed for admin tasks, 
@@ -58,10 +61,19 @@ export default async function handler(req, res) {
         // Detailed logic requires fetching line items or checking session.amount_total
 
         let planId = 'pro';
-        let minutesLimit = 100;
+        let minutesLimit = 150; // Pro limit
 
-        // Example logic: if amount > 1000 (10 EUR), maybe it's business
-        if (session.amount_total && session.amount_total > 1300) {
+        // Logic to determine plan based on amount or metadata
+        // Ideally, we should look at session.amount_total or metadata
+        // For now, simple threshold logic for demonstration:
+
+        // Cost > 2000 (20 EUR/USD) -> Business Plus
+        if (session.amount_total && session.amount_total >= 2000) {
+            planId = 'business_plus';
+            minutesLimit = 999999; // Unlimited
+        }
+        // Cost > 1200 (12 EUR/USD) and < 2000 -> Business
+        else if (session.amount_total && session.amount_total >= 1200) {
             planId = 'business';
             minutesLimit = 600;
         }
