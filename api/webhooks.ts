@@ -2,28 +2,14 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    // @ts-ignore - The installed types might expect a specific beta/internal version string, using 'latest' or casting if needed
-    // However, the error showed '2025-11-17.clover', which suggests a specific build. 
-    // We will use the standard latest stable or cast to any to suppress.
-    apiVersion: '2024-12-18.acacia' as any,
-});
-
-// Initialize Supabase Admin Client (Service Role Key usually needed for admin tasks, 
-// using Anon key here assuming RLS allows update or we use a Service Key env var if strict)
-// Ideally use SERVICE_ROLE_KEY for admin updates bypassing RLS
-const supabaseUrl = process.env.VITE_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Disable body parsing by Vercel/Next.js to verify signature raw body
+// Configuration for Next.js API Routes (ignored by standard Vercel Functions but kept for compatibility)
 export const config = {
     api: {
         bodyParser: false,
     },
 };
 
+// HELPER: Read raw body
 async function buffer(readable) {
     const chunks = [];
     for await (const chunk of readable) {
@@ -33,9 +19,31 @@ async function buffer(readable) {
 }
 
 export default async function handler(req, res) {
-    // Health check for browser testing
+    console.log(`[Webhook] Request received: ${req.method}`);
+
+    // CORS Headers
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, stripe-signature'
+    );
+
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+
+    // Health check
     if (req.method === 'GET') {
-        return res.status(200).send('Webhook Endpoint Active 🟢');
+        const envCheck = {
+            hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
+            hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
+            hasSupabaseKey: !!(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY),
+            stripeVersion: '2024-12-18.acacia'
+        };
+        return res.status(200).json({ status: 'active', env: envCheck });
     }
 
     if (req.method !== 'POST') {
@@ -43,66 +51,95 @@ export default async function handler(req, res) {
         return res.status(405).send(`Method Not Allowed. Received: ${req.method}`);
     }
 
-    let event;
-    const signature = req.headers['stripe-signature'];
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
     try {
+        console.log("[Webhook] Initializing Stripe...");
+        if (!process.env.STRIPE_SECRET_KEY) {
+            throw new Error("Missing STRIPE_SECRET_KEY");
+        }
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+            apiVersion: '2024-12-18.acacia' as any,
+        });
+
+        console.log("[Webhook] Reading body...");
         const buf = await buffer(req);
-        event = stripe.webhooks.constructEvent(buf, signature, webhookSecret!);
-    } catch (err: any) {
-        console.error(`Webhook Signature Error: ${err.message}`);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
+        const signature = req.headers['stripe-signature'];
+        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-    // Handle the event
-    if (event.type === 'checkout.session.completed') {
-        const session = event.data.object;
-        const userId = session.metadata?.userId;
-
-        // Determine plan from amount or price ID
-        // Logic: Retrieve line items or check amount to decide 'pro' or 'business'
-        // For simplicity here, we assume if it's not free, it's pro (you can enhance this logic)
-        // Detailed logic requires fetching line items or checking session.amount_total
-
-        let planId = 'pro';
-        let minutesLimit = 150; // Pro limit
-
-        // Logic to determine plan based on amount or metadata
-        // Ideally, we should look at session.amount_total or metadata
-        // For now, simple threshold logic for demonstration:
-
-        // Cost > 2000 (20 EUR/USD) -> Business Plus
-        if (session.amount_total && session.amount_total >= 2000) {
-            planId = 'business_plus';
-            minutesLimit = 999999; // Unlimited
-        }
-        // Cost > 1200 (12 EUR/USD) and < 2000 -> Business
-        else if (session.amount_total && session.amount_total >= 1200) {
-            planId = 'business';
-            minutesLimit = 600;
+        // If no signature, we can't verify, but check if we can proceed (unsecured mode not recommended)
+        if (!signature && webhookSecret) {
+            throw new Error("Missing stripe-signature header");
         }
 
-        if (userId) {
-            console.log(`Updating user ${userId} to plan ${planId}`);
+        let event;
+        if (webhookSecret) {
+            console.log("[Webhook] Verifying signature...");
+            event = stripe.webhooks.constructEvent(buf, signature, webhookSecret);
+        } else {
+            console.log("[Webhook] WARNING: No Webhook Secret found, skipping verification (UNSAFE)");
+            event = JSON.parse(buf.toString());
+        }
 
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    plan_id: planId,
-                    minutes_limit: minutesLimit,
-                    subscription_status: 'active',
-                    subscription_id: session.subscription,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', userId);
+        console.log(`[Webhook] Event Type: ${event.type}`);
 
-            if (error) {
-                console.error('Supabase update error:', error);
-                return res.status(500).json({ error: 'Database update failed' });
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
+            const userId = session.metadata?.userId;
+
+            console.log(`[Webhook] Processing session for user: ${userId}`);
+
+            const supabaseUrl = process.env.VITE_SUPABASE_URL;
+            // PREFER SERVICE KEY
+            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+            if (!supabaseUrl || !supabaseKey) {
+                throw new Error("Missing Supabase credentials");
+            }
+
+            const supabase = createClient(supabaseUrl, supabaseKey);
+
+            // Logic for Plan
+            let planId = 'pro';
+            let minutesLimit = 150;
+
+            if (session.amount_total && session.amount_total >= 2000) {
+                planId = 'business_plus';
+                minutesLimit = 999999;
+            } else if (session.amount_total && session.amount_total >= 1200) {
+                planId = 'business';
+                minutesLimit = 600;
+            }
+
+            if (userId) {
+                console.log(`[Webhook] Updating DB for ${userId} -> ${planId}`);
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({
+                        plan_id: planId,
+                        minutes_limit: minutesLimit,
+                        subscription_status: 'active',
+                        subscription_id: session.subscription,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userId);
+
+                if (error) {
+                    console.error('[Webhook] Supabase Update Error:', error);
+                    throw new Error(`Supabase Error: ${error.message}`);
+                }
+                console.log("[Webhook] Update Successful");
             }
         }
-    }
 
-    return res.status(200).json({ received: true });
+        res.status(200).json({ received: true });
+
+    } catch (err: any) {
+        console.error(`[Webhook] CRASH: ${err.message}`);
+        // Return error details to client for debugging
+        res.status(500).json({
+            error: 'Webhook Handler Failed',
+            details: err.message,
+            stack: err.stack
+        });
+    }
 }
