@@ -229,20 +229,13 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             <span className="bg-white dark:bg-background-dark px-3 text-sm font-medium text-slate-500 dark:text-text-secondary">{t('continueWith')}</span>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         <button
                             onClick={() => handleSocialClick('google')}
                             disabled={isLoggingIn}
                             className="flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-[#25324a] transition-colors relative">
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
                             <span className="text-sm font-medium text-slate-700 dark:text-white">Google</span>
-                        </button>
-                        <button
-                            onClick={() => handleSocialClick('azure')}
-                            disabled={isLoggingIn}
-                            className="flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-[#25324a] transition-colors">
-                            <img src="https://www.svgrepo.com/show/355117/microsoft.svg" className="w-5 h-5" alt="Microsoft" />
-                            <span className="text-sm font-medium text-slate-700 dark:text-white">Microsoft</span>
                         </button>
                     </div>
 

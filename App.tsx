@@ -14,6 +14,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { uploadAudio } from './services/storageService';
+import { Dialer } from './components/Dialer';
 
 const AppContent: React.FC = () => {
     const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.LOGIN);
@@ -336,6 +337,9 @@ const AppContent: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Global VoIP Dialer - Only for Business Plus */}
+            {user && user.subscription?.planId === 'business_plus' && <Dialer />}
         </ThemeProvider>
     );
 };
