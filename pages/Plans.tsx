@@ -41,24 +41,41 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
         // Note: In a real app, you'd have 6 Price IDs (3 plans * 2 intervals).
         // For MVP, we'll assume Monthly IDs for now or use Env Vars mapping.
 
-        switch (planType) {
-            case 'pro':
-                priceId = import.meta.env.VITE_STRIPE_PRICE_PRO;
-                break;
-            case 'business':
-                priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS;
-                break;
-            case 'business_plus':
-                priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS;
-                break;
+        if (billingInterval === 'monthly') {
+            switch (planType) {
+                case 'pro':
+                    priceId = import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY;
+                    break;
+                case 'business':
+                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY;
+                    break;
+                case 'business_plus':
+                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY;
+                    break;
+            }
+        } else {
+            // Annual
+            switch (planType) {
+                case 'pro':
+                    priceId = import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL;
+                    break;
+                case 'business':
+                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL;
+                    break;
+                case 'business_plus':
+                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL;
+                    break;
+            }
         }
 
         if (!priceId) {
             // Debugging Aid: Show exactly which key failed
+            const suffix = billingInterval === 'monthly' ? '_MONTHLY' : '_ANNUAL';
             let debugKey = '';
-            if (planType === 'pro') debugKey = 'VITE_STRIPE_PRICE_PRO';
-            else if (planType === 'business') debugKey = 'VITE_STRIPE_PRICE_BUSINESS';
-            else debugKey = 'VITE_STRIPE_PRICE_BUSINESS_PLUS';
+
+            if (planType === 'pro') debugKey = `VITE_STRIPE_PRICE_PRO${suffix}`;
+            else if (planType === 'business') debugKey = `VITE_STRIPE_PRICE_BUSINESS${suffix}`;
+            else debugKey = `VITE_STRIPE_PRICE_BUSINESS_PLUS${suffix}`;
 
             alert(`Error: Price ID not configured! \nTesting Key: ${debugKey} \nValue: ${priceId || 'undefined'}`);
             return;
