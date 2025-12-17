@@ -344,6 +344,6 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                 </div>
             </div>
         </div>
-        </div >
+
     );
 };
