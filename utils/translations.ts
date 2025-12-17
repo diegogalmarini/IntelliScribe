@@ -125,7 +125,12 @@ export const translations = {
     callEnded: "Call Ended",
     voipFeatureDesc: "Make calls directly from browser. Works with AirPods.",
     callingAs: "Calling as",
+    callingAs: "Calling as",
     setupCallerId: "Set up Caller ID",
+    restricted: "Restricted",
+    callerIdRequiredTitle: "Caller ID Required",
+    verifyPhoneRecordingMessage: "You cannot record conversations until you verify your number.",
+    goToSettings: "Go to Settings",
 
     // Editor
     back: "Back",
@@ -381,7 +386,12 @@ export const translations = {
     callEnded: "Llamada Finalizada",
     voipFeatureDesc: "Llama directo desde el navegador. Funciona con AirPods.",
     callingAs: "Llamando como",
+    callingAs: "Llamando como",
     setupCallerId: "Configurar Caller ID",
+    restricted: "Restringido",
+    callerIdRequiredTitle: "Identificador Requerido",
+    verifyPhoneRecordingMessage: "No puedes grabar conversaciones hasta no verificar tu número.",
+    goToSettings: "Ir a Configuración",
 
     // Editor
     back: "Volver",

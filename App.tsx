@@ -26,6 +26,8 @@ const AppContent: React.FC = () => {
         isResetPassword ? AppRoute.RESET_PASSWORD : AppRoute.LOGIN
     );
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     // --- STATE INITIALIZATION ---
     const { user: supabaseUser, signOut } = useAuth();
     const [isLoadingData, setIsLoadingData] = useState(false);
@@ -169,6 +171,7 @@ const AppContent: React.FC = () => {
 
     const navigate = (route: AppRoute) => {
         setCurrentRoute(route);
+        setIsSidebarOpen(false); // Close sidebar on navigation on mobile
     };
 
     const handleLogout = async () => {
@@ -347,11 +350,26 @@ const AppContent: React.FC = () => {
                         onAddFolder={handleAddFolder}
                         onDeleteFolder={handleDeleteFolder}
                         user={user}
+                        isOpen={isSidebarOpen}
+                        onClose={() => setIsSidebarOpen(false)}
                     />
                 )}
 
                 {/* Main Content Area */}
-                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+
+                    {/* Mobile Header Toggle */}
+                    {currentRoute !== AppRoute.LOGIN && currentRoute !== AppRoute.RESET_PASSWORD && (
+                        <div className="md:hidden flex items-center p-4 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg"
+                            >
+                                <span className="material-symbols-outlined">menu</span>
+                            </button>
+                            <span className="ml-2 font-bold text-lg text-primary">Diktalo</span>
+                        </div>
+                    )}
                     {currentRoute === AppRoute.DASHBOARD && (
                         <Dashboard
                             user={user}
