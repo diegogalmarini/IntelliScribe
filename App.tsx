@@ -329,7 +329,7 @@ const AppContent: React.FC = () => {
         <ThemeProvider>
             <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200">
                 {/* Sidebar */}
-                {currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && (
+                {currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && (
                     <Sidebar
                         currentRoute={currentRoute}
                         onNavigate={navigate}
