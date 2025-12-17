@@ -100,3 +100,24 @@ create policy "Users can CRUD own recordings"
 -- create policy "Users can view own recordings"
 -- on storage.objects for select
 -- using ( bucket_id = 'recordings' and auth.uid()::text = (storage.foldername(name))[1] );
+
+-- 4. AVATARS BUCKET POLICIES
+-- 1. Crear el bucket 'avatars' si no existe
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+-- 2. Permitir que cualquiera VEA los avatares (público)
+create policy "Avatar images are publicly accessible."
+  on storage.objects for select
+  using ( bucket_id = 'avatars' );
+
+-- 3. Permitir que usuarios autenticados SUBAN su propio avatar
+create policy "Users can upload their own avatar."
+  on storage.objects for insert
+  with check ( bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1] );
+
+-- 4. Permitir que usuarios autenticados ACTUALICEN su propio avatar
+create policy "Users can update their own avatar."
+  on storage.objects for update
+  using ( bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1] );
