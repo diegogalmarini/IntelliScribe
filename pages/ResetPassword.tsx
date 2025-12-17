@@ -69,6 +69,28 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
         }
     };
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // ... (keep useEffect and handleSubmit)
+
+    // Helper for toggle button
+    const toggleButton = (show: boolean, setShow: (s: boolean) => void) => (
+        <button
+            type="button"
+            onClick={(e) => {
+                e.preventDefault();
+                setShow(!show);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none"
+            title={show ? "Hide password" : "Show password"}
+        >
+            <span className="material-symbols-outlined text-xl">
+                {show ? 'visibility' : 'visibility_off'}
+            </span>
+        </button>
+    );
+
     return (
         <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto mt-20 p-8 bg-white dark:bg-surface-dark rounded-2xl shadow-xl border border-slate-100 dark:border-border-dark animate-fade-in-up">
             <div className="mb-8 text-center">
@@ -85,28 +107,38 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
 
             <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
                 <label className="flex flex-col gap-2">
-                    <span className="text-sm font-semibold text-slate-700 dark:text-white">New Password</span>
-                    <input
-                        className="w-full rounded-lg border border-slate-300 dark:border-border-dark bg-slate-50 dark:bg-surface-dark px-4 h-12 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={loading}
-                        required
-                    />
+                    <span className="text-sm font-semibold text-slate-700 dark:text-white">
+                        {t('newPasswordLabel') || 'New Password'}
+                    </span>
+                    <div className="relative">
+                        <input
+                            className="w-full rounded-lg border border-slate-300 dark:border-border-dark bg-slate-50 dark:bg-surface-dark px-4 h-12 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors pr-12"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
+                            required
+                        />
+                        {toggleButton(showPassword, setShowPassword)}
+                    </div>
                 </label>
                 <label className="flex flex-col gap-2">
-                    <span className="text-sm font-semibold text-slate-700 dark:text-white">Confirm Password</span>
-                    <input
-                        className="w-full rounded-lg border border-slate-300 dark:border-border-dark bg-slate-50 dark:bg-surface-dark px-4 h-12 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
-                        type="password"
-                        placeholder="••••••••"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        disabled={loading}
-                        required
-                    />
+                    <span className="text-sm font-semibold text-slate-700 dark:text-white">
+                        {t('confirmPasswordLabel') || 'Confirm Password'}
+                    </span>
+                    <div className="relative">
+                        <input
+                            className="w-full rounded-lg border border-slate-300 dark:border-border-dark bg-slate-50 dark:bg-surface-dark px-4 h-12 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors pr-12"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            disabled={loading}
+                            required
+                        />
+                        {toggleButton(showConfirmPassword, setShowConfirmPassword)}
+                    </div>
                 </label>
 
                 {success && (
