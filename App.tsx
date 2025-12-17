@@ -96,6 +96,8 @@ const AppContent: React.FC = () => {
                         firstName: data.first_name || prev.firstName,
                         lastName: data.last_name || prev.lastName,
                         avatarUrl: data.avatar_url || prev.avatarUrl,
+                        phone: data.phone || prev.phone,
+                        phoneVerified: data.phone_verified || false,
                         subscription: {
                             ...prev.subscription,
                             planId: data.plan_id || 'free',
