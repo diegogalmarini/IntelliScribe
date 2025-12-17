@@ -95,6 +95,7 @@ const AppContent: React.FC = () => {
                         email: supabaseUser.email || prev.email,
                         firstName: data.first_name || prev.firstName,
                         lastName: data.last_name || prev.lastName,
+                        avatarUrl: data.avatar_url || prev.avatarUrl,
                         subscription: {
                             ...prev.subscription,
                             planId: data.plan_id || 'free',
