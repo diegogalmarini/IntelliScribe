@@ -4,6 +4,7 @@ import { UserProfile } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { uploadAvatar } from '../services/storageService';
 
 type SettingsTab = 'profile' | 'security' | 'notifications';
 
@@ -112,21 +113,14 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
         // Upload avatar if a new file is selected
         if (selectedFile) {
-            // Needed to import uploadAvatar. Since I can't add imports easily in this chunk, 
-            // I will assume it's passed or I need to import it. 
-            // Wait, I can't import it here seamlessly without editing imports.
-            // I will assume I need to do a separate edit for imports or use the prop if passed? 
-            // No, better to use the imported service. 
-            // I'll update imports in a separate call or hack it?
-            // I'll do a separate call for imports. For now, let's assume `import { uploadAvatar } from '../services/storageService';` is there.
             try {
-                const { uploadAvatar } = await import('../services/storageService');
                 const uploadedUrl = await uploadAvatar(selectedFile, user.id);
                 if (uploadedUrl) {
                     finalAvatarUrl = uploadedUrl;
                 }
             } catch (err) {
                 console.error("Avatar upload failed", err);
+                setFeedback({ message: "Failed to upload avatar image.", type: 'error' });
             }
         }
 
