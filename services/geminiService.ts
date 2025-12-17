@@ -2,14 +2,22 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { TranscriptSegment } from "../types";
 
-// Safe access to API Key to prevent "process is not defined" crashes in browser
+// Safe access to API Key
 const getApiKey = () => {
+  // 1. Check Vite env vars (Client Side)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    if (import.meta.env.VITE_GEMINI_API_KEY) return import.meta.env.VITE_GEMINI_API_KEY;
+    if (import.meta.env.VITE_API_KEY) return import.meta.env.VITE_API_KEY;
+  }
+
+  // 2. Check Process env vars (Server Side or standard Node)
   try {
     if (typeof process !== 'undefined' && process.env) {
-      return process.env.API_KEY || '';
+      if (process.env.GEMINI_API_KEY) return process.env.GEMINI_API_KEY;
+      if (process.env.API_KEY) return process.env.API_KEY;
     }
   } catch (e) {
-    console.warn("Environment variable access failed", e);
+    // Ignore error
   }
   return '';
 };
@@ -19,11 +27,11 @@ const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 export const generateMeetingSummary = async (transcript: string, language: 'en' | 'es' = 'en'): Promise<string> => {
   const apiKey = getApiKey();
-  
+
   // Return mock summary if no key to prevent crashing in demo
   if (!apiKey) {
-      if (language === 'es') {
-          return new Promise(resolve => setTimeout(() => resolve(`## Resumen Ejecutivo
+    if (language === 'es') {
+      return new Promise(resolve => setTimeout(() => resolve(`## Resumen Ejecutivo
 Este es un resumen simulado porque no se configuró ninguna API Key. La reunión se centró en revisar el rendimiento del Q3 y definir objetivos estratégicos para el Q4.
 
 ## Decisiones Clave
@@ -34,8 +42,8 @@ Este es un resumen simulado porque no se configuró ninguna API Key. La reunión
 1. **Sarah:** Actualizar el tablero de Jira con los nuevos hitos para el viernes.
 2. **Mike:** Enviar el contrato revisado al equipo legal.
 3. **Todos:** Revisar la nueva documentación de cumplimiento antes de la próxima sincronización.`), 2000));
-      }
-      return new Promise(resolve => setTimeout(() => resolve(`## Executive Summary
+    }
+    return new Promise(resolve => setTimeout(() => resolve(`## Executive Summary
 This is a simulated AI summary because no API Key was configured. The meeting focused on reviewing Q3 performance and outlining strategic goals for Q4.
 
 ## Key Decisions
@@ -48,7 +56,7 @@ This is a simulated AI summary because no API Key was configured. The meeting fo
 3. **All:** Review the new compliance documentation before the next sync.`), 2000));
   }
 
-  const prompt = language === 'es' 
+  const prompt = language === 'es'
     ? `Eres un asistente ejecutivo experto. Analiza la siguiente transcripción de reunión y proporciona un resumen estructurado que incluya: 1. Resumen Ejecutivo, 2. Decisiones Clave, 3. Tareas (Action Items). Usa formato Markdown y responde en ESPAÑOL.`
     : `You are an expert executive assistant. Analyze the following meeting transcript and provide a structured summary including: 1. Executive Summary, 2. Key Decisions, 3. Action Items. Use Markdown formatting.`;
 
@@ -71,8 +79,8 @@ This is a simulated AI summary because no API Key was configured. The meeting fo
 };
 
 export const chatWithTranscript = async (
-  transcript: string, 
-  history: { role: 'user' | 'model', text: string }[], 
+  transcript: string,
+  history: { role: 'user' | 'model', text: string }[],
   newMessage: string,
   language: 'en' | 'es' = 'en'
 ): Promise<string> => {
@@ -116,48 +124,48 @@ export const chatWithTranscript = async (
 };
 
 export const transcribeAudio = async (audioBase64: string, mimeType: string, language: 'en' | 'es' = 'en'): Promise<Partial<TranscriptSegment>[]> => {
-    const apiKey = getApiKey();
-    // Return mock data if no key to prevent crashing in demo
-    if (!apiKey) {
-        return new Promise(resolve => setTimeout(() => resolve([
-            { timestamp: '00:01', speaker: 'Speaker 1', text: language === 'es' ? 'Esta es una transcripción simulada porque no se encontró API Key.' : 'This is a simulated transcription because no API Key was found.' },
-            { timestamp: '00:05', speaker: 'Speaker 2', text: language === 'es' ? 'Por favor configura tu API Key de Gemini en las variables de entorno.' : 'Please configure your Gemini API Key in the environment variables to use real audio transcription.' }
-        ]), 2000));
-    }
+  const apiKey = getApiKey();
+  // Return mock data if no key to prevent crashing in demo
+  if (!apiKey) {
+    return new Promise(resolve => setTimeout(() => resolve([
+      { timestamp: '00:01', speaker: 'Speaker 1', text: language === 'es' ? 'Esta es una transcripción simulada porque no se encontró API Key.' : 'This is a simulated transcription because no API Key was found.' },
+      { timestamp: '00:05', speaker: 'Speaker 2', text: language === 'es' ? 'Por favor configura tu API Key de Gemini en las variables de entorno.' : 'Please configure your Gemini API Key in the environment variables to use real audio transcription.' }
+    ]), 2000));
+  }
 
-    try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: {
-                parts: [
-                    { 
-                        inlineData: { 
-                            mimeType: mimeType || 'audio/mp3', // Use detected mimeType or safe default
-                            data: audioBase64 
-                        } 
-                    },
-                    { 
-                        text: `Transcribe this audio conversation. 
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              mimeType: mimeType || 'audio/mp3', // Use detected mimeType or safe default
+              data: audioBase64
+            }
+          },
+          {
+            text: `Transcribe this audio conversation. 
                         Return a JSON array of objects. 
                         Each object must have:
                         - "timestamp" (string in format MM:SS)
                         - "speaker" (string like "Speaker 1", "Speaker 2")
                         - "text" (string, the spoken content)
-                        ` 
-                    }
-                ]
-            },
-            config: {
-                responseMimeType: 'application/json'
-            }
-        });
+                        `
+          }
+        ]
+      },
+      config: {
+        responseMimeType: 'application/json'
+      }
+    });
 
-        const text = response.text;
-        if (!text) throw new Error("Empty response from AI");
-        
-        return JSON.parse(text);
-    } catch (error) {
-        console.error("Transcription Error:", error);
-        throw error;
-    }
+    const text = response.text;
+    if (!text) throw new Error("Empty response from AI");
+
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Transcription Error:", error);
+    throw error;
+  }
 };
