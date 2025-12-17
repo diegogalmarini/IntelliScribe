@@ -27,6 +27,8 @@ export const translations = {
     passwordResetSent: "Password reset link sent! Check your email.",
     resetPassword: "Reset Password",
     enterNewPassword: "Enter your new password below.",
+    newPasswordLabel: "New Password",
+    confirmPasswordLabel: "Confirm Password",
 
     // Sidebar
     dashboard: "Dashboard",
@@ -281,6 +283,8 @@ export const translations = {
     passwordResetSent: "¡Enlace enviado! Revisa tu correo.",
     resetPassword: "Restablecer Contraseña",
     enterNewPassword: "Introduce tu nueva contraseña abajo.",
+    newPasswordLabel: "Nueva Contraseña",
+    confirmPasswordLabel: "Confirmar Contraseña",
 
     // Sidebar
     dashboard: "Inicio", // Changed from Panel de Control
