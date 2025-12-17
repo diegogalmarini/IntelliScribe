@@ -22,6 +22,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     // Form State
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
 
@@ -100,6 +101,31 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         }
     };
 
+
+    const handleForgotPassword = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!email) {
+            setError(t('enterEmailFirst') || 'Please enter your email address first.');
+            return;
+        }
+
+        try {
+            setIsLoggingIn(true);
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+
+            if (error) throw error;
+
+            alert(t('passwordResetSent') || 'Password reset link sent to your email!');
+        } catch (err: any) {
+            console.error("Reset pwd error:", err);
+            setError(err.message);
+        } finally {
+            setIsLoggingIn(false);
+        }
+    };
+
     return (
         <div className="flex flex-1 w-full min-h-screen bg-background-light dark:bg-background-dark transition-colors duration-200">
             {/* Left Side: Auth Form */}
@@ -167,25 +193,48 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 disabled={isLoggingIn}
                             />
                         </label>
+
+
+
                         <label className="flex flex-col gap-2">
                             <div className="flex justify-between items-center">
                                 <span className="text-sm font-semibold text-slate-700 dark:text-white">{t('passwordLabel')}</span>
-                                {!isSignUp && <a className="text-sm font-medium text-primary hover:text-primary-hover transition-colors" href="#">{t('forgotPass')}</a>}
+                                {!isSignUp && (
+                                    <button
+                                        type="button"
+                                        onClick={handleForgotPassword}
+                                        className="text-sm font-medium text-primary hover:text-primary-hover transition-colors focus:outline-none"
+                                    >
+                                        {t('forgotPass')}
+                                    </button>
+                                )}
                             </div>
                             <div className="relative flex items-center">
                                 <input
                                     className="w-full rounded-lg border border-slate-300 dark:border-border-dark bg-slate-50 dark:bg-surface-dark px-4 h-12 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-text-secondary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors pr-12"
                                     placeholder="••••••••"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={isLoggingIn}
                                 />
-                                <button className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 dark:text-text-secondary dark:hover:text-white transition-colors" type="button">
-                                    <span className="material-symbols-outlined text-[20px]">visibility_off</span>
+                                <button
+                                    className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 dark:text-text-secondary dark:hover:text-white transition-colors focus:outline-none z-10"
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault(); // Prevent any form submission or weirdness
+                                        e.stopPropagation();
+                                        setShowPassword(!showPassword);
+                                    }}
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                        {showPassword ? 'visibility' : 'visibility_off'}
+                                    </span>
                                 </button>
                             </div>
                         </label>
+
+
 
                         {error && <p className="text-red-500 text-sm font-medium animate-pulse">{error}</p>}
 
