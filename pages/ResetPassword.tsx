@@ -139,4 +139,5 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
             </form>
         </div>
     );
-}; `
+};
+
