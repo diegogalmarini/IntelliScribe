@@ -163,168 +163,184 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                         </div>
                     </div>
 
-                    {/* Pricing Cards Grid (4 Columns) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-12">
+    // --- Plan Hierarchy Logic ---
+                    const PLAN_LEVELS = {
+                        'free': 0,
+                    'pro': 1,
+                    'business': 2,
+                    'business_plus': 3
+    };
 
-                        {/* 1. FREE PLAN - GREY */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl ${user.subscription.planId === 'free' ? 'border-brand-grey ring-1 ring-brand-grey shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-grey/50'}`}>
-                            <div className="h-2 w-full bg-brand-grey"></div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h4 className="text-lg font-bold text-brand-grey dark:text-slate-200">{t('freeTitle')}</h4>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('freeDesc')}</p>
-                                    </div>
-                                    {user.subscription.planId === 'free' && <span className="bg-brand-grey text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase">Active</span>}
-                                </div>
+                    const currentLevel = PLAN_LEVELS[user.subscription.planId] || 0;
 
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">{formatPrice(0)}</p>
-                                    <p className="text-slate-400 text-[10px] mt-1 uppercase tracking-wide font-medium">{t('currency')}</p>
-                                </div>
+    const getButtonLabel = (targetPlan: 'free' | 'pro' | 'business' | 'business_plus') => {
+        if (user.subscription.planId === targetPlan) return 'Current Plan';
+                    const targetLevel = PLAN_LEVELS[targetPlan];
+        if (currentLevel > targetLevel) return 'Downgrade';
+                    return t('subscribe');
+    };
 
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('freeF1'), t('freeF2'), t('freeF3')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-xs">
-                                                <span className="material-symbols-outlined text-brand-grey dark:text-slate-400 text-sm font-bold">check</span>
-                                                <span className="leading-tight">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                    // ... (rendering code)
+
+                    {/* 1. FREE PLAN - GREY */}
+                    <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl ${user.subscription.planId === 'free' ? 'border-brand-grey ring-1 ring-brand-grey shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-grey/50'}`}>
+                        <div className="h-2 w-full bg-brand-grey"></div>
+                        <div className="p-6 flex flex-col h-full">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h4 className="text-lg font-bold text-brand-grey dark:text-slate-200">{t('freeTitle')}</h4>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('freeDesc')}</p>
                                 </div>
-                                <button disabled={user.subscription.planId === 'free'} className="w-full py-3 rounded-xl border border-brand-grey text-brand-grey dark:text-slate-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-xs uppercase tracking-wider">
-                                    {user.subscription.planId === 'free' ? 'Current Plan' : 'Downgrade'}
-                                </button>
+                                {user.subscription.planId === 'free' && <span className="bg-brand-grey text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase">Active</span>}
                             </div>
-                        </div>
 
-                        {/* 2. PRO PLAN - VIOLET (#8F53ED) */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'pro' ? 'border-brand-violet ring-1 ring-brand-violet shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-violet/50'}`}>
-                            <div className="h-2 w-full bg-brand-violet"></div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="text-lg font-bold text-slate-900 dark:text-white">{t('proTitle')}</h4>
-                                            <span className="text-[10px] font-bold text-white bg-brand-violet px-2 py-0.5 rounded-full">{t('proBadge')}</span>
-                                        </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('proDesc')}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 9 : 12)}
-                                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
-                                    </p>
-                                    <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('proF1'), t('proF2'), t('proF3')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
-                                                <span className="material-symbols-outlined text-brand-violet text-sm font-bold">check</span>
-                                                <span className="leading-tight">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button
-                                    onClick={() => handleSubscribe('pro')}
-                                    disabled={user.subscription.planId === 'pro'}
-                                    className="w-full py-3 rounded-xl bg-brand-violet hover:bg-[#7a42d1] text-white font-bold transition-colors text-xs uppercase tracking-wider shadow-md shadow-brand-violet/20 disabled:opacity-50 disabled:cursor-default">
-                                    {user.subscription.planId === 'pro' ? 'Current Plan' : t('subscribe')}
-                                </button>
+                            <div className="mt-4 mb-6">
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">{formatPrice(0)}</p>
+                                <p className="text-slate-400 text-[10px] mt-1 uppercase tracking-wide font-medium">{t('currency')}</p>
                             </div>
-                        </div>
 
-                        {/* 3. BUSINESS - BLUE (#2CA3FF) */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'business' ? 'border-brand-blue ring-1 ring-brand-blue shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-blue/50'}`}>
-                            <div className="h-2 w-full bg-brand-blue"></div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="text-lg font-bold text-slate-900 dark:text-white">{t('bizTitle')}</h4>
-                                            <span className="text-[10px] font-bold text-white bg-brand-blue px-2 py-0.5 rounded-full">{t('bizBadge')}</span>
-                                        </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('bizDesc')}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 15 : 19)}
-                                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
-                                    </p>
-                                    <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('bizF1'), t('bizF2'), t('bizF3'), t('bizF4')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
-                                                <span className="material-symbols-outlined text-brand-blue text-sm font-bold">verified</span>
-                                                <span className="leading-tight font-medium">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button
-                                    onClick={() => handleSubscribe('business')}
-                                    disabled={user.subscription.planId === 'business'}
-                                    className="w-full py-3 rounded-xl bg-brand-blue hover:bg-[#208ade] text-white font-bold transition-all shadow-md shadow-brand-blue/25 text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-default">
-                                    {user.subscription.planId === 'business' ? 'Current Plan' : t('subscribe')}
-                                </button>
+                            <div className="flex-1">
+                                <ul className="flex flex-col gap-3 mb-8">
+                                    {[t('freeF1'), t('freeF2'), t('freeF3')].map((feat, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-xs">
+                                            <span className="material-symbols-outlined text-brand-grey dark:text-slate-400 text-sm font-bold">check</span>
+                                            <span className="leading-tight">{feat}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
+                            <button disabled={user.subscription.planId === 'free'} className="w-full py-3 rounded-xl border border-brand-grey text-brand-grey dark:text-slate-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-xs uppercase tracking-wider">
+                                {getButtonLabel('free')}
+                            </button>
                         </div>
-
-                        {/* 4. BUSINESS + CALLS - GREEN (#39F672) */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'business_plus' ? 'border-brand-green ring-1 ring-brand-green shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-green/50'}`}>
-                            <div className="h-2 w-full bg-brand-green"></div>
-                            <div className="p-6 flex flex-col h-full bg-gradient-to-b from-brand-green/5 to-transparent">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <h4 className="text-lg font-black text-slate-900 dark:text-white">{t('bizPlusTitle')}</h4>
-                                            <span className="text-[10px] font-bold text-slate-900 bg-brand-green px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">{t('bizPlusBadge')}</span>
-                                        </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 min-h-[32px]">{t('bizPlusDesc')}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 25 : 35)}
-                                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
-                                    </p>
-                                    <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('bizPlusF1'), t('bizPlusF2'), t('bizPlusF3')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
-                                                <span className="material-symbols-outlined text-brand-green text-sm font-bold">stars</span>
-                                                <span className="leading-tight font-bold">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button
-                                    onClick={() => handleSubscribe('business_plus')}
-                                    disabled={user.subscription.planId === 'business_plus'}
-                                    className="w-full py-3 rounded-xl bg-brand-green hover:bg-brand-green/90 text-slate-900 font-bold transition-all shadow-md shadow-brand-green/25 text-xs uppercase tracking-wider transform group-hover:scale-105 disabled:opacity-50 disabled:cursor-default disabled:transform-none">
-                                    {user.subscription.planId === 'business_plus' ? 'Current Plan' : t('subscribe')}
-                                </button>
-                            </div>
-                        </div>
-
                     </div>
+
+                    {/* 2. PRO PLAN - VIOLET (#8F53ED) */}
+                    <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'pro' ? 'border-brand-violet ring-1 ring-brand-violet shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-violet/50'}`}>
+                        <div className="h-2 w-full bg-brand-violet"></div>
+                        <div className="p-6 flex flex-col h-full">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-lg font-bold text-slate-900 dark:text-white">{t('proTitle')}</h4>
+                                        <span className="text-[10px] font-bold text-white bg-brand-violet px-2 py-0.5 rounded-full">{t('proBadge')}</span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('proDesc')}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 mb-6">
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">
+                                    {formatPrice(billingInterval === 'annual' ? 9 : 12)}
+                                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
+                                </p>
+                                <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+                            </div>
+
+                            <div className="flex-1">
+                                <ul className="flex flex-col gap-3 mb-8">
+                                    {[t('proF1'), t('proF2'), t('proF3')].map((feat, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
+                                            <span className="material-symbols-outlined text-brand-violet text-sm font-bold">check</span>
+                                            <span className="leading-tight">{feat}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <button
+                                onClick={() => handleSubscribe('pro')}
+                                disabled={user.subscription.planId === 'pro'}
+                                className="w-full py-3 rounded-xl bg-brand-violet hover:bg-[#7a42d1] text-white font-bold transition-colors text-xs uppercase tracking-wider shadow-md shadow-brand-violet/20 disabled:opacity-50 disabled:cursor-default">
+                                {getButtonLabel('pro')}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 3. BUSINESS - BLUE (#2CA3FF) */}
+                    <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'business' ? 'border-brand-blue ring-1 ring-brand-blue shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-blue/50'}`}>
+                        <div className="h-2 w-full bg-brand-blue"></div>
+                        <div className="p-6 flex flex-col h-full">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-lg font-bold text-slate-900 dark:text-white">{t('bizTitle')}</h4>
+                                        <span className="text-[10px] font-bold text-white bg-brand-blue px-2 py-0.5 rounded-full">{t('bizBadge')}</span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('bizDesc')}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 mb-6">
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">
+                                    {formatPrice(billingInterval === 'annual' ? 15 : 19)}
+                                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
+                                </p>
+                                <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+                            </div>
+
+                            <div className="flex-1">
+                                <ul className="flex flex-col gap-3 mb-8">
+                                    {[t('bizF1'), t('bizF2'), t('bizF3'), t('bizF4')].map((feat, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
+                                            <span className="material-symbols-outlined text-brand-blue text-sm font-bold">verified</span>
+                                            <span className="leading-tight font-medium">{feat}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <button
+                                onClick={() => handleSubscribe('business')}
+                                disabled={user.subscription.planId === 'business'}
+                                className="w-full py-3 rounded-xl bg-brand-blue hover:bg-[#208ade] text-white font-bold transition-all shadow-md shadow-brand-blue/25 text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-default">
+                                {getButtonLabel('business')}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 4. BUSINESS + CALLS - GREEN (#39F672) */}
+                    <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'business_plus' ? 'border-brand-green ring-1 ring-brand-green shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-green/50'}`}>
+                        <div className="h-2 w-full bg-brand-green"></div>
+                        <div className="p-6 flex flex-col h-full bg-gradient-to-b from-brand-green/5 to-transparent">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h4 className="text-lg font-black text-slate-900 dark:text-white">{t('bizPlusTitle')}</h4>
+                                        <span className="text-[10px] font-bold text-slate-900 bg-brand-green px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">{t('bizPlusBadge')}</span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 min-h-[32px]">{t('bizPlusDesc')}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 mb-6">
+                                <p className="text-3xl font-black text-slate-900 dark:text-white">
+                                    {formatPrice(billingInterval === 'annual' ? 25 : 35)}
+                                    <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
+                                </p>
+                                <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+                            </div>
+
+                            <div className="flex-1">
+                                <ul className="flex flex-col gap-3 mb-8">
+                                    {[t('bizPlusF1'), t('bizPlusF2'), t('bizPlusF3')].map((feat, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
+                                            <span className="material-symbols-outlined text-brand-green text-sm font-bold">stars</span>
+                                            <span className="leading-tight font-bold">{feat}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <button
+                                onClick={() => handleSubscribe('business_plus')}
+                                disabled={user.subscription.planId === 'business_plus'}
+                                className="w-full py-3 rounded-xl bg-brand-green hover:bg-brand-green/90 text-slate-900 font-bold transition-all shadow-md shadow-brand-green/25 text-xs uppercase tracking-wider transform group-hover:scale-105 disabled:opacity-50 disabled:cursor-default disabled:transform-none">
+                                {getButtonLabel('business_plus')}
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
+        </div >
     );
 };
