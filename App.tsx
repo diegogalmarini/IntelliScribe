@@ -227,7 +227,9 @@ const AppContent: React.FC = () => {
         const updates: any = {};
         if (updatedUser.firstName) updates.first_name = updatedUser.firstName;
         if (updatedUser.lastName) updates.last_name = updatedUser.lastName;
-        if (updatedUser.avatarUrl) updates.avatar_url = updatedUser.avatarUrl; // Add avatar persistence
+        if (updatedUser.avatarUrl) updates.avatar_url = updatedUser.avatarUrl;
+        if (updatedUser.phone !== undefined) updates.phone = updatedUser.phone;
+        if (updatedUser.phoneVerified !== undefined) updates.phone_verified = updatedUser.phoneVerified;
         if (updatedUser.subscription?.planId) updates.plan_id = updatedUser.subscription.planId;
 
         if (Object.keys(updates).length > 0) {
