@@ -27,6 +27,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     const [lastName, setLastName] = useState('');
 
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     // Clear fields when toggling mode
@@ -117,7 +118,8 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
             if (error) throw error;
 
-            alert(t('passwordResetSent') || 'Password reset link sent to your email!');
+            setSuccessMessage(t('passwordResetSent'));
+            setError(''); // Clear any previous errors
         } catch (err: any) {
             console.error("Reset pwd error:", err);
             setError(err.message);
@@ -235,6 +237,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         </label>
 
 
+
+                        {successMessage && (
+                            <div className="bg-green-100 dark:bg-green-900/30 border border-green-400 text-green-700 dark:text-green-400 px-4 py-3 rounded relative animate-in fade-in slide-in-from-top-2" role="alert">
+                                <span className="block sm:inline text-sm font-medium">{successMessage}</span>
+                            </div>
+                        )}
 
                         {error && <p className="text-red-500 text-sm font-medium animate-pulse">{error}</p>}
 

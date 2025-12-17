@@ -24,6 +24,7 @@ export const translations = {
     heroTitle2: "Transcribe.",
     heroTitle3: "Analyze.",
     heroDesc: "Join 10,000+ professionals securing their spoken data with enterprise-grade AI.",
+    passwordResetSent: "Password reset link sent! Check your email.",
 
     // Sidebar
     dashboard: "Dashboard",
@@ -275,6 +276,7 @@ export const translations = {
     heroTitle2: "Transcribe.",
     heroTitle3: "Analiza.",
     heroDesc: "Únete a más de 10,000 profesionales que aseguran sus datos de voz con IA empresarial.",
+    passwordResetSent: "¡Enlace enviado! Revisa tu correo.",
 
     // Sidebar
     dashboard: "Inicio", // Changed from Panel de Control
