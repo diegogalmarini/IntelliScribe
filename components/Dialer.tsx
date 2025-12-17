@@ -106,11 +106,11 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
             {isRestricted ? (
                 <div className="p-8 flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 rounded-full flex items-center justify-center mb-4 text-orange-500">
-                        <span className="material-symbols-outlined text-3xl">no_cell</span>
+                        <span className="material-symbols-outlined text-3xl">phonelink_erase</span>
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Caller ID Required</h3>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{t('callerIdRequiredTitle')}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                        You must verify your mobile number before making outgoing calls.
+                        {t('verifyPhoneRecordingMessage')}
                     </p>
                     <button
                         onClick={() => {
@@ -119,7 +119,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
                         }}
                         className="w-full py-2 bg-brand-blue text-white rounded-lg font-bold shadow-md hover:bg-brand-blue/90"
                     >
-                        Go to Settings
+                        {t('goToSettings')}
                     </button>
                 </div>
             ) : (
