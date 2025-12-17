@@ -92,5 +92,6 @@ export enum AppRoute {
   INTEGRATIONS = 'integrations',
   SUBSCRIPTION = 'subscription',
   SETTINGS = 'settings',
-  MANUAL = 'manual'
+  MANUAL = 'manual',
+  RESET_PASSWORD = 'reset-password'
 }
