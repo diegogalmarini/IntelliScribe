@@ -24,3 +24,25 @@ export const uploadAudio = async (blob: Blob, userId: string): Promise<string | 
 
     return publicUrl;
 };
+
+export const uploadAvatar = async (file: File, userId: string): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`;
+
+    const { error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+            upsert: true
+        });
+
+    if (error) {
+        console.error('Error uploading avatar:', error);
+        return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+    return publicUrl;
+};

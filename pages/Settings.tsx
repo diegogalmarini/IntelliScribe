@@ -46,6 +46,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
     // Ref for the hidden file input
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     // Sync local state if user prop changes (e.g. initial load or external update)
     useEffect(() => {
@@ -64,9 +65,10 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
-                setAvatarUrl(reader.result as string);
+                setAvatarUrl(reader.result as string); // Preview
             };
             reader.readAsDataURL(file);
         }
@@ -95,12 +97,37 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
         setTimeout(() => setFeedback(null), 3000);
     };
 
-    const handleSave = () => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
         // Validate inputs
         if (!firstName.trim() || !lastName.trim() || !email.trim()) {
             setFeedback({ message: "Please fill in all required fields.", type: 'error' });
             setTimeout(() => setFeedback(null), 3000);
             return;
+        }
+
+        setIsSaving(true);
+        let finalAvatarUrl = avatarUrl;
+
+        // Upload avatar if a new file is selected
+        if (selectedFile) {
+            // Needed to import uploadAvatar. Since I can't add imports easily in this chunk, 
+            // I will assume it's passed or I need to import it. 
+            // Wait, I can't import it here seamlessly without editing imports.
+            // I will assume I need to do a separate edit for imports or use the prop if passed? 
+            // No, better to use the imported service. 
+            // I'll update imports in a separate call or hack it?
+            // I'll do a separate call for imports. For now, let's assume `import { uploadAvatar } from '../services/storageService';` is there.
+            try {
+                const { uploadAvatar } = await import('../services/storageService');
+                const uploadedUrl = await uploadAvatar(selectedFile, user.id);
+                if (uploadedUrl) {
+                    finalAvatarUrl = uploadedUrl;
+                }
+            } catch (err) {
+                console.error("Avatar upload failed", err);
+            }
         }
 
         // Update global state
@@ -110,9 +137,10 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
             email,
             phone,
             phoneVerified,
-            avatarUrl
+            avatarUrl: finalAvatarUrl
         });
 
+        setIsSaving(false);
         setFeedback({ message: "Changes saved successfully.", type: 'success' });
         setTimeout(() => setFeedback(null), 3000);
     };
@@ -471,8 +499,9 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                         <button
                                             type="button"
                                             onClick={handleSave}
-                                            className="px-6 py-2.5 rounded-lg bg-brand-blue hover:bg-brand-blue/90 text-white text-sm font-bold shadow-lg shadow-brand-blue/20 transition-all active:scale-95">
-                                            {t('saveChanges')}
+                                            disabled={isSaving}
+                                            className="px-6 py-2.5 rounded-lg bg-brand-blue hover:bg-brand-blue/90 text-white text-sm font-bold shadow-lg shadow-brand-blue/20 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-wait">
+                                            {isSaving ? 'Saving...' : t('saveChanges')}
                                         </button>
                                     </div>
                                 )}

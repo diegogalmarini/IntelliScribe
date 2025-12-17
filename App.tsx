@@ -148,7 +148,11 @@ const AppContent: React.FC = () => {
 
             // ONLY REDIRECT IF NOT IN RECOVERY MODE
             if (!isRecovery) {
-                navigate(AppRoute.DASHBOARD);
+                // BUG FIX: Only redirect to Dashboard if we are currently on the Login page
+                // This prevents unwanted redirects when switching tabs or refreshing on other protected routes
+                if (currentRoute === AppRoute.LOGIN) {
+                    navigate(AppRoute.DASHBOARD);
+                }
             } else {
                 navigate(AppRoute.RESET_PASSWORD);
             }
@@ -215,11 +219,15 @@ const AppContent: React.FC = () => {
 
     const handleUpdateUser = (updatedUser: Partial<UserProfile>) => {
         setUser(prev => ({ ...prev, ...updatedUser }));
-        if (updatedUser.firstName || updatedUser.lastName) {
-            supabase.from('profiles').update({
-                first_name: updatedUser.firstName || user.firstName,
-                last_name: updatedUser.lastName || user.lastName
-            }).eq('id', user.id).then(({ error }) => {
+
+        const updates: any = {};
+        if (updatedUser.firstName) updates.first_name = updatedUser.firstName;
+        if (updatedUser.lastName) updates.last_name = updatedUser.lastName;
+        if (updatedUser.avatarUrl) updates.avatar_url = updatedUser.avatarUrl; // Add avatar persistence
+        if (updatedUser.subscription?.planId) updates.plan_id = updatedUser.subscription.planId;
+
+        if (Object.keys(updates).length > 0) {
+            supabase.from('profiles').update(updates).eq('id', user.id).then(({ error }) => {
                 if (error) console.error("Profile update failed", error);
             });
         }
