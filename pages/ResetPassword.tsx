@@ -18,6 +18,18 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        // Check for specific error in URL (e.g. from a bad link)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const errorDescription = hashParams.get('error_description');
+        const errorCode = hashParams.get('error_code');
+
+        if (errorDescription) {
+            // Decoding the +, etc
+            setError(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+        }
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -127,5 +139,4 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
             </form>
         </div>
     );
-};
-```
+}; `
