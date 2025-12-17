@@ -425,7 +425,9 @@ const AppContent: React.FC = () => {
             </div>
 
             {/* Global VoIP Dialer - Only for Business Plus */}
-            {user && user.subscription?.planId === 'business_plus' && <Dialer />}
+            {user && user.subscription?.planId === 'business_plus' && (
+                <Dialer user={user} onNavigate={navigate} />
+            )}
         </ThemeProvider>
     );
 };
