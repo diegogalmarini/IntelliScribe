@@ -34,6 +34,24 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
         }
     };
 
+    // --- Plan Hierarchy Logic ---
+    const PLAN_LEVELS = {
+        'free': 0,
+        'pro': 1,
+        'business': 2,
+        'business_plus': 3
+    };
+
+    const currentLevel = PLAN_LEVELS[user.subscription?.planId || 'free'] || 0;
+
+    const getButtonLabel = (targetPlan: 'free' | 'pro' | 'business' | 'business_plus') => {
+        if (user.subscription?.planId === targetPlan) return t('currentPlan') || 'Current Plan';
+        const targetLevel = PLAN_LEVELS[targetPlan];
+        if (currentLevel > targetLevel) return t('downgrade') || 'Downgrade';
+        return t('subscribe');
+    };
+
+
     const handleSubscribe = async (planType: 'pro' | 'business' | 'business_plus') => {
         let priceId = '';
 
@@ -163,22 +181,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                         </div>
                     </div>
 
-    // --- Plan Hierarchy Logic ---
-                    const PLAN_LEVELS = {
-                        'free': 0,
-                    'pro': 1,
-                    'business': 2,
-                    'business_plus': 3
-    };
 
-                    const currentLevel = PLAN_LEVELS[user.subscription.planId] || 0;
-
-    const getButtonLabel = (targetPlan: 'free' | 'pro' | 'business' | 'business_plus') => {
-        if (user.subscription.planId === targetPlan) return 'Current Plan';
-                    const targetLevel = PLAN_LEVELS[targetPlan];
-        if (currentLevel > targetLevel) return 'Downgrade';
-                    return t('subscribe');
-    };
 
                     // ... (rendering code)
 
