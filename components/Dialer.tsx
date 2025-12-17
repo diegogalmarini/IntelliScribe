@@ -1,4 +1,4 @@
-```
+
 import React, { useState, useEffect } from 'react';
 import { callService } from '../services/callService';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,8 +12,8 @@ interface DialerProps {
 
 export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     // Removed useAuth hook, using prop user instead
-  const { t } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
+    const { t } = useLanguage();
+    const [isOpen, setIsOpen] = useState(false);
     const [number, setNumber] = useState('');
     const [status, setStatus] = useState('Idle'); // Idle, Ready, Calling, In Call, Error
     const [activeCall, setActiveCall] = useState<any>(null);
@@ -80,7 +80,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom - 6 right - 6 w - 14 h - 14 ${ isRestricted ? 'bg-orange-500 hover:bg-orange-600' : 'bg-brand-green hover:bg-green-400' } text - slate - 900 rounded - full shadow - lg flex items - center justify - center transition - all z - 50 animate - bounce - message`}
+                className={`fixed bottom-6 right-6 w-14 h-14 ${isRestricted ? 'bg-orange-500 hover:bg-orange-600' : 'bg-brand-green hover:bg-green-400'} text-slate-900 rounded-full shadow-lg flex items-center justify-center transition-all z-50 animate-bounce-message`}
             >
                 <span className="material-symbols-outlined text-2xl">{isRestricted ? 'phonelink_erase' : 'call'}</span>
             </button>
@@ -92,7 +92,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
             {/* Header */}
             <div className="bg-slate-100 dark:bg-surface-dark p-3 flex justify-between items-center border-b border-slate-200 dark:border-border-dark">
                 <div className="flex items-center gap-2">
-                    <div className={`w - 2 h - 2 rounded - full ${ isRestricted ? 'bg-orange-500' : (status === 'Ready' || status === 'In Call' ? 'bg-green-500' : 'bg-red-500') } `} />
+                    <div className={`w-2 h-2 rounded-full ${isRestricted ? 'bg-orange-500' : (status === 'Ready' || status === 'In Call' ? 'bg-green-500' : 'bg-red-500')} `} />
                     <span className="text-xs font-medium text-slate-500 dark:text-text-secondary">
                         {isRestricted ? t('restricted') : status}
                     </span>
@@ -151,7 +151,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
 
                     {/* Actions */}
                     <div className="p-4 bg-white dark:bg-card-dark grid grid-cols-3 gap-4 border-t border-slate-100 dark:border-border-dark">
-                        <button onClick={toggleMute} disabled={status !== 'In Call'} className={`flex items - center justify - center rounded - full w - 12 h - 12 mx - auto ${ isMuted ? 'bg-white text-slate-900' : 'text-slate-400 hover:text-slate-600' } `}>
+                        <button onClick={toggleMute} disabled={status !== 'In Call'} className={`flex items-center justify-center rounded-full w-12 h-12 mx-auto ${isMuted ? 'bg-white text-slate-900' : 'text-slate-400 hover:text-slate-600'} `}>
                             <span className="material-symbols-outlined">{isMuted ? 'mic_off' : 'mic'}</span>
                         </button>
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { AppRoute, UserProfile, Folder } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -10,7 +10,6 @@ interface SidebarProps {
   onSelectFolder: (folderId: string) => void;
   folders: Folder[];
   onAddFolder: (name: string) => void;
-  onDeleteFolder: (id: string) => void;
   onDeleteFolder: (id: string) => void;
   user: UserProfile;
   isOpen: boolean;
@@ -53,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     : 0;
 
   return (
-    <>
+    <Fragment>
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
@@ -271,5 +270,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
       </aside>
-      );
+    </Fragment>
+  );
 };
