@@ -11,7 +11,7 @@ interface DialerProps {
 export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
-    // State stores ONLY digits (e.g., "34611...")
+    // El estado guarda solo los dígitos (ej: "34611...")
     const [number, setNumber] = useState('');
     const [status, setStatus] = useState('Idle');
     const [activeCall, setActiveCall] = useState<any>(null);
@@ -37,10 +37,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     const handleCall = async () => {
         if (!number) return;
 
-        // --- LOGIC FIX: ALWAYS SEND FULL INTERNATIONAL FORMAT ---
-        // We visually show "+", so we append it here programmatically.
-        // User types: 34611... -> We send: +34611...
-        // User types: 39123... -> We send: +39123...
+        // --- LÓGICA DIRECTA: SIEMPRE ENVÍA FORMATO E.164 ---
+        // Visualmente mostramos el +, así que aquí lo pegamos al código.
+        // Usuario escribe: 34611... -> Enviamos: +34611...
+        // Usuario escribe: 39123... -> Enviamos: +39123...
         const numberToCall = '+' + number;
 
         setStatus('Calling...');
@@ -133,15 +133,17 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
                 <div className="flex flex-col h-full">
                     {/* Display */}
                     <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0">
-                        {/* VISUAL FIX: Reduced font size (text-3xl) and added '+' prefix visually */}
-                        <div className="text-3xl sm:text-2xl font-light text-center text-slate-900 dark:text-white w-full mb-2 tracking-widest break-all">
-                            <span className="text-slate-400">+</span>
-                            {number || <span className="text-slate-300 dark:text-slate-600">...</span>}
+                        {/* INPUT REDUCIDO y con el + visual */}
+                        <div className="flex items-center justify-center w-full mb-2">
+                            <span className="text-3xl sm:text-2xl font-light text-slate-400 mr-1">+</span>
+                            <div className="text-3xl sm:text-2xl font-light text-center text-slate-900 dark:text-white tracking-widest break-all">
+                                {number || <span className="text-slate-300 dark:text-slate-600 opacity-50">34...</span>}
+                            </div>
                         </div>
                         {status === 'In Call' && <span className="text-sm text-brand-green fade-in">Connected</span>}
                     </div>
 
-                    {/* Keypad */}
+                    {/* Keypad Limpio (Sin * ni #) */}
                     <div className="flex-1 grid grid-cols-3 gap-3 p-6 bg-slate-50 dark:bg-surface-dark/50">
                         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(digit => (
                             <button
