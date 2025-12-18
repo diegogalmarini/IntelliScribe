@@ -252,7 +252,7 @@ const AppContent: React.FC = () => {
 
         const h = Math.floor(durationSeconds / 3600).toString().padStart(2, '0');
         const m = Math.floor((durationSeconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (durationSeconds % 60).toString().padStart(2, '0');
+        const s = Math.floor(durationSeconds % 60).toString().padStart(2, '0');
         const durationStr = `${h}:${m}:${s}`;
 
         const newRecPayload: Recording = {
@@ -261,7 +261,7 @@ const AppContent: React.FC = () => {
             description: 'Live capture session',
             date: new Date().toISOString(),
             duration: durationStr,
-            durationSeconds: durationSeconds,
+            durationSeconds: Math.floor(durationSeconds),
             status: 'Draft',
             tags: ['Live Capture'],
             participants: 1,
