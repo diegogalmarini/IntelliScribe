@@ -243,7 +243,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
 
                                 <div className="flex-1">
                                     <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('proF1'), t('proF2'), t('proF3')].map((feat, i) => (
+                                        {[t('proF1'), t('proF2'), t('proF3'), t('proF4')].map((feat, i) => (
                                             <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
                                                 <span className="material-symbols-outlined text-brand-violet text-sm font-bold">check</span>
                                                 <span className="leading-tight">{feat}</span>
@@ -325,7 +325,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
 
                                 <div className="flex-1">
                                     <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('bizPlusF1'), t('bizPlusF2'), t('bizPlusF3')].map((feat, i) => (
+                                        {[t('bizPlusF1'), t('bizPlusF2'), t('bizPlusF3'), t('bizPlusF4')].map((feat, i) => (
                                             <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
                                                 <span className="material-symbols-outlined text-brand-green text-sm font-bold">stars</span>
                                                 <span className="leading-tight font-bold">{feat}</span>
@@ -341,6 +341,21 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Zone 1 Disclaimer Footer */}
+                    <div className="mt-12 text-center">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">* Zone 1 Countries Included:</span>
+                            <br />
+                            🇺🇸 USA, 🇨🇦 Canada, 🇬🇧 UK, 🇪🇸 Spain, 🇩🇪 Germany, 🇫🇷 France, 🇮🇹 Italy, 🇵🇹 Portugal, 🇮🇪 Ireland, 🇳🇱 Netherlands, 🇧🇪 Belgium.
+                        </p>
+
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-6 max-w-3xl mx-auto leading-relaxed">
+                            Disclaimer: AI transcription accuracy depends on audio quality. "Calls included" are subject to a fair usage policy of 600 minutes/month to Zone 1 landlines and mobiles.
+                            Calls to special rate numbers (premium) or destinations outside Zone 1 are currently restricted and will be available in future updates via credit top-ups.
+                            Prices do not include VAT where applicable.
+                        </p>
                     </div>
                 </div>
             </div>
