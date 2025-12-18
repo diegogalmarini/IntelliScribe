@@ -346,13 +346,13 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                     {/* Zone 1 Disclaimer Footer */}
                     <div className="mt-12 text-center">
                         <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">* {t('zone1CountriesIncluded')}:</span>
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">{t('zone1Title')}</span>
                             <br />
-                            🇺🇸 USA, 🇨🇦 Canada, 🇬🇧 UK, 🇪🇸 Spain, 🇩🇪 Germany, 🇫🇷 France, 🇮🇹 Italy, 🇵🇹 Portugal, 🇮🇪 Ireland, 🇳🇱 Netherlands, 🇧🇪 Belgium.
+                            {t('zone1Countries')}
                         </p>
 
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-6 max-w-3xl mx-auto leading-relaxed">
-                            {t('disclaimerText')}
+                            {t('zone1Disclaimer')}
                         </p>
                     </div>
                 </div>
