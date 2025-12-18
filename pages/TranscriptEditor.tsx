@@ -1,23 +1,29 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { AppRoute, ChatMessage, TranscriptSegment, Recording } from '../types';
+import { AppRoute, ChatMessage, TranscriptSegment, Recording, UserProfile } from '../types';
 import { chatWithTranscript, transcribeAudio, generateMeetingSummary } from '../services/geminiService';
+import { databaseService } from '../services/databaseService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { LimitReachedModal } from '../components/LimitReachedModal';
 
 interface TranscriptEditorProps {
     onNavigate: (route: AppRoute) => void;
     recording: Recording;
     onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
+    user: UserProfile;
 }
 
-export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, recording, onUpdateRecording }) => {
+export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, recording, onUpdateRecording, user }) => {
     const { t, language } = useLanguage();
     const [showChat, setShowChat] = useState(false);
     const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
     const [query, setQuery] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+
+    // Limit Modal State
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     // Title Editing State
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -169,6 +175,13 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, 
     const handleTranscribeAudio = async () => {
         if (!recording.audioUrl) return;
 
+        // BILLING PROTECTION: Check usage limit
+        const limitCheck = await databaseService.checkUsageLimit(user.id!);
+        if (!limitCheck.allowed) {
+            setShowLimitModal(true);
+            return;
+        }
+
         setIsTranscribing(true);
         try {
             // Check if audioUrl is a Data URI (starts with data:) or Blob URL (starts with blob:)
@@ -209,6 +222,9 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, 
                 segments: newSegments,
                 status: 'Completed'
             });
+
+            // BILLING PROTECTION: Deduct minutes after successful transcription
+            await databaseService.incrementUsage(user.id!, recording.durationSeconds);
 
         } catch (error) {
             console.error("Failed to transcribe", error);
@@ -722,6 +738,14 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, 
                     </div>
                 )}
             </div>
+
+            {/* Limit Reached Modal */}
+            {showLimitModal && (
+                <LimitReachedModal
+                    onClose={() => setShowLimitModal(false)}
+                    onNavigate={onNavigate}
+                />
+            )}
         </div>
     );
 };

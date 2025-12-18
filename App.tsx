@@ -402,6 +402,7 @@ const AppContent: React.FC = () => {
                             onNavigate={navigate}
                             recording={activeRecording}
                             onUpdateRecording={handleUpdateRecording}
+                            user={user}
                         />
                     )}
 
