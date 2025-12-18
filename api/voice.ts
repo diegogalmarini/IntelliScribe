@@ -14,8 +14,7 @@ const ALLOWED_PREFIXES = [
     '+351', // Portugal
     '+353', // Ireland
     '+31',  // Netherlands
-    '+32',  // Belgium
-    '+54'   // Argentina (Added as per user request)
+    '+32'   // Belgium
 ];
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
