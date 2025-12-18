@@ -249,7 +249,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     <span>{t('newRecording')}</span>
                                 </button>
 
-                                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="audio/*" className="hidden" />
+                                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".mp3,.wav,.ogg,.m4a,.aac,.flac,.webm,.opus,audio/mpeg,audio/wav,audio/ogg,audio/x-m4a,audio/aac,audio/flac,audio/webm" className="hidden" />
 
                                 <button
                                     onClick={handleImportClick}
