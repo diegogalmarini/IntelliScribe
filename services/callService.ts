@@ -8,7 +8,7 @@ export class CallService {
 
     async initialize(userId: string): Promise<boolean> {
         try {
-            // 1. Obtener Token
+            console.log('🔄 Fetching Twilio Token...');
             const response = await fetch('/api/twilio-token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -22,55 +22,53 @@ export class CallService {
 
             const data = await response.json();
             this.token = data.token;
+            console.log('🔑 Token received');
 
-            // 2. Inicializar Device con depuración
+            // Initialize Device
             this.device = new Device(this.token!, {
                 logLevel: 1,
-                // Opcional: forzar códec para estabilidad
                 codecPreferences: [Call.Codec.Opus, Call.Codec.PCMU]
             });
 
-            // 3. Listeners Críticos (Para saber si el registro falla después)
             this.device.on('registered', () => console.log('✅ Twilio Registered'));
-            this.device.on('error', (err) => {
-                console.error('❌ Twilio Device Error:', err);
-                // Si tienes un sistema de logs global, úsalo aquí
-            });
+            this.device.on('error', (err) => console.error('❌ Device Error:', err));
 
-            // 4. Registrar
-            this.device.register();
-            console.log('Twilio Device initialized');
-
+            await this.device.register();
             return true;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error initializing Twilio:', error);
-            // Lanzamos el error para que el UI lo vea si quiere
             return false;
         }
     }
 
     async makeCall(phoneNumber: string, userId?: string): Promise<Call | null> {
         if (!this.device) {
-            throw new Error('Device not initialized (Check Token)');
+            throw new Error('Device not initialized. (Refresh page)');
         }
 
         try {
-            // Sintaxis correcta para v2.0+
-            // params: Parámetros personalizados que viajan a tu backend (voice.ts)
-            const callOptions = {
+            console.log(`📡 Connecting to ${phoneNumber}...`);
+            const call = await this.device.connect({
                 params: {
                     To: phoneNumber,
                     userId: userId || 'guest'
                 }
-            };
-
-            // ⚠️ AQUÍ OCURRE EL ERROR, ahora lo lanzaremos
-            const call = await this.device.connect(callOptions);
+            });
             return call;
         } catch (error: any) {
-            console.error('Error making call:', error);
-            // 🔥 CLAVE: Lanzar el error real para verlo en el Dialer
-            throw new Error(error.message || 'Unknown Twilio Connect Error');
+            console.error('Error making call raw:', error);
+
+            // --- PROTECCIÓN CONTRA EL ERROR "UNDEFINED" ---
+            let errorMessage = 'Unknown Error';
+
+            if (error) {
+                errorMessage = error.message || error.code || JSON.stringify(error);
+            } else {
+                // Si el error es undefined, suele ser bloqueo de permisos
+                errorMessage = 'Microphone Access Denied (Check Browser Permissions)';
+            }
+
+            throw new Error(errorMessage);
         }
     }
 
