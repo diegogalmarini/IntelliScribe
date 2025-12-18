@@ -450,23 +450,23 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, 
                         </button>
 
                         {showExportMenu && (
-                            <div className="absolute right-0 top-12 w-48 bg-[#1e2736] border border-border-dark rounded-xl shadow-xl z-50 py-1 overflow-hidden">
-                                <button onClick={() => handleExport('txt')} className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-lg text-slate-400">description</span>
-                                    Text File (.txt)
+                            <div className="absolute right-0 top-12 w-52 bg-[#1e2736] border border-border-dark rounded-xl shadow-xl z-50 py-1 overflow-hidden">
+                                <button onClick={() => handleExport('txt')} className="w-full text-left px-4 py-2.5 text-xs md:text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-base md:text-lg text-slate-400 flex-shrink-0">description</span>
+                                    <span className="truncate">Text File (.txt)</span>
                                 </button>
-                                <button onClick={() => handleExport('srt')} className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-lg text-slate-400">closed_caption</span>
-                                    Subtitles (.srt)
+                                <button onClick={() => handleExport('srt')} className="w-full text-left px-4 py-2.5 text-xs md:text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-base md:text-lg text-slate-400 flex-shrink-0">closed_caption</span>
+                                    <span className="truncate">Subtitles (.srt)</span>
                                 </button>
-                                <button onClick={() => handleExport('json')} className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-lg text-slate-400">data_object</span>
-                                    JSON Data
+                                <button onClick={() => handleExport('json')} className="w-full text-left px-4 py-2.5 text-xs md:text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-base md:text-lg text-slate-400 flex-shrink-0">data_object</span>
+                                    <span className="truncate">JSON Data</span>
                                 </button>
                                 <div className="h-px bg-border-dark my-1"></div>
-                                <button onClick={() => handleExport('clipboard')} className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-lg text-slate-400">content_copy</span>
-                                    {t('copyClipboard')}
+                                <button onClick={() => handleExport('clipboard')} className="w-full text-left px-4 py-2.5 text-xs md:text-sm text-white hover:bg-[#232f48] flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-base md:text-lg text-slate-400 flex-shrink-0">content_copy</span>
+                                    <span className="truncate">{t('copyClipboard')}</span>
                                 </button>
                             </div>
                         )}
@@ -578,14 +578,14 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, 
                             <div className="flex flex-col gap-4 pb-20">
                                 {segments.map((seg) => (
                                     <div key={seg.id} className="group flex flex-col md:flex-row gap-2 md:gap-4 p-3 md:p-4 rounded-xl bg-[#1e2736] border border-transparent hover:border-[#232f48] transition-all">
-                                        <div className="flex md:flex-col gap-3 min-w-[140px] items-center md:items-start">
+                                        <div className="flex md:flex-col gap-3 min-w-[140px] items-center md:items-start flex-shrink-0">
                                             <span className="text-[#92a4c9] font-mono text-xs font-medium">{seg.timestamp}</span>
-                                            <div className="flex items-center gap-2 text-[#92a4c9] text-sm font-medium bg-[#111722] px-3 py-1.5 rounded-lg border border-[#232f48]">
-                                                <div className={`size-4 rounded-full bg-gradient-to-br ${seg.speakerColor}`}></div>
-                                                <span>{seg.speaker}</span>
+                                            <div className="flex items-center gap-2 text-[#92a4c9] text-xs md:text-sm font-medium bg-[#111722] px-2 md:px-3 py-1.5 rounded-lg border border-[#232f48]">
+                                                <div className={`size-3 md:size-4 rounded-full bg-gradient-to-br ${seg.speakerColor} flex-shrink-0`}></div>
+                                                <span className="truncate max-w-[80px] md:max-w-none">{seg.speaker}</span>
                                             </div>
                                         </div>
-                                        <p className="flex-1 text-base md:text-lg text-[#e2e8f0] leading-relaxed outline-none focus:ring-1 ring-primary rounded p-1" contentEditable suppressContentEditableWarning>
+                                        <p className="flex-1 text-sm md:text-base lg:text-lg text-[#e2e8f0] leading-relaxed outline-none focus:ring-1 ring-primary rounded p-1 break-words" contentEditable suppressContentEditableWarning>
                                             {seg.text}
                                         </p>
                                     </div>
