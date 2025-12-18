@@ -1,10 +1,9 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 
 // --- PROFITABILITY PROTECTION ZONE (ZONE 1) ---
 // These prefixes cover the "Included Calls" plan. 
-// Any other destination will be blocked to prevent billing shocks (e.g., $0.50/min calls).
+// Any other destination will be blocked to prevent billing shocks.
 const ALLOWED_PREFIXES = [
     '+1',   // USA & Canada
     '+34',  // Spain
@@ -15,7 +14,8 @@ const ALLOWED_PREFIXES = [
     '+351', // Portugal
     '+353', // Ireland
     '+31',  // Netherlands
-    '+32'   // Belgium
+    '+32',  // Belgium
+    '+54'   // Argentina (Added as per user request)
 ];
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
@@ -25,7 +25,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     // CRITICAL: Receive userId from Frontend to track usage
     const userId = req.body.userId || req.query.userId;
 
-    // Use the verified Caller ID from env (This is the Diktalo proxy number or User's verified number)
+    // Use the verified Caller ID from env
     const callerId = process.env.TWILIO_CALLER_ID;
 
     // 1. Validation: Destination exists
@@ -41,15 +41,21 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     if (isPhoneNumber) {
         // Normalize number: Remove spaces, dashes, parentheses
-        const cleanNumber = to.replace(/[\s\-\(\)]/g, '');
+        let cleanNumber = to.replace(/[\s\-\(\)]/g, '');
 
-        // Check against Whitelist
+        // --- CRITICAL FIX: FORCE E.164 FORMAT ---
+        // If the number arrives without a '+' (common in web requests), we treat it as valid.
+        // We prepend '+' so the ALLOWED_PREFIXES check works correctly.
+        if (!cleanNumber.startsWith('+')) {
+            cleanNumber = '+' + cleanNumber;
+        }
+
+        // Check against Whitelist using the corrected cleanNumber
         const isAllowed = ALLOWED_PREFIXES.some(prefix => cleanNumber.startsWith(prefix));
 
         if (!isAllowed) {
-            // Strategic Blocking Message: Upsell future feature
+            // Strategic Blocking Message
             twiml.say({ language: 'es-ES' }, 'Lo sentimos. El destino marcado no está incluido en su plan actual. Esta función estará disponible próximamente mediante recargas.');
-            // Hang up to save resources
             twiml.hangup();
 
             res.setHeader('Content-Type', 'text/xml');
