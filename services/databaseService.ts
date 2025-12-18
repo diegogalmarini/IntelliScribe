@@ -264,5 +264,54 @@ export const databaseService = {
             return false;
         }
         return true;
+    },
+
+    // --- USAGE & LIMITS ---
+
+    async checkUsageLimit(userId: string): Promise<{ allowed: boolean; message?: string }> {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('minutes_used, minutes_limit')
+            .eq('id', userId)
+            .single();
+
+        if (error || !data) {
+            console.error('Error checking limits:', error);
+            return { allowed: false, message: 'Error verifying account limits.' };
+        }
+
+        if ((data.minutes_used || 0) >= (data.minutes_limit || 0)) {
+            return { allowed: false, message: 'You have reached your monthly limit. Please upgrade your plan.' };
+        }
+
+        return { allowed: true };
+    },
+
+    async incrementUsage(userId: string, seconds: number): Promise<boolean> {
+        // Round up to the nearest minute to protect margin (minimum 1 minute charge)
+        const minutes = Math.max(1, Math.ceil(seconds / 60));
+
+        // 1. Get current usage
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('minutes_used')
+            .eq('id', userId)
+            .single();
+
+        if (!profile) return false;
+
+        const newUsage = (profile.minutes_used || 0) + minutes;
+
+        // 2. Update usage
+        const { error } = await supabase
+            .from('profiles')
+            .update({ minutes_used: newUsage })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating usage:', error);
+            return false;
+        }
+        return true;
     }
 };
