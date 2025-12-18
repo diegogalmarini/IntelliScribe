@@ -11,6 +11,7 @@ interface DialerProps {
 export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+    // State stores ONLY digits (e.g., "34611...")
     const [number, setNumber] = useState('');
     const [status, setStatus] = useState('Idle');
     const [activeCall, setActiveCall] = useState<any>(null);
@@ -36,24 +37,14 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     const handleCall = async () => {
         if (!number) return;
 
-        // --- UX IMPROVEMENT: AUTO-ADD PREFIX ---
-        let numberToCall = number;
-
-        // Logic: If user didn't type '+', assume they want to call.
-        // We ensure the backend receives a valid format.
-        if (!numberToCall.startsWith('+')) {
-            // If it starts with 34 (e.g. 34611...), just add '+'
-            if (numberToCall.startsWith('34')) {
-                numberToCall = '+' + numberToCall;
-            } else {
-                // Default: Add +34 for Spain if no prefix is present
-                numberToCall = '+34' + numberToCall;
-            }
-        }
+        // --- LOGIC FIX: ALWAYS SEND FULL INTERNATIONAL FORMAT ---
+        // We visually show "+", so we append it here programmatically.
+        // User types: 34611... -> We send: +34611...
+        // User types: 39123... -> We send: +39123...
+        const numberToCall = '+' + number;
 
         setStatus('Calling...');
 
-        // Pass userId (email) to the service so api/voice.ts receives it
         const call = await callService.makeCall(numberToCall, user.email || 'guest');
 
         if (call) {
@@ -103,7 +94,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     }
 
     return (
-        // UI UPDATE: Full screen on mobile (fixed inset-0), Widget size on desktop
         <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-80 w-full h-full bg-white dark:bg-card-dark sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-border-dark overflow-hidden flex flex-col z-50 animate-in slide-in-from-bottom-5">
 
             {/* Header */}
@@ -143,18 +133,15 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
                 <div className="flex flex-col h-full">
                     {/* Display */}
                     <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0">
-                        <input
-                            type="text"
-                            value={number}
-                            onChange={(e) => setNumber(e.target.value)}
-                            className="text-5xl sm:text-4xl font-light text-center bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white w-full mb-2 tracking-widest"
-                            placeholder="..."
-                            readOnly // Prevent mobile keyboard popup, use custom keypad
-                        />
+                        {/* VISUAL FIX: Reduced font size (text-3xl) and added '+' prefix visually */}
+                        <div className="text-3xl sm:text-2xl font-light text-center text-slate-900 dark:text-white w-full mb-2 tracking-widest break-all">
+                            <span className="text-slate-400">+</span>
+                            {number || <span className="text-slate-300 dark:text-slate-600">...</span>}
+                        </div>
                         {status === 'In Call' && <span className="text-sm text-brand-green fade-in">Connected</span>}
                     </div>
 
-                    {/* Keypad - Expanded for touch, no * or # */}
+                    {/* Keypad */}
                     <div className="flex-1 grid grid-cols-3 gap-3 p-6 bg-slate-50 dark:bg-surface-dark/50">
                         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(digit => (
                             <button
