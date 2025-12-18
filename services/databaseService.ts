@@ -9,8 +9,8 @@ interface DBRecording {
     folder_id: string | null;
     title: string;
     description: string;
-    date_string: string;
-    duration_formatted: string;
+    date: string;
+    duration: string;
     duration_seconds: number;
     status: string;
     tags: string[];
@@ -18,7 +18,8 @@ interface DBRecording {
     audio_url: string | null;
     summary: string | null;
     segments: any; // JSONB
-    is_local: boolean;
+    notes: any; // JSONB
+    media: any; // JSONB
     created_at: string;
 }
 
@@ -139,8 +140,8 @@ export const databaseService = {
             id: r.id,
             title: r.title,
             description: r.description || '',
-            date: r.date_string || new Date(r.created_at).toLocaleString(),
-            duration: r.duration_formatted || '00:00:00',
+            date: r.date ? new Date(r.date).toLocaleString() : new Date(r.created_at).toLocaleString(),
+            duration: r.duration || '00:00:00',
             durationSeconds: r.duration_seconds || 0,
             status: r.status as any,
             tags: r.tags || [],
@@ -149,13 +150,13 @@ export const databaseService = {
             summary: r.summary || undefined,
             segments: r.segments || [], // JSONB
             folderId: r.folder_id || undefined,
-            // Map sub-tables
-            notes: (r.recording_notes || []).map((n: DBNote) => ({
+            // Map sub-tables or use JSONB
+            notes: r.notes || (r.recording_notes || []).map((n: DBNote) => ({
                 id: n.id,
                 timestamp: n.timestamp,
                 text: n.content
             })),
-            media: (r.recording_media || []).map((m: DBMedia) => ({
+            media: r.media || (r.recording_media || []).map((m: DBMedia) => ({
                 id: m.id,
                 timestamp: m.timestamp,
                 url: m.url,
@@ -172,15 +173,12 @@ export const databaseService = {
         const { data, error } = await supabase
             .from('recordings')
             .insert({
-                // id: rec.id, // Let DB generate ID, or use mapped ID if migrating? ideally let DB generate.
-                // If we want to support offline-first later, we'd generate UUIDs on client. 
-                // For now, let's omit ID and let DB gen, OR if we need to link notes immediately, we wait.
                 user_id: user.id,
                 folder_id: rec.folderId || null,
                 title: rec.title,
                 description: rec.description,
-                date_string: rec.date,
-                duration_formatted: rec.duration,
+                date: rec.date,
+                duration: rec.duration,
                 duration_seconds: rec.durationSeconds,
                 status: rec.status,
                 tags: rec.tags,
@@ -188,7 +186,8 @@ export const databaseService = {
                 audio_url: rec.audioUrl,
                 summary: rec.summary,
                 segments: rec.segments,
-                is_local: false
+                notes: rec.notes || [],
+                media: rec.media || []
             })
             .select()
             .single();
@@ -200,26 +199,8 @@ export const databaseService = {
 
         const newId = data.id;
 
-        // 2. Insert Notes (if any)
-        if (rec.notes && rec.notes.length > 0) {
-            const notesPayload = rec.notes.map(n => ({
-                recording_id: newId,
-                timestamp: n.timestamp,
-                content: n.text
-            }));
-            await supabase.from('recording_notes').insert(notesPayload);
-        }
-
-        // 3. Insert Media (if any)
-        if (rec.media && rec.media.length > 0) {
-            const mediaPayload = rec.media.map(m => ({
-                recording_id: newId,
-                timestamp: m.timestamp,
-                url: m.url,
-                name: m.name
-            }));
-            await supabase.from('recording_media').insert(mediaPayload);
-        }
+        // Notes and Media are now stored as JSONB in the recordings table
+        // No need for separate inserts
 
         // Return the confirmed object (re-using input structure but with real ID)
         return {
