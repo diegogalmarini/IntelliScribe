@@ -246,6 +246,11 @@ export const translations = {
     subscribe: "Subscribe",
     contactSales: "Contact Sales",
 
+    // Zone 1 Disclaimer
+    zone1Title: "* Zone 1 Countries Included:",
+    zone1Countries: "🇺🇸 USA, 🇨🇦 Canada, 🇬🇧 UK, 🇪🇸 Spain, 🇩🇪 Germany, 🇫🇷 France, 🇮🇹 Italy, 🇵🇹 Portugal, 🇮🇪 Ireland, 🇳🇱 Netherlands, 🇧🇪 Belgium.",
+    zone1Disclaimer: "Disclaimer: AI transcription accuracy depends on audio quality. \"Calls included\" are subject to a fair usage policy of 600 minutes/month to Zone 1 landlines and mobiles. Calls to special rate numbers (premium) or destinations outside Zone 1 are currently restricted and will be available in future updates via credit top-ups. Prices do not include VAT where applicable.",
+
     // Manual / Help Center
     manualTitle: "Diktalo User Manual",
     manualSubtitle: "Documentation and guides to master your conversational intelligence.",
@@ -507,6 +512,11 @@ export const translations = {
 
     subscribe: "Suscribirse",
     contactSales: "Contactar Ventas",
+
+    // Zone 1 Disclaimer
+    zone1Title: "* Países de Zona 1 Incluidos:",
+    zone1Countries: "🇺🇸 EE.UU., 🇨🇦 Canadá, 🇬🇧 Reino Unido, 🇪🇸 España, 🇩🇪 Alemania, 🇫🇷 Francia, 🇮🇹 Italia, 🇵🇹 Portugal, 🇮🇪 Irlanda, 🇳🇱 Países Bajos, 🇧🇪 Bélgica.",
+    zone1Disclaimer: "Aviso legal: La precisión de la transcripción IA depende de la calidad del audio. Las \"Llamadas incluidas\" están sujetas a una política de uso justo de 600 minutos/mes a teléfonos fijos y móviles de Zona 1. Las llamadas a números de tarificación especial (premium) o destinos fuera de Zona 1 están actualmente restringidas y estarán disponibles en futuras actualizaciones mediante recargas de crédito. Los precios no incluyen IVA cuando corresponda.",
 
     // Manual / Help Center
     manualTitle: "Manual de Usuario Diktalo",
