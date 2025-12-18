@@ -2,8 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 
 // --- PROFITABILITY PROTECTION ZONE (ZONE 1) ---
-// These prefixes cover the "Included Calls" plan. 
-// Any other destination will be blocked to prevent billing shocks.
 const ALLOWED_PREFIXES = [
     '+1',   // USA & Canada
     '+34',  // Spain
@@ -35,7 +33,6 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2. COST PROTECTION LOGIC
-    // Check if the destination is a phone number (not a browser client)
     const isPhoneNumber = /^[\d\+\-\(\) ]+$/.test(to);
 
     if (isPhoneNumber) {
@@ -43,17 +40,15 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         let cleanNumber = to.replace(/[\s\-\(\)]/g, '');
 
         // --- CRITICAL FIX: FORCE E.164 FORMAT ---
-        // If the number arrives without a '+' (common in web requests), we treat it as valid.
-        // We prepend '+' so the ALLOWED_PREFIXES check works correctly.
+        // Ensure it starts with '+'
         if (!cleanNumber.startsWith('+')) {
             cleanNumber = '+' + cleanNumber;
         }
 
-        // Check against Whitelist using the corrected cleanNumber
+        // Check against Whitelist
         const isAllowed = ALLOWED_PREFIXES.some(prefix => cleanNumber.startsWith(prefix));
 
         if (!isAllowed) {
-            // Strategic Blocking Message
             twiml.say({ language: 'es-ES' }, 'Lo sentimos. El destino marcado no está incluido en su plan actual. Esta función estará disponible próximamente mediante recargas.');
             twiml.hangup();
 
@@ -66,8 +61,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     if (callerId) {
         const dial = twiml.dial({
             callerId: callerId,
-            record: 'record-from-ringing', // AUTO-RECORDING ENABLED
-            // INJECT USER ID INTO WEBHOOK URL
+            record: 'record-from-ringing',
             recordingStatusCallback: `/api/webhooks/recording?userId=${userId}`,
         });
 
