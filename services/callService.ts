@@ -37,7 +37,7 @@ export class CallService {
         }
     }
 
-    async makeCall(phoneNumber: string): Promise<Call | null> {
+    async makeCall(phoneNumber: string, userId?: string): Promise<Call | null> {
         if (!this.device) {
             console.error('Device not initialized');
             return null;
@@ -46,7 +46,8 @@ export class CallService {
         try {
             const call = await this.device.connect({
                 params: {
-                    To: phoneNumber
+                    To: phoneNumber,
+                    userId: userId  // CRITICAL: Pass userId for billing tracking
                 }
             });
             return call;

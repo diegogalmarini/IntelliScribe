@@ -39,7 +39,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     const handleCall = async () => {
         if (!number) return;
         setStatus('Calling...');
-        const call = await callService.makeCall(number);
+        const call = await callService.makeCall(number, user.id);  // Pass user ID for billing
         if (call) {
             setActiveCall(call);
             setStatus('In Call');
