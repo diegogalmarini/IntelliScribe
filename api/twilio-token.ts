@@ -1,7 +1,16 @@
-
 import twilio from 'twilio';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // Permitir CORS para evitar bloqueos en móviles
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -23,13 +32,19 @@ export default async function handler(req, res) {
     const AccessToken = twilio.jwt.AccessToken;
     const VoiceGrant = AccessToken.VoiceGrant;
 
+    // ⚠️ CAMBIO CLAVE: incomingAllow: false
+    // Esto evita que el navegador pida permisos de micro antes de tiempo
     const voiceGrant = new VoiceGrant({
         outgoingApplicationSid: twimlAppSid,
-        incomingAllow: true, // Allow incoming calls (optional)
+        incomingAllow: false,
     });
 
+    // Limpiamos el userId para asegurar compatibilidad
+    const identity = userId.replace(/[^a-zA-Z0-9_-]/g, '_');
+
     const token = new AccessToken(accountSid, apiKey, apiSecret, {
-        identity: userId,
+        identity: identity,
+        ttl: 3600 // 1 hora de validez
     });
 
     token.addGrant(voiceGrant);

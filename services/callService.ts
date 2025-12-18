@@ -8,6 +8,7 @@ export class CallService {
 
     async initialize(userId: string): Promise<boolean> {
         try {
+            // 1. Obtener Token
             const response = await fetch('/api/twilio-token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -15,21 +16,26 @@ export class CallService {
             });
 
             if (!response.ok) {
-                const err = await response.json();
-                console.error('Token Error:', err);
+                console.error('Token fetch failed');
                 return false;
             }
 
             const data = await response.json();
             this.token = data.token;
 
+            // 2. Preparar el dispositivo (SIN REGISTRAR)
+            // Esto no pide micro todavía, solo carga la librería
             this.device = new Device(this.token!, {
                 logLevel: 1,
-                codecPreferences: [Call.Codec.Opus, Call.Codec.PCMU],
+                // Quitamos preferencias de codec para máxima compatibilidad
             });
 
-            // Registro silencioso para no ensuciar consola
-            await this.device.register();
+            // Monitor de errores silencioso
+            this.device.on('error', (err) => {
+                console.warn('Twilio Warning:', err);
+            });
+
+            console.log('Twilio Device Validated (Standby)');
             return true;
         } catch (error) {
             console.error('Error initializing Twilio:', error);
@@ -39,10 +45,17 @@ export class CallService {
 
     async makeCall(phoneNumber: string, userId?: string): Promise<Call | null> {
         if (!this.device) {
-            throw new Error('Device not initialized. Reload the page.');
+            // Intento de recuperación automático si no estaba inicializado
+            if (userId && await this.initialize(userId)) {
+                // Retry success
+            } else {
+                throw new Error('System not ready. Please refresh.');
+            }
         }
 
         try {
+            // 3. AHORA pedimos el micro (al hacer click)
+            // El navegador verá que es un gesto del usuario y lo permitirá
             const call = await this.device.connect({
                 params: {
                     To: phoneNumber,
@@ -51,14 +64,15 @@ export class CallService {
             });
             return call;
         } catch (error: any) {
-            console.error('Connection Error:', error);
+            console.error('Call Connection Failed:', error);
 
-            // Detección inteligente de error de micrófono
-            if (error.code === 31208 || (error.message && error.message.includes('Permission'))) {
-                throw new Error('Microphone access denied. Please allow microphone access in your browser settings.');
+            // Si falla aquí, suele ser porque el usuario está en un navegador "in-app"
+            // (Como el de LinkedIn o Gmail) que bloquea todo.
+            if (error.code === 31000 || error.name === 'NotSupportedError') {
+                throw new Error('Browser not supported. Please open in Chrome or Safari.');
             }
 
-            throw new Error(error.message || 'Call failed due to connection error.');
+            throw new Error(error.message || 'Call failed to connect');
         }
     }
 
