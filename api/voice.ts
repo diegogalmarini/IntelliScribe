@@ -21,6 +21,10 @@ const ALLOWED_PREFIXES = [
 export default function handler(req: VercelRequest, res: VercelResponse) {
     const twiml = new VoiceResponse();
     const to = req.body.To || req.query.To;
+
+    // CRITICAL: Receive userId from Frontend to track usage
+    const userId = req.body.userId || req.query.userId;
+
     // Use the verified Caller ID from env (This is the Diktalo proxy number or User's verified number)
     const callerId = process.env.TWILIO_CALLER_ID;
 
@@ -58,7 +62,8 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         const dial = twiml.dial({
             callerId: callerId,
             record: 'record-from-ringing', // AUTO-RECORDING ENABLED
-            recordingStatusCallback: '/api/webhooks/recording', // Triggers the AI pipeline after call
+            // INJECT USER ID INTO WEBHOOK URL
+            recordingStatusCallback: `/api/webhooks/recording?userId=${userId}`,
         });
 
         if (isPhoneNumber) {
