@@ -5,11 +5,12 @@ import { createClient } from '@supabase/supabase-js';
 // WRAPPER PARA EVITAR CRASHES DUROS
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
-        // 1. CORS SIMPLIFICADO Y SEGURO (Sin saltos de línea)
+        // 1. CORS DINÁMICO (Compatible con Credentials: true)
+        const allowedOrigin = req.headers.origin || '*';
+        res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Simplifcamos para debug
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 
         if (req.method === 'OPTIONS') return res.status(200).end();
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
