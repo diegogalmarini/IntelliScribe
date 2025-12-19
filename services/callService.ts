@@ -54,8 +54,18 @@ export class CallService {
             return call;
         } catch (error: any) {
             console.error('Connection Failed:', error);
-            // Devolvemos el error crudo para verlo en pantalla
-            throw error;
+
+            // Si el error es undefined/null, es un bloqueo de permisos silencioso del navegador
+            if (!error) {
+                throw new Error('Microphone access denied. Click the lock icon 🔒 in your address bar to allow.');
+            }
+
+            // Si falla aquí, suele ser porque el usuario está en un navegador "in-app"
+            if (error.code === 31000 || error.name === 'NotSupportedError') {
+                throw new Error('Browser not supported. Open in Chrome/Safari.');
+            }
+
+            throw new Error(error.message || 'Call failed to connect');
         }
     }
 
