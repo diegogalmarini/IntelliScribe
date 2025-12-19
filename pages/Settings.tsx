@@ -75,25 +75,63 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
         }
     };
 
-    const handleStartVerification = () => {
+    const handleStartVerification = async () => {
         if (!phone.trim()) {
             setFeedback({ message: "Enter a phone number first.", type: 'error' });
             setTimeout(() => setFeedback(null), 3000);
             return;
         }
+
         setIsVerifyingPhone(true);
-        setFeedback({ message: t('verificationCodeSent'), type: 'success' });
+        setVerificationCode('');
+
+        try {
+            const res = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'send', phoneNumber: phone, channel: 'sms' })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                setFeedback({ message: t('verificationCodeSent'), type: 'success' });
+            } else {
+                setFeedback({ message: data.error || 'Failed to send SMS', type: 'error' });
+                setIsVerifyingPhone(false);
+            }
+        } catch (e) {
+            setFeedback({ message: "Network error sending SMS", type: 'error' });
+            setIsVerifyingPhone(false);
+        }
         setTimeout(() => setFeedback(null), 3000);
     };
 
-    const handleVerifyCode = () => {
-        if (verificationCode === '1234') { // Mock check
-            setPhoneVerified(true);
-            setIsVerifyingPhone(false);
-            setVerificationCode('');
-            setFeedback({ message: "Number verified successfully!", type: 'success' });
-        } else {
-            setFeedback({ message: "Invalid code. Try 1234.", type: 'error' });
+    const handleVerifyCode = async () => {
+        if (!verificationCode || verificationCode.length < 4) {
+            setFeedback({ message: "Enter a valid code.", type: 'error' });
+            setTimeout(() => setFeedback(null), 3000);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'check', phoneNumber: phone, code: verificationCode, userId: user.id })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.status === 'approved') {
+                setPhoneVerified(true);
+                setIsVerifyingPhone(false);
+                setFeedback({ message: "Number verified successfully!", type: 'success' });
+                // Optional: Trigger user update immediately if needed, mainly handled by onUpdateUser in handleSave
+            } else {
+                setFeedback({ message: data.error || "Invalid code.", type: 'error' });
+            }
+        } catch (e) {
+            setFeedback({ message: "Verification failed", type: 'error' });
         }
         setTimeout(() => setFeedback(null), 3000);
     };
@@ -222,8 +260,9 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">{t('enterCode')}</p>
                                                 <div className="flex gap-2">
                                                     <input
-                                                        className="w-32 bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-3 py-2 text-center tracking-widest font-mono"
-                                                        placeholder="0000"
+                                                        className="w-40 bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-3 py-2 text-center tracking-widest font-mono text-lg"
+                                                        placeholder="000000"
+                                                        maxLength={6}
                                                         value={verificationCode}
                                                         onChange={(e) => setVerificationCode(e.target.value)}
                                                     />
@@ -238,7 +277,6 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                                         {t('cancel')}
                                                     </button>
                                                 </div>
-                                                <p className="text-xs text-slate-500 mt-2">Hint: Use 1234</p>
                                             </div>
                                         )}
                                         <p className="text-xs text-slate-500 mt-1">{t('verifyDesc')}</p>
