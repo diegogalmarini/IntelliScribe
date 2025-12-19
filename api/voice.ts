@@ -1,66 +1,46 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-// CORRECCIÓN CRÍTICA: Importación segura para Vercel
 import twilio from 'twilio';
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-const ALLOWED_PREFIXES = [
-    '+1', '+34', '+44', '+33', '+49', '+39', '+351', '+353', '+31', '+32'
-];
+// Lista de países permitidos (puedes ampliarla)
+const ALLOWED_PREFIXES = ['+1', '+34', '+44', '+33', '+49', '+39'];
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
-    console.log('📞 Voice Request:', req.body); // Esto aparecerá en los logs de Vercel
-
     const twiml = new VoiceResponse();
 
-    try {
-        const to = req.body.To || req.query.To;
-        const userId = req.body.userId || req.query.userId;
-        const callerId = process.env.TWILIO_CALLER_ID;
+    // Obtener datos
+    const to = req.body.To || req.query.To;
+    const callerId = process.env.TWILIO_CALLER_ID; // Tu número +1...
 
-        if (!to) {
-            twiml.say({ language: 'es-ES' }, 'Error. No se recibió el número de destino.');
-            res.setHeader('Content-Type', 'text/xml');
-            return res.status(200).send(twiml.toString());
-        }
+    if (!to || !callerId) {
+        twiml.say('Error de configuración.');
+        res.setHeader('Content-Type', 'text/xml');
+        return res.status(200).send(twiml.toString());
+    }
 
-        const isPhoneNumber = /^[\d\+\-\(\) ]+$/.test(to);
+    // Limpieza de número
+    let numberToCall = to.replace(/[\s\-\(\)]/g, '');
+    if (!numberToCall.startsWith('+')) numberToCall = '+' + numberToCall;
 
-        if (isPhoneNumber) {
-            // Normalización segura
-            let cleanNumber = to.replace(/[\s\-\(\)]/g, '');
-            if (!cleanNumber.startsWith('+')) {
-                cleanNumber = '+' + cleanNumber;
-            }
+    // Validación de seguridad simple
+    const isAllowed = ALLOWED_PREFIXES.some(p => numberToCall.startsWith(p));
+    if (!isAllowed) {
+        twiml.say({ language: 'es-ES' }, 'Destino no permitido.');
+        res.setHeader('Content-Type', 'text/xml');
+        return res.status(200).send(twiml.toString());
+    }
 
-            const isAllowed = ALLOWED_PREFIXES.some(prefix => cleanNumber.startsWith(prefix));
+    // CONEXIÓN PURA (Sin grabaciones ni anuncios extraños por ahora)
+    const dial = twiml.dial({
+        callerId: callerId,
+        answerOnBridge: true, // Esto ayuda a que la conexión se sienta más rápida
+    });
 
-            if (!isAllowed) {
-                twiml.say({ language: 'es-ES' }, 'Destino no incluido en el plan.');
-                twiml.hangup();
-                res.setHeader('Content-Type', 'text/xml');
-                return res.status(200).send(twiml.toString());
-            }
-        }
-
-        if (callerId) {
-            const dial = twiml.dial({
-                callerId: callerId,
-                record: 'record-from-ringing',
-                recordingStatusCallback: `/api/webhooks/recording?userId=${userId || 'guest'}`,
-            });
-
-            if (isPhoneNumber) {
-                dial.number(to);
-            } else {
-                dial.client(to);
-            }
-        } else {
-            twiml.say({ language: 'es-ES' }, 'Error de configuración. Falta Caller ID.');
-        }
-
-    } catch (error) {
-        console.error('🔥 Error en voice.ts:', error);
-        twiml.say({ language: 'es-ES' }, 'Ocurrió un error en el servidor.');
+    // Detectar si es número o cliente
+    if (/^[\d\+\-\(\) ]+$/.test(numberToCall)) {
+        dial.number(numberToCall);
+    } else {
+        dial.client(numberToCall);
     }
 
     res.setHeader('Content-Type', 'text/xml');
