@@ -66,12 +66,12 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
             }
         } catch (e: any) {
             setStatus('Error');
-            // Muestra el error exacto en pantalla
-            const msg = e.message || JSON.stringify(e);
+            // Muestra el error exacto en pantalla (Protegido contra undefined)
+            const msg = e?.message || (e ? JSON.stringify(e) : 'Unknown Error');
             setErrorMessage(msg);
 
             // Si es error de micrófono, lo traducimos
-            if (msg.includes('Permission') || msg.includes('31208')) {
+            if (msg && (msg.includes('Permission') || msg.includes('31208'))) {
                 setErrorMessage('⚠️ Browser blocked Microphone. Tap lock icon 🔒 in URL bar.');
             }
         }
