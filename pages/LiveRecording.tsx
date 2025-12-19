@@ -12,7 +12,6 @@ interface LiveRecordingProps {
 export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onRecordingComplete }) => {
     const { t } = useLanguage();
 
-    // Need to load user to get verified number
     const loadUser = () => {
         try {
             const stored = localStorage.getItem('user_profile');
@@ -27,12 +26,10 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     const [seconds, setSeconds] = useState(0);
     const [recordingMode, setRecordingMode] = useState<'meeting' | 'call'>('meeting');
 
-    // Call Specific State
     const [callMethod, setCallMethod] = useState<'external' | 'voip'>('external');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [callStatus, setCallStatus] = useState<'idle' | 'connecting' | 'active' | 'ended'>('idle');
 
-    // Title State & Ref
     const [sessionTitle, setSessionTitle] = useState('');
     const sessionTitleRef = useRef('');
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -56,29 +53,24 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         }
     }, [isEditingTitle]);
 
-    // Device Management
     const [inputDevices, setInputDevices] = useState<MediaDeviceInfo[]>([]);
     const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
     const [showInputMenu, setShowInputMenu] = useState(false);
 
-    // Audio Pipeline Refs
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
-    const mimeTypeRef = useRef<string>(''); // Store the supported mime type
+    const mimeTypeRef = useRef<string>('');
 
-    // Web Audio API Nodes (The Router)
     const audioContextRef = useRef<AudioContext | null>(null);
     const destinationRef = useRef<MediaStreamAudioDestinationNode | null>(null);
     const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
 
-    // Stream Ref (User Media)
     const streamRef = useRef<MediaStream | null>(null);
     const requestRef = useRef<number | null>(null);
 
     const [visualizerData, setVisualizerData] = useState<number[]>(new Array(20).fill(10));
 
-    // Context Panel State
     const [activeTab, setActiveTab] = useState<'notes' | 'media'>('notes');
     const [notes, setNotes] = useState<NoteItem[]>([]);
     const notesRef = useRef<NoteItem[]>([]);
@@ -96,7 +88,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     // --- AUDIO PIPELINE SETUP ---
 
     const ensureAudioContext = () => {
-        if (!audioContextRef.current) {
+        // AUDIT FIX: Verify context is not closed
+        if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
             const Ctx = window.AudioContext || (window as any).webkitAudioContext;
             audioContextRef.current = new Ctx();
             destinationRef.current = audioContextRef.current.createMediaStreamDestination();
@@ -119,15 +112,17 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                 audio: {
                     deviceId: deviceId ? { exact: deviceId } : undefined,
                     echoCancellation: true,
-                    noiseSuppression: recordingMode === 'meeting', // Less aggressive suppression for calls via speaker
+                    noiseSuppression: recordingMode === 'meeting',
                     autoGainControl: true
                 }
             };
             const newStream = await navigator.mediaDevices.getUserMedia(constraints);
 
+            // Clean previous source
             if (sourceNodeRef.current) {
                 sourceNodeRef.current.disconnect();
             }
+            // Clean previous stream tracks to free hardware
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(t => t.stop());
             }
@@ -155,7 +150,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         const types = [
             'audio/webm;codecs=opus',
             'audio/webm',
-            'audio/mp4', // iOS Safari 14.5+
+            'audio/mp4',
             'audio/aac',
             'audio/ogg'
         ];
@@ -168,7 +163,11 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     useEffect(() => {
         const init = async () => {
             try {
-                await navigator.mediaDevices.getUserMedia({ audio: true });
+                // AUDIT FIX: "Ghost Stream" Removal
+                // We request stream to get permission labels, then STOP it immediately
+                const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                tempStream.getTracks().forEach(track => track.stop());
+
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const inputs = devices.filter(d => d.kind === 'audioinput');
                 setInputDevices(inputs);
@@ -187,13 +186,18 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         };
         init();
 
-        navigator.mediaDevices.addEventListener('devicechange', async () => {
+        const handleDeviceChange = async () => {
             const devices = await navigator.mediaDevices.enumerateDevices();
             setInputDevices(devices.filter(d => d.kind === 'audioinput'));
-        });
+        };
 
-        return () => cleanupAudio();
-    }, [recordingMode]); // Re-init when mode changes (for echo cancellation settings)
+        navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
+
+        return () => {
+            navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
+            cleanupAudio();
+        };
+    }, [recordingMode]);
 
     const prepareRecorder = () => {
         const { dest } = ensureAudioContext();
@@ -215,21 +219,15 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                 const type = mimeTypeRef.current || 'audio/webm';
                 const audioBlob = new Blob(audioChunksRef.current, { type });
 
-                // CONVERT TO BASE64 DATA URI FOR PERSISTENCE
-                // This fixes the "broken play button after refresh" issue
                 const reader = new FileReader();
                 reader.readAsDataURL(audioBlob);
                 reader.onloadend = () => {
                     const base64Audio = reader.result as string;
-                    // Add tag for mode
                     const callType = recordingMode === 'call' ? (callMethod === 'voip' ? 'VoIP Call' : 'Speakerphone') : 'In-Person';
-                    // Add phone number to title if VoIP
+
                     if (callMethod === 'voip' && phoneNumber) {
                         sessionTitleRef.current = `${sessionTitleRef.current} (${phoneNumber})`;
                     }
-
-                    // Add tags
-                    const tags = ['Live Capture', callType];
 
                     onRecordingComplete(base64Audio, seconds, sessionTitleRef.current, notesRef.current, mediaItemsRef.current, audioBlob);
                 };
@@ -245,9 +243,21 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         }
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
         }
-        if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
-        if (audioContextRef.current) audioContextRef.current.close();
+        if (sourceNodeRef.current) {
+            sourceNodeRef.current.disconnect();
+            sourceNodeRef.current = null;
+        }
+
+        // AUDIT FIX: "Zombie Context" Prevention
+        if (audioContextRef.current) {
+            audioContextRef.current.close();
+            audioContextRef.current = null; // Important: Nullify ref to force recreation on next init
+            destinationRef.current = null;
+            analyserRef.current = null;
+        }
+
         if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
 
@@ -269,13 +279,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
 
     const handleDeviceChange = async (deviceId: string) => {
         setSelectedDeviceId(deviceId);
-
-        if (isRecording || isPaused) {
-            await setupInputStream(deviceId);
-        } else {
-            if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
-            await setupInputStream(deviceId);
-        }
+        await setupInputStream(deviceId);
     };
 
     const startVisualizer = () => {
@@ -333,10 +337,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
 
         setCallStatus('connecting');
 
-        // Simulate connection time
         setTimeout(() => {
             setCallStatus('active');
-            // Auto start recording when call connects
             startRecording();
         }, 1500);
     };
@@ -452,7 +454,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 </>
                             )}
                         </div>
-                        {/* Mode Switcher */}
                         <div className="flex flex-col gap-2 mt-2">
                             <p className="text-slate-500 dark:text-text-secondary text-sm flex items-center gap-2">
                                 {new Date().toLocaleDateString()}
@@ -461,7 +462,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                             </p>
 
                             <div className="flex flex-wrap gap-2">
-                                {/* Main Mode Toggle */}
                                 <div className="flex bg-slate-200 dark:bg-surface-dark rounded-lg p-0.5 w-fit">
                                     <button
                                         onClick={() => setRecordingMode('meeting')}
@@ -475,7 +475,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     </button>
                                 </div>
 
-                                {/* Sub Mode Toggle (Only visible if Call) */}
                                 {recordingMode === 'call' && (
                                     <div className="flex bg-slate-200 dark:bg-surface-dark rounded-lg p-0.5 w-fit animate-in fade-in slide-in-from-left-2">
                                         <button
@@ -512,7 +511,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                 <div className="w-full lg:w-2/3 flex flex-col gap-6 h-auto min-h-[400px] lg:h-full shrink-0">
                     <div className="flex-1 flex flex-col bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm relative overflow-hidden h-[400px] lg:h-auto transition-all">
 
-                        {/* Dynamic Instruction Banner */}
                         {recordingMode === 'call' && !isRecording && (
                             <div className={`absolute top-0 left-0 right-0 border-b text-xs px-4 py-2 z-20 text-center animate-in fade-in slide-in-from-top-2 ${callMethod === 'voip' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}>
                                 {callMethod === 'voip' ? (
@@ -526,7 +524,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                             </div>
                         )}
 
-                        {/* Microphone Source Selector */}
                         <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 mt-8 md:mt-0">
                             <div className="relative">
                                 <button
@@ -567,13 +564,10 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                             </div>
                         </div>
 
-                        {/* MAIN CONTENT AREA */}
                         <div className="flex-1 flex items-center justify-center relative bg-gradient-to-b from-transparent to-primary/5">
 
-                            {/* VoIP Dialer Interface */}
                             {recordingMode === 'call' && callMethod === 'voip' && callStatus === 'idle' ? (
                                 <div className="flex flex-col gap-6 items-center w-full max-w-xs animate-in zoom-in-95 duration-200 z-10">
-                                    {/* CALLER ID INFO */}
                                     <div className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold flex flex-col items-center">
                                         <span>{t('callingAs')}</span>
                                         {user?.phoneVerified ? (
@@ -615,7 +609,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     </button>
                                 </div>
                             ) : (
-                                // Normal Visualizer View (Used for Meeting, External Call, or Active VoIP Call)
                                 <div className="flex items-center gap-1.5 h-32 w-full justify-center opacity-80">
                                     {visualizerData.map((h, i) => (
                                         <div
@@ -627,7 +620,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 </div>
                             )}
 
-                            {/* Status Overlays */}
                             {callStatus === 'connecting' && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-background-light/90 dark:bg-surface-dark/90 z-20">
                                     <div className="size-16 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mb-4 animate-pulse">
@@ -638,7 +630,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 </div>
                             )}
 
-                            {/* Ready State Label (Only if not VoIP dialer mode) */}
                             {!isRecording && callStatus === 'idle' && !(recordingMode === 'call' && callMethod === 'voip') && (
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <div className="flex flex-col items-center gap-2">
@@ -651,15 +642,12 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                             )}
                         </div>
 
-                        {/* FOOTER CONTROLS */}
                         <div className="px-4 md:px-8 pb-8 pt-4 flex flex-col items-center border-t border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">
-                            {/* Timer */}
                             <div className={`text-5xl md:text-7xl font-mono font-bold tracking-wider mb-8 tabular-nums ${callStatus === 'active' ? 'text-green-500' : 'text-slate-900 dark:text-white'}`}>
                                 {formatTime(seconds)}
                             </div>
 
                             <div className="flex items-center gap-6 md:gap-8 w-full justify-center max-w-xl relative">
-                                {/* Mark button */}
                                 {(isRecording || callStatus === 'active') && (
                                     <div className="absolute left-0 top-1/2 -translate-y-1/2 md:block">
                                         <button
@@ -673,9 +661,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     </div>
                                 )}
 
-                                {/* Main Action Buttons */}
                                 {callMethod === 'voip' ? (
-                                    // VOIP CONTROLS
                                     callStatus === 'idle' ? (
                                         <div className="h-20 flex items-center text-slate-400 text-sm">
                                             {t('enterNumber')}
@@ -688,7 +674,6 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         </button>
                                     )
                                 ) : (
-                                    // STANDARD RECORDING CONTROLS
                                     !isRecording ? (
                                         <button
                                             onClick={startRecording}
