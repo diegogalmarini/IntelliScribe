@@ -30,7 +30,16 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 })
             });
 
-            const data = await res.json();
+            const text = await res.text();
+            console.log('Raw API Response:', text);
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (jsonError) {
+                console.error('JSON Parse Error:', jsonError);
+                throw new Error(`Invalid JSON Response: ${text.substring(0, 100)}...`);
+            }
 
             if (res.ok) {
                 setStep('code');
@@ -42,7 +51,8 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
         } catch (e: any) {
             console.error('Send error:', e);
             setStatus('error');
-            setErrorMsg('(v2) ' + (e.message || 'Network send failed'));
+            // Show the exact raw error to the user
+            setErrorMsg(`(Debug) ${e.name}: ${e.message}`);
         }
     };
 
