@@ -1,9 +1,8 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import twilio from 'twilio';
-import { createClient } from '@supabase/supabase-js';
+const twilio = require('twilio');
+const { createClient } = require('@supabase/supabase-js');
 
-// SAFETY WRAPPER: Guaranteed to return JSON even on hard crash
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+// COMMONJS REWRITE: Bulletproof against transpilation/ESM issues
+module.exports = async (req, res) => {
     try {
         // 1. SAFE CORS
         const origin = req.headers.origin || 'https://diktalo.com';
@@ -15,9 +14,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (req.method === 'OPTIONS') return res.status(200).end();
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-        const { action, phoneNumber, code, userId } = req.body || {};
+        const body = req.body || {};
+        const { action, phoneNumber, code, userId } = body;
 
-        // 2. SAFE ENV LOADING (No crashing on missing props)
+        // 2. SAFE ENV LOADING
         const accountSid = (process.env.TWILIO_ACCOUNT_SID || '').trim();
         const apiKeySid = (process.env.TWILIO_API_KEY_SID || '').trim();
         const apiKeySecret = (process.env.TWILIO_API_KEY_SECRET || '').trim();
@@ -35,13 +35,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let client;
         try {
             client = twilio(apiKeySid, apiKeySecret, { accountSid: accountSid });
-        } catch (initErr: any) {
+        } catch (initErr) {
             return res.status(500).json({ error: `Twilio Init Failed: ${initErr.message}` });
         }
 
         // 4. EXECUTION
         if (action === 'send') {
             try {
+                // Validación explícita antes de llamar
+                if (!phoneNumber) throw new Error("Phone number is required");
+
                 const verification = await client.verify.v2
                     .services(serviceSid)
                     .verifications.create({
@@ -49,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         channel: 'sms'
                     });
                 return res.status(200).json({ status: verification.status });
-            } catch (twilioErr: any) {
+            } catch (twilioErr) {
                 console.error("Twilio Send Error:", twilioErr);
                 return res.status(500).json({ error: `Twilio Send Error: ${twilioErr.message}` });
             }
@@ -74,21 +77,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 } else {
                     return res.status(400).json({ status: 'rejected', error: 'Invalid code' });
                 }
-            } catch (verifyErr: any) {
+            } catch (verifyErr) {
                 return res.status(500).json({ error: `Twilio Verify Error: ${verifyErr.message}` });
             }
         }
 
         return res.status(400).json({ error: 'Invalid action' });
 
-    } catch (fatalErr: any) {
+    } catch (fatalErr) {
         console.error('🔥 FATAL:', fatalErr);
-        // Force header write if possible
-        try { if (!res.headersSent) res.setHeader('Content-Type', 'application/json'); } catch (e) { }
-
+        // Fallback for fatal crash
         return res.status(500).json({
             error: 'Server Crash',
             message: fatalErr.message
         });
     }
-}
+};
