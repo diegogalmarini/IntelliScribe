@@ -59,7 +59,9 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
 
                 call.on('error', (err: any) => {
                     setStatus('Error');
-                    setErrorMessage(`Twilio Error: ${err.code} - ${err.message}`);
+                    const errCode = err?.code || 'Unknown';
+                    const errMsg = err?.message || 'Unknown Error';
+                    setErrorMessage(`Twilio Error: ${errCode} - ${errMsg}`);
                 });
             }
         } catch (e: any) {
