@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { callService } from '../services/callService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { UserProfile, AppRoute } from '../types';
+import { PhoneVerificationModal } from './PhoneVerificationModal'; // <--- IMPORTANTE
 
 interface DialerProps {
     user: UserProfile;
     onNavigate: (route: AppRoute) => void;
+    // Callback para actualizar el usuario en App.tsx cuando se verifique
+    onUserUpdated?: () => void;
 }
 
-export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
+export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated }) => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const [number, setNumber] = useState('');
@@ -17,64 +20,48 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
     const [isMuted, setIsMuted] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    // --- PRE-CARGA SILENCIOSA ---
+    // Estado para el modal de verificación
+    const [showVerification, setShowVerification] = useState(false);
+
     useEffect(() => {
         if (isOpen && user && status === 'Idle') {
-            setStatus('Initializing...');
-            // Preparamos el token en segundo plano
-            callService.prepareToken(user.email || 'guest')
-                .then(success => {
-                    if (success) setStatus('Ready');
-                    else setStatus('Error (Token)');
-                });
+            callService.prepareToken(user.email || 'guest');
         }
     }, [isOpen, user]);
 
-    const handleDigit = (digit: string) => {
-        setNumber(prev => prev + digit);
-        if (activeCall) {
-            activeCall.sendDigits(digit);
-        }
-    };
-
     const handleCall = async () => {
+        // 1. CHEQUEO DE VERIFICACIÓN
+        if (!user.phoneVerified) {
+            setShowVerification(true);
+            return;
+        }
+
         if (!number) return;
         setErrorMessage('');
-
         const numberToCall = '+' + number;
         setStatus('Calling...');
 
         try {
-            // AHORA esto es instantáneo porque el token ya existe
             const call = await callService.makeCall(numberToCall, user.email || 'guest');
-
             if (call) {
                 setActiveCall(call);
                 setStatus('In Call');
-
                 call.on('disconnect', () => {
                     setStatus('Ready');
                     setActiveCall(null);
                 });
-
-                call.on('error', (err: any) => {
-                    setStatus('Error');
-                    const errCode = err?.code || 'Unknown';
-                    const errMsg = err?.message || 'Unknown Error';
-                    setErrorMessage(`Twilio Error: ${errCode} - ${errMsg}`);
-                });
+                call.on('error', (err: any) => setErrorMessage(err.message));
             }
         } catch (e: any) {
             setStatus('Error');
-            // Muestra el error exacto en pantalla (Protegido contra undefined)
-            const msg = e?.message || (e ? JSON.stringify(e) : 'Unknown Error');
-            setErrorMessage(msg);
-
-            // Si es error de micrófono, lo traducimos
-            if (msg && (msg.includes('Permission') || msg.includes('31208'))) {
-                setErrorMessage('⚠️ Browser blocked Microphone. Tap lock icon 🔒 in URL bar.');
-            }
+            setErrorMessage(e.message);
         }
+    };
+
+    // ... (Resto de funciones: handleHangup, toggleMute, handleDigit igual que antes)
+    const handleDigit = (digit: string) => {
+        setNumber(prev => prev + digit);
+        if (activeCall) activeCall.sendDigits(digit);
     };
 
     const handleHangup = () => {
@@ -90,78 +77,87 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate }) => {
         }
     };
 
-    const isRestricted = !user.phoneVerified;
-
     if (!isOpen) {
         return (
-            <button onClick={() => setIsOpen(true)} className={`fixed bottom-6 right-6 w-14 h-14 ${isRestricted ? 'bg-orange-500' : 'bg-brand-green'} text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50`}>
+            <button onClick={() => setIsOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-brand-green text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50">
                 <span className="material-symbols-outlined text-2xl">call</span>
             </button>
         );
     }
 
     return (
-        <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-80 w-full h-full bg-white dark:bg-card-dark sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50">
-
-            {/* Header */}
-            <div className="bg-slate-100 dark:bg-surface-dark p-3 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${status === 'Ready' || status === 'In Call' ? 'bg-green-500' : 'bg-red-500'} `} />
-                    <span className="text-xs font-medium text-slate-500 dark:text-text-secondary">{status}</span>
+        <>
+            {/* El Dialer Visual */}
+            <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-80 w-full h-full bg-white dark:bg-card-dark sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50">
+                {/* Header */}
+                <div className="bg-slate-100 dark:bg-surface-dark p-3 flex justify-between items-center shrink-0">
+                    <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${status === 'In Call' ? 'bg-green-500' : 'bg-slate-400'} `} />
+                        <span className="text-xs font-medium text-slate-500">{status}</span>
+                    </div>
+                    <button onClick={() => setIsOpen(false)} className="p-2 text-slate-400">
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="p-2 text-slate-400">
-                    <span className="material-symbols-outlined">close</span>
-                </button>
-            </div>
 
-            {/* ZONA DE ERROR ROJA VISIBLE */}
-            {errorMessage && (
-                <div className="bg-red-600 text-white text-xs p-3 text-center font-mono">
-                    {errorMessage}
-                </div>
-            )}
+                {errorMessage && <div className="bg-red-500 text-white text-xs p-2 text-center">{errorMessage}</div>}
 
-            {/* Display */}
-            <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0">
-                <div className="flex items-center justify-center w-full mb-2">
-                    <span className="text-3xl font-light text-slate-400 mr-1">+</span>
-                    <div className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-widest break-all">
-                        {number || <span className="opacity-30">34...</span>}
+                {/* Display */}
+                <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0">
+                    <div className="flex items-center justify-center w-full mb-2">
+                        <span className="text-3xl font-light text-slate-400 mr-1">+</span>
+                        <div className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-widest break-all">
+                            {number || <span className="opacity-30">34...</span>}
+                        </div>
                     </div>
                 </div>
-                {status === 'In Call' && <span className="text-sm text-brand-green animate-pulse">Connected</span>}
-            </div>
 
-            {/* Keypad */}
-            <div className="flex-1 grid grid-cols-3 gap-3 p-6 bg-slate-50 dark:bg-surface-dark/50">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(digit => (
-                    <button key={digit} onClick={() => handleDigit(digit)} className="h-full rounded-2xl bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 font-medium text-2xl shadow-sm active:scale-95 flex items-center justify-center">
-                        {digit}
+                {/* Keypad */}
+                <div className="flex-1 grid grid-cols-3 gap-3 p-6 bg-slate-50 dark:bg-surface-dark/50">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(digit => (
+                        <button key={digit} onClick={() => handleDigit(digit)} className="h-full rounded-2xl bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 font-medium text-2xl shadow-sm active:scale-95 flex items-center justify-center">
+                            {digit}
+                        </button>
+                    ))}
+                    <div className="col-start-2">
+                        <button onClick={() => handleDigit('0')} className="h-full w-full rounded-2xl bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 font-medium text-2xl shadow-sm active:scale-95 flex items-center justify-center">0</button>
+                    </div>
+                </div>
+
+                {/* Actions */}
+                <div className="p-6 bg-white dark:bg-card-dark grid grid-cols-3 gap-4 border-t border-slate-100 dark:border-border-dark shrink-0 mb-safe">
+                    <button onClick={toggleMute} className={`rounded-full w-14 h-14 mx-auto flex items-center justify-center ${isMuted ? 'bg-slate-200 text-black' : 'text-slate-400'}`}>
+                        <span className="material-symbols-outlined">{isMuted ? 'mic_off' : 'mic'}</span>
                     </button>
-                ))}
-                <div className="col-start-2">
-                    <button onClick={() => handleDigit('0')} className="h-full w-full rounded-2xl bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 font-medium text-2xl shadow-sm active:scale-95 flex items-center justify-center">0</button>
+
+                    {status === 'In Call' || status === 'Calling...' ? (
+                        <button onClick={handleHangup} className="bg-red-500 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-lg">
+                            <span className="material-symbols-outlined text-3xl">call_end</span>
+                        </button>
+                    ) : (
+                        <button onClick={handleCall} className="bg-green-500 hover:bg-green-600 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-lg transition-transform active:scale-90">
+                            <span className="material-symbols-outlined text-3xl">call</span>
+                        </button>
+                    )}
+
+                    <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-14 h-14 mx-auto flex items-center justify-center text-slate-400">
+                        <span className="material-symbols-outlined">backspace</span>
+                    </button>
                 </div>
             </div>
 
-            {/* Actions */}
-            <div className="p-6 bg-white dark:bg-card-dark grid grid-cols-3 gap-4 border-t border-slate-100 dark:border-border-dark shrink-0 mb-safe">
-                <button onClick={toggleMute} className={`rounded-full w-14 h-14 mx-auto flex items-center justify-center ${isMuted ? 'bg-slate-200 text-black' : 'text-slate-400'}`}>
-                    <span className="material-symbols-outlined">{isMuted ? 'mic_off' : 'mic'}</span>
-                </button>
-                {status === 'In Call' || status === 'Calling...' ? (
-                    <button onClick={handleHangup} className="bg-red-500 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-lg">
-                        <span className="material-symbols-outlined text-3xl">call_end</span>
-                    </button>
-                ) : (
-                    <button onClick={handleCall} className="bg-green-500 hover:bg-green-600 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-lg transition-transform active:scale-90">
-                        <span className="material-symbols-outlined text-3xl">call</span>
-                    </button>
-                )}
-                <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-14 h-14 mx-auto flex items-center justify-center text-slate-400">
-                    <span className="material-symbols-outlined">backspace</span>
-                </button>
-            </div>
-        </div>
+            {/* MODAL DE VERIFICACIÓN */}
+            {showVerification && (
+                <PhoneVerificationModal
+                    userId={user.id}
+                    onClose={() => setShowVerification(false)}
+                    onVerified={() => {
+                        setShowVerification(false);
+                        if (onUserUpdated) onUserUpdated(); // Refresca el usuario en App
+                        alert("Phone verified! Try calling now.");
+                    }}
+                />
+            )}
+        </>
     );
 };
