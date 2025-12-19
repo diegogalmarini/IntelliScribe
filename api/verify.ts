@@ -1,91 +1,61 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import twilio from 'twilio';
-import { createClient } from '@supabase/supabase-js';
 
-// WRAPPER PARA EVITAR CRASHES DUROS
+// VERSIÓN DE PRUEBA MÍNIMA - Sin Twilio para debuggear
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
-        // 1. CORS DINÁMICO (Compatible con Credentials: true)
-        const allowedOrigin = req.headers.origin || '*';
-        res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        // CORS más permisivo posible
+        const origin = req.headers.origin || 'https://diktalo.com';
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        res.setHeader('Content-Type', 'application/json');
 
-        if (req.method === 'OPTIONS') return res.status(200).end();
-        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-        const { action, phoneNumber, code, userId, channel } = req.body || {};
-
-        // 2. DEBUG DE VARIABLES (Safe Access)
-        const accountSid = (process.env.TWILIO_ACCOUNT_SID || '').trim();
-        const apiKeySid = (process.env.TWILIO_API_KEY_SID || '').trim();
-        const apiKeySecret = (process.env.TWILIO_API_KEY_SECRET || '').trim();
-        const serviceSid = (process.env.TWILIO_VERIFY_SERVICE_SID || '').trim();
-
-        const supabaseUrl = (process.env.VITE_SUPABASE_URL || '').trim();
-        const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-
-        if (!accountSid || !apiKeySid || !apiKeySecret || !serviceSid) {
-            console.error("Missing Twilio Vars");
-            return res.status(500).json({ error: 'Missing Twilio Config' });
+        // OPTIONS
+        if (req.method === 'OPTIONS') {
+            return res.status(200).end();
         }
 
-        // 3. INICIALIZACIÓN
-        const client = twilio(apiKeySid, apiKeySecret, { accountSid: accountSid });
+        // Solo POST
+        if (req.method !== 'POST') {
+            return res.status(405).json({ error: 'Method not allowed' });
+        }
 
-        // --- ACCIÓN 1: ENVIAR ---
+        console.log('📥 Request received:', {
+            method: req.method,
+            action: req.body?.action,
+            phone: req.body?.phoneNumber?.substring(0, 5) + '...',
+            origin: req.headers.origin
+        });
+
+        const { action, phoneNumber, code } = req.body || {};
+
+        // PRUEBA 1: Solo devolvemos éxito sin llamar a Twilio
         if (action === 'send') {
-            console.log(`📤 Sending to ${phoneNumber}`);
-            const verification = await client.verify.v2
-                .services(serviceSid)
-                .verifications.create({
-                    to: phoneNumber,
-                    channel: channel || 'sms'
-                });
-            return res.status(200).json({ status: verification.status });
+            console.log('✅ TEST: Returning fake success for send');
+            return res.status(200).json({
+                status: 'pending',
+                message: 'TEST MODE: No SMS sent, but API works!'
+            });
         }
 
-        // --- ACCIÓN 2: VERIFICAR ---
         if (action === 'check') {
-            const check = await client.verify.v2
-                .services(serviceSid)
-                .verificationChecks.create({ to: phoneNumber, code });
-
-            if (check.status === 'approved') {
-                // Supabase opcional para esta prueba de crash
-                if (supabaseUrl && supabaseServiceKey && userId) {
-                    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-                    await supabase.from('profiles').update({
-                        phone: phoneNumber,
-                        phone_verified: true
-                    }).eq('id', userId);
-                }
-                return res.status(200).json({ status: 'approved' });
-            } else {
-                return res.status(400).json({ status: 'rejected', error: 'Invalid code' });
-            }
+            // Aceptamos cualquier código por ahora
+            console.log('✅ TEST: Returning fake approval');
+            return res.status(200).json({
+                status: 'approved',
+                message: 'TEST MODE: Any code works!'
+            });
         }
 
         return res.status(400).json({ error: 'Invalid action' });
 
     } catch (error: any) {
-        console.error('🔥 FINAL CATCH:', error);
-        // Asegurmos que SIEMPRE devolvemos JSON válido
-        const safeParams = {
-            allowedCredentials: 'true',
-            content: 'application/json'
-        };
-        // Intentar escribir cabeceras si no se han enviado
-        try {
-            if (!res.headersSent) {
-                res.setHeader('Content-Type', 'application/json');
-            }
-        } catch (e) { }
-
+        console.error('❌ ERROR:', error.message);
+        res.setHeader('Content-Type', 'application/json');
         return res.status(500).json({
-            error: `Server Error: ${error.message}`,
-            details: 'Check Vercel Logs'
+            error: 'Server Error',
+            message: error.message,
+            debug: 'Check Vercel Function Logs'
         });
     }
 }
