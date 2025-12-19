@@ -3,49 +3,50 @@ import twilio from 'twilio';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // 1. CORS BLINDADO (Evita el "Network Error" por rechazo del navegador)
+    // 1. CORS
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
         const { action, phoneNumber, code, userId, channel } = req.body;
 
-        // 2. VARIABLES DE ENTORNO (Cargadas DENTRO para evitar errores de inicio)
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const apiKeySid = process.env.TWILIO_API_KEY_SID;      // <--- LA LLAVE CORRECTA
-        const apiKeySecret = process.env.TWILIO_API_KEY_SECRET;
-        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+        // 2. CARGA Y LIMPIEZA DE VARIABLES (Trim es clave)
+        // Eliminamos espacios en blanco accidentales que causan "pattern mismatch"
+        const accountSid = process.env.TWILIO_ACCOUNT_SID?.trim();
+        const apiKeySid = process.env.TWILIO_API_KEY_SID?.trim();
+        const apiKeySecret = process.env.TWILIO_API_KEY_SECRET?.trim();
+        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID?.trim();
 
-        const supabaseUrl = process.env.VITE_SUPABASE_URL;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim();
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-        // Validación de seguridad
+        // 3. DEBUGGING DE FORMATO (Sin revelar secretos)
+        // Verificamos que los prefijos sean correctos: AC, SK, VA
+        if (!accountSid?.startsWith('AC')) throw new Error(`Invalid AccountSID Format: Starts with ${accountSid?.substring(0, 2)}`);
+        if (!apiKeySid?.startsWith('SK')) throw new Error(`Invalid ApiKeySID Format: Starts with ${apiKeySid?.substring(0, 2)}`);
+        if (!serviceSid?.startsWith('VA')) throw new Error(`Invalid ServiceSID Format: Starts with ${serviceSid?.substring(0, 2)}`);
+
         if (!accountSid || !apiKeySid || !apiKeySecret || !serviceSid || !supabaseUrl || !supabaseServiceKey) {
-            console.error("❌ Faltan variables en Vercel. Revisa TWILIO_API_KEY_SID y SUPABASE_SERVICE_ROLE_KEY");
-            return res.status(500).json({ error: 'Server misconfiguration' });
+            console.error("❌ MISSING VARS");
+            return res.status(500).json({ error: 'Missing Env Vars' });
         }
 
-        // 3. INICIALIZACIÓN (La corrección clave)
-        // Usamos API KEY SID como usuario, no el Account SID
-        const client = twilio(apiKeySid, apiKeySecret, { accountSid: accountSid });
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        // 4. INICIALIZACIÓN
+        let client;
+        try {
+            client = twilio(apiKeySid, apiKeySecret, { accountSid: accountSid });
+        } catch (initErr: any) {
+            throw new Error(`Twilio Init Failed: ${initErr.message}`);
+        }
 
-        // --- ENVIAR SMS ---
+        // Acciones
         if (action === 'send') {
+            console.log(`📤 Sending to ${phoneNumber} via ${serviceSid}`);
             const verification = await client.verify.v2
                 .services(serviceSid)
                 .verifications.create({
@@ -55,25 +56,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ status: verification.status });
         }
 
-        // --- VERIFICAR Y GUARDAR ---
         if (action === 'check') {
             const check = await client.verify.v2
                 .services(serviceSid)
                 .verificationChecks.create({ to: phoneNumber, code });
 
             if (check.status === 'approved') {
-                // Guardamos en Supabase usando permisos de admin
-                const { error: dbError } = await supabase
-                    .from('profiles')
-                    .update({
-                        phone: phoneNumber,
-                        phone_verified: true
-                    })
-                    .eq('id', userId);
-
-                if (dbError) {
-                    console.error("⚠️ Error guardando en DB:", dbError);
-                }
+                const supabase = createClient(supabaseUrl, supabaseServiceKey);
+                await supabase.from('profiles').update({
+                    phone: phoneNumber,
+                    phone_verified: true
+                }).eq('id', userId);
 
                 return res.status(200).json({ status: 'approved' });
             } else {
@@ -85,6 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (error: any) {
         console.error('🔥 CRASH:', error);
-        return res.status(500).json({ error: error.message || 'Internal Server Error' });
+        // Devolvemos el mensaje EXACTO de depuración al frontend
+        return res.status(500).json({ error: `Debug: ${error.message}` });
     }
 }
