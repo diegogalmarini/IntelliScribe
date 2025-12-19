@@ -3,81 +3,85 @@ import twilio from 'twilio';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // 1. CORS Setup
+    const origin = req.headers.origin || 'https://diktalo.com';
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Content-Type', 'application/json');
+
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    let step = 'START';
+
     try {
-        // CORS that works (proven by test)
-        const origin = req.headers.origin || 'https://diktalo.com';
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-        res.setHeader('Content-Type', 'application/json');
+        const { action, phoneNumber, code, userId } = req.body || {};
 
-        if (req.method === 'OPTIONS') return res.status(200).end();
-        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-        const { action, phoneNumber, code, userId, channel } = req.body || {};
-
-        // Load and clean env vars
+        // 2. Env Vars
+        step = 'ENV_LOADING';
         const accountSid = (process.env.TWILIO_ACCOUNT_SID || '').trim();
         const apiKeySid = (process.env.TWILIO_API_KEY_SID || '').trim();
         const apiKeySecret = (process.env.TWILIO_API_KEY_SECRET || '').trim();
         const serviceSid = (process.env.TWILIO_VERIFY_SERVICE_SID || '').trim();
 
-        const supabaseUrl = (process.env.VITE_SUPABASE_URL || '').trim();
-        const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+        // 3. Validation
+        step = 'ENV_VALIDATION';
+        if (!accountSid.startsWith('AC')) throw new Error(`Bad AccountSID: ${accountSid.substring(0, 2)}...`);
+        if (!apiKeySid.startsWith('SK')) throw new Error(`Bad ApiKeySID: ${apiKeySid.substring(0, 2)}...`);
+        if (!serviceSid.startsWith('VA')) throw new Error(`Bad ServiceSID: ${serviceSid.substring(0, 2)}...`);
 
-        if (!accountSid || !apiKeySid || !apiKeySecret || !serviceSid) {
-            console.error("Missing Twilio vars");
-            return res.status(500).json({ error: 'Server config error' });
+        // 4. Client Init
+        step = 'CLIENT_INIT';
+        let client;
+        try {
+            client = twilio(apiKeySid, apiKeySecret, { accountSid: accountSid });
+        } catch (e: any) {
+            throw new Error(`Twilio Init Failed: ${e.message}`);
         }
 
-        // Initialize Twilio client
-        const client = twilio(apiKeySid, apiKeySecret, { accountSid: accountSid });
-
-        // SEND SMS
+        // 5. Execution
         if (action === 'send') {
-            console.log(`📤 Sending SMS to ${phoneNumber}`);
+            step = 'SENDING_SMS';
+            console.log(`Step: ${step} to ${phoneNumber}`);
+
+            // Explicitly validate phone before sending
+            if (!phoneNumber || phoneNumber.length < 8) {
+                throw new Error(`Invalid phone number format: ${phoneNumber}`);
+            }
+
             const verification = await client.verify.v2
                 .services(serviceSid)
                 .verifications.create({
                     to: phoneNumber,
-                    channel: channel || 'sms'
+                    channel: 'sms'
                 });
 
-            console.log(`✅ SMS sent, status: ${verification.status}`);
             return res.status(200).json({ status: verification.status });
         }
 
-        // VERIFY CODE
         if (action === 'check') {
-            console.log(`🔐 Checking code for ${phoneNumber}`);
+            step = 'VERIFYING_CODE';
             const check = await client.verify.v2
                 .services(serviceSid)
                 .verificationChecks.create({ to: phoneNumber, code });
 
             if (check.status === 'approved') {
-                console.log('✅ Code approved, updating database...');
+                step = 'DB_UPDATE';
+                // Only create supabase client if needed
+                const supabaseUrl = process.env.VITE_SUPABASE_URL;
+                const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-                // Update Supabase
-                if (supabaseUrl && supabaseServiceKey && userId) {
-                    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-                    const { error: dbError } = await supabase
-                        .from('profiles')
-                        .update({
-                            phone: phoneNumber,
-                            phone_verified: true
-                        })
-                        .eq('id', userId);
-
-                    if (dbError) {
-                        console.error('⚠️ DB update failed:', dbError);
-                    } else {
-                        console.log('🎉 Profile updated successfully');
-                    }
+                if (supabaseUrl && supabaseKey) {
+                    const supabase = createClient(supabaseUrl, supabaseKey);
+                    await supabase.from('profiles').update({
+                        phone: phoneNumber,
+                        phone_verified: true
+                    }).eq('id', userId);
                 }
 
                 return res.status(200).json({ status: 'approved' });
             } else {
-                console.warn('❌ Invalid code');
                 return res.status(400).json({ status: 'rejected', error: 'Invalid code' });
             }
         }
@@ -85,11 +89,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Invalid action' });
 
     } catch (error: any) {
-        console.error('🔥 ERROR:', error);
-        res.setHeader('Content-Type', 'application/json');
+        console.error(`🔥 FAILED AT ${step}:`, error);
         return res.status(500).json({
-            error: error.message || 'Server error',
-            debug: 'Check Vercel logs'
+            error: `Error at ${step}: ${error.message}`,
+            step: step
         });
     }
 }
