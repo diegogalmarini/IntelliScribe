@@ -39,9 +39,10 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 setStatus('error');
                 setErrorMsg(data.error || 'Failed to send SMS');
             }
-        } catch (e) {
+        } catch (e: any) {
+            console.error('Send error:', e);
             setStatus('error');
-            setErrorMsg('Network error');
+            setErrorMsg('(v2) ' + (e.message || 'Network send failed'));
         }
     };
 
@@ -73,9 +74,10 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 setStatus('error');
                 setErrorMsg(data.error || 'Invalid code');
             }
-        } catch (e) {
+        } catch (e: any) {
+            console.error('Verify error:', e);
             setStatus('error');
-            setErrorMsg('Verification failed');
+            setErrorMsg('(v2) ' + (e.message || 'Network check failed'));
         }
     };
 
