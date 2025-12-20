@@ -210,12 +210,63 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }
 
+        // NEW ACTION: Verify Caller ID in Twilio
+        if (action === 'verify-caller-id') {
+            console.log(`🔔 [VERIFY] Initiating Twilio Caller ID verification for ${phoneNumber}`);
+
+            if (!userId) {
+                console.error('❌ [VERIFY] Missing userId for caller ID verification');
+                return res.status(400).json({
+                    error: 'Missing required parameter: userId'
+                });
+            }
+
+            try {
+                // Call Twilio OutgoingCallerIds API to initiate verification
+                const validationRequest = await client.validationRequests.create({
+                    phoneNumber: phoneNumber,
+                    friendlyName: `User ${userId}`,
+                    // StatusCallback will be called when verification completes
+                    statusCallback: `https://www.diktalo.com/api/voice-callback`
+                });
+
+                console.log('✅ [VERIFY] Twilio validation request created:', {
+                    accountSid: validationRequest.accountSid,
+                    phoneNumber: validationRequest.phoneNumber,
+                    validationCode: validationRequest.validationCode,
+                    callSid: validationRequest.callSid
+                });
+
+                // Return the validation code to show to the user
+                return res.status(200).json({
+                    status: 'initiated',
+                    validationCode: validationRequest.validationCode,
+                    callSid: validationRequest.callSid,
+                    message: 'Twilio will call you shortly. Please enter the validation code when prompted.'
+                });
+
+            } catch (twilioError) {
+                console.error('❌ [VERIFY] Twilio caller ID verification error:', {
+                    message: twilioError.message,
+                    code: twilioError.code,
+                    status: twilioError.status
+                });
+
+                return res.status(500).json({
+                    error: 'Failed to initiate caller ID verification',
+                    details: twilioError.message,
+                    twilioCode: twilioError.code
+                });
+            }
+        }
+
         // Invalid action
         console.error('❌ [VERIFY] Invalid action:', action);
         return res.status(400).json({
             error: 'Invalid action parameter',
-            validActions: ['send', 'check']
+            validActions: ['send', 'check', 'verify-caller-id']
         });
+
 
     } catch (error) {
         // Catch-all for any unexpected errors

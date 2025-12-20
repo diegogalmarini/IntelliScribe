@@ -5,19 +5,75 @@ const VoiceResponse = twilio.twiml.VoiceResponse;
 // Lista de países permitidos (puedes ampliarla)
 const ALLOWED_PREFIXES = ['+1', '+34', '+44', '+33', '+49', '+39'];
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     const twiml = new VoiceResponse();
 
     // Obtener datos
     const to = req.body.To || req.query.To;
-    // Use the authorized Twilio number as caller ID
-    // NOTE: Verified personal numbers need special Twilio approval for caller ID
-    const callerId = process.env.TWILIO_CALLER_ID;
+    const userId = req.body.userId || req.query.userId; // NEW: Get userId to lookup verified caller ID
 
-    console.log(`[VOICE] Calling ${to} from ${callerId}`);
+    // Ohio number as fallback
+    const fallbackCallerId = process.env.TWILIO_CALLER_ID;
 
-    if (!to || !callerId) {
-        twiml.say('Error de configuración.');
+    console.log(`[VOICE] Request to call ${to} from user ${userId}`);
+
+    if (!to) {
+        twiml.say('Error: número destino no proporcionado.');
+        res.setHeader('Content-Type', 'text/xml');
+        return res.status(200).send(twiml.toString());
+    }
+
+    // Query verified caller ID if userId provided
+    let callerId = fallbackCallerId;
+    let verificationStatus = 'none'; // For logging
+
+    if (userId) {
+        try {
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+            const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+            if (supabaseUrl && supabaseServiceKey) {
+                const response = await fetch(
+                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,caller_id_verified`,
+                    {
+                        headers: {
+                            'apikey': supabaseServiceKey,
+                            'Authorization': `Bearer ${supabaseServiceKey}`
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.length > 0) {
+                        const profile = data[0];
+
+                        // Use user's phone if caller_id_verified is true
+                        if (profile.caller_id_verified && profile.phone) {
+                            callerId = profile.phone;
+                            verificationStatus = 'verified';
+                            console.log(`[VOICE] ✅ Using verified caller ID: ${callerId} for user ${userId}`);
+                        } else {
+                            verificationStatus = 'unverified';
+                            console.log(`[VOICE] ⚠️ User ${userId} has not verified caller ID, using fallback: ${fallbackCallerId}`);
+                        }
+                    }
+                } else {
+                    console.error('[VOICE] Failed to query Supabase:', response.statusText);
+                }
+            }
+        } catch (error) {
+            console.error('[VOICE] Error querying verified caller ID:', error);
+            // Continue with fallback
+        }
+    } else {
+        console.log('[VOICE] No userId provided, using fallback caller ID');
+    }
+
+    console.log(`[VOICE] Calling ${to} from ${callerId} (verified: ${verificationStatus})`);
+
+    if (!callerId) {
+        twiml.say('Error de configuración: no hay caller ID disponible.');
         res.setHeader('Content-Type', 'text/xml');
         return res.status(200).send(twiml.toString());
     }
