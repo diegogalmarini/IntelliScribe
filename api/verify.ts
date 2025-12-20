@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
 
-// Twilio doesn't support ES module imports in serverless, use require
+// Use CommonJS require for packages that have issues with ES modules in Vercel serverless
 const twilio = require('twilio');
+const { createClient } = require('@supabase/supabase-js');
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Wrap everything in try-catch to ensure we ALWAYS return valid JSON
