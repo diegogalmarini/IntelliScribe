@@ -10,17 +10,11 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     // Obtener datos
     const to = req.body.To || req.query.To;
-    // IMPORTANT: Use custom parameter, not 'From' (Twilio reserves this for device identity)
-    const verifiedPhone = req.body.VerifiedPhone || req.query.VerifiedPhone;
-    const fallbackCallerId = process.env.TWILIO_CALLER_ID; // Ohio number fallback
+    // Use the authorized Twilio number as caller ID
+    // NOTE: Verified personal numbers need special Twilio approval for caller ID
+    const callerId = process.env.TWILIO_CALLER_ID;
 
-    // Use verified phone if provided AND it's a valid phone number, otherwise use fallback
-    let callerId = fallbackCallerId;
-    if (verifiedPhone && /^\+\d{10,15}$/.test(verifiedPhone)) {
-        callerId = verifiedPhone;
-    }
-
-    console.log(`[VOICE] Calling ${to} from ${callerId} (verified: ${verifiedPhone || 'none'})`);
+    console.log(`[VOICE] Calling ${to} from ${callerId}`);
 
     if (!to || !callerId) {
         twiml.say('Error de configuración.');
