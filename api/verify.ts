@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -92,10 +91,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
         }
 
-        // --- Initialize Supabase Client ---
+        // --- Initialize Supabase Client with DYNAMIC IMPORT ---
         let supabase;
         try {
-            console.log("🔍 [VERIFY] Initializing Supabase client...");
+            console.log("🔍 [VERIFY] Dynamically importing Supabase...");
+            const { createClient } = await import('@supabase/supabase-js');
+            console.log("✅ [VERIFY] Supabase module imported successfully");
+
             supabase = createClient(supabaseUrl, supabaseServiceKey);
             console.log("✅ [VERIFY] Supabase client initialized successfully");
         } catch (initError) {
