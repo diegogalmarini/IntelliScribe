@@ -1,6 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { Twilio } from 'twilio';
 import { createClient } from '@supabase/supabase-js';
+
+// Twilio doesn't support ES module imports in serverless, use require
+const twilio = require('twilio');
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Wrap everything in try-catch to ensure we ALWAYS return valid JSON
@@ -82,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let client;
         try {
             console.log("🔍 [VERIFY] Initializing Twilio client...");
-            client = new Twilio(accountSid, authToken);
+            client = twilio(accountSid, authToken);
             console.log("✅ [VERIFY] Twilio client initialized successfully");
         } catch (initError: any) {
             console.error('❌ [VERIFY] Twilio client initialization failed:', initError);
