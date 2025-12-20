@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-js/dist/index.cjs');
 const twilio = require('twilio');
 
 module.exports = async (req, res) => {
@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
         const supabaseUrl = process.env.VITE_SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-        const missingVars: string[] = [];
+        const missingVars = [];
         if (!accountSid) missingVars.push('TWILIO_ACCOUNT_SID');
         if (!authToken) missingVars.push('TWILIO_AUTH_TOKEN');
         if (!serviceSid) missingVars.push('TWILIO_VERIFY_SERVICE_SID');
@@ -83,7 +83,7 @@ module.exports = async (req, res) => {
             console.log("🔍 [VERIFY] Initializing Twilio client...");
             client = twilio(accountSid, authToken);
             console.log("✅ [VERIFY] Twilio client initialized successfully");
-        } catch (initError: any) {
+        } catch (initError) {
             console.error('❌ [VERIFY] Twilio client initialization failed:', initError);
             return res.status(500).json({
                 error: 'Failed to initialize Twilio client',
@@ -97,7 +97,7 @@ module.exports = async (req, res) => {
             console.log("🔍 [VERIFY] Initializing Supabase client...");
             supabase = createClient(supabaseUrl, supabaseServiceKey);
             console.log("✅ [VERIFY] Supabase client initialized successfully");
-        } catch (initError: any) {
+        } catch (initError) {
             console.error('❌ [VERIFY] Supabase client initialization failed:', initError);
             return res.status(500).json({
                 error: 'Failed to initialize Supabase client',
@@ -122,7 +122,7 @@ module.exports = async (req, res) => {
                     status: verification.status,
                     message: 'Verification code sent successfully'
                 });
-            } catch (twilioError: any) {
+            } catch (twilioError) {
                 console.error('❌ [VERIFY] Twilio API error:', {
                     message: twilioError.message,
                     code: twilioError.code,
@@ -184,7 +184,7 @@ module.exports = async (req, res) => {
                             status: 'approved',
                             message: 'Phone verified successfully'
                         });
-                    } catch (dbError: any) {
+                    } catch (dbError) {
                         console.error('❌ [VERIFY] Database error:', dbError);
                         return res.status(500).json({
                             error: 'Database operation failed',
@@ -198,7 +198,7 @@ module.exports = async (req, res) => {
                         error: 'Invalid or expired verification code'
                     });
                 }
-            } catch (twilioError: any) {
+            } catch (twilioError) {
                 console.error('❌ [VERIFY] Twilio verification check error:', {
                     message: twilioError.message,
                     code: twilioError.code,
@@ -220,7 +220,7 @@ module.exports = async (req, res) => {
             validActions: ['send', 'check']
         });
 
-    } catch (error: any) {
+    } catch (error) {
         // Catch-all for any unexpected errors
         console.error('🔥 [VERIFY] UNEXPECTED ERROR:', {
             name: error.name,
