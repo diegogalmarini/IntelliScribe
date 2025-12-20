@@ -169,7 +169,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     console.log("✅ [VERIFY] Code approved. Updating database...");
 
                     try {
+                        // ACTUALLY UPDATE THE DATABASE
+                        console.log(`✅ [VERIFY] Updating Supabase via REST API for user: ${userId}`);
+                        await updateSupabaseProfile(userId, {
+                            phone: phoneNumber,
+                            phone_verified: true
+                        });
                         console.log("✅ [VERIFY] Database updated successfully");
+
                         return res.status(200).json({
                             status: 'approved',
                             message: 'Phone verified successfully'
