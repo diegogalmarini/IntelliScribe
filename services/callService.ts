@@ -62,7 +62,7 @@ export class CallService {
             const call = await this.device.connect({
                 params: {
                     To: phoneNumber,
-                    From: verifiedPhone || undefined,  // Pass verified phone for caller ID
+                    VerifiedPhone: verifiedPhone || undefined,  // Pass verified phone for caller ID
                     userId: userId || 'guest'
                 }
             });
