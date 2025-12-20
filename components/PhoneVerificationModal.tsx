@@ -38,7 +38,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 data = JSON.parse(text);
             } catch (jsonError) {
                 console.error('JSON Parse Error:', jsonError);
-                throw new Error(`Invalid JSON Response: ${text.substring(0, 100)}...`);
+                throw new Error(`Invalid JSON Response: ${text.substring(0, 150)}...`);
             }
 
             if (res.ok) {
@@ -46,13 +46,16 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 setStatus('idle');
             } else {
                 setStatus('error');
-                setErrorMsg(data.error || 'Failed to send SMS');
+                // Enhanced error message display
+                const errorDetails = data.details ? ` (${data.details})` : '';
+                const twilioCode = data.twilioCode ? ` [${data.twilioCode}]` : '';
+                setErrorMsg(data.error + errorDetails + twilioCode || 'Failed to send SMS');
             }
         } catch (e: any) {
             console.error('Send error:', e);
             setStatus('error');
             // Show the exact raw error to the user
-            setErrorMsg(`(Debug) ${e.name}: ${e.message}`);
+            setErrorMsg(`Error: ${e.message}`);
         }
     };
 
@@ -82,12 +85,15 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 }, 1500);
             } else {
                 setStatus('error');
-                setErrorMsg(data.error || 'Invalid code');
+                // Enhanced error message display
+                const errorDetails = data.details ? ` (${data.details})` : '';
+                const twilioCode = data.twilioCode ? ` [${data.twilioCode}]` : '';
+                setErrorMsg(data.error + errorDetails + twilioCode || 'Invalid code');
             }
         } catch (e: any) {
             console.error('Verify error:', e);
             setStatus('error');
-            setErrorMsg('(v2) ' + (e.message || 'Network check failed'));
+            setErrorMsg('Error: ' + (e.message || 'Network verification failed'));
         }
     };
 
