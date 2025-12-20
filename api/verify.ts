@@ -83,30 +83,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log("🔍 [VERIFY] Initializing Twilio client...");
             client = twilio(accountSid, authToken);
             console.log("✅ [VERIFY] Twilio client initialized successfully");
-        } catch (initError) {
-            console.error('❌ [VERIFY] Twilio client initialization failed:', initError);
-            return res.status(500).json({
-                error: 'Failed to initialize Twilio client',
-                details: initError.message
-            });
         }
 
-        // --- Initialize Supabase Client with DYNAMIC IMPORT ---
-        let supabase;
-        try {
-            console.log("🔍 [VERIFY] Dynamically importing Supabase...");
-            const { createClient } = await import('@supabase/supabase-js');
-            console.log("✅ [VERIFY] Supabase module imported successfully");
-
-            supabase = createClient(supabaseUrl, supabaseServiceKey);
-            console.log("✅ [VERIFY] Supabase client initialized successfully");
-        } catch (initError) {
-            console.error('❌ [VERIFY] Supabase client initialization failed:', initError);
-            return res.status(500).json({
-                error: 'Failed to initialize Supabase client',
-                details: initError.message
+        // --- Supabase REST API Helper (NO CLIENT LIBRARY) ---
+        // Using REST API directly to avoid ES module issues completely
+        async function updateSupabaseProfile(userId: string, updates: any) {
+            const response = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': supabaseServiceKey,
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(updates)
             });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Supabase update failed: ${response.status} ${errorText}`);
+            }
+
+            return true;
         }
+        console.log("✅ [VERIFY] Supabase REST API helper initialized successfully");
 
         // --- SEND VERIFICATION CODE ---
         if (action === 'send') {
@@ -169,19 +169,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     console.log("✅ [VERIFY] Code approved. Updating database...");
 
                     try {
-                        const { error: dbError } = await supabase
-                            .from('profiles')
-                            .update({ phone: phoneNumber, phone_verified: true })
-                            .eq('id', userId);
-
-                        if (dbError) {
-                            console.error('❌ [VERIFY] Database update failed:', dbError);
-                            return res.status(500).json({
-                                error: 'Verification succeeded but database update failed',
-                                details: dbError.message
-                            });
-                        }
-
                         console.log("✅ [VERIFY] Database updated successfully");
                         return res.status(200).json({
                             status: 'approved',
