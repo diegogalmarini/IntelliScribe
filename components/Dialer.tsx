@@ -152,9 +152,14 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
                     userId={user.id}
                     onClose={() => setShowVerification(false)}
                     onVerified={() => {
+                        // Close modal first
                         setShowVerification(false);
-                        if (onUserUpdated) onUserUpdated(); // Refresca el usuario en App
-                        alert("Phone verified! Try calling now.");
+                        // Refresh user data to get phone_verified = true
+                        if (onUserUpdated) {
+                            onUserUpdated();
+                        }
+                        // Set status to show user can now call
+                        setStatus('Ready');
                     }}
                 />
             )}
