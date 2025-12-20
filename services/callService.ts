@@ -37,17 +37,32 @@ export class CallService {
     }
 
     // 2. Llamada Instantánea
-    async makeCall(phoneNumber: string, userId?: string): Promise<Call | null> {
+    async makeCall(phoneNumber: string, userId?: string, verifiedPhone?: string): Promise<Call | null> {
         if (!this.device) {
             throw new Error('System not ready. Please wait 2 seconds.');
         }
 
         try {
+            // EXPLICIT MICROPHONE CHECK - Request permission before call
+            console.log('🎤 Requesting microphone access...');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log('✅ Microphone granted');
+                // Stop the test stream immediately (we just wanted permission)
+                stream.getTracks().forEach(track => track.stop());
+            } catch (micError: any) {
+                if (micError.name === 'NotAllowedError' || micError.name === 'PermissionDeniedError') {
+                    throw new Error('Microphone access denied. Click the lock icon 🔒 in your address bar to allow.');
+                }
+                throw new Error('Microphone not available: ' + micError.message);
+            }
+
             console.log('📞 Connecting immediately...');
             // Al hacer connect() directo, el navegador vincula esto a tu Click
             const call = await this.device.connect({
                 params: {
                     To: phoneNumber,
+                    From: verifiedPhone || undefined,  // Pass verified phone for caller ID
                     userId: userId || 'guest'
                 }
             });

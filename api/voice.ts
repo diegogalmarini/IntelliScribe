@@ -10,7 +10,13 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     // Obtener datos
     const to = req.body.To || req.query.To;
-    const callerId = process.env.TWILIO_CALLER_ID; // Tu número +1...
+    const from = req.body.From || req.query.From;  // User's verified phone
+    const fallbackCallerId = process.env.TWILIO_CALLER_ID; // Ohio number fallback
+
+    // Use verified phone if provided, otherwise use Ohio number
+    const callerId = from || fallbackCallerId;
+
+    console.log(`[VOICE] Calling ${to} from ${callerId}`);
 
     if (!to || !callerId) {
         twiml.say('Error de configuración.');
@@ -30,10 +36,11 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).send(twiml.toString());
     }
 
-    // CONEXIÓN PURA (Sin grabaciones ni anuncios extraños por ahora)
+    // CONEXIÓN con caller ID configurado
     const dial = twiml.dial({
-        callerId: callerId,
-        answerOnBridge: true, // Esto ayuda a que la conexión se sienta más rápida
+        callerId: callerId,  // Use verified phone or fallback
+        answerOnBridge: true,
+        timeout: 30  // Add timeout to prevent hanging
     });
 
     // Detectar si es número o cliente
