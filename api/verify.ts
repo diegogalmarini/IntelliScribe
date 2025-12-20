@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import twilio from 'twilio';
+import { Twilio } from 'twilio';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -82,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let client;
         try {
             console.log("🔍 [VERIFY] Initializing Twilio client...");
-            client = twilio(accountSid, authToken);
+            client = new Twilio(accountSid, authToken);
             console.log("✅ [VERIFY] Twilio client initialized successfully");
         } catch (initError: any) {
             console.error('❌ [VERIFY] Twilio client initialization failed:', initError);
