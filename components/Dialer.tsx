@@ -48,7 +48,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
         try {
             const call = await callService.makeCall(
                 numberToCall,
-                user.email || 'guest',
+                user.id || 'guest',  // Pass user ID for caller ID lookup
                 user.phone  // Pass verified phone for caller ID
             );
             if (call) {
