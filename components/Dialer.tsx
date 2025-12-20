@@ -42,7 +42,11 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
         setStatus('Calling...');
 
         try {
-            const call = await callService.makeCall(numberToCall, user.email || 'guest');
+            const call = await callService.makeCall(
+                numberToCall,
+                user.email || 'guest',
+                user.phone  // Pass verified phone for caller ID
+            );
             if (call) {
                 setActiveCall(call);
                 setStatus('In Call');
