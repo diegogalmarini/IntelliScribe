@@ -41,6 +41,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
         const numberToCall = '+' + number;
         setStatus('Calling...');
 
+        // DEBUG: Check user phone value
+        console.log('[DIALER] user.phone:', user.phone);
+        console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
+
         try {
             const call = await callService.makeCall(
                 numberToCall,

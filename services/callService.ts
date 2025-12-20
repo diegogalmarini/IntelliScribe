@@ -58,6 +58,7 @@ export class CallService {
             }
 
             console.log('📞 Connecting immediately...');
+            console.log('[CALL_SERVICE] verifiedPhone param:', verifiedPhone);
             // Al hacer connect() directo, el navegador vincula esto a tu Click
             const call = await this.device.connect({
                 params: {
@@ -66,6 +67,7 @@ export class CallService {
                     userId: userId || 'guest'
                 }
             });
+            console.log('[CALL_SERVICE] Call initiated with params:', { To: phoneNumber, VerifiedPhone: verifiedPhone });
             return call;
         } catch (error: any) {
             console.error('Connection Failed:', error);
