@@ -450,7 +450,26 @@ const AppContent: React.FC = () => {
 
             {/* Global VoIP Dialer - Only for Business Plus */}
             {user && user.subscription?.planId === 'business_plus' && (
-                <Dialer user={user} onNavigate={navigate} />
+                <Dialer
+                    user={user}
+                    onNavigate={navigate}
+                    onUserUpdated={async () => {
+                        // Refresh user profile from database after verification
+                        const { data, error } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .eq('id', user.id)
+                            .single();
+
+                        if (data && !error) {
+                            setUser(prev => ({
+                                ...prev,
+                                phone: data.phone || prev.phone,
+                                phoneVerified: data.phone_verified || false,
+                            }));
+                        }
+                    }}
+                />
             )}
         </ThemeProvider>
     );
