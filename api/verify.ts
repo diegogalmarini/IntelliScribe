@@ -1,7 +1,8 @@
-const { createClient } = require('@supabase/supabase-js/dist/index.cjs');
-const twilio = require('twilio');
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+import twilio from 'twilio';
 
-module.exports = async (req, res) => {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Wrap everything in try-catch to ensure we ALWAYS return valid JSON
     try {
         // CORS (Fixed for Safari: Origin must match if Credentials are true)
@@ -234,4 +235,4 @@ module.exports = async (req, res) => {
             type: error.name
         });
     }
-};
+}
