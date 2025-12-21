@@ -1,8 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// Use CommonJS require for Vercel serverless compatibility
-const { createClient } = require('@supabase/supabase-js');
-
 // Helper to format duration seconds to HH:MM:SS
 function formatDuration(seconds: number): string {
     const hrs = Math.floor(seconds / 3600);
@@ -17,6 +14,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('📋 [RECORDING-CALLBACK] Query params:', JSON.stringify(req.query, null, 2));
 
     try {
+        // Dynamic import for ES module compatibility
+        const { createClient } = await import('@supabase/supabase-js');
+
         // Extract Twilio parameters
         const {
             RecordingSid,
