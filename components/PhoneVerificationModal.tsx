@@ -252,7 +252,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                                         📞 Twilio te llamará ahora
                                     </p>
                                     <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
-                                        La llamada será <strong>en inglés</strong>. Cuando contestes, introduce este código en tu teléfono:
+                                        La llamada será <strong>en inglés</strong> y desde un <strong>número +1 (Estados Unidos)</strong>. Cuando contestes, introduce este código en tu teléfono:
                                     </p>
                                     <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center border-2 border-blue-500">
                                         <div className="text-4xl font-mono font-bold text-blue-600 dark:text-blue-400 tracking-widest">
@@ -261,11 +261,19 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
+                                <div className="flex items-center justify-between gap-2 text-sm text-slate-500">
                                     {status === 'waiting-call' && (
                                         <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                            <span>Esperando confirmación...</span>
+                                            <div className="flex items-center gap-2">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                                <span>Esperando confirmación...</span>
+                                            </div>
+                                            <button
+                                                onClick={initiateCallerIdVerification}
+                                                className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded font-medium transition-colors"
+                                            >
+                                                🔄 Reintentar
+                                            </button>
                                         </>
                                     )}
                                 </div>
