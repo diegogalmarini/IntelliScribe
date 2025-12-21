@@ -91,16 +91,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // CONEXIÓN con caller ID y grabación configurados
-    const baseUrl = process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : 'https://www.diktalo.com';
+    // Use hardcoded production URL for reliability
+    const callbackUrl = 'https://www.diktalo.com/api/recording-callback';
+
+    console.log(`[VOICE] Recording callback URL: ${callbackUrl}?userId=${userId || 'unknown'}`);
 
     const dial = twiml.dial({
         callerId: callerId,  // Use verified phone or fallback
         answerOnBridge: true,
         timeout: 30,  // Add timeout to prevent hanging
         record: 'record-from-answer-dual',  // Record both sides of call
-        recordingStatusCallback: `${baseUrl}/api/recording-callback?userId=${userId || 'unknown'}`,
+        recordingStatusCallback: `${callbackUrl}?userId=${userId || 'unknown'}`,
+        recordingStatusCallbackMethod: 'POST',  // Ensure Twilio uses POST
         recordingStatusCallbackEvent: ['completed']  // Only notify when recording is done
     });
 
