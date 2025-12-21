@@ -178,7 +178,13 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                             disabled={true}
                                             placeholder="+1 555 123 4567"
                                         />
-                                        <p className="text-xs text-slate-500 mt-1">{t('verifyDesc')}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                            {t('verifyDescPart1')}
+                                            <span className="inline-flex items-center justify-center w-5 h-5 bg-orange-500 text-white rounded-full align-middle mx-1 shadow-sm transform hover:scale-110 transition-transform cursor-pointer">
+                                                <span className="material-symbols-outlined text-[12px] leading-none">call</span>
+                                            </span>
+                                            {t('verifyDescPart2')}
+                                        </p>
                                     </div>
                                 )}
 
