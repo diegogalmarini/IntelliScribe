@@ -90,11 +90,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).send(twiml.toString());
     }
 
-    // CONEXIÓN con caller ID configurado
+    // CONEXIÓN con caller ID y grabación configurados
+    const baseUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://www.diktalo.com';
+
     const dial = twiml.dial({
         callerId: callerId,  // Use verified phone or fallback
         answerOnBridge: true,
-        timeout: 30  // Add timeout to prevent hanging
+        timeout: 30,  // Add timeout to prevent hanging
+        record: 'record-from-answer-dual',  // Record both sides of call
+        recordingStatusCallback: `${baseUrl}/api/recording-callback?userId=${userId || 'unknown'}`,
+        recordingStatusCallbackEvent: ['completed']  // Only notify when recording is done
     });
 
     // Detectar si es número o cliente
