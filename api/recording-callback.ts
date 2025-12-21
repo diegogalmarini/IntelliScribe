@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+
+// Use CommonJS require for Vercel serverless compatibility
+const { createClient } = require('@supabase/supabase-js');
 
 // Helper to format duration seconds to HH:MM:SS
 function formatDuration(seconds: number): string {
