@@ -43,23 +43,11 @@ export class CallService {
         }
 
         try {
-            // EXPLICIT MICROPHONE CHECK - Request permission before call
-            console.log('🎤 Requesting microphone access...');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                console.log('✅ Microphone granted');
-                // Stop the test stream immediately (we just wanted permission)
-                stream.getTracks().forEach(track => track.stop());
-            } catch (micError: any) {
-                if (micError.name === 'NotAllowedError' || micError.name === 'PermissionDeniedError') {
-                    throw new Error('Microphone access denied. Click the lock icon 🔒 in your address bar to allow.');
-                }
-                throw new Error('Microphone not available: ' + micError.message);
-            }
-
-            console.log('📞 Connecting immediately...');
+            console.log('📞 Connecting call...');
             console.log('[CALL_SERVICE] verifiedPhone param:', verifiedPhone);
-            // Al hacer connect() directo, el navegador vincula esto a tu Click
+
+            // Let Twilio Device handle all audio permissions and stream management
+            // The browser will prompt for mic access when device.connect() is called
             const call = await this.device.connect({
                 params: {
                     To: phoneNumber,
