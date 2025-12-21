@@ -14,9 +14,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('📋 [RECORDING-CALLBACK] Query params:', JSON.stringify(req.query, null, 2));
 
     try {
-        // Dynamic import for ES module compatibility
-        const { createClient } = await import('@supabase/supabase-js');
-
         // Extract Twilio parameters
         const {
             RecordingSid,
@@ -44,15 +41,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ message: 'Recording not ready yet' });
         }
 
-        // Initialize Supabase client
+        // Get Supabase credentials
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!supabaseUrl || !supabaseServiceKey) {
             throw new Error('Missing Supabase credentials');
         }
-
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
         // Step 1: Download recording from Twilio
         console.log('⬇️ [RECORDING-CALLBACK] Downloading audio from Twilio...');
@@ -73,64 +68,75 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const audioBuffer = await audioResponse.arrayBuffer();
         console.log(`✅ [RECORDING-CALLBACK] Downloaded ${audioBuffer.byteLength} bytes`);
 
-        // Step 2: Upload to Supabase Storage
+        // Step 2: Upload to Supabase Storage using REST API
         console.log('⬆️ [RECORDING-CALLBACK] Uploading to Supabase Storage...');
 
         const fileName = `${userId}/${RecordingSid}.mp3`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('recordings')
-            .upload(fileName, audioBuffer, {
-                contentType: 'audio/mpeg',
-                upsert: false
-            });
+        const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${fileName}`;
 
-        if (uploadError) {
-            console.error('❌ [RECORDING-CALLBACK] Upload error:', uploadError);
-            throw uploadError;
+        const uploadResponse = await fetch(storageUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+                'Content-Type': 'audio/mpeg',
+                'apikey': supabaseServiceKey
+            },
+            body: audioBuffer
+        });
+
+        if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            console.error('❌ [RECORDING-CALLBACK] Upload error:', errorText);
+            throw new Error(`Failed to upload to storage: ${uploadResponse.statusText} - ${errorText}`);
         }
 
         console.log(`✅ [RECORDING-CALLBACK] Uploaded to: ${fileName}`);
 
         // Step 3: Get public URL
-        const { data: urlData } = supabase.storage
-            .from('recordings')
-            .getPublicUrl(fileName);
-
-        const publicAudioUrl = urlData.publicUrl;
+        const publicAudioUrl = `${supabaseUrl}/storage/v1/object/public/recordings/${fileName}`;
         console.log(`🔗 [RECORDING-CALLBACK] Public URL: ${publicAudioUrl}`);
 
-        // Step 4: Create recording entry in database
+        // Step 4: Create recording entry in database using REST API
         console.log('💾 [RECORDING-CALLBACK] Creating database entry...');
 
         const durationSeconds = parseInt(RecordingDuration) || 0;
         const formattedDuration = formatDuration(durationSeconds);
 
-        const { data: recording, error: dbError } = await supabase
-            .from('recordings')
-            .insert({
-                user_id: userId,
-                title: `Call to ${To}`,
-                description: `Recorded call from ${From} to ${To}`,
-                date: new Date().toISOString(),
-                duration: formattedDuration,
-                duration_seconds: durationSeconds,
-                status: 'Processing',  // Will update to 'Processed' after transcription
-                audio_url: publicAudioUrl,
-                participants: 2,
-                folder_id: 'all',
-                tags: ['phone-call'],
-                notes: [],
-                media: [],
-                segments: []  // Will be filled by transcription
-            })
-            .select()
-            .single();
+        const recordingData = {
+            user_id: userId,
+            title: `Call to ${To}`,
+            description: `Recorded call from ${From} to ${To}`,
+            date: new Date().toISOString(),
+            duration: formattedDuration,
+            duration_seconds: durationSeconds,
+            status: 'Processing',  // Will update to 'Processed' after transcription
+            audio_url: publicAudioUrl,
+            participants: 2,
+            folder_id: 'all',
+            tags: ['phone-call'],
+            notes: [],
+            media: [],
+            segments: []  // Will be filled by transcription
+        };
 
-        if (dbError) {
-            console.error('❌ [RECORDING-CALLBACK] Database error:', dbError);
-            throw dbError;
+        const dbResponse = await fetch(`${supabaseUrl}/rest/v1/recordings`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+                'apikey': supabaseServiceKey,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'  // Return the created row
+            },
+            body: JSON.stringify(recordingData)
+        });
+
+        if (!dbResponse.ok) {
+            const errorText = await dbResponse.text();
+            console.error('❌ [RECORDING-CALLBACK] Database error:', errorText);
+            throw new Error(`Failed to insert into database: ${dbResponse.statusText} - ${errorText}`);
         }
 
+        const [recording] = await dbResponse.json();
         console.log(`✅ [RECORDING-CALLBACK] Created recording: ${recording.id}`);
 
         // TODO: Step 5: Trigger transcription (will implement in next phase)
