@@ -38,9 +38,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
     const [notifyMarketing, setNotifyMarketing] = useState(false);
     const [notifyBrowserPush, setNotifyBrowserPush] = useState(true);
 
-    // Phone Verification Logic
-    const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
-    const [verificationCode, setVerificationCode] = useState('');
+
 
     // Feedback state
     const [feedback, setFeedback] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
@@ -75,66 +73,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
         }
     };
 
-    const handleStartVerification = async () => {
-        if (!phone.trim()) {
-            setFeedback({ message: "Enter a phone number first.", type: 'error' });
-            setTimeout(() => setFeedback(null), 3000);
-            return;
-        }
 
-        setIsVerifyingPhone(true);
-        setVerificationCode('');
-
-        try {
-            const res = await fetch('/api/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'send', phoneNumber: phone, channel: 'sms' })
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                setFeedback({ message: t('verificationCodeSent'), type: 'success' });
-            } else {
-                setFeedback({ message: data.error || 'Failed to send SMS', type: 'error' });
-                setIsVerifyingPhone(false);
-            }
-        } catch (e) {
-            setFeedback({ message: "Network error sending SMS", type: 'error' });
-            setIsVerifyingPhone(false);
-        }
-        setTimeout(() => setFeedback(null), 3000);
-    };
-
-    const handleVerifyCode = async () => {
-        if (!verificationCode || verificationCode.length < 4) {
-            setFeedback({ message: "Enter a valid code.", type: 'error' });
-            setTimeout(() => setFeedback(null), 3000);
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'check', phoneNumber: phone, code: verificationCode, userId: user.id })
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.status === 'approved') {
-                setPhoneVerified(true);
-                setIsVerifyingPhone(false);
-                setFeedback({ message: "Number verified successfully!", type: 'success' });
-                // Optional: Trigger user update immediately if needed, mainly handled by onUpdateUser in handleSave
-            } else {
-                setFeedback({ message: data.error || "Invalid code.", type: 'error' });
-            }
-        } catch (e) {
-            setFeedback({ message: "Verification failed", type: 'error' });
-        }
-        setTimeout(() => setFeedback(null), 3000);
-    };
 
     const [isSaving, setIsSaving] = useState(false);
 
@@ -168,7 +107,6 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
             lastName,
             email,
             phone,
-            phoneVerified,
             avatarUrl: finalAvatarUrl
         });
 
@@ -185,7 +123,6 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
         setPhone(user.phone || '');
         setPhoneVerified(user.phoneVerified || false);
         setAvatarUrl(user.avatarUrl);
-        setIsVerifyingPhone(false);
 
         setFeedback({ message: "Changes discarded.", type: 'success' });
         setTimeout(() => setFeedback(null), 3000);
@@ -235,50 +172,12 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                             </span>
                                         </div>
 
-                                        <div className="flex gap-2">
-                                            <input
-                                                className="flex-1 bg-white dark:bg-surface-dark text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none transition-all disabled:opacity-50"
-                                                value={phone}
-                                                onChange={(e) => {
-                                                    setPhone(e.target.value);
-                                                    setPhoneVerified(false); // Reset verification on change
-                                                }}
-                                                placeholder="+1 555 123 4567"
-                                                disabled={isVerifyingPhone}
-                                            />
-                                            {!phoneVerified && !isVerifyingPhone && (
-                                                <button
-                                                    onClick={handleStartVerification}
-                                                    className="px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue border border-brand-blue/30 rounded-lg text-sm font-bold transition-colors">
-                                                    {t('verifyNow')}
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        {isVerifyingPhone && (
-                                            <div className="mt-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark p-4 rounded-lg animate-in slide-in-from-top-2">
-                                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">{t('enterCode')}</p>
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        className="w-40 bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-3 py-2 text-center tracking-widest font-mono text-lg"
-                                                        placeholder="000000"
-                                                        maxLength={6}
-                                                        value={verificationCode}
-                                                        onChange={(e) => setVerificationCode(e.target.value)}
-                                                    />
-                                                    <button
-                                                        onClick={handleVerifyCode}
-                                                        className="px-4 py-2 bg-brand-green hover:bg-brand-green/90 text-slate-900 font-bold rounded-lg text-sm transition-colors">
-                                                        {t('verifyBtn')}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setIsVerifyingPhone(false)}
-                                                        className="px-4 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white text-sm font-medium">
-                                                        {t('cancel')}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
+                                        <input
+                                            className="flex-1 bg-slate-50 dark:bg-surface-dark/50 text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-4 py-2.5 outline-none cursor-not-allowed opacity-70 w-full"
+                                            value={phone}
+                                            disabled={true}
+                                            placeholder="+1 555 123 4567"
+                                        />
                                         <p className="text-xs text-slate-500 mt-1">{t('verifyDesc')}</p>
                                     </div>
                                 )}
