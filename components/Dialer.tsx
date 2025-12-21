@@ -86,12 +86,47 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
     };
 
     if (!isOpen) {
+        // If user is not verified, show ORANGE button that opens verification modal
+        if (!user.phoneVerified) {
+            return (
+                <>
+                    <button
+                        onClick={() => setShowVerification(true)}
+                        className="fixed bottom-6 right-6 w-14 h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-colors"
+                        title="Verify phone to make calls"
+                    >
+                        <span className="material-symbols-outlined text-2xl">call</span>
+                    </button>
+
+                    {/* Verification Modal */}
+                    {showVerification && (
+                        <PhoneVerificationModal
+                            userId={user.id}
+                            onClose={() => setShowVerification(false)}
+                            onVerified={() => {
+                                setShowVerification(false);
+                                if (onUserUpdated) {
+                                    onUserUpdated();
+                                }
+                            }}
+                        />
+                    )}
+                </>
+            );
+        }
+
+        // If verified, show GREEN button that opens dialer
         return (
-            <button onClick={() => setIsOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-brand-green text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50">
+            <button
+                onClick={() => setIsOpen(true)}
+                className="fixed bottom-6 right-6 w-14 h-14 bg-brand-green hover:bg-brand-green/90 text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50 transition-colors"
+                title="Open dialer"
+            >
                 <span className="material-symbols-outlined text-2xl">call</span>
             </button>
         );
     }
+
 
     return (
         <>
