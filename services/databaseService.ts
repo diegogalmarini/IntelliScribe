@@ -55,10 +55,11 @@ export const databaseService = {
 
     // --- FOLDERS ---
 
-    async getFolders(): Promise<Folder[]> {
+    async getFolders(userId: string): Promise<Folder[]> {
         const { data, error } = await supabase
             .from('folders')
             .select('*')
+            .eq('user_id', userId)
             .order('created_at', { ascending: true });
 
         if (error) {
@@ -117,21 +118,55 @@ export const databaseService = {
 
     // --- RECORDINGS ---
 
-    async getRecordings(): Promise<Recording[]> {
-        // Notes and media are stored as JSONB columns in recordings table
-        // No need for JOINs with separate tables
+    async getRecordings(userId: string): Promise<Recording[]> {
+        const columns = 'id, title, description, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, audio_url';
+        console.log(`[databaseService] getRecordings for ${userId} with columns: ${columns}`);
 
         const { data: recordingsData, error } = await supabase
             .from('recordings')
-            .select('*')
+            .select(columns)
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching recordings:', error);
+            console.error('[databaseService] Error fetching recordings:', error);
             return [];
         }
 
-        return recordingsData.map((r: any) => ({
+        console.log(`[databaseService] Found ${recordingsData?.length || 0} recordings`);
+        return (recordingsData || []).map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            description: r.description || '',
+            date: r.date ? new Date(r.date).toLocaleString() : new Date(r.created_at).toLocaleString(),
+            duration: r.duration || '00:00:00',
+            durationSeconds: r.duration_seconds || 0,
+            status: r.status as any,
+            tags: r.tags || [],
+            participants: r.participants || 1,
+            audioUrl: r.audio_url || undefined,
+            folderId: r.folder_id || undefined,
+            // Heavy fields are omitted for performance in the list view
+            segments: [],
+            notes: [],
+            media: [],
+            summary: undefined
+        }));
+    },
+
+    async getRecordingDetails(id: string): Promise<Recording | null> {
+        const { data: r, error } = await supabase
+            .from('recordings')
+            .select('id, title, description, date, duration, duration_seconds, status, tags, participants, audio_url, summary, segments, folder_id, notes, media, created_at')
+            .eq('id', id)
+            .single();
+
+        if (error || !r) {
+            console.error('Error fetching recording details:', error);
+            return null;
+        }
+
+        return {
             id: r.id,
             title: r.title,
             description: r.description || '',
@@ -143,12 +178,11 @@ export const databaseService = {
             participants: r.participants || 1,
             audioUrl: r.audio_url || undefined,
             summary: r.summary || undefined,
-            segments: r.segments || [], // JSONB column
+            segments: r.segments || [],
             folderId: r.folder_id || undefined,
-            // Use JSONB columns directly
             notes: r.notes || [],
             media: r.media || []
-        }));
+        };
     },
 
     async createRecording(rec: Recording): Promise<Recording | null> {

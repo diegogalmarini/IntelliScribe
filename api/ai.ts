@@ -1,8 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from "@supabase/supabase-js";
 
 // Initialize AI only on the server
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+
+// Initialize Supabase with Service Role for backend access
+const supabase = createClient(
+    process.env.SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS configuration
@@ -60,12 +67,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // --- Action 3: Audio Transcription ---
         else if (action === 'transcribe') {
-            const { audioBase64, mimeType } = payload;
+            const { audioBase64, audioUrl, mimeType } = payload;
+            let finalBase64 = audioBase64;
+
+            // PERFORMANCE FIX: If only URL is provided, fetch it server-side to avoid 413 error
+            if (!finalBase64 && audioUrl) {
+                console.log(`[AI_API] Fetching audio from URL: ${audioUrl}`);
+
+                // If it's a Supabase URL, use the service key to bypass privacy
+                if (audioUrl.includes('supabase.co/storage/v1/object/')) {
+                    const pathParts = audioUrl.split('/recordings/');
+                    if (pathParts.length > 1) {
+                        const filePath = decodeURIComponent(pathParts[1]);
+                        console.log(`[AI_API] Downloading from bucket 'recordings': ${filePath}`);
+                        const { data, error } = await supabase.storage.from('recordings').download(filePath);
+                        if (error) throw new Error(`Supabase Storage Error: ${error.message}`);
+                        const buffer = await data.arrayBuffer();
+                        finalBase64 = Buffer.from(buffer).toString('base64');
+                    }
+                }
+
+                // Fallback to regular fetch if still no base64
+                if (!finalBase64) {
+                    const response = await fetch(audioUrl);
+                    if (!response.ok) throw new Error(`Failed to fetch audio from storage: ${response.statusText}`);
+                    const buffer = await response.arrayBuffer();
+                    finalBase64 = Buffer.from(buffer).toString('base64');
+                }
+            }
+
+            if (!finalBase64) throw new Error('No audio data or URL provided');
+
             const response = await genAI.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: {
                     parts: [
-                        { inlineData: { mimeType: mimeType || 'audio/mp3', data: audioBase64 } },
+                        { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
                         { text: "Transcribe this audio conversation. Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'." }
                     ]
                 },

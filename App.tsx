@@ -11,7 +11,7 @@ import { Login } from './pages/Login';
 import { Manual } from './pages/Manual';
 import { ResetPassword } from './pages/ResetPassword';
 import { AppRoute, Recording, IntegrationState, UserProfile, NoteItem, MediaItem, Folder } from './types';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { uploadAudio } from './services/storageService';
@@ -30,6 +30,7 @@ const AppContent: React.FC = () => {
 
     // --- STATE INITIALIZATION ---
     const { user: supabaseUser, signOut } = useAuth();
+    const { t } = useLanguage();
     const [isLoadingData, setIsLoadingData] = useState(false);
 
     // User State Template
@@ -118,14 +119,16 @@ const AppContent: React.FC = () => {
             const fetchData = async () => {
                 setIsLoadingData(true);
                 try {
+                    console.log(`[DEBUG] Fetching data for user: ${supabaseUser.id}`);
                     const [dbFolders, dbRecordings] = await Promise.all([
-                        databaseService.getFolders(),
-                        databaseService.getRecordings()
+                        databaseService.getFolders(supabaseUser.id),
+                        databaseService.getRecordings(supabaseUser.id)
                     ]);
 
+                    console.log(`[DEBUG] Data fetched: ${dbRecordings.length} recordings, ${dbFolders.length} folders`);
                     setFolders([
-                        { id: 'all', name: 'All Recordings', type: 'system', icon: 'folder_open' },
-                        { id: 'favorites', name: 'Favorites', type: 'system', icon: 'star' },
+                        { id: 'ALL', name: t('allRecordings'), icon: 'list', type: 'system' },
+                        { id: 'FAVORITES', name: t('favorites'), icon: 'star', type: 'system' },
                         ...dbFolders
                     ]);
 
@@ -279,7 +282,12 @@ const AppContent: React.FC = () => {
             }
         }
 
-        // DB Call
+        // DB Call - Ensure we never save Base64 strings to the database
+        if (newRecPayload.audioUrl?.startsWith('data:')) {
+            console.warn('[STORAGE_PROTECTION] Blocking Base64 storage. Setting audioUrl to null.');
+            newRecPayload.audioUrl = undefined;
+        }
+
         const createdRec = await databaseService.createRecording(newRecPayload);
 
         if (createdRec) {
@@ -315,9 +323,15 @@ const AppContent: React.FC = () => {
         await databaseService.updateRecording(id, { folderId: folderId });
     };
 
-    const handleSelectRecording = (id: string) => {
+    const handleSelectRecording = async (id: string) => {
         setActiveRecordingId(id);
         navigate(AppRoute.EDITOR);
+
+        // Fetch full details (heavy JSONB fields) only when needed
+        const full = await databaseService.getRecordingDetails(id);
+        if (full) {
+            setRecordings(prev => prev.map(r => r.id === id ? full : r));
+        }
     };
 
     const handleUpdateRecording = async (id: string, updates: Partial<Recording>) => {

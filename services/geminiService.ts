@@ -37,7 +37,12 @@ export const chatWithTranscript = async (
   return result || (language === 'es' ? "No pude responder." : "I couldn't generate a response.");
 };
 
-export const transcribeAudio = async (audioBase64: string, mimeType: string, language: 'en' | 'es' = 'en'): Promise<Partial<TranscriptSegment>[]> => {
-  const result = await callAIEndpoint('transcribe', { audioBase64, mimeType }, language);
+export const transcribeAudio = async (
+  audioBase64?: string,
+  mimeType?: string,
+  language: 'en' | 'es' = 'en',
+  audioUrl?: string
+): Promise<Partial<TranscriptSegment>[]> => {
+  const result = await callAIEndpoint('transcribe', { audioBase64, mimeType, audioUrl }, language);
   return result || [];
 };
