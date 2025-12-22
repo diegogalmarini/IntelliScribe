@@ -118,17 +118,22 @@ export const databaseService = {
 
     // --- RECORDINGS ---
 
-    async getRecordings(userId: string): Promise<Recording[]> {
+    async getRecordings(userId: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
         // FULL QUERY - Índices confirmados en Supabase ✅
+        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields (segments, notes, media)
         const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, audio_url';
-        console.log(`[databaseService] Loading full metadata for user ${userId}`);
+
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        console.log(`[databaseService] Loading metadata for user ${userId} (Page ${page}, Limit ${pageSize})`);
 
         const { data: recordingsData, error } = await supabase
             .from('recordings')
             .select(columns)
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
-            .limit(50); // Límite razonable con índices
+            .range(from, to);
 
         if (error) {
             console.error('[databaseService] Error fetching full recordings:', error);
