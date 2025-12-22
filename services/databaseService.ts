@@ -131,11 +131,44 @@ export const databaseService = {
             .limit(50); // Límite razonable con índices
 
         if (error) {
-            console.error('[databaseService] Error fetching recordings:', error);
-            return [];
+            console.error('[databaseService] Error fetching full recordings:', error);
+            console.log('[databaseService] ⚠️ Falling back to EMERGENCY MODE (minimal data)');
+
+            // Fallback: Try minimal query
+            const { data: minimalData, error: minimalError } = await supabase
+                .from('recordings')
+                .select('id, title, created_at, status')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (minimalError) {
+                console.error('[databaseService] CRITICAL: Even minimal query failed:', minimalError);
+                return [];
+            }
+
+            console.log(`[databaseService] ✅ Loaded ${minimalData?.length || 0} recordings in EMERGENCY MODE`);
+            return (minimalData || []).map((r: any) => ({
+                id: r.id,
+                title: r.title,
+                description: '',
+                date: new Date(r.created_at).toLocaleDateString(),
+                duration: '00:00:00',
+                durationSeconds: 0,
+                status: r.status,
+                tags: [],
+                participants: 1,
+                audioUrl: undefined, // Fixed key name
+                folderId: undefined, // Fixed key name
+                segments: [],
+                notes: [],
+                media: [],
+                summary: undefined,
+                created_at: r.created_at
+            }));
         }
 
-        console.log(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully`);
+        console.log(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully (Full Mode)`);
         return (recordingsData || []).map((r: any) => ({
             id: r.id,
             title: r.title,
