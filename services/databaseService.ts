@@ -118,17 +118,12 @@ export const databaseService = {
     // --- RECORDINGS ---
 
     async getRecordings(): Promise<Recording[]> {
-        // Fetch recordings with their nested notes and media (if possible with joins, or separate queries)
-        // simpler for now: fetch recordings, then we might lazy load details or fetch all if not too heavy.
-        // Let's try to fetch everything for dashboard density.
+        // Notes and media are stored as JSONB columns in recordings table
+        // No need for JOINs with separate tables
 
         const { data: recordingsData, error } = await supabase
             .from('recordings')
-            .select(`
-                *,
-                recording_notes (*),
-                recording_media (*)
-            `)
+            .select('*')
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -148,20 +143,11 @@ export const databaseService = {
             participants: r.participants || 1,
             audioUrl: r.audio_url || undefined,
             summary: r.summary || undefined,
-            segments: r.segments || [], // JSONB
+            segments: r.segments || [], // JSONB column
             folderId: r.folder_id || undefined,
-            // Map sub-tables or use JSONB
-            notes: r.notes || (r.recording_notes || []).map((n: DBNote) => ({
-                id: n.id,
-                timestamp: n.timestamp,
-                text: n.content
-            })),
-            media: r.media || (r.recording_media || []).map((m: DBMedia) => ({
-                id: m.id,
-                timestamp: m.timestamp,
-                url: m.url,
-                name: m.name
-            }))
+            // Use JSONB columns directly
+            notes: r.notes || [],
+            media: r.media || []
         }));
     },
 
