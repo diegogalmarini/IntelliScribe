@@ -119,30 +119,23 @@ export const databaseService = {
     // --- RECORDINGS ---
 
     async getRecordings(userId: string): Promise<Recording[]> {
-        // ULTRA-MINIMAL QUERY: Solo lo absolutamente esencial para evitar timeout
-        // TODO: Restaurar campos completos cuando se agregue el índice
-        console.log(`[databaseService] EMERGENCY MODE: Fetching minimal data for ${userId}`);
+        // FULL QUERY - Índices confirmados en Supabase ✅
+        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, audio_url';
+        console.log(`[databaseService] Loading full metadata for user ${userId}`);
 
         const { data: recordingsData, error } = await supabase
             .from('recordings')
-            .select('id, title, created_at, status')
+            .select(columns)
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
-            .limit(10); // Solo 10 grabaciones para diagnóstico
+            .limit(50); // Límite razonable con índices
 
         if (error) {
-            console.error('[databaseService] CRITICAL ERROR:', error);
-            // Último intento: solo IDs
-            const { data: idsOnly } = await supabase
-                .from('recordings')
-                .select('id')
-                .eq('user_id', userId)
-                .limit(5);
-            console.log('[databaseService] Fallback: IDs only', idsOnly);
+            console.error('[databaseService] Error fetching recordings:', error);
             return [];
         }
 
-        console.log(`[databaseService] SUCCESS: Loaded ${recordingsData?.length || 0} minimal records`);
+        console.log(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully`);
         return (recordingsData || []).map((r: any) => ({
             id: r.id,
             title: r.title,
