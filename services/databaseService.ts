@@ -119,17 +119,20 @@ export const databaseService = {
     // --- RECORDINGS ---
 
     async getRecordings(userId: string): Promise<Recording[]> {
-        const columns = 'id, title, description, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, audio_url';
-        console.log(`[databaseService] getRecordings for ${userId} with columns: ${columns}`);
+        // Optimized metadata fetch: removed description and added limit to prevent timeouts
+        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, audio_url';
+        console.log(`[databaseService] getRecordings for ${userId} (limited to 50)`);
 
         const { data: recordingsData, error } = await supabase
             .from('recordings')
             .select(columns)
             .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .limit(50); // Prevent timeouts on large accounts
 
         if (error) {
             console.error('[databaseService] Error fetching recordings:', error);
+            // If it still fails, try an even smaller batch or just ID
             return [];
         }
 
