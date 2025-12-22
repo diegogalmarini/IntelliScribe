@@ -184,27 +184,27 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({ onNavigate, 
 
         setIsTranscribing(true);
         try {
-            // Check if audioUrl is a Data URI (starts with data:) or Blob URL (starts with blob:)
             let mimeType = 'audio/mp3';
-            let base64 = '';
+            let base64 = undefined;
+            let audioUrl = undefined;
 
             if (recording.audioUrl.startsWith('data:')) {
-                // It's a base64 data URI
+                // FALLBACK: If it's a base64 data URI (should be rare now)
                 const parts = recording.audioUrl.split(',');
-                const meta = parts[0]; // data:audio/webm;base64
+                const meta = parts[0];
                 base64 = parts[1];
-                // Extract mime
                 const matches = meta.match(/:(.*?);/);
                 if (matches && matches[1]) mimeType = matches[1];
             } else {
-                // It's a blob URL (unlikely with new persistence logic, but fallback)
-                const response = await fetch(recording.audioUrl);
-                const blob = await response.blob();
-                base64 = await blobToBase64(blob);
-                mimeType = blob.type || 'audio/mp3';
+                // OPTIMIZED: Use the public URL directly
+                audioUrl = recording.audioUrl;
+                // Try to infer mime from extension or default
+                if (audioUrl.endsWith('.webm')) mimeType = 'audio/webm';
+                else if (audioUrl.endsWith('.wav')) mimeType = 'audio/wav';
+                else if (audioUrl.endsWith('.m4a')) mimeType = 'audio/x-m4a';
             }
 
-            const result = await transcribeAudio(base64, mimeType, language);
+            const result = await transcribeAudio(base64, mimeType, language, audioUrl);
 
             // Map partial result to full TranscriptSegment with colors
             const newSegments: TranscriptSegment[] = result.map((s, index) => ({
