@@ -50,6 +50,10 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     const [selectedTemplate, setSelectedTemplate] = useState<string>('general');
     const [showTemplateMenu, setShowTemplateMenu] = useState(false);
 
+    // Playback Speed State
+    const [playbackRate, setPlaybackRate] = useState(1.0);
+    const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -223,17 +227,25 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
     const togglePlay = async () => {
         if (!audioRef.current || !signedAudioUrl) return;
-
-        try {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.playbackRate = playbackRate;
+            try {
                 await audioRef.current.play();
+            } catch (err) {
+                console.error("Playback failed", err);
+                setIsPlaying(false);
             }
-        } catch (err) {
-            console.error("Playback failed", err);
-            setIsPlaying(false);
         }
+    };
+
+    const handlePlaybackRateChange = (rate: number) => {
+        setPlaybackRate(rate);
+        if (audioRef.current) {
+            audioRef.current.playbackRate = rate;
+        }
+        setShowSpeedMenu(false);
     };
 
     const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -252,16 +264,12 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     const formatTime = (time: any) => {
         const t = Number(time);
         if (isNaN(t) || !isFinite(t) || t < 0) {
-            // Fallback for total duration label if we have it in recording metadata
-            if (recording?.durationSeconds && !isPlaying && currentTime === 0) {
-                const part = recording.duration?.split(':')?.slice(-2)?.join(':');
-                if (part && part !== "NaN:NaN") return part;
-            }
-            return "00:00";
+            return "00:00:00";
         }
-        const m = Math.floor(t / 60).toString().padStart(2, '0');
-        const s = Math.floor(t % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
+        const h = Math.floor(t / 3600);
+        const m = Math.floor((t % 3600) / 60);
+        const s = Math.floor(t % 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     const handleTranscribeAudio = async () => {
@@ -593,17 +601,35 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
                                             <div className="relative h-16 md:h-20 bg-black/20 rounded-xl border border-white/5 overflow-hidden group/wave">
                                                 {signedAudioUrl ? (
-                                                    <WaveformVisualizer
-                                                        audioUrl={signedAudioUrl}
-                                                        currentTime={currentTime}
-                                                        duration={isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)}
-                                                        onSeek={handleSeekTime}
-                                                        barColor="#3b82f6"
-                                                        progressColor="#60a5fa"
-                                                        height={80}
-                                                        barWidth={3}
-                                                        barGap={2}
-                                                    />
+                                                    <>
+                                                        <WaveformVisualizer
+                                                            audioUrl={signedAudioUrl}
+                                                            currentTime={currentTime}
+                                                            duration={isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds) || 1}
+                                                            onSeek={handleSeekTime}
+                                                            barColor="#3b82f6"
+                                                            progressColor="#60a5fa"
+                                                            height={80}
+                                                            barWidth={3}
+                                                            barGap={2}
+                                                        />
+                                                        {/* Note Markers on Timeline Area (using the same duration) */}
+                                                        {recording.notes && recording.notes.length > 0 && recording.notes.map((note) => {
+                                                            const noteTime = Number(note.timestamp);
+                                                            const totalD = isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds) || 1;
+                                                            if (isNaN(noteTime) || noteTime > totalD) return null;
+                                                            const leftPos = (noteTime / totalD) * 100;
+                                                            return (
+                                                                <div
+                                                                    key={note.id}
+                                                                    className="absolute top-0 bottom-0 w-1 bg-yellow-400/50 hover:bg-yellow-400 z-20 cursor-help transition-colors"
+                                                                    style={{ left: `${leftPos}%` }}
+                                                                    title={note.text}
+                                                                    onClick={(e) => { e.stopPropagation(); handleSeekTime(noteTime); }}
+                                                                />
+                                                            );
+                                                        })}
+                                                    </>
                                                 ) : (
                                                     <div className="absolute inset-0 flex items-center justify-center text-slate-500 text-xs italic">
                                                         {t('loading')}...
@@ -611,34 +637,65 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                 )}
                                             </div>
 
+                                            {/* Explicit Visible Slider */}
+                                            <div className="relative w-full h-6 flex items-center group/slider">
+                                                <input
+                                                    type="range"
+                                                    min={0}
+                                                    max={isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds) || 100}
+                                                    step={0.1}
+                                                    value={currentTime}
+                                                    onChange={handleSeek}
+                                                    disabled={!signedAudioUrl}
+                                                    className="absolute inset-0 w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary group-hover/slider:h-1.5 transition-all"
+                                                />
+                                                <div
+                                                    className="absolute h-1 bg-primary rounded-full pointer-events-none"
+                                                    style={{ width: `${(currentTime / ((isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)) || 1)) * 100}%` }}
+                                                />
+                                            </div>
+
                                             <div className="flex items-center justify-between mt-1">
-                                                {supportsSetSinkId && outputDevices.length > 0 && (
-                                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
-                                                        <span className="material-symbols-outlined text-base text-slate-400">volume_up</span>
-                                                        <select
-                                                            value={selectedOutputId}
-                                                            onChange={handleOutputChange}
-                                                            className="bg-transparent text-slate-300 text-[10px] md:text-xs outline-none focus:text-white max-w-[120px] md:max-w-none truncate cursor-pointer"
-                                                        >
-                                                            {outputDevices.map(device => (
-                                                                <option key={device.deviceId} value={device.deviceId} className="bg-[#1e2736]">
-                                                                    {device.label || `Device ${device.deviceId.slice(0, 5)}...`}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                <div className="flex items-center gap-2">
+                                                    {supportsSetSinkId && outputDevices.length > 0 && (
+                                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
+                                                            <span className="material-symbols-outlined text-base text-slate-400">volume_up</span>
+                                                            <select
+                                                                value={selectedOutputId}
+                                                                onChange={handleOutputChange}
+                                                                className="bg-transparent text-slate-300 text-[10px] md:text-xs outline-none focus:text-white max-w-[120px] md:max-w-none truncate cursor-pointer"
+                                                            >
+                                                                {outputDevices.map(device => (
+                                                                    <option key={device.deviceId} value={device.deviceId} className="bg-[#1e2736]">
+                                                                        {device.label || `Device ${device.deviceId.slice(0, 5)}...`}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Speed Control Selector */}
+                                                    <div className="relative">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setShowSpeedMenu(!showSpeedMenu); }}
+                                                            className="flex items-center gap-1 px-3 py-1.5 bg-white/5 rounded-full border border-white/10 text-slate-300 text-[10px] md:text-xs hover:text-white transition-colors">
+                                                            <span className="material-symbols-outlined text-sm">speed</span>
+                                                            {playbackRate}x
+                                                        </button>
+                                                        {showSpeedMenu && (
+                                                            <div className="absolute bottom-10 left-0 w-24 bg-[#1e2736] border border-white/10 rounded-xl shadow-2xl py-1 z-50">
+                                                                {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map(rate => (
+                                                                    <button
+                                                                        key={rate}
+                                                                        onClick={() => handlePlaybackRateChange(rate)}
+                                                                        className={`w-full text-left px-4 py-2 text-xs hover:bg-white/5 ${playbackRate === rate ? 'text-primary font-bold' : 'text-slate-300'}`}
+                                                                    >
+                                                                        {rate === 1.0 ? 'Normal' : `${rate}x`}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => handleSeekTime(Math.max(0, currentTime - 10))}
-                                                        className="text-slate-400 hover:text-white transition-colors">
-                                                        <span className="material-symbols-outlined text-xl">replay_10</span>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleSeekTime(Math.min(duration, currentTime + 10))}
-                                                        className="text-slate-400 hover:text-white transition-colors">
-                                                        <span className="material-symbols-outlined text-xl">forward_10</span>
-                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
