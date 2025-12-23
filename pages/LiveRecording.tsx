@@ -360,16 +360,20 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         }
     };
 
-    const formatTime = (totalSeconds: number) => {
-        const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-        const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (totalSeconds % 60).toString().padStart(2, '0');
+    const formatTime = (time: any) => {
+        const t = Number(time);
+        if (isNaN(t) || !isFinite(t) || t < 0) return "00:00:00";
+        const h = Math.floor(t / 3600).toString().padStart(2, '0');
+        const m = Math.floor((t % 3600) / 60).toString().padStart(2, '0');
+        const s = Math.floor(t % 60).toString().padStart(2, '0');
         return `${h}:${m}:${s}`;
     };
 
-    const formatTimeShort = (totalSeconds: number) => {
-        const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (totalSeconds % 60).toString().padStart(2, '0');
+    const formatTimeShort = (time: any) => {
+        const t = Number(time);
+        if (isNaN(t) || !isFinite(t) || t < 0) return "00:00";
+        const m = Math.floor((t % 3600) / 60).toString().padStart(2, '0');
+        const s = Math.floor(t % 60).toString().padStart(2, '0');
         return `${m}:${s}`;
     };
 

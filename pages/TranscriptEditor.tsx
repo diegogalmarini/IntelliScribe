@@ -169,10 +169,12 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
         const updateTime = () => setCurrentTime(audio.currentTime);
         const updateDuration = () => {
-            if (audio.duration && audio.duration !== Infinity && !isNaN(audio.duration)) {
-                setDuration(audio.duration);
-            } else if (recording.durationSeconds) {
-                setDuration(recording.durationSeconds);
+            const d = audio.duration;
+            if (d && isFinite(d) && !isNaN(d) && d > 0) {
+                setDuration(d);
+            } else {
+                const fallback = Number(recording.durationSeconds);
+                if (isFinite(fallback) && fallback > 0) setDuration(fallback);
             }
         };
         const onEnded = () => setIsPlaying(false);
@@ -216,14 +218,18 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         setCurrentTime(time);
     };
 
-    const formatTime = (time: number) => {
-        if (isNaN(time) || time === Infinity) {
-            // If we have a fallback duration from recording metadata, use that for the end time display
-            if (recording.durationSeconds && !isPlaying && currentTime === 0) return recording.duration.split(':').slice(-2).join(':');
+    const formatTime = (time: any) => {
+        const t = Number(time);
+        if (isNaN(t) || !isFinite(t) || t < 0) {
+            // Fallback for total duration label if we have it in recording metadata
+            if (recording?.durationSeconds && !isPlaying && currentTime === 0) {
+                const part = recording.duration?.split(':')?.slice(-2)?.join(':');
+                if (part && part !== "NaN:NaN") return part;
+            }
             return "00:00";
         }
-        const m = Math.floor(time / 60).toString().padStart(2, '0');
-        const s = Math.floor(time % 60).toString().padStart(2, '0');
+        const m = Math.floor(t / 60).toString().padStart(2, '0');
+        const s = Math.floor(t % 60).toString().padStart(2, '0');
         return `${m}:${s}`;
     };
 
@@ -553,8 +559,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                 disabled={!signedAudioUrl}
                                                 className="w-full h-full opacity-0 cursor-pointer absolute inset-0 z-10"
                                             />
-                                            <div className="absolute left-0 top-0 bottom-0 bg-primary/20 pointer-events-none" style={{ width: `${(currentTime / ((duration && duration !== Infinity ? duration : recording.durationSeconds) || 1)) * 100}%` }}></div>
-                                            <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_10px_white] pointer-events-none transition-all" style={{ left: `${(currentTime / ((duration && duration !== Infinity ? duration : recording.durationSeconds) || 1)) * 100}%` }}></div>
+                                            <div className="absolute left-0 top-0 bottom-0 bg-primary/20 pointer-events-none" style={{ width: `${(currentTime / ((isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)) || 1)) * 100}%` }}></div>
+                                            <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_10px_white] pointer-events-none transition-all" style={{ left: `${(currentTime / ((isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)) || 1)) * 100}%` }}></div>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] md:text-xs font-mono text-[#92a4c9]">
                                             <span>{formatTime(currentTime)}</span>
@@ -574,7 +580,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                     </select>
                                                 </div>
                                             )}
-                                            <span>{formatTime(duration && duration !== Infinity ? duration : recording.durationSeconds)}</span>
+                                            <span>{formatTime(isFinite(duration) && duration > 0 ? duration : recording.durationSeconds)}</span>
                                         </div>
                                     </div>
                                 </div>
