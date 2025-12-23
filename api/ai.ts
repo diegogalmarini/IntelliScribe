@@ -63,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are Diktalo. Answer based ONLY on this context:\n${transcript}`;
 
             const chat = genAI.chats.create({
-                model: 'gemini-1.5-flash-latest',
+                model: 'gemini-1.5-flash',
                 config: { systemInstruction },
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] }))
             });
