@@ -279,6 +279,8 @@ export const databaseService = {
         if (updates.segments !== undefined) dbUpdates.segments = updates.segments;
         if (updates.summary !== undefined) dbUpdates.summary = updates.summary;
         if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
+        if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
+        if (updates.durationSeconds !== undefined) dbUpdates.duration_seconds = updates.durationSeconds;
 
         // Note: Updating notes/media is more complex (diffing), usually handled separately.
         // For simple renames/moves, this is enough. 

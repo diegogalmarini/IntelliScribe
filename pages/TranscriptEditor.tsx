@@ -9,6 +9,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { LimitReachedModal } from '../components/LimitReachedModal';
 import { jsPDF } from 'jspdf';
 import ReactMarkdown from 'react-markdown';
+import { WaveformVisualizer } from '../components/WaveformVisualizer';
 
 interface TranscriptEditorProps {
     onNavigate: (route: AppRoute) => void;
@@ -168,10 +169,29 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         if (!audio) return;
 
         const updateTime = () => setCurrentTime(audio.currentTime);
-        const updateDuration = () => {
+        const updateDuration = async () => {
             const d = audio.duration;
             if (d && isFinite(d) && !isNaN(d) && d > 0) {
                 setDuration(d);
+
+                // Sync to DB if stored duration is missing/zero or differs significantly
+                const storedDuration = recording.durationSeconds || 0;
+                if (Math.abs(d - storedDuration) > 1 && recording.id) {
+                    console.log(`[TranscriptEditor] Syncing duration to metadata: ${d}s`);
+
+                    const h = Math.floor(d / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((d % 3600) / 60).toString().padStart(2, '0');
+                    const s = Math.floor(d % 60).toString().padStart(2, '0');
+                    const durationStr = `${h}:${m}:${s}`;
+
+                    await databaseService.updateRecording(recording.id, {
+                        durationSeconds: Math.floor(d),
+                        duration: durationStr
+                    });
+
+                    // Update local state to avoid repeat syncs
+                    setRecording(prev => ({ ...prev, durationSeconds: Math.floor(d), duration: durationStr }));
+                }
             } else {
                 const fallback = Number(recording.durationSeconds);
                 if (isFinite(fallback) && fallback > 0) setDuration(fallback);
@@ -183,13 +203,18 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
         audio.addEventListener('timeupdate', updateTime);
         audio.addEventListener('loadedmetadata', updateDuration);
+        audio.addEventListener('durationchange', updateDuration);
         audio.addEventListener('ended', onEnded);
         audio.addEventListener('play', onPlay);
         audio.addEventListener('pause', onPause);
 
+        // Manually trigger once in case it already loaded
+        updateDuration();
+
         return () => {
             audio.removeEventListener('timeupdate', updateTime);
             audio.removeEventListener('loadedmetadata', updateDuration);
+            audio.removeEventListener('durationchange', updateDuration);
             audio.removeEventListener('ended', onEnded);
             audio.removeEventListener('play', onPlay);
             audio.removeEventListener('pause', onPause);
@@ -214,6 +239,12 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!audioRef.current) return;
         const time = Number(e.target.value);
+        audioRef.current.currentTime = time;
+        setCurrentTime(time);
+    };
+
+    const handleSeekTime = (time: number) => {
+        if (!audioRef.current) return;
         audioRef.current.currentTime = time;
         setCurrentTime(time);
     };
@@ -531,56 +562,85 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                 {/* Main Editor */}
                 <div className="flex-1 overflow-y-auto p-4 lg:p-10 flex justify-center">
                     <div className="flex flex-col max-w-4xl w-full gap-6">
-                        {/* Media Player Sticky */}
-                        <div className="sticky top-0 z-40 bg-[#1e2736] rounded-xl p-3 md:p-4 border border-[#232f48] shadow-lg mb-2 md:mb-4">
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3 md:gap-4">
-                                    <button
-                                        onClick={togglePlay}
-                                        disabled={!signedAudioUrl}
-                                        className={`size-10 md:size-12 rounded-full text-white flex items-center justify-center transition-all ${!signedAudioUrl ? 'bg-gray-600 opacity-50 cursor-not-allowed' : 'bg-primary hover:bg-blue-600 shadow-lg'}`}>
-                                        <span className="material-symbols-outlined text-2xl">{isPlaying ? 'pause' : 'play_arrow'}</span>
-                                    </button>
+                        {/* Premium Media Player Glassmorphism */}
+                        <div className="sticky top-0 z-40 mb-6 group">
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+                            <div className="relative bg-[#1e2736]/80 backdrop-blur-xl rounded-2xl p-4 md:p-6 border border-white/10 shadow-2xl">
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-4 md:gap-6">
+                                        <button
+                                            onClick={togglePlay}
+                                            disabled={!signedAudioUrl}
+                                            className={`size-12 md:size-16 rounded-full text-white flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 ${!signedAudioUrl ? 'bg-gray-600 opacity-50 cursor-not-allowed' : 'bg-gradient-to-br from-primary to-blue-600 shadow-lg shadow-primary/20 hover:shadow-primary/40'}`}>
+                                            <span className="material-symbols-outlined text-3xl md:text-4xl">{isPlaying ? 'pause' : 'play_arrow'}</span>
+                                        </button>
 
-                                    <div className="flex-1 flex flex-col gap-1">
-                                        <div className="h-8 bg-[#111722] rounded overflow-hidden relative flex items-center px-2">
-                                            {/* Fake Waveform */}
-                                            <div className="absolute inset-0 flex items-center justify-around opacity-30 pointer-events-none">
-                                                {Array.from({ length: 60 }).map((_, i) => (
-                                                    <div key={i} className="w-1 bg-primary rounded-full" style={{ height: `${Math.random() * 80 + 20}%` }}></div>
-                                                ))}
-                                            </div>
-                                            <input
-                                                type="range"
-                                                min={0}
-                                                max={duration || 100}
-                                                value={currentTime}
-                                                onChange={handleSeek}
-                                                disabled={!signedAudioUrl}
-                                                className="w-full h-full opacity-0 cursor-pointer absolute inset-0 z-10"
-                                            />
-                                            <div className="absolute left-0 top-0 bottom-0 bg-primary/20 pointer-events-none" style={{ width: `${(currentTime / ((isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)) || 1)) * 100}%` }}></div>
-                                            <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_10px_white] pointer-events-none transition-all" style={{ left: `${(currentTime / ((isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)) || 1)) * 100}%` }}></div>
-                                        </div>
-                                        <div className="flex justify-between items-center text-[10px] md:text-xs font-mono text-[#92a4c9]">
-                                            <span>{formatTime(currentTime)}</span>
-                                            {supportsSetSinkId && outputDevices.length > 0 && (
-                                                <div className="hidden sm:flex items-center gap-2">
-                                                    <span className="material-symbols-outlined text-sm">volume_up</span>
-                                                    <select
-                                                        value={selectedOutputId}
-                                                        onChange={handleOutputChange}
-                                                        className="bg-[#111722] text-[#92a4c9] text-xs border border-[#232f48] rounded px-2 py-0.5 outline-none focus:border-primary max-w-[100px] truncate"
-                                                    >
-                                                        {outputDevices.map(device => (
-                                                            <option key={device.deviceId} value={device.deviceId}>
-                                                                {device.label || `Device ${device.deviceId.slice(0, 5)}...`}
-                                                            </option>
-                                                        ))}
-                                                    </select>
+                                        <div className="flex-1 flex flex-col gap-2">
+                                            <div className="flex justify-between items-end mb-1">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">{t('playback')}</span>
+                                                    <span className="text-xl md:text-2xl font-mono font-bold text-white tabular-nums leading-none">
+                                                        {formatTime(currentTime)}
+                                                    </span>
                                                 </div>
-                                            )}
-                                            <span>{formatTime(isFinite(duration) && duration > 0 ? duration : recording.durationSeconds)}</span>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">{t('duration')}</span>
+                                                    <span className="text-sm md:text-base font-mono font-medium text-slate-300 tabular-nums leading-none">
+                                                        {formatTime(isFinite(duration) && duration > 0 ? duration : recording.durationSeconds)}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="relative h-16 md:h-20 bg-black/20 rounded-xl border border-white/5 overflow-hidden group/wave">
+                                                {signedAudioUrl ? (
+                                                    <WaveformVisualizer
+                                                        audioUrl={signedAudioUrl}
+                                                        currentTime={currentTime}
+                                                        duration={isFinite(duration) && duration > 0 ? duration : Number(recording.durationSeconds)}
+                                                        onSeek={handleSeekTime}
+                                                        barColor="#3b82f6"
+                                                        progressColor="#60a5fa"
+                                                        height={80}
+                                                        barWidth={3}
+                                                        barGap={2}
+                                                    />
+                                                ) : (
+                                                    <div className="absolute inset-0 flex items-center justify-center text-slate-500 text-xs italic">
+                                                        {t('loading')}...
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center justify-between mt-1">
+                                                {supportsSetSinkId && outputDevices.length > 0 && (
+                                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
+                                                        <span className="material-symbols-outlined text-base text-slate-400">volume_up</span>
+                                                        <select
+                                                            value={selectedOutputId}
+                                                            onChange={handleOutputChange}
+                                                            className="bg-transparent text-slate-300 text-[10px] md:text-xs outline-none focus:text-white max-w-[120px] md:max-w-none truncate cursor-pointer"
+                                                        >
+                                                            {outputDevices.map(device => (
+                                                                <option key={device.deviceId} value={device.deviceId} className="bg-[#1e2736]">
+                                                                    {device.label || `Device ${device.deviceId.slice(0, 5)}...`}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
+                                                <div className="flex gap-4">
+                                                    <button
+                                                        onClick={() => handleSeekTime(Math.max(0, currentTime - 10))}
+                                                        className="text-slate-400 hover:text-white transition-colors">
+                                                        <span className="material-symbols-outlined text-xl">replay_10</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleSeekTime(Math.min(duration, currentTime + 10))}
+                                                        className="text-slate-400 hover:text-white transition-colors">
+                                                        <span className="material-symbols-outlined text-xl">forward_10</span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
