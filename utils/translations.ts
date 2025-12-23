@@ -277,7 +277,10 @@ export const translations = {
     man_int_title: "Integrations (AutoFlow)",
     man_int_body: "Connect your ecosystem in the **Integrations** tab.\n\n* **Google Calendar:** Auto-titles recordings based on your schedule.\n* **Slack:** Sends meeting summaries to a selected #channel immediately after analysis.\n* **Salesforce:** (Coming Soon) Updates Opportunity fields based on call transcripts.",
     limitReachedTitle: "Monthly Limit Reached",
-    limitReachedMessage: "You have reached your monthly transcription limit. Upgrade your plan to continue recording and transcribing."
+    limitReachedMessage: "You have reached your monthly transcription limit. Upgrade your plan to continue recording and transcribing.",
+    playback: "Playback",
+    duration: "Duration",
+    loadingAudio: "Loading audio waveform..."
   },
   es: {
     // Auth
@@ -553,6 +556,9 @@ export const translations = {
     man_int_title: "Integraciones (AutoFlow)",
     man_int_body: "Conecta tu ecosistema en la pestaña **Integraciones**.\n\n* **Google Calendar:** Titula automáticamente las grabaciones basándose en tu agenda.\n* **Slack:** Envía resúmenes a un canal #elegido inmediatamente tras el análisis.\n* **Salesforce:** (Próximamente) Actualiza campos de Oportunidad basados en transcripciones de llamadas.",
     limitReachedTitle: "Límite Mensual Alcanzado",
-    limitReachedMessage: "Has alcanzado tu límite mensual de transcripción. Mejora tu plan para continuar grabando y transcribiendo."
+    limitReachedMessage: "Has alcanzado tu límite mensual de transcripción. Mejora tu plan para continuar grabando y transcribiendo.",
+    playback: "Reproducción",
+    duration: "Duración",
+    loadingAudio: "Cargando onda de audio..."
   }
 };
