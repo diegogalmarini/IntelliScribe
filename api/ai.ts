@@ -3,13 +3,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from "@supabase/supabase-js";
 
 // Initialize AI only on the server
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-
-// Initialize Supabase with Service Role for backend access
-const supabase = createClient(
-    process.env.SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+// Removed global init to prevent cold-start crashes if env vars are missing
+// const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+// const supabase = createClient(...);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS configuration
@@ -28,10 +24,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { action, payload, language = 'en' } = req.body;
 
     if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({ error: 'Server Error: Missing API Key configuration.' });
+        return res.status(500).json({ error: 'Server Error: Missing GEMINI_API_KEY in environment variables.' });
+    }
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(500).json({ error: 'Server Error: Missing SUPABASE_URL or SERVICE_ROLE_KEY.' });
     }
 
     try {
+        // Initialize Clients Safely
+        const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        let supabase;
+        try {
+            supabase = createClient(
+                process.env.SUPABASE_URL,
+                process.env.SUPABASE_SERVICE_ROLE_KEY
+            );
+        } catch (initError: any) {
+            throw new Error(`Supabase Client Init Failed: ${initError.message}`);
+        }
+
         let result;
 
         // --- Action 1: Meeting Summary ---
