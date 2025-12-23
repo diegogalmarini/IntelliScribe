@@ -9,6 +9,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { LimitReachedModal } from '../components/LimitReachedModal';
 import { jsPDF } from 'jspdf';
 import ReactMarkdown from 'react-markdown';
+import { logger } from '../services/loggingService';
 import { WaveformVisualizer } from '../components/WaveformVisualizer';
 
 interface TranscriptEditorProps {
@@ -318,7 +319,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             await databaseService.incrementUsage(user.id!, recording.durationSeconds);
 
         } catch (error) {
-            console.error("Failed to transcribe", error);
+            logger.error('Failed to transcribe', { error, recordingId: recording.id, language }, user.id);
             alert("Failed to transcribe audio. Please check your API key.");
         } finally {
             setIsTranscribing(false);
@@ -337,7 +338,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             onUpdateRecording(recording.id, { summary: summaryText });
             setShowSummaryModal(true);
         } catch (error) {
-            console.error("Failed to summarize", error);
+            logger.error('Failed to summarize', { error, recordingId: recording.id }, user.id);
             alert("Failed to generate summary.");
         } finally {
             setIsSummarizing(false);

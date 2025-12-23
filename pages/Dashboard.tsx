@@ -341,10 +341,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                         <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl shadow-sm min-h-[300px] transition-colors overflow-hidden">
                             <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-surface-dark/50 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                <div className="col-span-5 pl-2">Conversation</div>
-                                <div className="col-span-2">Status</div>
-                                <div className="col-span-2">Date</div>
-                                <div className="col-span-2">Duration</div>
+                                <div className="col-span-5 pl-2">{t('colConversation')}</div>
+                                <div className="col-span-2">{t('colStatus')}</div>
+                                <div className="col-span-2">{t('colDate')}</div>
+                                <div className="col-span-2">{t('colDuration')}</div>
                                 <div className="col-span-1 text-right pr-2">{t('actions')}</div>
                             </div>
 
