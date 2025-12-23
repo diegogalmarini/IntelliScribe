@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Recording, AppRoute, NoteItem, MediaItem, Folder, UserProfile } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { databaseService } from '../services/databaseService';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 
@@ -392,7 +393,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                         <div className="col-span-6 md:col-span-2 text-sm text-slate-600 dark:text-slate-400 mt-2 md:mt-0">{rec.date}</div>
                                         <div className="col-span-6 md:col-span-2 text-sm text-slate-600 dark:text-slate-400 mt-2 md:mt-0 font-mono">{rec.duration}</div>
                                         <div className="col-span-6 md:col-span-1 flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity mt-2 md:mt-0 relative">
-                                            <button className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 hover:text-primary transition-colors" disabled={rec.status === 'Processing'}>
+                                            <button
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    // LAZY LOAD PLAY:
+                                                    // 1. Get Details (for path)
+                                                    // 2. Sign URL
+                                                    // 3. Play (This is tricky inside the list, usually we open the editor to play)
+                                                    // For now, let's keep it simple: Clicking play opens the editor (onSelectRecording)
+                                                    // because playing audio directly in the list requires a global player state.
+                                                    onSelectRecording(rec.id);
+                                                }}
+                                                className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 hover:text-primary transition-colors"
+                                                disabled={rec.status === 'Processing'}
+                                            >
                                                 <span className="material-symbols-outlined text-[20px]">play_arrow</span>
                                             </button>
                                             <div className="relative">
@@ -632,58 +646,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 <span className="material-symbols-outlined text-2xl">close</span>
                             </button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-6 bg-slate-900/50">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-                                {/* Notes Section */}
-                                <div className="flex flex-col gap-4">
-                                    <h4 className="text-white font-bold flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-sm">edit_note</span>
-                                        {t('notes')}
-                                    </h4>
-                                    <div className="flex-1 bg-surface-dark border border-border-dark rounded-xl p-4 overflow-y-auto min-h-[200px]">
-                                        {!viewingRecording.notes || viewingRecording.notes.length === 0 ? (
-                                            <p className="text-slate-500 text-sm text-center mt-10">No notes recorded.</p>
-                                        ) : (
-                                            <div className="flex flex-col gap-3">
-                                                {viewingRecording.notes.map((note) => (
-                                                    <div key={note.id} className="flex gap-3">
-                                                        <div className="pt-1">
-                                                            <div className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">{note.timestamp}</div>
-                                                        </div>
-                                                        <div className="flex-1 bg-[#161d2a] p-3 rounded-lg rounded-tl-none border border-border-dark">
-                                                            <p className="text-sm text-slate-200">{note.text}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                {/* Media Section */}
-                                <div className="flex flex-col gap-4">
-                                    <h4 className="text-white font-bold flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-sm">image</span>
-                                        {t('media')}
-                                    </h4>
-                                    <div className="flex-1 bg-surface-dark border border-border-dark rounded-xl p-4 overflow-y-auto min-h-[200px]">
-                                        {!viewingRecording.media || viewingRecording.media.length === 0 ? (
-                                            <p className="text-slate-500 text-sm text-center mt-10">No media uploaded.</p>
-                                        ) : (
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {viewingRecording.media.map((item) => (
-                                                    <div key={item.id} className="relative aspect-video rounded-lg overflow-hidden border border-border-dark group">
-                                                        <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
-                                                        <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
-                                                            {item.timestamp}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+                        {/* LAZY LOADED CONTENT */}
+                        <ContextModalContent recording={viewingRecording} />
+
                         <div className="p-6 border-t border-border-dark flex justify-end bg-[#161d2a] rounded-b-2xl">
                             <button
                                 onClick={() => setViewingRecording(null)}
@@ -695,6 +661,88 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                 </div>
             )}
+        </div>
+    );
+};
+
+// Internal Component for Lazy Loading Details
+const ContextModalContent: React.FC<{ recording: Recording }> = ({ recording }) => {
+    const { t } = useLanguage();
+    const [details, setDetails] = useState<Recording>(recording);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadDetails = async () => {
+            // Force fetch details because list view excludes notes/media
+            const fullRec = await databaseService.getRecordingDetails(recording.id);
+            if (fullRec) {
+                setDetails(fullRec);
+            }
+            setLoading(false);
+        };
+        loadDetails();
+    }, [recording.id]);
+
+    if (loading) {
+        return (
+            <div className="flex-1 flex items-center justify-center p-10">
+                <span className="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex-1 overflow-y-auto p-6 bg-slate-900/50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                {/* Notes Section */}
+                <div className="flex flex-col gap-4">
+                    <h4 className="text-white font-bold flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm">edit_note</span>
+                        {t('notes')}
+                    </h4>
+                    <div className="flex-1 bg-surface-dark border border-border-dark rounded-xl p-4 overflow-y-auto min-h-[200px]">
+                        {!details.notes || details.notes.length === 0 ? (
+                            <p className="text-slate-500 text-sm text-center mt-10">No notes recorded.</p>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                {details.notes.map((note) => (
+                                    <div key={note.id} className="flex gap-3">
+                                        <div className="pt-1">
+                                            <div className="text-xs font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">{note.timestamp}</div>
+                                        </div>
+                                        <div className="flex-1 bg-[#161d2a] p-3 rounded-lg rounded-tl-none border border-border-dark">
+                                            <p className="text-sm text-slate-200">{note.text}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                {/* Media Section */}
+                <div className="flex flex-col gap-4">
+                    <h4 className="text-white font-bold flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm">image</span>
+                        {t('media')}
+                    </h4>
+                    <div className="flex-1 bg-surface-dark border border-border-dark rounded-xl p-4 overflow-y-auto min-h-[200px]">
+                        {!details.media || details.media.length === 0 ? (
+                            <p className="text-slate-500 text-sm text-center mt-10">No media uploaded.</p>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-3">
+                                {details.media.map((item) => (
+                                    <div key={item.id} className="relative aspect-video rounded-lg overflow-hidden border border-border-dark group">
+                                        <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+                                        <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                                            {item.timestamp}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
