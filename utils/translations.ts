@@ -59,6 +59,7 @@ export const translations = {
     allRecordings: "Recent Recordings",
     manageRecordings: "Manage and analyze your recordings.",
     searchPlaceholder: "Search transcripts...",
+    favorites: "Favorites",
     newRecording: "New Recording",
     importAudio: "Import Audio",
     activeStats: "Total Recordings",
@@ -83,6 +84,8 @@ export const translations = {
     renamePrompt: "Enter new name:",
     confirmDelete: "Are you sure you want to delete this recording?",
     close: "Close",
+    loading: "Loading",
+    audioNotReady: "Audio not ready",
 
     // System Report
     sysReportTitle: "System Diagnostics",
@@ -139,9 +142,11 @@ export const translations = {
     askDiktalo: "Ask Diktalo",
     copyClipboard: "Copy to Clipboard",
     done: "Done",
-    readyTranscribe: "Ready to Transcribe",
-    readyTranscribeDesc: "Your audio is ready for processing. Click the button below to generate a transcript using Gemini AI.",
+    readyToTranscribe: "Ready to Transcribe",
+    readyToTranscribeDesc: "Your audio is ready for processing. Click the button below to generate a transcript using Gemini AI.",
     genTranscript: "Generate Transcript",
+    generateTranscript: "Generate Transcript",
+    noTranscript: "No Transcript",
     transcribing: "Transcribing...",
     meetingSummary: "Analysis Result",
     askPlaceholder: "Ask a question...",
@@ -270,7 +275,9 @@ export const translations = {
     man_edit_body: "Once processed, your recording opens in the Editor.\n\n* **Transcript:** Click any text to edit typos manually.\n* **Ask Diktalo:** Use the chat sidebar to query your meeting (e.g., 'What dates were mentioned?').\n* **Templates:** Click 'Analyze' to choose specific AI models like Medical SOAP or Sales BANT.",
 
     man_int_title: "Integrations (AutoFlow)",
-    man_int_body: "Connect your ecosystem in the **Integrations** tab.\n\n* **Google Calendar:** Auto-titles recordings based on your schedule.\n* **Slack:** Sends meeting summaries to a selected #channel immediately after analysis.\n* **Salesforce:** (Coming Soon) Updates Opportunity fields based on call transcripts."
+    man_int_body: "Connect your ecosystem in the **Integrations** tab.\n\n* **Google Calendar:** Auto-titles recordings based on your schedule.\n* **Slack:** Sends meeting summaries to a selected #channel immediately after analysis.\n* **Salesforce:** (Coming Soon) Updates Opportunity fields based on call transcripts.",
+    limitReachedTitle: "Monthly Limit Reached",
+    limitReachedMessage: "You have reached your monthly transcription limit. Upgrade your plan to continue recording and transcribing."
   },
   es: {
     // Auth
@@ -328,6 +335,7 @@ export const translations = {
     allRecordings: "Grabaciones Recientes",
     manageRecordings: "Gestiona y analiza tus grabaciones.",
     searchPlaceholder: "Buscar transcripciones...",
+    favorites: "Favoritos",
     newRecording: "Nueva Grabación",
     importAudio: "Importar Audio",
     activeStats: "Grabaciones Totales",
@@ -352,6 +360,8 @@ export const translations = {
     renamePrompt: "Introduce el nuevo nombre:",
     confirmDelete: "¿Estás seguro de que quieres eliminar esta grabación?",
     close: "Cerrar",
+    loading: "Cargando",
+    audioNotReady: "Audio no disponible",
 
     // System Report
     sysReportTitle: "Diagnóstico del Sistema",
@@ -408,9 +418,11 @@ export const translations = {
     askDiktalo: "Preguntar a Diktalo",
     copyClipboard: "Copiar al Portapapeles",
     done: "Listo",
-    readyTranscribe: "Listo para Transcribir",
-    readyTranscribeDesc: "Tu audio está listo para procesar. Haz clic abajo para generar una transcripción usando Gemini AI.",
+    readyToTranscribe: "Listo para Transcribir",
+    readyToTranscribeDesc: "Tu audio está listo para procesar. Haz clic abajo para generar una transcripción usando Gemini AI.",
     genTranscript: "Generar Transcripción",
+    generateTranscript: "Generar Transcripción",
+    noTranscript: "Sin Transcripción",
     transcribing: "Transcribiendo...",
     meetingSummary: "Resultado del Análisis",
     askPlaceholder: "Haz una pregunta...",
@@ -539,6 +551,8 @@ export const translations = {
     man_edit_body: "Una vez procesado, tu grabación se abre en el Editor.\n\n* **Transcripción:** Haz clic en cualquier texto para editar errores manualmente.\n* **Preguntar a Diktalo:** Usa el chat lateral para hacer consultas sobre tu reunión (ej: '¿Qué fechas se mencionaron?').\n* **Plantillas:** Haz clic en 'Analizar' para elegir modelos de IA específicos como Médico SOAP o Ventas BANT.",
 
     man_int_title: "Integraciones (AutoFlow)",
-    man_int_body: "Conecta tu ecosistema en la pestaña **Integraciones**.\n\n* **Google Calendar:** Titula automáticamente las grabaciones basándose en tu agenda.\n* **Slack:** Envía resúmenes a un canal #elegido inmediatamente tras el análisis.\n* **Salesforce:** (Próximamente) Actualiza campos de Oportunidad basados en transcripciones de llamadas."
+    man_int_body: "Conecta tu ecosistema en la pestaña **Integraciones**.\n\n* **Google Calendar:** Titula automáticamente las grabaciones basándose en tu agenda.\n* **Slack:** Envía resúmenes a un canal #elegido inmediatamente tras el análisis.\n* **Salesforce:** (Próximamente) Actualiza campos de Oportunidad basados en transcripciones de llamadas.",
+    limitReachedTitle: "Límite Mensual Alcanzado",
+    limitReachedMessage: "Has alcanzado tu límite mensual de transcripción. Mejora tu plan para continuar grabando y transcribiendo."
   }
 };
