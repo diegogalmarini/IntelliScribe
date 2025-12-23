@@ -78,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (audioUrl.includes('supabase.co/storage/v1/object/')) {
                     const pathParts = audioUrl.split('/recordings/');
                     if (pathParts.length > 1) {
-                        const filePath = decodeURIComponent(pathParts[1]);
+                        const filePath = decodeURIComponent(pathParts[1]).split('?')[0];
                         console.log(`[AI_API] Downloading from bucket 'recordings': ${filePath}`);
                         const { data, error } = await supabase.storage.from('recordings').download(filePath);
                         if (error) throw new Error(`Supabase Storage Error: ${error.message}`);
@@ -99,7 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (!finalBase64) throw new Error('No audio data or URL provided');
 
             const response = await genAI.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-1.5-flash',
                 contents: {
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
