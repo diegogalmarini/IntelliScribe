@@ -249,7 +249,7 @@ const AppContent: React.FC = () => {
         const potentialTotal = user.subscription.minutesUsed + minutesToAdd;
 
         if (user.subscription.minutesLimit !== -1 && potentialTotal > user.subscription.minutesLimit) {
-            alert(`Upgrade required! Your recording (${minutesToAdd}m) exceeds your remaining monthly limit.`);
+            alert(t('limitReachedTitle') + ": " + t('limitReachedMessage'));
             return;
         }
 
@@ -261,12 +261,12 @@ const AppContent: React.FC = () => {
         const newRecPayload: Recording = {
             id: '', // DB assigned
             title: customTitle,
-            description: 'Live capture session',
+            description: t('liveCaptureSession'),
             date: new Date().toISOString(),
             duration: durationStr,
             durationSeconds: Math.floor(durationSeconds),
             status: 'Draft',
-            tags: ['Live Capture'],
+            tags: [t('liveCaptureTag')],
             participants: 1,
             audioUrl: url,
             segments: [],

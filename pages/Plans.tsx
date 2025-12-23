@@ -123,7 +123,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                     {/* Page Title & Intro */}
                     <div className="flex flex-col gap-2">
                         <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{t('plans')}</h1>
-                        <p className="text-slate-500 dark:text-text-secondary text-lg">Escala tu inteligencia conversacional con el plan perfecto.</p>
+                        <p className="text-slate-500 dark:text-text-secondary text-lg">{t('plansSubtitle')}</p>
                     </div>
 
                     {/* Current Plan Status - Using Gradient Background */}
@@ -132,11 +132,13 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-brand opacity-20"></div>
                             <div className="z-10">
                                 <p className="text-transparent bg-clip-text bg-gradient-brand font-bold text-sm mb-1">{t('currentPlan')}</p>
-                                <h3 className="text-3xl font-black text-slate-900 dark:text-white capitalize tracking-tight">{user.subscription.planId === 'business_plus' ? 'Business +' : user.subscription.planId === 'business' ? 'Business' : user.subscription.planId === 'pro' ? 'Pro' : 'Free'}</h3>
+                                <h3 className="text-3xl font-black text-slate-900 dark:text-white capitalize tracking-tight">{user.subscription.planId === 'business_plus' ? t('planBizPlus') : user.subscription.planId === 'business' ? t('planBiz') : user.subscription.planId === 'pro' ? t('planPro') : t('planFree')}</h3>
                                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                                     {user.subscription.planId === 'free'
-                                        ? `${user.subscription.minutesUsed} / ${user.subscription.minutesLimit} minutes used this month.`
-                                        : 'Unlimited access active.'}
+                                        ? t('usageMinutes')
+                                            .replace('{used}', user.subscription.minutesUsed.toString())
+                                            .replace('{limit}', user.subscription.minutesLimit.toString())
+                                        : t('unlimitedAccess')}
                                 </p>
                             </div>
                             <div className="flex items-center gap-4 z-10">

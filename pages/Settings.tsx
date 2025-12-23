@@ -195,7 +195,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                         <div className="flex items-center justify-between mb-2">
                                             <label className="text-slate-700 dark:text-white text-sm font-medium">{t('phoneLabel')}</label>
                                             <span className="text-xs px-2 py-0.5 rounded-full font-bold uppercase bg-slate-100 text-slate-500">
-                                                Business+ Only
+                                                {t('businessPlusOnly')}
                                             </span>
                                         </div>
                                         <div className="flex gap-2">
@@ -207,7 +207,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                             />
                                         </div>
                                         <p className="text-xs text-brand-blue mt-1">
-                                            Upgrade to Business+ to enable Caller ID verification and VoIP calling.
+                                            {t('upgradeTeaser')}
                                         </p>
                                     </div>
                                 )}
@@ -288,22 +288,22 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                 return (
                     <div className="flex flex-col gap-8 animate-in fade-in duration-300">
                         <section>
-                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-6">Password & Authentication</h4>
+                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-6">{t('securityTitle')}</h4>
                             <div className="flex flex-col gap-6 max-w-xl">
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-slate-700 dark:text-white text-sm font-medium">Current Password</label>
+                                    <label className="text-slate-700 dark:text-white text-sm font-medium">{t('currentPassword')}</label>
                                     <input type="password" className="bg-white dark:bg-surface-dark text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none" placeholder="••••••••" />
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-slate-700 dark:text-white text-sm font-medium">New Password</label>
+                                    <label className="text-slate-700 dark:text-white text-sm font-medium">{t('newPasswordLabel')}</label>
                                     <input type="password" className="bg-white dark:bg-surface-dark text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none" placeholder="••••••••" />
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-slate-700 dark:text-white text-sm font-medium">Confirm New Password</label>
+                                    <label className="text-slate-700 dark:text-white text-sm font-medium">{t('confirmPasswordLabel')}</label>
                                     <input type="password" className="bg-white dark:bg-surface-dark text-slate-900 dark:text-white border border-slate-300 dark:border-border-dark rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none" placeholder="••••••••" />
                                 </div>
                                 <button type="button" className="self-start px-4 py-2 bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#2f3e5c] border border-slate-300 dark:border-border-dark rounded-lg text-slate-700 dark:text-white text-sm font-medium transition-colors">
-                                    Update Password
+                                    {t('updatePassword')}
                                 </button>
                             </div>
                         </section>
@@ -410,7 +410,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
                                     <div>
                                         <h3 className="text-slate-900 dark:text-white text-2xl font-bold">{firstName} {lastName}</h3>
-                                        <p className="text-slate-500 dark:text-text-secondary">{user.role}</p>
+                                        <p className="text-slate-500 dark:text-text-secondary">{user.role === 'Member' ? t('member') : user.role === 'Administrator' ? t('admin') : user.role}</p>
                                         <button
                                             type="button"
                                             onClick={handleAvatarClick}

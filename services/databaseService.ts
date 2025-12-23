@@ -1,6 +1,7 @@
 
 import { supabase } from '../lib/supabase';
 import { Recording, Folder, NoteItem, MediaItem } from '../types';
+import { logger } from './loggingService';
 
 // --- DB TYPES (Matching SQL Schema) ---
 interface DBRecording {
@@ -63,7 +64,7 @@ export const databaseService = {
             .order('created_at', { ascending: true });
 
         if (error) {
-            console.error('Error fetching folders:', error);
+            logger.error('Error fetching folders', { error, userId });
             return [];
         }
 
@@ -91,7 +92,7 @@ export const databaseService = {
             .single();
 
         if (error) {
-            console.error('Error creating folder:', error);
+            logger.error('Error creating folder', { error, name }, user.id);
             return null;
         }
 
@@ -136,7 +137,7 @@ export const databaseService = {
             .range(from, to);
 
         if (error) {
-            console.error('[databaseService] Error fetching full recordings:', error);
+            logger.error('Error fetching full recordings', { error, userId });
             console.log('[databaseService] ⚠️ Falling back to EMERGENCY MODE (minimal data)');
 
             // Fallback: Try minimal query
@@ -148,7 +149,7 @@ export const databaseService = {
                 .limit(10);
 
             if (minimalError) {
-                console.error('[databaseService] CRITICAL: Even minimal query failed:', minimalError);
+                logger.error('CRITICAL: Even minimal query failed', { minimalError, userId });
                 return [];
             }
 
@@ -202,7 +203,7 @@ export const databaseService = {
             .single();
 
         if (error || !r) {
-            console.error('Error fetching recording details:', error);
+            logger.error('Error fetching recording details', { error, id });
             return null;
         }
 
@@ -253,7 +254,7 @@ export const databaseService = {
             .single();
 
         if (error || !data) {
-            console.error('Error creating recording:', error);
+            logger.error('Error creating recording', { error, title: rec.title }, user.id);
             return null;
         }
 

@@ -82,8 +82,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={handleDashboardClick}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${currentRoute === AppRoute.DASHBOARD && activeFolderId === 'ALL'
-                  ? 'bg-primary/10 text-primary dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'bg-primary/10 text-primary dark:text-blue-400'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
               <span className={`material-symbols-outlined ${currentRoute === AppRoute.DASHBOARD && activeFolderId === 'ALL' ? 'material-symbols-filled' : ''}`}>
@@ -95,8 +95,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => onNavigate(AppRoute.INTEGRATIONS)}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${currentRoute === AppRoute.INTEGRATIONS
-                  ? 'bg-primary/10 text-primary dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'bg-primary/10 text-primary dark:text-blue-400'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
               <span className={`material-symbols-outlined ${currentRoute === AppRoute.INTEGRATIONS ? 'material-symbols-filled' : ''}`}>
@@ -108,8 +108,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${currentRoute === AppRoute.SUBSCRIPTION
-                  ? 'bg-primary/10 text-primary dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'bg-primary/10 text-primary dark:text-blue-400'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
               <span className={`material-symbols-outlined ${currentRoute === AppRoute.SUBSCRIPTION ? 'material-symbols-filled' : ''}`}>
@@ -121,8 +121,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => onNavigate(AppRoute.SETTINGS)}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${currentRoute === AppRoute.SETTINGS
-                  ? 'bg-primary/10 text-primary dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'bg-primary/10 text-primary dark:text-blue-400'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
               <span className={`material-symbols-outlined ${currentRoute === AppRoute.SETTINGS ? 'material-symbols-filled' : ''}`}>
@@ -151,8 +151,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={() => onSelectFolder(folder.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${activeFolderId === folder.id && currentRoute === AppRoute.DASHBOARD
-                        ? 'bg-primary/10 text-primary dark:text-blue-400'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                      ? 'bg-primary/10 text-primary dark:text-blue-400'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                       }`}>
                     <span className={`material-symbols-outlined text-[20px] ${activeFolderId === folder.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'}`}>{folder.icon}</span>
                     <span className="truncate flex-1 text-left">{folder.name}</span>
@@ -212,8 +212,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={() => onNavigate(AppRoute.MANUAL)}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors group ${currentRoute === AppRoute.MANUAL
-                  ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
               <span className={`material-symbols-outlined ${currentRoute === AppRoute.MANUAL ? 'material-symbols-filled' : ''}`}>
@@ -263,7 +263,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <p className="text-sm font-medium truncate text-slate-900 dark:text-white">{user.firstName} {user.lastName}</p>
               <div className="flex items-center gap-1.5">
                 <span className={`size-1.5 rounded-full ${user.subscription.planId === 'pro' ? 'bg-brand-violet' : user.subscription.planId === 'business' ? 'bg-brand-blue' : user.subscription.planId === 'business_plus' ? 'bg-brand-green' : 'bg-brand-grey'}`}></span>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate uppercase">{user.subscription.planId === 'pro' ? 'Pro' : user.subscription.planId === 'business' ? 'Biz' : user.subscription.planId === 'business_plus' ? 'Biz+' : t('freePlan')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate uppercase">{user.subscription.planId === 'pro' ? t('planPro') : user.subscription.planId === 'business' ? t('planBiz') : user.subscription.planId === 'business_plus' ? t('planBizPlus') : t('planFree')}</p>
               </div>
             </div>
             <span className="material-symbols-outlined text-slate-400">more_vert</span>
