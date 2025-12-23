@@ -168,7 +168,13 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         if (!audio) return;
 
         const updateTime = () => setCurrentTime(audio.currentTime);
-        const updateDuration = () => setDuration(audio.duration);
+        const updateDuration = () => {
+            if (audio.duration && audio.duration !== Infinity && !isNaN(audio.duration)) {
+                setDuration(audio.duration);
+            } else if (recording.durationSeconds) {
+                setDuration(recording.durationSeconds);
+            }
+        };
         const onEnded = () => setIsPlaying(false);
         const onPlay = () => setIsPlaying(true);
         const onPause = () => setIsPlaying(false);
@@ -211,7 +217,11 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     };
 
     const formatTime = (time: number) => {
-        if (isNaN(time)) return "00:00";
+        if (isNaN(time) || time === Infinity) {
+            // If we have a fallback duration from recording metadata, use that for the end time display
+            if (recording.durationSeconds && !isPlaying && currentTime === 0) return recording.duration.split(':').slice(-2).join(':');
+            return "00:00";
+        }
         const m = Math.floor(time / 60).toString().padStart(2, '0');
         const s = Math.floor(time % 60).toString().padStart(2, '0');
         return `${m}:${s}`;
@@ -543,8 +553,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                 disabled={!signedAudioUrl}
                                                 className="w-full h-full opacity-0 cursor-pointer absolute inset-0 z-10"
                                             />
-                                            <div className="absolute left-0 top-0 bottom-0 bg-primary/20 pointer-events-none" style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}></div>
-                                            <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_10px_white] pointer-events-none transition-all" style={{ left: `${(currentTime / (duration || 1)) * 100}%` }}></div>
+                                            <div className="absolute left-0 top-0 bottom-0 bg-primary/20 pointer-events-none" style={{ width: `${(currentTime / ((duration && duration !== Infinity ? duration : recording.durationSeconds) || 1)) * 100}%` }}></div>
+                                            <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_10px_white] pointer-events-none transition-all" style={{ left: `${(currentTime / ((duration && duration !== Infinity ? duration : recording.durationSeconds) || 1)) * 100}%` }}></div>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] md:text-xs font-mono text-[#92a4c9]">
                                             <span>{formatTime(currentTime)}</span>
@@ -564,7 +574,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                     </select>
                                                 </div>
                                             )}
-                                            <span>{formatTime(duration)}</span>
+                                            <span>{formatTime(duration && duration !== Infinity ? duration : recording.durationSeconds)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -699,9 +709,11 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 text-slate-300">
-                            <ReactMarkdown className="prose prose-invert max-w-none prose-sm">
-                                {summary}
-                            </ReactMarkdown>
+                            <div className="prose prose-invert max-w-none prose-sm">
+                                <ReactMarkdown>
+                                    {summary}
+                                </ReactMarkdown>
+                            </div>
                         </div>
                         <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#161d2a] rounded-b-2xl">
                             <button
@@ -725,7 +737,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                 </div>
             )}
 
-            {showLimitModal && <LimitReachedModal isOpen={showLimitModal} onClose={() => setShowLimitModal(false)} />}
+            {showLimitModal && <LimitReachedModal onClose={() => setShowLimitModal(false)} onNavigate={onNavigate} />}
         </div>
     );
 };

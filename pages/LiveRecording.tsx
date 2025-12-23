@@ -24,6 +24,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [seconds, setSeconds] = useState(0);
+    const secondsRef = useRef(0);
     const [recordingMode, setRecordingMode] = useState<'meeting' | 'call'>('meeting');
 
     const [callMethod, setCallMethod] = useState<'external' | 'voip'>('external');
@@ -225,11 +226,13 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                     const base64Audio = reader.result as string;
                     const callType = recordingMode === 'call' ? (callMethod === 'voip' ? 'VoIP Call' : 'Speakerphone') : 'In-Person';
 
+
                     if (callMethod === 'voip' && phoneNumber) {
                         sessionTitleRef.current = `${sessionTitleRef.current} (${phoneNumber})`;
                     }
 
-                    onRecordingComplete(base64Audio, seconds, sessionTitleRef.current, notesRef.current, mediaItemsRef.current, audioBlob);
+                    console.log(`[RECORDING_STOP] Finalizing with ${secondsRef.current} seconds`);
+                    onRecordingComplete(base64Audio, secondsRef.current, sessionTitleRef.current, notesRef.current, mediaItemsRef.current, audioBlob);
                 };
             };
         } catch (e) {
@@ -265,7 +268,11 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         let interval: any;
         if (isRecording && !isPaused) {
             interval = setInterval(() => {
-                setSeconds(s => s + 1);
+                setSeconds(s => {
+                    const next = s + 1;
+                    secondsRef.current = next;
+                    return next;
+                });
             }, 1000);
         }
         return () => clearInterval(interval);
@@ -303,6 +310,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
 
     const startRecording = () => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'inactive') {
+            secondsRef.current = 0;
+            setSeconds(0);
             mediaRecorderRef.current.start(1000);
             setIsRecording(true);
             if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();

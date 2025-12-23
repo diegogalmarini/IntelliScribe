@@ -350,7 +350,7 @@ const AppContent: React.FC = () => {
     if (currentRoute === AppRoute.LOGIN) {
         return (
             <ThemeProvider>
-                <Login onNavigate={navigate} onSocialLogin={handleSocialLoginSuccess} />
+                <Login onNavigate={navigate} />
             </ThemeProvider>
         );
     }
@@ -378,7 +378,7 @@ const AppContent: React.FC = () => {
                 <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
 
                     {/* Mobile Header Toggle */}
-                    {currentRoute !== AppRoute.LOGIN && currentRoute !== AppRoute.RESET_PASSWORD && (
+                    {currentRoute !== AppRoute.RESET_PASSWORD && (
                         <div className="md:hidden flex items-center p-4 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark">
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
