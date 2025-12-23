@@ -83,6 +83,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log("🔍 [VERIFY] Initializing Twilio client...");
             client = twilio(accountSid, authToken);
             console.log("✅ [VERIFY] Twilio client initialized successfully");
+        } catch (twilioInitError: any) {
+            console.error("❌ [VERIFY] Failed to initialize Twilio client:", twilioInitError);
+            return res.status(500).json({
+                error: 'Failed to initialize Twilio client',
+                details: twilioInitError.message
+            });
         }
 
         // --- Supabase REST API Helper (NO CLIENT LIBRARY) ---
