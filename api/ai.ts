@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from "@supabase/supabase-js";
+// Supabase client library removed to avoid ESM in the dependency issues on Vercel
 
 // Initialize AI only on the server
 // Removed global init to prevent cold-start crashes if env vars are missing
@@ -34,15 +34,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Initialize Clients Safely
         const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        let supabase;
-        try {
-            supabase = createClient(
-                process.env.SUPABASE_URL,
-                process.env.SUPABASE_SERVICE_ROLE_KEY
-            );
-        } catch (initError: any) {
-            throw new Error(`Supabase Client Init Failed: ${initError.message}`);
-        }
+        // Supabase config (using REST API, no client library)
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         let result;
 
@@ -92,9 +86,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (pathParts.length > 1) {
                         const filePath = decodeURIComponent(pathParts[1]).split('?')[0];
                         console.log(`[AI_API] Downloading from bucket 'recordings': ${filePath}`);
-                        const { data, error } = await supabase.storage.from('recordings').download(filePath);
-                        if (error) throw new Error(`Supabase Storage Error: ${error.message}`);
-                        const buffer = await data.arrayBuffer();
+
+                        // Use Supabase Storage REST API directly
+                        const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${filePath}`;
+                        const storageResponse = await fetch(storageUrl, {
+                            headers: {
+                                'Authorization': `Bearer ${supabaseServiceKey}`,
+                                'apikey': supabaseServiceKey
+                            }
+                        });
+
+                        if (!storageResponse.ok) {
+                            throw new Error(`Supabase Storage Error: ${storageResponse.status} ${storageResponse.statusText}`);
+                        }
+
+                        const buffer = await storageResponse.arrayBuffer();
                         finalBase64 = Buffer.from(buffer).toString('base64');
                     }
                 }
