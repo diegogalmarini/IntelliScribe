@@ -276,7 +276,7 @@ const AppContent: React.FC = () => {
         };
 
         if (audioBlob && user.email) {
-            const publicUrl = await uploadAudio(audioBlob, user.email);
+            const publicUrl = await uploadAudio(audioBlob, user.id);
             if (publicUrl) {
                 newRecPayload.audioUrl = publicUrl;
             }

@@ -120,8 +120,8 @@ export const databaseService = {
 
     async getRecordings(userId: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
         // FULL QUERY - Índices confirmados en Supabase ✅
-        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields (segments, notes, media)
-        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, audio_url';
+        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields AND audio_url (Lazy Load)
+        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at'; // Removed audio_url
 
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
@@ -163,8 +163,8 @@ export const databaseService = {
                 status: r.status,
                 tags: [],
                 participants: 1,
-                audioUrl: undefined, // Fixed key name
-                folderId: undefined, // Fixed key name
+                audioUrl: undefined,
+                folderId: undefined,
                 segments: [],
                 notes: [],
                 media: [],
@@ -173,7 +173,7 @@ export const databaseService = {
             }));
         }
 
-        console.log(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully (Full Mode)`);
+        console.log(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully (Full Mode - Lightweight)`);
         return (recordingsData || []).map((r: any) => ({
             id: r.id,
             title: r.title,
@@ -184,7 +184,7 @@ export const databaseService = {
             status: r.status as any,
             tags: r.tags || [],
             participants: r.participants || 1,
-            audioUrl: r.audio_url || undefined,
+            audioUrl: undefined, // Lazy load this
             folderId: r.folder_id || undefined,
             // Heavy fields are omitted for performance in the list view
             segments: [],
