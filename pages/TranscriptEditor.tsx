@@ -425,29 +425,22 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'webm';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
-            // Create signed URL with 5 minute expiration
+            // Download file directly from Supabase Storage
             const { data, error } = await supabase.storage
                 .from('recordings')
-                .createSignedUrl(recording.audioUrl, 300); // 5 minutes
+                .download(recording.audioUrl);
 
             if (error) throw error;
 
-            if (data?.signedUrl) {
-                // Fetch the file and create a blob to download immediately
-                const response = await fetch(data.signedUrl);
-                if (!response.ok) throw new Error('Failed to fetch audio file');
-
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
-
+            if (data) {
+                // Create blob URL and trigger download
+                const blobUrl = URL.createObjectURL(data);
                 const link = document.createElement('a');
                 link.href = blobUrl;
-                link.setAttribute('download', fileName);
+                link.download = fileName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-
-                // Clean up blob URL
                 URL.revokeObjectURL(blobUrl);
             }
         } catch (err) {
@@ -598,11 +591,11 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                     <button
                         onClick={handleDownloadAudio}
                         disabled={!recording.audioUrl}
-                        title={user.subscription.planId === 'free' ? t('downloadRequiresPro') : t('downloadAudioOriginal')}
+                        title={user.subscription.planId === 'free' ? t('downloadRequiresPro') : t('downloadAudio')}
                         className={`flex items-center justify-center rounded-lg h-9 w-9 md:w-auto md:h-10 md:px-4 text-white text-sm font-medium transition-colors gap-2 ${user.subscription.planId === 'free' ? 'bg-slate-600 cursor-not-allowed opacity-70' : 'bg-[#232f48] hover:bg-[#2f3e5c]'} disabled:opacity-50`}>
                         {user.subscription.planId === 'free' && <span className="material-symbols-outlined text-sm">lock</span>}
-                        <span className="material-symbols-outlined text-lg">download_for_offline</span>
-                        <span className="hidden md:inline">{t('downloadAudioOriginal')}</span>
+                        <span className="material-symbols-outlined text-lg">download</span>
+                        <span className="hidden md:inline">{t('downloadAudio')}</span>
                     </button>
 
                     <div className="relative">
