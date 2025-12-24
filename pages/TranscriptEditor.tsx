@@ -420,10 +420,15 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         }
 
         try {
+            // Extract file extension from the original audio URL
+            const urlParts = recording.audioUrl.split('.');
+            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'webm';
+            const fileName = `${recording.title || 'audio'}.${fileExtension}`;
+
             const { data, error } = await supabase.storage
                 .from('recordings')
                 .createSignedUrl(recording.audioUrl, 60, {
-                    download: `${recording.title || 'audio'}.webm`
+                    download: fileName
                 });
 
             if (error) throw error;
@@ -431,7 +436,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             if (data?.signedUrl) {
                 const link = document.createElement('a');
                 link.href = data.signedUrl;
-                link.setAttribute('download', `${recording.title}.webm`);
+                link.setAttribute('download', fileName);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
