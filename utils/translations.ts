@@ -299,7 +299,11 @@ export const translations = {
     loadingAudio: "Loading audio waveform...",
     downloadAudioOriginal: "Original Audio",
     downloadRequiresPro: "Download is exclusive to Pro plans. Upgrade to save backup copies.",
-    downloadFailed: "Failed to download audio file."
+    downloadFailed: "Failed to download audio file.",
+    storageUsage: "Storage Usage",
+    storageUsed: "used of",
+    storageRetention: "Free tier uses retention-based cleanup (7 days)",
+    storageNoLimit: "No storage limit"
   },
   es: {
     // Auth
@@ -597,6 +601,10 @@ export const translations = {
     loadingAudio: "Cargando onda de audio...",
     downloadAudioOriginal: "Audio Original",
     downloadRequiresPro: "La descarga es exclusiva de planes Pro. Actualiza para guardar copias de seguridad.",
-    downloadFailed: "Error al descargar el archivo de audio."
+    downloadFailed: "Error al descargar el archivo de audio.",
+    storageUsage: "Uso de Almacenamiento",
+    storageUsed: "usado de",
+    storageRetention: "Plan gratuito usa limpieza basada en retención (7 días)",
+    storageNoLimit: "Sin límite de almacenamiento"
   }
 };
