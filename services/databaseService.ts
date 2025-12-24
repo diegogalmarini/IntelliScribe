@@ -376,5 +376,38 @@ export const databaseService = {
             return false;
         }
         return true;
+    },
+
+    /**
+     * Decrement user's minutes_used when deleting recording
+     * Ensures value never goes below 0
+     */
+    async decrementUsage(userId: string, seconds: number): Promise<boolean> {
+        // Round up to the nearest minute (same rounding as increment)
+        const minutes = Math.max(1, Math.ceil(seconds / 60));
+
+        // 1. Get current usage
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('minutes_used')
+            .eq('id', userId)
+            .single();
+
+        if (!profile) return false;
+
+        // 2. Decrement usage (never below 0)
+        const newUsage = Math.max(0, (profile.minutes_used || 0) - minutes);
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({ minutes_used: newUsage })
+            .eq('id', userId);
+
+        if (error) {
+            logger.error('Error decrementing usage', { userId, minutes, error: error.message });
+            return false;
+        }
+
+        return true;
     }
 };

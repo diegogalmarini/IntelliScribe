@@ -308,9 +308,33 @@ const AppContent: React.FC = () => {
     };
 
     const handleDeleteRecording = async (id: string) => {
-        setRecordings(prev => prev.filter(r => r.id !== id));
-        if (activeRecordingId === id) setActiveRecordingId(null);
-        await databaseService.deleteRecording(id);
+        const recording = recordings.find(r => r.id === id);
+        if (!recording) return;
+
+        const confirmed = window.confirm(t('confirmDelete'));
+        if (!confirmed) return;
+
+        const success = await databaseService.deleteRecording(id);
+
+        if (success) {
+            setRecordings(prev => prev.filter(r => r.id !== id));
+            if (activeRecordingId === id) setActiveRecordingId(null);
+
+            // Return minutes to user's quota
+            const minutesToReturn = Math.max(1, Math.ceil(recording.durationSeconds / 60));
+            await databaseService.decrementUsage(user.id!, recording.durationSeconds);
+
+            // Update local state
+            setUser(prev => ({
+                ...prev,
+                subscription: {
+                    ...prev.subscription,
+                    minutesUsed: Math.max(0, prev.subscription.minutesUsed - minutesToReturn)
+                }
+            }));
+        } else {
+            alert('Failed to delete recording.');
+        }
     };
 
     const handleRenameRecording = async (id: string, newTitle: string) => {
