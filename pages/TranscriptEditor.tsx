@@ -425,6 +425,19 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'webm';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
+            // Determine MIME type based on extension
+            const mimeTypes: Record<string, string> = {
+                'mp3': 'audio/mpeg',
+                'webm': 'audio/webm',
+                'wav': 'audio/wav',
+                'm4a': 'audio/mp4',
+                'aac': 'audio/aac',
+                'ogg': 'audio/ogg',
+                'opus': 'audio/opus',
+                'flac': 'audio/flac'
+            };
+            const mimeType = mimeTypes[fileExtension.toLowerCase()] || 'audio/mpeg';
+
             // Download file directly from Supabase Storage
             const { data, error } = await supabase.storage
                 .from('recordings')
@@ -433,15 +446,24 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             if (error) throw error;
 
             if (data) {
-                // Create blob URL and trigger download
-                const blobUrl = URL.createObjectURL(data);
+                // Create a properly typed blob
+                const typedBlob = new Blob([data], { type: mimeType });
+                const blobUrl = URL.createObjectURL(typedBlob);
+
                 const link = document.createElement('a');
+                link.style.display = 'none';
                 link.href = blobUrl;
                 link.download = fileName;
+                link.setAttribute('download', fileName); // Redundant but ensures compatibility
+
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
+
+                // Cleanup after a short delay
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
             }
         } catch (err) {
             logger.error('Failed to download audio', { error: err, recordingId: recording.id }, user.id);
