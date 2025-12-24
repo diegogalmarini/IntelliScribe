@@ -107,7 +107,7 @@ export const translations = {
     statusOk: "Operational",
     statusError: "Issue Detected",
     statusWarning: "Warning",
-    storageUsed: "used",
+    storageUsedLabel: "used",
 
     // Live Recording
     newSession: "New Session",
@@ -409,7 +409,7 @@ export const translations = {
     statusOk: "Operativo",
     statusError: "Error Detectado",
     statusWarning: "Advertencia",
-    storageUsed: "usado",
+    storageUsedLabel: "usado",
 
     // Live Recording
     newSession: "Nueva Sesión",
