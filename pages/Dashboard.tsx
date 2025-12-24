@@ -210,13 +210,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={handleViewReport}
-                        className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                    >
-                        <span className="material-symbols-outlined text-sm">health_and_safety</span>
-                        {t('viewReport')}
-                    </button>
+                    {user.email === 'diegogalmarini@gmail.com' && (
+                        <button
+                            onClick={handleViewReport}
+                            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-sm">health_and_safety</span>
+                            {t('viewReport')}
+                        </button>
+                    )}
                     <ThemeToggle />
                     <LanguageSelector />
                 </div>
