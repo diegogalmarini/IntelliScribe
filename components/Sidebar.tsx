@@ -224,22 +224,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Usage Stats (Freemium Feature) */}
-          {user.subscription.planId === 'free' && (
-            <div className="mx-3 mt-2 mb-4 bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('usage')}</span>
-                <span className="text-xs font-mono text-slate-900 dark:text-white">{user.subscription.minutesUsed}/{user.subscription.minutesLimit}m</span>
-              </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-3">
-                <div className={`h-1.5 rounded-full transition-all ${usagePercent > 90 ? 'bg-red-500' : 'bg-primary'}`} style={{ width: `${usagePercent}%` }}></div>
-              </div>
+          <div className="mx-3 mt-2 mb-4 bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('usage')}</span>
+              <span className="text-xs font-mono text-slate-900 dark:text-white">{user.subscription.minutesUsed}/{user.subscription.minutesLimit}m</span>
+            </div>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-3">
+              <div
+                className={`h-1.5 rounded-full transition-all ${usagePercent > 90
+                    ? 'bg-red-500'
+                    : user.subscription.planId === 'business_plus'
+                      ? 'bg-brand-green'
+                      : user.subscription.planId === 'business'
+                        ? 'bg-brand-blue'
+                        : user.subscription.planId === 'pro'
+                          ? 'bg-brand-violet'
+                          : 'bg-primary'
+                  }`}
+                style={{ width: `${usagePercent}%` }}
+              ></div>
+            </div>
+            {user.subscription.planId === 'free' && (
               <button
-                onClick={() => onNavigate(AppRoute.SUBSCRIPTION)} // Changed to Subscription route
+                onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
                 className="w-full py-1.5 bg-gradient-to-r from-primary to-purple-600 text-white text-xs font-bold rounded-lg hover:shadow-lg hover:shadow-primary/20 transition-all">
                 {t('upgrade')} ⚡
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* User */}
