@@ -39,7 +39,75 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
     }
 };
 
+/**
+ * Check if user has enough storage space for new upload
+ * @param userId - User ID
+ * @param newFileSize - Size of new file in bytes
+ * @returns Object with allowed status, current usage, and limit
+ */
+export const checkStorageLimit = async (
+    userId: string,
+    newFileSize: number
+): Promise<{ allowed: boolean; currentUsage: number; limit: number; planId: string }> => {
+    try {
+        // Get user's storage limit and plan
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('storage_limit, plan_id')
+            .eq('id', userId)
+            .single();
+
+        if (profileError || !profile) {
+            console.error('Failed to fetch user profile:', profileError);
+            return { allowed: false, currentUsage: 0, limit: 0, planId: 'free' };
+        }
+
+        const limit = profile.storage_limit || 0;
+        const planId = profile.plan_id || 'free';
+
+        // Free tier has no storage limit (retention-based only)
+        if (planId === 'free') {
+            return { allowed: true, currentUsage: 0, limit: 0, planId };
+        }
+
+        // List all files for this user in the recordings bucket
+        const { data: files, error: filesError } = await supabase.storage
+            .from('recordings')
+            .list(userId, {
+                limit: 1000,
+                sortBy: { column: 'created_at', order: 'desc' }
+            });
+
+        if (filesError) {
+            console.error('Failed to list user files:', filesError);
+            return { allowed: false, currentUsage: 0, limit, planId };
+        }
+
+        // Calculate current usage from file metadata
+        const currentUsage = (files || []).reduce((sum, file) => {
+            return sum + (file.metadata?.size || 0);
+        }, 0);
+
+        const allowed = (currentUsage + newFileSize) <= limit;
+
+        return { allowed, currentUsage, limit, planId };
+    } catch (error) {
+        console.error('Storage check failed:', error);
+        return { allowed: false, currentUsage: 0, limit: 0, planId: 'free' };
+    }
+};
+
 export const uploadAudio = async (blob: Blob, userId: string): Promise<string | null> => {
+    // Check storage limit before uploading
+    const storageCheck = await checkStorageLimit(userId, blob.size);
+
+    if (!storageCheck.allowed && storageCheck.planId !== 'free') {
+        const usedGB = (storageCheck.currentUsage / 1073741824).toFixed(2);
+        const limitGB = (storageCheck.limit / 1073741824).toFixed(2);
+        console.error(`Storage limit exceeded: ${usedGB}GB / ${limitGB}GB used`);
+        throw new Error(`STORAGE_LIMIT_EXCEEDED:${usedGB}:${limitGB}`);
+    }
+
     const fileName = `${userId}/${Date.now()}.mp3`;
 
     const { data, error } = await supabase.storage
