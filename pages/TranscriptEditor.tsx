@@ -11,6 +11,7 @@ import { jsPDF } from 'jspdf';
 import ReactMarkdown from 'react-markdown';
 import { logger } from '../services/loggingService';
 import { WaveformVisualizer } from '../components/WaveformVisualizer';
+import { supabase } from '../lib/supabase';
 
 interface TranscriptEditorProps {
     onNavigate: (route: AppRoute) => void;
@@ -405,6 +406,42 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         }).join('\n');
     };
 
+    // Download Audio Feature (Pro+)
+    const handleDownloadAudio = async () => {
+        // Plan gating: Free users cannot download
+        if (user.subscription.planId === 'free') {
+            alert(t('downloadRequiresPro'));
+            return;
+        }
+
+        if (!recording.audioUrl) {
+            alert(t('downloadFailed'));
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase.storage
+                .from('recordings')
+                .createSignedUrl(recording.audioUrl, 60, {
+                    download: `${recording.title || 'audio'}.webm`
+                });
+
+            if (error) throw error;
+
+            if (data?.signedUrl) {
+                const link = document.createElement('a');
+                link.href = data.signedUrl;
+                link.setAttribute('download', `${recording.title}.webm`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        } catch (err) {
+            logger.error('Failed to download audio', { error: err, recordingId: recording.id }, user.id);
+            alert(t('downloadFailed'));
+        }
+    };
+
     const handleExport = (format: 'txt' | 'json' | 'srt' | 'clipboard') => {
         if (segments.length === 0) return;
         let content = '';
@@ -541,6 +578,17 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         className={`flex items-center justify-center rounded-lg h-9 w-9 md:w-auto md:h-10 md:px-4 text-white text-sm font-medium transition-colors gap-2 ${showChat ? 'bg-primary shadow-[0_0_15px_rgba(19,91,236,0.3)]' : 'bg-[#232f48] hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
                         <span className="material-symbols-outlined text-lg">auto_awesome</span>
                         <span className="hidden md:inline">{t('askDiktalo')}</span>
+                    </button>
+
+                    {/* Download Original Audio Button (Pro+) */}
+                    <button
+                        onClick={handleDownloadAudio}
+                        disabled={!recording.audioUrl}
+                        title={user.subscription.planId === 'free' ? t('downloadRequiresPro') : t('downloadAudioOriginal')}
+                        className={`flex items-center justify-center rounded-lg h-9 w-9 md:w-auto md:h-10 md:px-4 text-white text-sm font-medium transition-colors gap-2 ${user.subscription.planId === 'free' ? 'bg-slate-600 cursor-not-allowed opacity-70' : 'bg-[#232f48] hover:bg-[#2f3e5c]'} disabled:opacity-50`}>
+                        {user.subscription.planId === 'free' && <span className="material-symbols-outlined text-sm">lock</span>}
+                        <span className="material-symbols-outlined text-lg">download_for_offline</span>
+                        <span className="hidden md:inline">{t('downloadAudioOriginal')}</span>
                     </button>
 
                     <div className="relative">

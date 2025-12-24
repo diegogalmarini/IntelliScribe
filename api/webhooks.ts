@@ -9,6 +9,38 @@ export const config = {
     },
 };
 
+// Plan Limits Configuration (Diktalo v2.1)
+const PLAN_LIMITS = {
+    free: {
+        minutes: 24,
+        storageBytes: 0, // No storage limit, only retention-based
+        retentionDays: 7,
+        canDownload: false,
+        allowCalls: false
+    },
+    pro: {
+        minutes: 300,
+        storageBytes: 5368709120, // 5 GB
+        retentionDays: 365,
+        canDownload: true,
+        allowCalls: false
+    },
+    business: {
+        minutes: 600,
+        storageBytes: 21474836480, // 20 GB
+        retentionDays: 365,
+        canDownload: true,
+        allowCalls: false
+    },
+    business_plus: {
+        minutes: 1200,
+        storageBytes: 53687091200, // 50 GB
+        retentionDays: 365,
+        canDownload: true,
+        allowCalls: true
+    }
+};
+
 async function buffer(readable) {
     const chunks = [];
     for await (const chunk of readable) {
@@ -94,19 +126,26 @@ export default async function handler(req, res) {
                 });
             }
 
-            // PLAN LOGIC
-            let planId = 'pro';
-            let limit = 150;
+            // PLAN LOGIC - Map Stripe amount to plan ID
+            let planId: 'pro' | 'business' | 'business_plus' = 'pro';
             const amount = session.amount_total || 0;
-            if (amount >= 2000) { planId = 'business_plus'; limit = 999999; }
-            else if (amount >= 1200) { planId = 'business'; limit = 600; }
+
+            if (amount >= 2000) planId = 'business_plus';      // $20+ → Business+ (1200 min)
+            else if (amount >= 1200) planId = 'business';      // $12+ → Business (600 min)
+            // else defaults to 'pro'                           // <$12 → Pro (300 min)
+
+            // Get plan configuration
+            const planConfig = PLAN_LIMITS[planId];
+
+            console.log(`[Webhook] Plan: ${planId}, Minutes: ${planConfig.minutes}, Storage: ${planConfig.storageBytes}`);
 
             // UPDATE VIA REST API (No Library)
             const updateUrl = `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}`;
 
             const payload = {
                 plan_id: planId,
-                minutes_limit: limit,
+                minutes_limit: planConfig.minutes,
+                storage_limit: planConfig.storageBytes,
                 subscription_status: 'active',
                 subscription_id: session.subscription,
                 updated_at: new Date().toISOString()
