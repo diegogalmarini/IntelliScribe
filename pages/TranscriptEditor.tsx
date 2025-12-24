@@ -425,21 +425,30 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'webm';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
+            // Create signed URL with 5 minute expiration
             const { data, error } = await supabase.storage
                 .from('recordings')
-                .createSignedUrl(recording.audioUrl, 60, {
-                    download: fileName
-                });
+                .createSignedUrl(recording.audioUrl, 300); // 5 minutes
 
             if (error) throw error;
 
             if (data?.signedUrl) {
+                // Fetch the file and create a blob to download immediately
+                const response = await fetch(data.signedUrl);
+                if (!response.ok) throw new Error('Failed to fetch audio file');
+
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+
                 const link = document.createElement('a');
-                link.href = data.signedUrl;
+                link.href = blobUrl;
                 link.setAttribute('download', fileName);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+
+                // Clean up blob URL
+                URL.revokeObjectURL(blobUrl);
             }
         } catch (err) {
             logger.error('Failed to download audio', { error: err, recordingId: recording.id }, user.id);
