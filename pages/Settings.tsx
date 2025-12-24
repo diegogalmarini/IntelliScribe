@@ -4,7 +4,7 @@ import { UserProfile } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { uploadAvatar } from '../services/storageService';
+import { uploadAvatar, checkStorageLimit } from '../services/storageService';
 
 type SettingsTab = 'profile' | 'security' | 'notifications';
 
@@ -46,6 +46,33 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
     // Ref for the hidden file input
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    // Storage Usage State
+    const [storageUsed, setStorageUsed] = useState<number>(0);
+    const [storageLimit, setStorageLimit] = useState<number>(0);
+    const [isLoadingStorage, setIsLoadingStorage] = useState(true);
+
+    // Fetch storage usage on mount
+    useEffect(() => {
+        const fetchStorageUsage = async () => {
+            if (user.subscription?.planId === 'free') {
+                setIsLoadingStorage(false);
+                return;
+            }
+
+            try {
+                const result = await checkStorageLimit(user.id, 0);
+                setStorageUsed(result.currentUsage);
+                setStorageLimit(result.limit);
+            } catch (error) {
+                console.error('Failed to fetch storage usage:', error);
+            } finally {
+                setIsLoadingStorage(false);
+            }
+        };
+
+        fetchStorageUsage();
+    }, [user.id, user.subscription?.planId]);
 
     // Sync local state if user prop changes (e.g. initial load or external update)
     useEffect(() => {
@@ -212,8 +239,73 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     </div>
                                 )}
                             </div>
-                        </section >
-                    </div >
+                        </section>
+
+                        {/* Storage Usage Section */}
+                        <section>
+                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-6">{t('storageUsage')}</h4>
+                            {user.subscription?.planId === 'free' ? (
+                                <div className="p-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl">
+                                    <div className="flex items-start gap-3">
+                                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">info</span>
+                                        <div>
+                                            <p className="text-blue-900 dark:text-blue-200 text-sm font-medium mb-1">
+                                                {t('storageNoLimit')}
+                                            </p>
+                                            <p className="text-blue-700 dark:text-blue-300 text-xs">
+                                                {t('storageRetention')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : isLoadingStorage ? (
+                                <div className="flex items-center justify-center p-8">
+                                    <span className="material-symbols-outlined animate-spin text-primary text-2xl">progress_activity</span>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="flex items-end justify-between">
+                                        <div>
+                                            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                {(storageUsed / 1073741824).toFixed(2)} GB
+                                            </p>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                {t('storageUsed')} {(storageLimit / 1073741824).toFixed(0)} GB
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                {((storageUsed / storageLimit) * 100).toFixed(1)}% used
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Progress Bar */}
+                                    <div className="relative h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        <div
+                                            className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${(storageUsed / storageLimit) > 0.9
+                                                ? 'bg-gradient-to-r from-red-500 to-red-600'
+                                                : (storageUsed / storageLimit) > 0.75
+                                                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                                                    : 'bg-gradient-to-r from-primary to-blue-600'
+                                                }`}
+                                            style={{ width: `${Math.min((storageUsed / storageLimit) * 100, 100)}%` }}
+                                        />
+                                    </div>
+
+                                    {/* Warning if close to limit */}
+                                    {(storageUsed / storageLimit) > 0.9 && (
+                                        <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
+                                            <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-lg">warning</span>
+                                            <p className="text-red-700 dark:text-red-300 text-xs">
+                                                Storage almost full. Please delete old recordings or upgrade your plan.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 );
             case 'notifications':
                 return (
