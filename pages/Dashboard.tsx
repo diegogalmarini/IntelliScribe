@@ -123,8 +123,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     // --- System Report Logic ---
     const handleViewReport = () => {
-        // 1. Check API Key presence (safe check)
-        const hasApiKey = typeof process !== 'undefined' && process.env && !!process.env.API_KEY;
+        // 1. Check Gemini API Key presence (client-side safe check)
+        const hasApiKey = !!import.meta.env.VITE_GEMINI_API_KEY;
 
         // 2. Check Browser Capabilities
         const hasMediaRecorder = !!(window.MediaRecorder);

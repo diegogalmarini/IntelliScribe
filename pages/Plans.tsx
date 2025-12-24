@@ -152,7 +152,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                     </div>
 
                     {/* Controls Row */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 pt-2 pb-4 bg-background-light dark:bg-background-dark z-10">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-6">
                         {/* Currency Toggle */}
                         <div className="flex items-center gap-2 bg-white dark:bg-surface-dark p-1 rounded-lg border border-slate-200 dark:border-border-dark shadow-sm">
                             <button
