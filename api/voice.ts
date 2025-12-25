@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (supabaseUrl && supabaseServiceKey) {
                 const response = await fetch(
-                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,caller_id_verified`,
+                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified`,
                     {
                         headers: {
                             'apikey': supabaseServiceKey,
@@ -48,8 +48,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (data.length > 0) {
                         const profile = data[0];
 
-                        // Use user's phone if caller_id_verified is true
-                        if (profile.caller_id_verified && profile.phone) {
+                        // Use user's phone if phone_verified is true
+                        if (profile.phone_verified && profile.phone) {
                             callerId = profile.phone;
                             verificationStatus = 'verified';
                             console.log(`[VOICE] ✅ Using verified caller ID: ${callerId} for user ${userId}`);
