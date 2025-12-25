@@ -1,7 +1,5 @@
 
 import Stripe from 'stripe';
-// ERROR: import { createClient } from '@supabase/supabase-js'; <-- CAUSES CRASH
-// FIX: We will use native 'fetch' to call Supabase REST API directly.
 
 export const config = {
     api: {

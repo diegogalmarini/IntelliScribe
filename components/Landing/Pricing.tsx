@@ -4,6 +4,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 export const Pricing: React.FC = () => {
     const { t } = useLanguage();
+    const [billingInterval, setBillingInterval] = React.useState<'monthly' | 'annual'>('annual');
 
     const planVariants = {
         hidden: { opacity: 0, y: 30 },
@@ -16,7 +17,7 @@ export const Pricing: React.FC = () => {
             <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full"></div>
 
             <div className="max-w-7xl mx-auto px-4 relative z-10">
-                <div className="text-center mb-20">
+                <div className="text-center mb-16">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -25,9 +26,28 @@ export const Pricing: React.FC = () => {
                     >
                         {t('pricingTitle')}
                     </motion.h2>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-base md:text-lg font-medium leading-relaxed">
+                    <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-base md:text-lg font-medium leading-relaxed mb-10">
                         {t('pricingSubtitle')}
                     </p>
+
+                    {/* Billing Toggle */}
+                    <div className="flex items-center justify-center gap-4 mb-12">
+                        <span className={`text-xs font-black uppercase tracking-widest ${billingInterval === 'monthly' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Monthly</span>
+                        <button
+                            onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                            className="relative w-14 h-7 bg-slate-200 dark:bg-slate-800 rounded-full p-1 transition-colors duration-300"
+                        >
+                            <motion.div
+                                animate={{ x: billingInterval === 'annual' ? 28 : 0 }}
+                                className="w-5 h-5 bg-primary rounded-full shadow-lg"
+                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                            />
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <span className={`text-xs font-black uppercase tracking-widest ${billingInterval === 'annual' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Annual</span>
+                            <span className="bg-brand-green/20 text-brand-green text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter animate-pulse">Save 20%</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
@@ -69,7 +89,7 @@ export const Pricing: React.FC = () => {
                         <h3 className="text-base font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">{t('proTitle')}</h3>
                         <p className="text-xs text-brand-violet font-bold mb-6">{t('proBadge')}</p>
                         <div className="mb-8">
-                            <span className="text-4xl font-black text-slate-900 dark:text-white">$12</span>
+                            <span className="text-4xl font-black text-slate-900 dark:text-white">${billingInterval === 'annual' ? '12' : '15'}</span>
                             <span className="text-slate-400 font-bold ml-2">/mo</span>
                         </div>
                         <ul className="space-y-4 mb-8 flex-grow">
@@ -96,7 +116,7 @@ export const Pricing: React.FC = () => {
                         <h3 className="text-base font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">{t('bizTitle')}</h3>
                         <p className="text-xs text-brand-blue font-bold mb-6">{t('bizBadge')}</p>
                         <div className="mb-8">
-                            <span className="text-4xl font-black text-slate-900 dark:text-white">$19</span>
+                            <span className="text-4xl font-black text-slate-900 dark:text-white">${billingInterval === 'annual' ? '19' : '25'}</span>
                             <span className="text-slate-400 font-bold ml-2">/mo</span>
                         </div>
                         <ul className="space-y-4 mb-8 flex-grow">
@@ -126,7 +146,7 @@ export const Pricing: React.FC = () => {
                         <h3 className="text-base font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">{t('bizPlusTitle')}</h3>
                         <p className="text-xs text-primary font-bold mb-6">{t('bizPlusBadge')}</p>
                         <div className="mb-8">
-                            <span className="text-4xl font-black text-slate-900 dark:text-white">$35</span>
+                            <span className="text-4xl font-black text-slate-900 dark:text-white">${billingInterval === 'annual' ? '35' : '45'}</span>
                             <span className="text-slate-400 font-bold ml-2">/mo</span>
                         </div>
                         <ul className="space-y-4 mb-8 flex-grow">
