@@ -31,7 +31,7 @@ export const Landing: React.FC = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5">
                 <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-3xl">fluid_meditation</span>
+                        <span className="material-symbols-outlined text-primary text-3xl">waves</span>
                         <span className="text-2xl font-display font-black text-slate-900 dark:text-white tracking-tight">
                             Diktalo
                         </span>
