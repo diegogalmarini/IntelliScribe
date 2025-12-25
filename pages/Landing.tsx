@@ -45,31 +45,34 @@ export const Landing: React.FC = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-white/5 h-20 transition-all">
                 <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-10 w-auto" />
+                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto" />
                     </div>
 
                     <div className="hidden md:flex items-center gap-8">
-                        <button
-                            onClick={() => scrollToSection('features')}
-                            className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
-                        >
-                            {t('navFeatures')}
-                        </button>
-                        <button
-                            onClick={() => scrollToSection('pricing')}
-                            className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
-                        >
-                            {t('navPricing')}
-                        </button>
-                        <div className="h-6 w-px bg-slate-200 dark:bg-white/10"></div>
-                        <LanguageSelector />
-                        <ThemeToggle />
-                        <a href="/login" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
-                            {t('navLogin')}
-                        </a>
-                        <a href="/login" className="px-6 py-2.5 bg-primary text-white text-sm font-black rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all active:scale-95">
-                            {t('navGetStarted')}
-                        </a>
+                        <nav className="flex items-center gap-8 mr-4">
+                            <button
+                                onClick={() => scrollToSection('features')}
+                                className="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+                            >
+                                {t('navFeatures')}
+                            </button>
+                            <button
+                                onClick={() => scrollToSection('pricing')}
+                                className="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+                            >
+                                {t('navPricing')}
+                            </button>
+                        </nav>
+                        <div className="flex items-center gap-4">
+                            <LanguageSelector />
+                            <ThemeToggle />
+                            <a href="/login" className="px-5 py-2 text-[11px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                {t('navLogin')}
+                            </a>
+                            <a href="/login" className="px-5 py-2.5 bg-primary text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all active:scale-95">
+                                {t('navGetStarted')}
+                            </a>
+                        </div>
                     </div>
 
                     {/* Mobile Menu Toggle (Simplified) */}
@@ -103,21 +106,21 @@ export const Landing: React.FC = () => {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-24 bg-primary overflow-hidden relative">
+                <section className="py-32 bg-primary overflow-hidden relative">
                     <div className="absolute top-0 left-0 w-full h-full opacity-10">
                         <div className="absolute top-0 right-0 w-[50%] h-[100%] bg-white blur-[100px] rounded-full"></div>
                     </div>
 
                     <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-                        <h2 className="text-4xl md:text-6xl font-display font-black text-white mb-8 tracking-tight">
+                        <h2 className="text-3xl md:text-5xl font-display font-black text-white mb-8 tracking-tight uppercase">
                             {t('ctaTitle')}
                         </h2>
-                        <p className="text-white/80 text-xl max-w-2xl mx-auto mb-12">
+                        <p className="text-white/80 text-base md:text-lg max-w-2xl mx-auto mb-12 font-medium">
                             {t('ctaDesc')}
                         </p>
                         <a
                             href="/login"
-                            className="inline-block px-12 py-5 bg-white text-primary text-xl font-black rounded-[2rem] hover:bg-slate-50 hover:scale-105 transition-all shadow-2xl active:scale-95"
+                            className="inline-block px-10 py-5 bg-white text-primary text-sm font-black rounded-2xl hover:bg-slate-50 hover:scale-105 transition-all shadow-2xl active:scale-95 uppercase tracking-widest"
                         >
                             {t('ctaButton')}
                         </a>

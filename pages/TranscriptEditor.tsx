@@ -410,7 +410,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     const handleDownloadAudio = async () => {
         // Plan gating: Free users cannot download
         if (user.subscription.planId === 'free') {
-            alert(t('downloadRequiresPro'));
+            setShowLimitModal(true);
             return;
         }
 

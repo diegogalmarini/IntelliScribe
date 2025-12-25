@@ -130,9 +130,9 @@ export default async function handler(req, res) {
             let planId: 'pro' | 'business' | 'business_plus' = 'pro';
             const amount = session.amount_total || 0;
 
-            if (amount >= 2000) planId = 'business_plus';      // $20+ → Business+ (1200 min)
-            else if (amount >= 1200) planId = 'business';      // $12+ → Business (600 min)
-            // else defaults to 'pro'                           // <$12 → Pro (300 min)
+            if (amount >= 3000) planId = 'business_plus';      // $30+ → Business+ (1200 min)
+            else if (amount >= 1500) planId = 'business';      // $15+ → Business (600 min)
+            else planId = 'pro';                               // Default to pro for $8-$14
 
             // Get plan configuration
             const planConfig = PLAN_LIMITS[planId];
