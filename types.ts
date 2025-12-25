@@ -93,5 +93,51 @@ export enum AppRoute {
   SUBSCRIPTION = 'subscription',
   SETTINGS = 'settings',
   MANUAL = 'manual',
-  RESET_PASSWORD = 'reset-password'
+  RESET_PASSWORD = 'reset-password',
+  // Admin routes
+  ADMIN_OVERVIEW = 'admin-overview',
+  ADMIN_USERS = 'admin-users',
+  ADMIN_FINANCIALS = 'admin-financials'
+}
+
+// ========== ADMIN TYPES ==========
+
+export interface AdminStats {
+  mrr: number;  // Monthly Recurring Revenue
+  totalUsers: number;
+  activeUsers: number;
+  totalMinutesUsed: number;
+  estimatedCost: number;
+  grossProfit: number;
+  mrrGrowth: number; // % vs last month
+  userGrowth: number; // % vs last month
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  phone: string;
+  phoneVerified: boolean;
+  planId: 'free' | 'pro' | 'business' | 'business_plus';
+  status: 'active' | 'past_due' | 'canceled' | 'banned';
+  minutesUsed: number;
+  minutesLimit: number;
+  usagePercentage: number;
+  createdAt: string;
+}
+
+export interface PhoneCall {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  from: string;
+  to: string;
+  duration: string;
+  durationSeconds: number;
+  cost: number;
+  date: string;
 }
