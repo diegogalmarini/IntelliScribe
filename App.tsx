@@ -108,6 +108,7 @@ const AppContent: React.FC = () => {
                         avatarUrl: data.avatar_url || prev.avatarUrl,
                         phone: data.phone || prev.phone,
                         phoneVerified: data.phone_verified || false,
+                        role: data.role || 'Member', // CRITICAL: Map role from DB
                         subscription: {
                             ...prev.subscription,
                             planId: data.plan_id || 'free',
