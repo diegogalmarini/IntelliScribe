@@ -46,9 +46,6 @@ export const Landing: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                         <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-10 w-auto" />
-                        <span className="text-2xl font-display font-black text-slate-900 dark:text-white tracking-tight hidden sm:block">
-                            Diktalo
-                        </span>
                     </div>
 
                     <div className="hidden md:flex items-center gap-8">
