@@ -1,54 +1,68 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const Terms: React.FC = () => {
+    const { t } = useLanguage();
+
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark py-20 px-4">
+        <div className="min-h-screen bg-slate-50 dark:bg-background-dark py-24 px-4 transition-colors duration-200">
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="max-w-4xl mx-auto bg-white dark:bg-surface-dark p-8 md:p-12 rounded-2xl shadow-xl border border-slate-200 dark:border-border-dark"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 md:p-16 rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-white/5"
             >
-                <h1 className="text-4xl font-bold mb-8 text-slate-900 dark:text-white">Terms of Service</h1>
+                <div className="mb-12 border-b border-slate-100 dark:border-white/5 pb-8">
+                    <h1 className="text-4xl md:text-5xl font-display font-black text-slate-900 dark:text-white mb-4 tracking-tight uppercase">
+                        Terms of Service
+                    </h1>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Last updated: January 2025</p>
+                </div>
 
-                <div className="space-y-6 text-slate-600 dark:text-slate-300 leading-relaxed">
+                <div className="space-y-12 text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-slate-100">1. Acceptance of Terms</h2>
-                        <p>By accessing and using Diktalo, you agree to be bound by these Terms of Service.</p>
+                        <h2 className="text-xl font-display font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider italic">1. Ownership & Intellectual Property</h2>
+                        <p>
+                            You retain 100% ownership of any audio, transcripts, and summaries generated through Diktalo.
+                            Diktalo does not claim any rights to your content. We only process this data to provide the service as requested by you.
+                        </p>
                     </section>
 
-                    <section>
-                        <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-slate-100">2. Service Description</h2>
-                        <p>Diktalo provides AI-powered transcription, summarization, and communication tools.</p>
-                    </section>
-
-                    <section className="bg-primary/5 p-6 rounded-xl border border-primary/20">
-                        <h2 className="text-2xl font-semibold mb-4 text-primary">3. Technical Support & Ghost Mode</h2>
-                        <p className="font-medium">
-                            Authorized administrators may access recording data strictly for technical support purposes.
-                            This access is limited to cases where a user requests assistance or when troubleshooting critical system errors.
+                    <section className="p-8 bg-primary/5 dark:bg-primary/10 rounded-[2rem] border border-primary/20">
+                        <h2 className="text-xl font-display font-black text-primary mb-4 uppercase tracking-wider italic">2. "No AI Training" Guarantee</h2>
+                        <p className="text-slate-900 dark:text-slate-100 font-bold">
+                            Your data IS NEVER used to train our AI models, Google Gemini, OpenAI, or any other LLM.
+                            We utilize API-based processing where data is used solely for inference and is not retained for model improvement.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-slate-100">4. User Responsibilities</h2>
-                        <p>Users are responsible for obtaining consent from all participants before recording calls or meetings, in accordance with applicable local and international laws.</p>
+                        <h2 className="text-xl font-display font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider italic">3. Telephony & Recording Consent</h2>
+                        <p>
+                            Diktalo provides tools for recording calls and meetings. It is your absolute responsibility to ensure
+                            compliance with local and international wiretapping and recording laws. You must obtain explicit
+                            consent from all parties involved where required by law.
+                        </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-semibold mb-4 text-slate-800 dark:text-slate-100">5. Limitation of Liability</h2>
-                        <p>Diktalo is provided "as is". We are not liable for any damages resulting from the use or inability to use our services.</p>
+                        <h2 className="text-xl font-display font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider italic">4. Technical Ghost Mode</h2>
+                        <p>
+                            Authorized Diktalo engineers may only access session metadata for troubleshooting. Audio content is strictly
+                            off-limits unless a user provides written authorization during a specific support ticket.
+                        </p>
                     </section>
                 </div>
 
-                <div className="mt-12 pt-8 border-t border-slate-200 dark:border-border-dark flex justify-between items-center">
-                    <p className="text-sm text-slate-500">Last updated: December 25, 2025</p>
+                <div className="mt-16 pt-8 border-t border-slate-100 dark:border-white/5 flex justify-between items-center">
                     <button
                         onClick={() => window.history.back()}
-                        className="text-primary hover:underline font-medium"
+                        className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-3 transition-all"
                     >
-                        Go Back
+                        <span className="material-symbols-outlined">west</span>
+                        Return
                     </button>
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Diktalo AI Intelligence Corp.</p>
                 </div>
             </motion.div>
         </div>

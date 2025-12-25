@@ -121,10 +121,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const durationSeconds = parseInt(RecordingDuration) || 0;
         const formattedDuration = formatDuration(durationSeconds);
 
+        // Robust naming for To/From (Twilio parameters can sometimes be missing in different flows)
+        const recipient = To || 'Unknown Number';
+        const sender = From || 'Diktalo User';
+
         const recordingData = {
             user_id: userId,
-            title: `Call to ${To}`,
-            description: `Recorded call from ${From} to ${To}`,
+            title: `Call to ${recipient}`,
+            description: `Recorded conversation between ${sender} and ${recipient}`,
             date: new Date().toISOString(),
             duration: formattedDuration,
             duration_seconds: durationSeconds,
