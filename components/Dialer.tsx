@@ -37,18 +37,27 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
         }
 
         if (!number) return;
+
+        // Ensure we have a valid user ID before making a call
+        if (!user.id) {
+            setErrorMessage('User authentication required. Please refresh the page.');
+            setStatus('Error');
+            return;
+        }
+
         setErrorMessage('');
         const numberToCall = '+' + number;
         setStatus('Calling...');
 
         // DEBUG: Check user phone value
+        console.log('[DIALER] user.id:', user.id);
         console.log('[DIALER] user.phone:', user.phone);
         console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
 
         try {
             const call = await callService.makeCall(
                 numberToCall,
-                user.id || 'guest',  // Pass user ID for caller ID lookup
+                user.id,  // Pass user ID for caller ID lookup (now guaranteed to exist)
                 user.phone  // Pass verified phone for caller ID
             );
             if (call) {

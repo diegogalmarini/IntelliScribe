@@ -94,17 +94,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Use hardcoded production URL for reliability
     const callbackUrl = 'https://www.diktalo.com/api/recording-callback';
 
-    console.log(`[VOICE] Recording callback URL: ${callbackUrl}?userId=${userId || 'unknown'}`);
+    console.log(`[VOICE] Recording callback URL: ${callbackUrl}?userId=${userId || 'NONE'}`);
 
-    const dial = twiml.dial({
+    // Only include recordingStatusCallback if we have a valid userId
+    // Otherwise, recording will still happen but won't be saved to database
+    const dialOptions: any = {
         callerId: callerId,  // Use verified phone or fallback
         answerOnBridge: true,
         timeout: 30,  // Add timeout to prevent hanging
         record: 'record-from-answer-dual',  // Record both sides of call
-        recordingStatusCallback: `${callbackUrl}?userId=${userId || 'unknown'}`,
         recordingStatusCallbackMethod: 'POST',  // Ensure Twilio uses POST
         recordingStatusCallbackEvent: ['completed']  // Only notify when recording is done
-    });
+    };
+
+    // Only add callback URL if we have a valid userId (not 'guest', 'unknown', etc.)
+    if (userId && userId !== 'guest' && userId !== 'unknown') {
+        dialOptions.recordingStatusCallback = `${callbackUrl}?userId=${userId}`;
+        console.log(`[VOICE] ✅ Recording will be saved to database for user ${userId}`);
+    } else {
+        console.log(`[VOICE] ⚠️ Recording will be created in Twilio but NOT saved to database (no valid userId)`);
+    }
+
+    const dial = twiml.dial(dialOptions);
 
     // Detectar si es número o cliente
     if (/^[\d\+\-\(\) ]+$/.test(numberToCall)) {
