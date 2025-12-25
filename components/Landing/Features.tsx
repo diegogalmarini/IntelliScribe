@@ -10,7 +10,7 @@ export const Features: React.FC = () => {
         visible: {
             opacity: 1,
             x: 0,
-            transition: { duration: 0.8, ease: "easeOut" }
+            transition: { duration: 0.8 }
         }
     };
 
@@ -19,12 +19,12 @@ export const Features: React.FC = () => {
         visible: {
             opacity: 1,
             scale: 1,
-            transition: { duration: 1, ease: "easeOut" }
+            transition: { duration: 1 }
         }
     };
 
     return (
-        <section className="py-24 bg-white dark:bg-background-dark/50 transition-colors duration-200 overflow-hidden">
+        <section className="py-32 bg-white dark:bg-background-dark/50 transition-colors duration-200 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Header */}
                 <div className="text-center mb-24">
@@ -32,11 +32,11 @@ export const Features: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-slate-900 dark:text-white mb-6 tracking-tight uppercase"
+                        className="text-3xl md:text-4xl lg:text-5xl font-display font-black text-slate-900 dark:text-white mb-6 tracking-tight uppercase"
                     >
                         The <span className="text-primary">Unfair Advantage</span> for Professionals
                     </motion.h2>
-                    <p className="text-slate-500 dark:text-text-secondary max-w-2xl mx-auto text-xl font-medium">
+                    <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-base md:text-lg font-medium leading-relaxed">
                         {t('demoDesc')}
                     </p>
                 </div>

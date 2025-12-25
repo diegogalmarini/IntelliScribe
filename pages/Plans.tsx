@@ -237,7 +237,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
 
                                 <div className="mt-4 mb-6">
                                     <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 9 : 12)}
+                                        {formatPrice(billingInterval === 'annual' ? 12 : 15)}
                                         <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
                                     </p>
                                     <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
@@ -278,7 +278,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
 
                                 <div className="mt-4 mb-6">
                                     <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 15 : 19)}
+                                        {formatPrice(billingInterval === 'annual' ? 19 : 24)}
                                         <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
                                     </p>
                                     <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
@@ -319,7 +319,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
 
                                 <div className="mt-4 mb-6">
                                     <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 25 : 35)}
+                                        {formatPrice(billingInterval === 'annual' ? 35 : 45)}
                                         <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
                                     </p>
                                     <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>

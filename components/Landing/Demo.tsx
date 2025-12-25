@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export const Demo: React.FC = () => {
     return (
-        <section className="py-24 bg-white dark:bg-background-dark transition-colors duration-200 overflow-hidden">
+        <section className="py-32 bg-white dark:bg-background-dark transition-colors duration-200 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                     <div className="flex-1 text-left">
@@ -11,7 +11,7 @@ export const Demo: React.FC = () => {
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            className="text-4xl md:text-5xl font-display font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-tight"
+                            className="text-3xl md:text-4xl font-display font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-tight uppercase"
                         >
                             Powerful <span className="text-brand-green">Insights</span> from Every Word
                         </motion.h2>
@@ -20,9 +20,9 @@ export const Demo: React.FC = () => {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed"
+                            className="text-base md:text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium"
                         >
-                            Our wave-analysis engine process audio in real-time, identifying speakers, sentiment, and key topics. See Diktalo in action.
+                            Our wave-analysis engine processes audio in real-time, identifying speakers, sentiment, and key topics. See Diktalo in action.
                         </motion.p>
 
                         <div className="space-y-6">

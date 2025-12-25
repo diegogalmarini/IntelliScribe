@@ -21,20 +21,21 @@ export const Hero: React.FC = () => {
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+            transition: { duration: 0.8 }
         }
     };
 
     return (
         <section className="relative min-h-[90vh] flex items-center pt-24 pb-20 overflow-hidden bg-background-light dark:bg-background-dark transition-colors duration-200">
-            {/* Background Image / Overlay */}
+            {/* Premium Background with Subtler Overlay */}
             <div className="absolute inset-0 z-0">
                 <img
                     src="/images/hero-executive.png"
                     alt="Executive using Diktalo"
-                    className="w-full h-full object-cover opacity-20 dark:opacity-40 grayscale-[50%] blur-[2px]"
+                    className="w-full h-full object-cover opacity-10 dark:opacity-30 grayscale-[50%] blur-[1px]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-background-light/80 via-transparent to-background-light dark:from-background-dark/80 dark:via-transparent dark:to-background-dark"></div>
+                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-background-dark"></div>
             </div>
 
             {/* Decorative blobs */}
@@ -58,7 +59,7 @@ export const Hero: React.FC = () => {
 
                     <motion.h1
                         variants={itemVariants}
-                        className="text-5xl md:text-7xl lg:text-8xl font-display font-black mb-8 leading-[1.1] text-slate-900 dark:text-white tracking-widest uppercase"
+                        className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-6 leading-[1.1] text-slate-900 dark:text-white tracking-tight uppercase"
                     >
                         {t('heroTitle').split(':').map((part, i) => (
                             <React.Fragment key={i}>
@@ -69,7 +70,7 @@ export const Hero: React.FC = () => {
 
                     <motion.p
                         variants={itemVariants}
-                        className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 leading-relaxed max-w-2xl font-medium"
+                        className="text-base md:text-lg text-slate-600 dark:text-slate-300 mb-10 leading-relaxed max-w-2xl font-medium"
                     >
                         {t('heroSubtitle')}
                     </motion.p>
