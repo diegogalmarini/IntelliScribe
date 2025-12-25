@@ -131,7 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             status: 'Processing',  // Will update to 'Processed' after transcription
             audio_url: publicAudioUrl,
             participants: 2,
-            folder_id: 'all',
+            folder_id: null,  // Changed from 'all' - folder_id is now UUID type, set to null for default folder
             tags: ['phone-call'],
             notes: [],
             media: [],
