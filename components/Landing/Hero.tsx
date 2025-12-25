@@ -26,87 +26,96 @@ export const Hero: React.FC = () => {
     };
 
     return (
-        <section className="relative min-h-[90vh] flex items-center pt-24 pb-20 overflow-hidden bg-background-light dark:bg-background-dark transition-colors duration-200">
-            {/* Premium Background with Subtler Overlay */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src="/images/hero-executive.png"
-                    alt="Executive using Diktalo"
-                    className="w-full h-full object-cover opacity-10 dark:opacity-30 grayscale-[50%] blur-[1px]"
-                />
-                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-background-dark"></div>
+        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20 overflow-hidden bg-slate-950 transition-colors duration-200">
+            {/* Ambient Background Structure */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                {/* Moving Blobs */}
+                <motion.div
+                    animate={{
+                        x: [0, 100, 0],
+                        y: [0, 50, 0],
+                        scale: [1, 1.2, 1]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary/20 blur-[150px] rounded-full"
+                ></motion.div>
+                <motion.div
+                    animate={{
+                        x: [0, -80, 0],
+                        y: [0, -40, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                    className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-violet/10 blur-[150px] rounded-full"
+                ></motion.div>
+
+                {/* Subtle Grid Overlay */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-150 contrast-150 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/50 to-slate-950"></div>
             </div>
 
-            {/* Decorative blobs */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none">
-                <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full"></div>
-                <div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-brand-violet/20 blur-[120px] rounded-full"></div>
-            </div>
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 w-full">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center">
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="max-w-4xl"
+                    className="flex flex-col items-center"
                 >
-                    <motion.div variants={itemVariants}>
-                        <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-bold mb-6 tracking-wide uppercase border border-primary/20 border-opacity-50 backdrop-blur-sm">
-                            {t('heroReview')} ⭐️
+                    <motion.div variants={itemVariants} className="mb-8">
+                        <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            {t('heroReview')}
                         </span>
                     </motion.div>
 
                     <motion.h1
                         variants={itemVariants}
-                        className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-6 leading-[1.1] text-slate-900 dark:text-white tracking-tight uppercase"
+                        className="text-5xl md:text-7xl lg:text-8xl font-display font-black mb-8 leading-[0.95] text-white tracking-tighter uppercase max-w-5xl"
                     >
-                        {t('heroTitle').split(':').map((part, i) => (
-                            <React.Fragment key={i}>
-                                {i === 0 ? part : <span className="text-gradient-brand block">{part}</span>}
-                            </React.Fragment>
-                        ))}
+                        {t('heroTitle').replace('.', '').replace('.', '').replace('.', '')}
+                        <span className="text-primary">.</span>
                     </motion.h1>
 
                     <motion.p
                         variants={itemVariants}
-                        className="text-base md:text-lg text-slate-600 dark:text-slate-300 mb-10 leading-relaxed max-w-2xl font-medium"
+                        className="text-lg md:text-xl text-slate-400 mb-12 leading-relaxed max-w-2xl font-medium"
                     >
                         {t('heroSubtitle')}
                     </motion.p>
 
                     <motion.div
                         variants={itemVariants}
-                        className="flex flex-col sm:flex-row items-center gap-6"
+                        className="flex flex-col sm:flex-row items-center gap-4"
                     >
                         <a
                             href="/login"
-                            className="group relative px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/40 flex items-center gap-3 overflow-hidden transition-all hover:scale-[1.02] active:scale-95"
+                            className="px-12 py-5 bg-white text-slate-950 font-bold rounded-full shadow-[0_0_50px_rgba(255,255,255,0.15)] flex items-center gap-3 transition-all hover:scale-105 active:scale-95 text-xs uppercase tracking-[0.2em] group"
                         >
-                            <span className="relative z-10 text-lg uppercase tracking-wider">{t('heroCTA')}</span>
-                            <span className="material-symbols-outlined relative z-10 transition-transform group-hover:translate-x-1">arrow_forward</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            {t('heroCTA')}
+                            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
                         </a>
 
                         <button
                             onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="px-8 py-5 text-slate-600 dark:text-white font-bold hover:text-primary dark:hover:text-primary transition-all flex items-center gap-2 group"
+                            className="px-10 py-5 text-white/60 font-bold hover:text-white transition-all flex items-center gap-2 text-xs uppercase tracking-[0.2em]"
                         >
                             {t('navFeatures')}
-                            <span className="material-symbols-outlined text-2xl transition-transform group-hover:translate-y-1">expand_more</span>
+                            <span className="material-symbols-outlined text-base">expand_more</span>
                         </button>
                     </motion.div>
 
                     {/* Trust Badges */}
                     <motion.div
                         variants={itemVariants}
-                        className="mt-20 pt-12 border-t border-slate-200 dark:border-white/5 flex flex-wrap items-center gap-8 md:gap-12 opacity-40 grayscale transition-all hover:grayscale-0 hover:opacity-100"
+                        className="mt-24 pt-10 border-t border-white/5 w-full max-w-4xl"
                     >
-                        <div className="flex items-center gap-2 font-black text-xs tracking-widest text-slate-500 dark:text-slate-400">POWERED BY</div>
-                        <div className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-slate-900 dark:text-white">TWILIO</div>
-                        <div className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-slate-900 dark:text-white">SUPABASE</div>
-                        <div className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-slate-900 dark:text-white">GEMINI AI</div>
-                        <div className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-slate-900 dark:text-white">STRIPE</div>
+                        <p className="text-[10px] font-black tracking-[0.3em] text-white/30 uppercase mb-8">Powered by Industry Leaders</p>
+                        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                            <span className="font-black text-xl italic tracking-tighter text-white">TWILIO</span>
+                            <span className="font-black text-xl italic tracking-tighter text-white">SUPABASE</span>
+                            <span className="font-black text-xl italic tracking-tighter text-white">GEMINI AI</span>
+                            <span className="font-black text-xl italic tracking-tighter text-white">STRIPE</span>
+                        </div>
                     </motion.div>
                 </motion.div>
             </div>
