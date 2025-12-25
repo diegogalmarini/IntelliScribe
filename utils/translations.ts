@@ -303,7 +303,35 @@ export const translations = {
     storageUsage: "Storage Usage",
     storageUsed: "used of",
     storageRetention: "Free tier uses retention-based cleanup (7 days)",
-    storageNoLimit: "No storage limit"
+    storageNoLimit: "No storage limit",
+
+    // Landing Page (New)
+    navFeatures: "Features",
+    navPricing: "Pricing",
+    navLogin: "Log In",
+    navGetStarted: "Get Started",
+    heroTitle: "Master Your Conversations with Global AI",
+    heroSubtitle: "Integrated VoIP calls, 112+ languages, and enterprise-grade transcription. Your invisible assistant for meetings and calls, no hardware required.",
+    heroCTA: "Start Free Trial",
+    heroReview: "Trusted by 10,000+ professionals worldwide",
+    feat1Title: "Global AI Transcription",
+    feat1Desc: "Unrivaled accuracy in 112+ languages. Diktalo recognizes technical jargon, accents, and multiple speakers automatically.",
+    feat2Title: "Integrated VoIP Dialer",
+    feat2Desc: "Make and record calls directly from your browser. Zone 1 calls to US, UK, EU, and more are included in our premium plans.",
+    feat3Title: "Smart Meeting Analysis",
+    feat3Desc: "Extract Sales BANT, Medical SOAP notes, or custom action items from any conversation with one click.",
+    demoTitle: "See Diktalo in Action",
+    demoDesc: "Focus on the conversation, not the notes. Diktalo handles the rest.",
+    pricingTitle: "Premium Plans for Professionals",
+    pricingSubtitle: "The most advanced conversational intelligence platform, priced to scale with you.",
+    ctaTitle: "Ready to upgrade your workflow?",
+    ctaDesc: "Join the elite professionals who never miss a detail. Start your Diktalo journey today.",
+    ctaButton: "Create My Account",
+    footerTagline: "The world's first AI-integrated telephony and transcription suite.",
+    footerPrivacy: "Privacy Policy",
+    footerTerms: "Terms of Service",
+    footerSupport: "Support",
+    footerContact: "Contact Us"
   },
   es: {
     // Auth
@@ -605,6 +633,34 @@ export const translations = {
     storageUsage: "Uso de Almacenamiento",
     storageUsed: "usado de",
     storageRetention: "Plan gratuito usa limpieza basada en retención (7 días)",
-    storageNoLimit: "Sin límite de almacenamiento"
+    storageNoLimit: "Sin límite de almacenamiento",
+
+    // Landing Page (New)
+    navFeatures: "Funciones",
+    navPricing: "Precios",
+    navLogin: "Iniciar Sesión",
+    navGetStarted: "Comenzar",
+    heroTitle: "Domina tus Conversaciones con IA Global",
+    heroSubtitle: "Llamadas VoIP integradas, más de 112 idiomas y transcripción de nivel empresarial. Tu asistente invisible para reuniones y llamadas, sin hardware adicional.",
+    heroCTA: "Probar Gratis",
+    heroReview: "Confiado por más de 10,000 profesionales en todo el mundo",
+    feat1Title: "Transcripción IA Global",
+    feat1Desc: "Precisión inigualable en 112+ idiomas. Diktalo reconoce jerga técnica, acentos y múltiples interlocutores automáticamente.",
+    feat2Title: "Marcador VoIP Integrado",
+    feat2Desc: "Realiza y graba llamadas directamente desde tu navegador. Llamadas a Zona 1 (EE.UU., Reino Unido, UE) incluidas en planes premium.",
+    feat3Title: "Análisis Inteligente",
+    feat3Desc: "Extrae Ventas BANT, notas Médicas SOAP o puntos de acción personalizados de cualquier charla con un solo clic.",
+    demoTitle: "Mira Diktalo en Acción",
+    demoDesc: "Céntrate en la conversación, no en las notas. Diktalo se encarga del resto.",
+    pricingTitle: "Planes Premium para Profesionales",
+    pricingSubtitle: "La plataforma de inteligencia conversacional más avanzada, diseñada para escalar contigo.",
+    ctaTitle: "¿Listo para mejorar tu flujo de trabajo?",
+    ctaDesc: "Únete a los profesionales de élite que nunca pierden un detalle. Comienza con Diktalo hoy mismo.",
+    ctaButton: "Crear Mi Cuenta",
+    footerTagline: "La primera suite del mundo con telefonía y transcripción integradas por IA.",
+    footerPrivacy: "Política de Privacidad",
+    footerTerms: "Términos de Servicio",
+    footerSupport: "Soporte",
+    footerContact: "Contacto"
   }
 };
