@@ -232,14 +232,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-3">
               <div
                 className={`h-1.5 rounded-full transition-all ${usagePercent > 90
-                    ? 'bg-red-500'
-                    : user.subscription.planId === 'business_plus'
-                      ? 'bg-brand-green'
-                      : user.subscription.planId === 'business'
-                        ? 'bg-brand-blue'
-                        : user.subscription.planId === 'pro'
-                          ? 'bg-brand-violet'
-                          : 'bg-primary'
+                  ? 'bg-red-500'
+                  : user.subscription.planId === 'business_plus'
+                    ? 'bg-brand-green'
+                    : user.subscription.planId === 'business'
+                      ? 'bg-brand-blue'
+                      : user.subscription.planId === 'pro'
+                        ? 'bg-brand-violet'
+                        : 'bg-primary'
                   }`}
                 style={{ width: `${usagePercent}%` }}
               ></div>
@@ -256,6 +256,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* User */}
         <div className="border-t border-slate-200 dark:border-border-dark p-4">
+          {/* Admin Access Button - Only for admin users */}
+          {user.role === 'admin' && (
+            <button
+              onClick={() => onNavigate(AppRoute.ADMIN_OVERVIEW)}
+              className="w-full flex items-center gap-3 px-4 py-3 mb-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg transition-all group border border-amber-500/30"
+            >
+              <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
+              <span className="flex-1 font-medium text-left">Admin Dashboard</span>
+              <span className="material-symbols-outlined text-sm opacity-50 group-hover:opacity-100 transition-opacity">
+                arrow_forward
+              </span>
+            </button>
+          )}
+
           <button
             onClick={() => onNavigate(AppRoute.SETTINGS)}
             className="flex items-center gap-3 w-full hover:bg-slate-100 dark:hover:bg-white/5 p-2 rounded-lg transition-colors">

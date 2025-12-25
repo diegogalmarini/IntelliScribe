@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { LiveRecording } from './pages/LiveRecording';
@@ -18,6 +18,15 @@ import { uploadAudio } from './services/storageService';
 import { Dialer } from './components/Dialer';
 import { supabase } from './lib/supabase';
 import { databaseService } from './services/databaseService';
+
+// ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
+// CRITICAL: Admin components are lazy-loaded to ensure they are NEVER
+// bundled in the main app for regular users (chunk splitting)
+const AdminRoute = lazy(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
+const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default: m.Users })));
+const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
 
 const AppContent: React.FC = () => {
     // Check path on load
@@ -483,6 +492,35 @@ const AppContent: React.FC = () => {
                             <ResetPassword onNavigate={navigate} />
                         </div>
                     )}
+
+                    {/* ========== ADMIN ROUTES ========== */}
+                    {/* CRITICAL: Using Suspense for lazy-loaded admin components */}
+                    {(currentRoute === AppRoute.ADMIN_OVERVIEW ||
+                        currentRoute === AppRoute.ADMIN_USERS ||
+                        currentRoute === AppRoute.ADMIN_FINANCIALS) && (
+                            <Suspense fallback={
+                                <div className="flex items-center justify-center h-full bg-slate-900">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="animate-spin material-symbols-outlined text-4xl text-amber-400">
+                                            progress_activity
+                                        </div>
+                                        <p className="text-white">Loading Admin Dashboard...</p>
+                                    </div>
+                                </div>
+                            }>
+                                <AdminRoute onNavigate={navigate}>
+                                    <AdminLayout
+                                        currentRoute={currentRoute}
+                                        onNavigate={navigate}
+                                        user={user}
+                                    >
+                                        {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
+                                        {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
+                                        {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
+                                    </AdminLayout>
+                                </AdminRoute>
+                            </Suspense>
+                        )}
                 </div>
             </div>
 
