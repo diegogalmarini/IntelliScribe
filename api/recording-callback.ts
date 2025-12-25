@@ -1,5 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Helper to validate UUID format
+function isValidUUID(uuid: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+}
+
 // Helper to format duration seconds to HH:MM:SS
 function formatDuration(seconds: number): string {
     const hrs = Math.floor(seconds / 3600);
@@ -31,9 +37,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log(`📞 [RECORDING-CALLBACK] Recording ${RecordingSid} for user ${userId}`);
         console.log(`📞 [RECORDING-CALLBACK] Duration: ${RecordingDuration}s, Status: ${RecordingStatus}`);
 
+        // Validate userId is present and is a valid UUID
         if (!userId || userId === 'unknown') {
             console.error('❌ [RECORDING-CALLBACK] No userId provided');
-            return res.status(400).json({ error: 'Missing userId' });
+            return res.status(400).json({
+                error: 'Missing userId',
+                note: 'Recording was created in Twilio but cannot be saved without valid user ID'
+            });
+        }
+
+        if (!isValidUUID(userId)) {
+            console.error(`❌ [RECORDING-CALLBACK] Invalid UUID format: ${userId}`);
+            return res.status(400).json({
+                error: 'Invalid userId format',
+                receivedUserId: userId,
+                note: 'userId must be a valid UUID'
+            });
         }
 
         if (RecordingStatus !== 'completed') {

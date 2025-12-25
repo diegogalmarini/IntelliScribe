@@ -37,13 +37,14 @@ export class CallService {
     }
 
     // 2. Llamada Instantánea
-    async makeCall(phoneNumber: string, userId?: string, verifiedPhone?: string): Promise<Call | null> {
+    async makeCall(phoneNumber: string, userId: string, verifiedPhone?: string): Promise<Call | null> {
         if (!this.device) {
             throw new Error('System not ready. Please wait 2 seconds.');
         }
 
         try {
             console.log('📞 Connecting call...');
+            console.log('[CALL_SERVICE] userId:', userId);
             console.log('[CALL_SERVICE] verifiedPhone param:', verifiedPhone);
 
             // Let Twilio Device handle all audio permissions and stream management
@@ -52,10 +53,10 @@ export class CallService {
                 params: {
                     To: phoneNumber,
                     VerifiedPhone: verifiedPhone || undefined,  // Pass verified phone for caller ID
-                    userId: userId || 'guest'
+                    userId: userId  // userId is now required and validated by caller
                 }
             });
-            console.log('[CALL_SERVICE] Call initiated with params:', { To: phoneNumber, VerifiedPhone: verifiedPhone });
+            console.log('[CALL_SERVICE] Call initiated with params:', { To: phoneNumber, VerifiedPhone: verifiedPhone, userId });
             return call;
         } catch (error: any) {
             console.error('Connection Failed:', error);
