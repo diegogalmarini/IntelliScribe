@@ -48,30 +48,26 @@ export const Landing: React.FC = () => {
                         <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto dark:brightness-0 dark:invert transition-all" />
                     </div>
 
-                    <div className="hidden md:flex items-center gap-8">
-                        <nav className="flex items-center gap-8 mr-4">
-                            <button
-                                onClick={() => scrollToSection('features')}
-                                className="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
-                            >
-                                {t('navFeatures')}
-                            </button>
-                            <button
-                                onClick={() => scrollToSection('pricing')}
-                                className="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
-                            >
-                                {t('navPricing')}
-                            </button>
+                    <div className="hidden lg:flex items-center gap-10">
+                        <nav className="flex items-center gap-8">
+                            <button onClick={() => scrollToSection('features')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">{t('navFeatures')}</button>
+                            <button onClick={() => scrollToSection('pricing')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Planes</button>
+                            <button onClick={() => scrollToSection('faq')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">FAQ</button>
+                            <button onClick={() => scrollToSection('blog')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Blog</button>
+                            <a href="mailto:hello@diktalo.com" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Contacto</a>
                         </nav>
-                        <div className="flex items-center gap-4">
-                            <LanguageSelector />
-                            <ThemeToggle />
-                            <a href="/login" className="px-5 py-2 text-[11px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                {t('navLogin')}
+
+                        <div className="flex items-center gap-6 border-l border-slate-200 dark:border-white/10 pl-10">
+                            <a href="/login" className="px-5 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                                Login
                             </a>
-                            <a href="/login" className="px-5 py-2.5 bg-primary text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all active:scale-95">
+                            <a href="/login" className="px-6 py-2.5 bg-primary text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all active:scale-95">
                                 {t('navGetStarted')}
                             </a>
+                            <div className="flex items-center gap-2">
+                                <LanguageSelector />
+                                <ThemeToggle />
+                            </div>
                         </div>
                     </div>
 
@@ -105,6 +101,59 @@ export const Landing: React.FC = () => {
                     <Pricing />
                 </section>
 
+                {/* FAQ Section */}
+                <section id="faq" className="py-32 bg-white dark:bg-background-dark relative overflow-hidden">
+                    <div className="max-w-4xl mx-auto px-4 relative z-10">
+                        <div className="text-center mb-16">
+                            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary mb-4">FAQ</h2>
+                            <h3 className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white uppercase tracking-tight">Preguntas Frecuentes</h3>
+                        </div>
+                        <div className="space-y-6">
+                            {[
+                                { q: "¿Qué tan precisa es la transcripción?", a: "Diktalo alcanza una precisión del 98% en ambientes controlados gracias a nuestra integración con los modelos de IA más avanzados de Google y OpenAI." },
+                                { q: "¿Mis datos están seguros?", a: "Absolutamente. Utilizamos cifrado AES-256 de nivel bancario y cumplimos con estándares internacionales de privacidad. Tus grabaciones son tuyas y solo tuyas." },
+                                { q: "¿Cómo funciona el marcador VoIP?", a: "El marcador integrado te permite realizar llamadas directamente desde el navegador. Estas se graban y transcriben automáticamente en tiempo real sin hardware adicional." }
+                            ].map((item, idx) => (
+                                <div key={idx} className="p-8 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl">
+                                    <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{item.q}</h4>
+                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{item.a}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Latest Insights (Blog) */}
+                <section id="blog" className="py-32 bg-slate-50 dark:bg-slate-950/50">
+                    <div className="max-w-7xl mx-auto px-4">
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                            <div>
+                                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary mb-4">Blog</h2>
+                                <h3 className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white uppercase tracking-tight">Últimas Noticias</h3>
+                            </div>
+                            <button className="text-[10px] font-black uppercase tracking-[0.2em] px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-white dark:hover:bg-white/5 transition-all uppercase">Ver todas</button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {[
+                                { title: "Diktalo v2.1: El futuro de la telefonía con IA", date: "25 Dic 2025", cat: "Actualizaciones" },
+                                { title: "Cómo optimizar tus reuniones de ventas con BANT", date: "20 Dic 2025", cat: "Estrategia" },
+                                { title: "Seguridad y Privacidad en la IA Conversacional", date: "15 Dic 2025", cat: "Seguridad" }
+                            ].map((post, idx) => (
+                                <div key={idx} className="group cursor-pointer">
+                                    <div className="aspect-[16/9] bg-slate-200 dark:bg-white/5 rounded-3xl mb-6 overflow-hidden transition-transform group-hover:scale-[1.02]">
+                                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-brand-violet/20 flex items-center justify-center">
+                                            <span className="material-symbols-outlined text-4xl text-white/20">newspaper</span>
+                                        </div>
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-3 block">{post.cat}</span>
+                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-primary transition-colors">{post.title}</h4>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{post.date}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* Final CTA */}
                 <section className="py-32 bg-primary overflow-hidden relative">
                     <div className="absolute top-0 left-0 w-full h-full opacity-10">
@@ -120,7 +169,7 @@ export const Landing: React.FC = () => {
                         </p>
                         <a
                             href="/login"
-                            className="inline-block px-10 py-5 bg-white text-primary text-sm font-black rounded-2xl hover:bg-slate-50 hover:scale-105 transition-all shadow-2xl active:scale-95 uppercase tracking-widest"
+                            className="inline-block px-12 py-5 bg-white text-primary text-xs font-bold rounded-full hover:bg-slate-50 hover:scale-105 transition-all shadow-2xl active:scale-95 uppercase tracking-[0.2em]"
                         >
                             {t('ctaButton')}
                         </a>
