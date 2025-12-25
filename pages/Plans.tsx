@@ -87,15 +87,8 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
         }
 
         if (!priceId) {
-            // Debugging Aid: Show exactly which key failed
-            const suffix = billingInterval === 'monthly' ? '_MONTHLY' : '_ANNUAL';
-            let debugKey = '';
-
-            if (planType === 'pro') debugKey = `VITE_STRIPE_PRICE_PRO${suffix}`;
-            else if (planType === 'business') debugKey = `VITE_STRIPE_PRICE_BUSINESS${suffix}`;
-            else debugKey = `VITE_STRIPE_PRICE_BUSINESS_PLUS${suffix}`;
-
-            alert(`Error: Price ID not configured! \nTesting Key: ${debugKey} \nValue: ${priceId || 'undefined'}`);
+            console.error(`Stripe Error: Price ID not configured for ${planType} ${billingInterval}`);
+            alert(t('errorSubscription') || "Checkout is currently unavailable for this plan. Please contact hello@diktalo.com");
             return;
         }
 
@@ -240,7 +233,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                                         {formatPrice(billingInterval === 'annual' ? 12 : 15)}
                                         <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
                                     </p>
-                                    <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+                                    <p className="text-slate-500 text-[10px] mt-1 uppercase font-black tracking-widest">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
                                 </div>
 
                                 <div className="flex-1">
@@ -278,10 +271,10 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
 
                                 <div className="mt-4 mb-6">
                                     <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 19 : 24)}
+                                        {formatPrice(billingInterval === 'annual' ? 19 : 25)}
                                         <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
                                     </p>
-                                    <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+                                    <p className="text-slate-500 text-[10px] mt-1 uppercase font-black tracking-widest">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
                                 </div>
 
                                 <div className="flex-1">
@@ -322,7 +315,7 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
                                         {formatPrice(billingInterval === 'annual' ? 35 : 45)}
                                         <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
                                     </p>
-                                    <p className="text-slate-500 text-[10px] mt-1">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
+                                    <p className="text-slate-500 text-[10px] mt-1 uppercase font-black tracking-widest">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
                                 </div>
 
                                 <div className="flex-1">
