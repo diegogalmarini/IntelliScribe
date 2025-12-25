@@ -68,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-border-dark/50">
           <div className="flex items-center gap-2 text-primary cursor-pointer" onClick={() => { handleDashboardClick(); onClose(); }}>
-            <span className="material-symbols-outlined text-3xl">graphic_eq</span>
+            <span className="material-symbols-outlined text-3xl">waves</span>
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Diktalo</span>
           </div>
           <button onClick={onClose} className="md:hidden text-slate-400 hover:text-slate-600">

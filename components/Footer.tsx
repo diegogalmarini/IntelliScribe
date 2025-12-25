@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                 <div className="flex flex-col items-center md:items-start">
                     <div className="flex items-center gap-2 mb-4">
-                        <span className="material-symbols-outlined text-primary text-3xl">fluid_meditation</span>
+                        <span className="material-symbols-outlined text-primary text-3xl">waves</span>
                         <span className="text-2xl font-display font-black text-slate-900 dark:text-white tracking-tight">
                             Diktalo
                         </span>

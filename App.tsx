@@ -54,6 +54,7 @@ const AppContent: React.FC = () => {
     const { user: supabaseUser, signOut, loading: authLoading } = useAuth();
     const { t } = useLanguage();
     const [isLoadingData, setIsLoadingData] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
 
     // User State Template
     const defaultUser: UserProfile = {
@@ -99,6 +100,7 @@ const AppContent: React.FC = () => {
     // --- DATA LOADING & AUTH EFFECT ---
     useEffect(() => {
         if (authLoading) return;
+        if (isInitialized) return;
 
         const isRecovery = window.location.hash.includes('type=recovery') || currentRoute === AppRoute.RESET_PASSWORD;
 
@@ -168,6 +170,7 @@ const AppContent: React.FC = () => {
 
             fetchProfile();
             fetchData();
+            setIsInitialized(true); // Mark as initialized to prevent loop
 
             // Special Check: If returning from Stripe Payment, poll DB to get updated plan
             const urlParams = new URLSearchParams(window.location.search);
@@ -189,7 +192,10 @@ const AppContent: React.FC = () => {
                 navigate(AppRoute.RESET_PASSWORD);
             }
 
-        } else if (!supabaseUser) {
+        } else if (!supabaseUser && !authLoading) {
+            // Keep track that we are initialized even for guests
+            setIsInitialized(true);
+
             // If No User:
             // 1. If trying to access protected routes, send to Landing
             const protectedRoutes = [
@@ -230,6 +236,8 @@ const AppContent: React.FC = () => {
 
     const handleLogout = async () => {
         await signOut();
+        setRecordings([]);
+        setIsInitialized(false);
         setCurrentRoute(AppRoute.LOGIN);
     };
 
@@ -423,7 +431,7 @@ const AppContent: React.FC = () => {
         return (
             <div className="h-screen w-full flex flex-col items-center justify-center bg-background-dark">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="material-symbols-outlined text-primary text-5xl animate-pulse">fluid_meditation</span>
+                    <span className="material-symbols-outlined text-primary text-5xl animate-pulse">waves</span>
                     <span className="text-4xl font-display font-black text-white tracking-tight">Diktalo</span>
                 </div>
                 <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
@@ -434,6 +442,7 @@ const AppContent: React.FC = () => {
                         transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
                     />
                 </div>
+                <p className="text-slate-500 text-xs mt-8 animate-pulse">Initializing Interface...</p>
             </div>
         );
     }
