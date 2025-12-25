@@ -3,6 +3,7 @@ import { AdminUser } from '../../types';
 import { adminService } from '../../services/adminService';
 import { AddCreditsModal } from '../../components/admin/AddCreditsModal';
 import { UserRecordingsModal } from '../../components/admin/UserRecordingsModal';
+import { ConfirmModal } from '../../components/admin/ConfirmModal';
 
 /**
  * Admin Users Page (CRM)
@@ -15,6 +16,8 @@ export const Users: React.FC = () => {
     const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [showRecordingsModal, setShowRecordingsModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<{ type: 'ban' | 'plan', data?: any } | null>(null);
     const [filterPlan, setFilterPlan] = useState<string>('all');
 
     useEffect(() => {
@@ -28,29 +31,50 @@ export const Users: React.FC = () => {
         setLoading(false);
     };
 
-    const handleChangePlan = async (user: AdminUser, newPlan: string) => {
-        if (confirm(`Change ${user.email} to ${newPlan} plan?`)) {
-            const success = await adminService.updateUserPlan(user.id, newPlan);
-            if (success) {
-                loadUsers();
-                alert('Plan updated successfully');
-            } else {
-                alert('Failed to update plan');
-            }
-        }
+    const handleChangePlan = (user: AdminUser, newPlan: string) => {
+        setSelectedUser(user);
+        setConfirmAction({ type: 'plan', data: newPlan });
+        setShowConfirmModal(true);
     };
 
-    const handleBanUser = async (user: AdminUser) => {
-        const action = user.status === 'banned' ? 'unban' : 'ban';
-        if (confirm(`Are you sure you want to ${action} ${user.email}?`)) {
-            const success = await adminService.toggleBanUser(user.id, user.status !== 'banned');
-            if (success) {
-                loadUsers();
-                alert(`User ${action}ned successfully`);
-            } else {
-                alert(`Failed to ${action} user`);
-            }
+    const executeChangePlan = async () => {
+        if (!selectedUser || !confirmAction?.data) return;
+
+        const success = await adminService.updateUserPlan(selectedUser.id, confirmAction.data);
+        if (success) {
+            loadUsers();
+            alert('Plan updated successfully');
+        } else {
+            alert('Failed to update plan');
         }
+
+        setShowConfirmModal(false);
+        setConfirmAction(null);
+        setSelectedUser(null);
+    };
+
+    const handleBanUser = (user: AdminUser) => {
+        setSelectedUser(user);
+        setConfirmAction({ type: 'ban' });
+        setShowConfirmModal(true);
+    };
+
+    const executeBanUser = async () => {
+        if (!selectedUser) return;
+
+        const action = selectedUser.status === 'banned' ? 'unban' : 'ban';
+        const success = await adminService.toggleBanUser(selectedUser.id, selectedUser.status !== 'banned');
+
+        if (success) {
+            loadUsers();
+            alert(`User ${action}ned successfully`);
+        } else {
+            alert(`Failed to ${action} user`);
+        }
+
+        setShowConfirmModal(false);
+        setConfirmAction(null);
+        setSelectedUser(null);
     };
 
     const getPlanColor = (plan: string) => {
@@ -192,8 +216,8 @@ export const Users: React.FC = () => {
                                                 <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden max-w-[120px]">
                                                     <div
                                                         className={`h-full transition-all ${user.usagePercentage > 90 ? 'bg-red-500' :
-                                                                user.usagePercentage > 70 ? 'bg-orange-500' :
-                                                                    'bg-blue-500'
+                                                            user.usagePercentage > 70 ? 'bg-orange-500' :
+                                                                'bg-blue-500'
                                                             }`}
                                                         style={{ width: `${Math.min(user.usagePercentage, 100)}%` }}
                                                     />
@@ -294,6 +318,28 @@ export const Users: React.FC = () => {
                     }}
                 />
             )}
+
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={showConfirmModal}
+                title={confirmAction?.type === 'ban'
+                    ? (selectedUser?.status === 'banned' ? 'Unban User' : 'Ban User')
+                    : 'Change Plan'
+                }
+                message={confirmAction?.type === 'ban'
+                    ? `Are you sure you want to ${selectedUser?.status === 'banned' ? 'unban' : 'ban'} ${selectedUser?.email}? ${selectedUser?.status === 'banned' ? 'This will reactivate their account.' : 'This will immediately disable their account and prevent login.'}`
+                    : `Change ${selectedUser?.email} from ${selectedUser?.planId} to ${confirmAction?.data} plan?`
+                }
+                confirmText={confirmAction?.type === 'ban' ? (selectedUser?.status === 'banned' ? 'Unban' : 'Ban') : 'Change Plan'}
+                cancelText="Cancel"
+                onConfirm={confirmAction?.type === 'ban' ? executeBanUser : executeChangePlan}
+                onCancel={() => {
+                    setShowConfirmModal(false);
+                    setConfirmAction(null);
+                    setSelectedUser(null);
+                }}
+                danger={confirmAction?.type === 'ban' && selectedUser?.status !== 'banned'}
+            />
         </div>
     );
 };
