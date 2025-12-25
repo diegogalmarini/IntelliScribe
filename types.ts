@@ -85,6 +85,7 @@ export interface Folder {
 }
 
 export enum AppRoute {
+  LANDING = 'landing',
   LOGIN = 'login',
   DASHBOARD = 'dashboard',
   RECORDING = 'recording',
@@ -94,6 +95,8 @@ export enum AppRoute {
   SETTINGS = 'settings',
   MANUAL = 'manual',
   RESET_PASSWORD = 'reset-password',
+  TERMS = 'terms',
+  PRIVACY = 'privacy',
   // Admin routes
   ADMIN_OVERVIEW = 'admin-overview',
   ADMIN_USERS = 'admin-users',

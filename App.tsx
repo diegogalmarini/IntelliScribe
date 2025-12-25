@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { LiveRecording } from './pages/LiveRecording';
@@ -18,6 +19,10 @@ import { uploadAudio } from './services/storageService';
 import { Dialer } from './components/Dialer';
 import { supabase } from './lib/supabase';
 import { databaseService } from './services/databaseService';
+import CrispWidget from './components/CrispWidget';
+import { Landing } from './pages/Landing';
+import { Terms } from './pages/legal/Terms';
+import { Privacy } from './pages/legal/Privacy';
 
 // ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
 // CRITICAL: Admin components are lazy-loaded to ensure they are NEVER
@@ -31,14 +36,22 @@ const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => 
 const AppContent: React.FC = () => {
     // Check path on load
     const isResetPassword = window.location.pathname === '/reset-password' || window.location.hash.includes('type=recovery');
-    const [currentRoute, setCurrentRoute] = useState<AppRoute>(
-        isResetPassword ? AppRoute.RESET_PASSWORD : AppRoute.LOGIN
-    );
+    const getInitialRoute = (): AppRoute => {
+        const path = window.location.pathname;
+        if (isResetPassword) return AppRoute.RESET_PASSWORD;
+        if (path === '/terms') return AppRoute.TERMS;
+        if (path === '/privacy') return AppRoute.PRIVACY;
+        if (path === '/login') return AppRoute.LOGIN;
+        if (path === '/dashboard') return AppRoute.DASHBOARD;
+        return AppRoute.LANDING; // Root or any other path defaults to Landing
+    };
+
+    const [currentRoute, setCurrentRoute] = useState<AppRoute>(getInitialRoute());
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- STATE INITIALIZATION ---
-    const { user: supabaseUser, signOut } = useAuth();
+    const { user: supabaseUser, signOut, loading: authLoading } = useAuth();
     const { t } = useLanguage();
     const [isLoadingData, setIsLoadingData] = useState(false);
 
@@ -85,6 +98,8 @@ const AppContent: React.FC = () => {
 
     // --- DATA LOADING & AUTH EFFECT ---
     useEffect(() => {
+        if (authLoading) return;
+
         const isRecovery = window.location.hash.includes('type=recovery') || currentRoute === AppRoute.RESET_PASSWORD;
 
         if (supabaseUser && supabaseUser.email) {
@@ -166,9 +181,8 @@ const AppContent: React.FC = () => {
 
             // ONLY REDIRECT IF NOT IN RECOVERY MODE
             if (!isRecovery) {
-                // BUG FIX: Only redirect to Dashboard if we are currently on the Login page
-                // This prevents unwanted redirects when switching tabs or refreshing on other protected routes
-                if (currentRoute === AppRoute.LOGIN) {
+                // SMART REDIRECT: If user is logged in and on Landing or Login, send to Dashboard
+                if (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN) {
                     navigate(AppRoute.DASHBOARD);
                 }
             } else {
@@ -176,16 +190,40 @@ const AppContent: React.FC = () => {
             }
 
         } else if (!supabaseUser) {
-            if (!isRecovery) {
-                navigate(AppRoute.LOGIN);
+            // If No User:
+            // 1. If trying to access protected routes, send to Landing
+            const protectedRoutes = [
+                AppRoute.DASHBOARD, AppRoute.RECORDING, AppRoute.EDITOR,
+                AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
+                AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS
+            ];
+
+            if (protectedRoutes.includes(currentRoute)) {
+                if (!isRecovery) {
+                    navigate(AppRoute.LANDING);
+                }
             }
         }
-    }, [supabaseUser]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [supabaseUser, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     // --- HANDLERS ---
 
     const navigate = (route: AppRoute) => {
+        // Update URL to match route for cleaner feel
+        const pathMap: Record<string, string> = {
+            [AppRoute.LANDING]: '/',
+            [AppRoute.LOGIN]: '/login',
+            [AppRoute.DASHBOARD]: '/dashboard',
+            [AppRoute.TERMS]: '/terms',
+            [AppRoute.PRIVACY]: '/privacy',
+            [AppRoute.RESET_PASSWORD]: '/reset-password'
+        };
+
+        if (pathMap[route]) {
+            window.history.pushState({}, '', pathMap[route]);
+        }
+
         setCurrentRoute(route);
         setIsSidebarOpen(false); // Close sidebar on navigation on mobile
     };
@@ -381,9 +419,56 @@ const AppContent: React.FC = () => {
 
     // --- RENDER ---
 
+    if (authLoading && (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN)) {
+        return (
+            <div className="h-screen w-full flex flex-col items-center justify-center bg-background-dark">
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="material-symbols-outlined text-primary text-5xl animate-pulse">fluid_meditation</span>
+                    <span className="text-4xl font-display font-black text-white tracking-tight">Diktalo</span>
+                </div>
+                <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                        className="h-full bg-primary"
+                        initial={{ width: 0 }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    if (currentRoute === AppRoute.LANDING) {
+        return (
+            <ThemeProvider>
+                <CrispWidget />
+                <Landing />
+            </ThemeProvider>
+        );
+    }
+
+    if (currentRoute === AppRoute.TERMS) {
+        return (
+            <ThemeProvider>
+                <CrispWidget />
+                <Terms />
+            </ThemeProvider>
+        );
+    }
+
+    if (currentRoute === AppRoute.PRIVACY) {
+        return (
+            <ThemeProvider>
+                <CrispWidget />
+                <Privacy />
+            </ThemeProvider>
+        );
+    }
+
     if (currentRoute === AppRoute.LOGIN) {
         return (
             <ThemeProvider>
+                <CrispWidget />
                 <Login onNavigate={navigate} />
             </ThemeProvider>
         );
@@ -391,6 +476,7 @@ const AppContent: React.FC = () => {
 
     return (
         <ThemeProvider>
+            <CrispWidget />
             <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200">
                 {/* Sidebar */}
                 {currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && (
