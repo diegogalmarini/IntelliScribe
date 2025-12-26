@@ -50,8 +50,8 @@ export const Features: React.FC = () => {
                             key={key}
                             onClick={() => setActiveTab(key)}
                             className={`px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${activeTab === key
-                                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-lg scale-105'
-                                    : 'bg-slate-100 dark:bg-white/5 text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10'
+                                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-lg scale-105'
+                                : 'bg-slate-100 dark:bg-white/5 text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10'
                                 }`}
                         >
                             <span className="material-symbols-outlined text-lg">{features[key].icon}</span>
@@ -96,16 +96,28 @@ export const Features: React.FC = () => {
                             {/* Visual Side */}
                             <div className="relative">
                                 <div className={`absolute -inset-4 bg-gradient-to-tr from-primary/20 to-purple-500/20 blur-3xl rounded-[2rem] opacity-50`}></div>
-                                <div className="relative bg-slate-900 rounded-3xl p-8 border border-white/10 shadow-2xl overflow-hidden aspect-video flex items-center justify-center">
-                                    {/* Abstract representation of UI */}
-                                    <div className="text-center">
-                                        <div className={`size-20 rounded-2xl ${features[activeTab].bg} ${features[activeTab].color} flex items-center justify-center mx-auto mb-6`}>
-                                            <span className="material-symbols-outlined text-5xl">{features[activeTab].icon}</span>
-                                        </div>
-                                        <div className="h-4 bg-white/10 rounded-full w-48 mx-auto mb-3"></div>
-                                        <div className="h-4 bg-white/5 rounded-full w-32 mx-auto"></div>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="relative rounded-3xl overflow-hidden shadow-2xl aspect-video border border-white/10 group"
+                                >
+                                    <div className="absolute inset-0 bg-slate-900/10 z-10 group-hover:bg-transparent transition-colors duration-500"></div>
+                                    <img
+                                        src={
+                                            activeTab === 'sales' ? "/images/features-sales-real.png" :
+                                                activeTab === 'medical' ? "/images/features-medical-real.png" :
+                                                    "/images/features-sales-real.png" // Fallback for meeting
+                                        }
+                                        alt={`${activeTab} workflow`}
+                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                                    />
+                                    {/* Overlay Badge */}
+                                    <div className="absolute bottom-6 left-6 z-20 bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20 flex items-center gap-3">
+                                        <div className="size-2 rounded-full bg-red-500 animate-pulse"></div>
+                                        <span className="text-white text-xs font-bold uppercase tracking-wider">Recording in Progress</span>
                                     </div>
-                                </div>
+                                </motion.div>
                             </div>
                         </motion.div>
                     </AnimatePresence>
