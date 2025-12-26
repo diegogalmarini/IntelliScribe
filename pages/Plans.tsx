@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { loadStripe } from '@stripe/stripe-js';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { LanguageSelector } from '../components/LanguageSelector';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Inicializar Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
@@ -50,9 +53,9 @@ const PLANS = [
         price: { monthly: 25, annual: 18.75 },
         description: 'Para power users y managers.',
         features: [
+            'Todo lo de Pro incluido', // MOVED TO TOP
             '600 min/mes (~10 horas)',
             '20 GB Almacenamiento Cloud',
-            'Todo lo de Pro incluido',
             'Prioridad de Procesamiento',
             'Soporte Prioritario',
             'Panel de Gestión de Equipo'
@@ -71,9 +74,9 @@ const PLANS = [
         price: { monthly: 50, annual: 35 },
         description: 'La suite completa de comunicación.',
         features: [
+            'Todo lo de Business incluido', // MOVED TO TOP
             '1200 min/mes (~20 horas)',
             '50 GB Almacenamiento Cloud',
-            'Todo lo de Business incluido',
             '📞 DIALER INCLUIDO (Llamadas)',
             'Grabación de Llamadas Salientes',
             'Número Virtual (Opcional)'
@@ -89,6 +92,7 @@ const PLANS = [
 
 export function Plans() {
     const { user, session } = useAuth();
+    const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [loading, setLoading] = useState<string | null>(null);
 
@@ -132,81 +136,99 @@ export function Plans() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center">
-                    <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                        Planes Flexibles para tu Crecimiento
-                    </h2>
-                    <p className="mt-4 text-xl text-gray-600">
-                        Elige el plan que mejor se adapte a tus necesidades de transcripción y análisis.
-                    </p>
-
-                    {/* Toggle Mensual / Anual */}
-                    <div className="mt-6 flex justify-center items-center space-x-4">
-                        <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-gray-900' : 'text-gray-500'}`}>Mensual</span>
-                        <button
-                            onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
-                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-gray-200'}`}
-                        >
-                            <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billingInterval === 'annual' ? 'translate-x-5' : 'translate-x-0'}`} />
-                        </button>
-                        <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-gray-900' : 'text-gray-500'}`}>
-                            Anual <span className="text-green-600 font-bold">(Hasta 30% OFF)</span>
-                        </span>
-                    </div>
+        <div className="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark overflow-hidden relative h-screen transition-colors duration-200">
+            {/* Header (Restored from Dashboard Style) */}
+            <header className="h-auto flex flex-row items-center justify-between px-4 py-4 md:px-8 md:py-6 border-b border-slate-200 dark:border-border-dark bg-white/50 dark:bg-background-dark/80 backdrop-blur-sm z-10 transition-colors duration-200">
+                <div className="flex flex-col">
+                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">workspace_premium</span>
+                        Planes de Suscripción
+                    </h1>
                 </div>
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <LanguageSelector />
+                </div>
+            </header>
 
-                {/* Tarjetas de Precios */}
-                <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-4">
-                    {PLANS.map((plan) => (
-                        <div key={plan.id} className={`rounded-lg shadow-lg divide-y divide-gray-200 bg-white flex flex-col ${plan.highlight ? 'border-2 border-blue-500 relative' : ''}`}>
-                            {plan.highlight && (
-                                <div className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full uppercase tracking-wide">
-                                    Popular
-                                </div>
-                            )}
-                            <div className="p-6 flex-1">
-                                <h3 className="text-lg leading-6 font-medium text-gray-900">{plan.name}</h3>
-                                <p className="mt-4 text-sm text-gray-500">{plan.description}</p>
-                                <p className="mt-8">
-                                    <span className="text-4xl font-extrabold text-gray-900">
-                                        {billingInterval === 'annual' ? plan.price.annual : plan.price.monthly}€
-                                    </span>
-                                    <span className="text-base font-medium text-gray-500">/mes</span>
-                                </p>
-                                {billingInterval === 'annual' && plan.price.annual > 0 && (
-                                    <p className="text-xs text-green-600 mt-1 font-semibold">
-                                        Facturado {plan.price.annual * 12}€ anualmente
-                                    </p>
-                                )}
+            {/* Content (Scalable Container) */}
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth w-full">
+                <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-10" style={{ zoom: 0.9 }}>
 
-                                <ul className="mt-6 space-y-4">
-                                    {plan.features.map((feature) => (
-                                        <li key={feature} className="flex">
-                                            <span className="material-symbols-outlined text-green-500">check_circle</span>
-                                            <span className="ml-3 text-sm text-gray-500">{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="p-6 bg-gray-50 rounded-b-lg">
-                                <button
-                                    onClick={() => handleSubscribe(
-                                        billingInterval === 'annual' ? plan.priceId.annual : plan.priceId.monthly,
-                                        plan.id
-                                    )}
-                                    disabled={loading === plan.id || plan.id === 'free'}
-                                    className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${plan.id === 'free'
-                                        ? 'bg-gray-400 cursor-default'
-                                        : 'bg-blue-600 hover:bg-blue-700'
-                                        } transition-colors`}
-                                >
-                                    {loading === plan.id ? 'Procesando...' : plan.cta}
-                                </button>
-                            </div>
+                    <div className="text-center">
+                        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
+                            Planes Flexibles para tu Crecimiento
+                        </h2>
+                        <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
+                            Elige el plan que mejor se adapte a tus necesidades de transcripción y análisis.
+                        </p>
+
+                        {/* Toggle Mensual / Anual */}
+                        <div className="mt-6 flex justify-center items-center space-x-4">
+                            <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500'}`}>Mensual</span>
+                            <button
+                                onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`}
+                            >
+                                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billingInterval === 'annual' ? 'translate-x-5' : 'translate-x-0'}`} />
+                            </button>
+                            <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+                                Anual <span className="text-green-600 font-bold">(Hasta 30% OFF)</span>
+                            </span>
                         </div>
-                    ))}
+                    </div>
+
+                    {/* Tarjetas de Precios */}
+                    <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-4">
+                        {PLANS.map((plan) => (
+                            <div key={plan.id} className={`rounded-lg shadow-lg divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-surface-dark flex flex-col ${plan.highlight ? 'border-2 border-blue-500 relative' : 'border border-gray-200 dark:border-white/10'}`}>
+                                {plan.highlight && (
+                                    <div className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full uppercase tracking-wide">
+                                        Popular
+                                    </div>
+                                )}
+                                <div className="p-6 flex-1">
+                                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">{plan.name}</h3>
+                                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">{plan.description}</p>
+                                    <p className="mt-8">
+                                        <span className="text-4xl font-extrabold text-gray-900 dark:text-white">
+                                            {billingInterval === 'annual' ? plan.price.annual : plan.price.monthly}€
+                                        </span>
+                                        <span className="text-base font-medium text-gray-500 dark:text-gray-400">/mes</span>
+                                    </p>
+                                    {billingInterval === 'annual' && plan.price.annual > 0 && (
+                                        <p className="text-xs text-green-600 mt-1 font-semibold">
+                                            Facturado {plan.price.annual * 12}€ anualmente
+                                        </p>
+                                    )}
+
+                                    <ul className="mt-6 space-y-4">
+                                        {plan.features.map((feature) => (
+                                            <li key={feature} className="flex">
+                                                <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                                <span className="ml-3 text-sm text-gray-500 dark:text-gray-400">{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-b-lg">
+                                    <button
+                                        onClick={() => handleSubscribe(
+                                            billingInterval === 'annual' ? plan.priceId.annual : plan.priceId.monthly,
+                                            plan.id
+                                        )}
+                                        disabled={loading === plan.id || plan.id === 'free'}
+                                        className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${plan.id === 'free'
+                                            ? 'bg-gray-400 cursor-default'
+                                            : 'bg-blue-600 hover:bg-blue-700'
+                                            } transition-colors`}
+                                    >
+                                        {loading === plan.id ? 'Procesando...' : plan.cta}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

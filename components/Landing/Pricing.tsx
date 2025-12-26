@@ -83,9 +83,9 @@ const LANDING_PLANS = [
         price: { monthly: 25, annual: 18.75 },
         description: 'Para power users y managers.',
         features: [
+            'Todo lo de Pro incluido',
             '600 min/mes (~10 horas)',
             '20 GB Almacenamiento Cloud',
-            'Todo lo de Pro incluido',
             'Prioridad de Procesamiento',
             'Soporte Prioritario',
             'Panel de Gestión de Equipo'
@@ -100,9 +100,9 @@ const LANDING_PLANS = [
         price: { monthly: 50, annual: 35 },
         description: 'La suite completa de comunicación.',
         features: [
+            'Todo lo de Business incluido',
             '1200 min/mes (~20 horas)',
             '50 GB Almacenamiento Cloud',
-            'Todo lo de Business incluido',
             '📞 DIALER INCLUIDO (Llamadas)',
             'Grabación de Llamadas Salientes',
             'Número Virtual (Opcional)'
@@ -175,8 +175,8 @@ export const Pricing: React.FC = () => {
                             whileInView="show"
                             viewport={{ once: true }}
                             className={`relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-8 rounded-3xl border flex flex-col transition-colors ${plan.highlight
-                                    ? 'border-brand-violet/50 dark:border-brand-violet/50 hover:border-brand-violet ring-4 ring-brand-violet/10 transform md:-translate-y-4 z-10'
-                                    : 'border-slate-200/50 dark:border-white/10 hover:border-primary/30'
+                                ? 'border-brand-violet/50 dark:border-brand-violet/50 hover:border-brand-violet ring-4 ring-brand-violet/10 transform md:-translate-y-4 z-10'
+                                : 'border-slate-200/50 dark:border-white/10 hover:border-primary/30'
                                 }`}
                         >
                             {plan.highlight && (
@@ -222,8 +222,8 @@ export const Pricing: React.FC = () => {
                             </ul>
 
                             <a href="/login" className={`block w-full py-4 text-center rounded-2xl font-black transition-all uppercase tracking-wide text-[10px] ${plan.highlight
-                                    ? 'bg-brand-violet text-white hover:bg-brand-violet/90 shadow-lg shadow-brand-violet/20 active:scale-95'
-                                    : 'bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10'
+                                ? 'bg-brand-violet text-white hover:bg-brand-violet/90 shadow-lg shadow-brand-violet/20 active:scale-95'
+                                : 'bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10'
                                 }`}>
                                 {plan.cta}
                             </a>
