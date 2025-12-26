@@ -39,13 +39,13 @@ const PLANS_DATA = [
         id: 'pro',
         name: 'Pro',
         prices: {
-            EUR: { monthly: 15, annual: 12 },
-            USD: { monthly: 16, annual: 13 },
-            GBP: { monthly: 13, annual: 10 }
+            EUR: { monthly: 12, annual: 9 },
+            USD: { monthly: 13, annual: 10 },
+            GBP: { monthly: 10, annual: 8 }
         },
         description: 'Para profesionales independientes.',
         features: [
-            '300 min/mes (~5 horas)',
+            '300 min/mes de Transcripción (IA)',
             '5 GB Almacenamiento Cloud',
             'Grabación Mic + Sistema',
             'Chat con Grabación (IA)',
@@ -62,15 +62,15 @@ const PLANS_DATA = [
         id: 'business',
         name: 'Business',
         prices: {
-            EUR: { monthly: 25, annual: 19 },
-            USD: { monthly: 26, annual: 20 },
-            GBP: { monthly: 21, annual: 16 }
+            EUR: { monthly: 19, annual: 15 },
+            USD: { monthly: 21, annual: 17 },
+            GBP: { monthly: 16, annual: 13 }
         },
         description: 'Para power users y managers.',
         features: [
-            'Todo lo de Pro incluido',
-            '600 min/mes (~10 horas)',
+            '600 min/mes de Transcripción (IA)',
             '20 GB Almacenamiento Cloud',
+            'Todo lo de Pro incluido',
             'Soporte Prioritario',
             'Panel de Gestión de Equipo'
         ],
@@ -85,18 +85,18 @@ const PLANS_DATA = [
         id: 'business_plus',
         name: 'Business + Call',
         prices: {
-            EUR: { monthly: 50, annual: 35 },
-            USD: { monthly: 52, annual: 37 },
-            GBP: { monthly: 42, annual: 30 }
+            EUR: { monthly: 35, annual: 25 },
+            USD: { monthly: 39, annual: 28 },
+            GBP: { monthly: 30, annual: 22 }
         },
         description: 'La suite completa de comunicación.',
         features: [
-            'Todo lo de Business incluido',
-            '1200 min/mes (~20 horas)',
+            '1200 min/mes de Transcripción (IA)',
+            '300 min/mes Llamadas (Dialer)',
             '50 GB Almacenamiento Cloud',
+            'Todo lo de Business incluido',
             '📞 DIALER INCLUIDO (Calls)',
-            'Grabación de Llamadas Salientes',
-            'Número Virtual (Opcional)'
+            'Grabación de Llamadas Salientes'
         ],
         highlight: false,
         cta: 'Obtener Business +',
@@ -119,7 +119,10 @@ export function Plans() {
             window.location.href = '/login';
             return;
         }
-        if (planId === 'free') return;
+        if (planId === 'free') {
+            window.location.href = '/dashboard';
+            return;
+        }
 
         setLoading(planId);
         try {
