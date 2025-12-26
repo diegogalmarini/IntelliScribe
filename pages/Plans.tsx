@@ -295,6 +295,5 @@ export function Plans() {
                 </div>
             </div>
         </div>
-        </div >
     );
 }
