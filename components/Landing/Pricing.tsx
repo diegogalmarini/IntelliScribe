@@ -26,8 +26,22 @@ const useRealScarcity = (code: string) => {
     return data;
 };
 
-// PLANES DE LANDING (Sincronizados con la realidad rentable)
 const LANDING_PLANS = [
+    {
+        id: 'free',
+        name: 'Free',
+        price: { monthly: 0, annual: 0 },
+        description: 'Para probar la magia de Diktalo.',
+        features: [
+            '24 min/mes de transcripción',
+            'Historial de 7 días',
+            'Grabación de Micrófono',
+            '1 Usuario'
+        ],
+        highlight: false,
+        badge: null,
+        cta: 'Comenzar Gratis'
+    },
     {
         id: 'pro',
         name: 'Pro',
