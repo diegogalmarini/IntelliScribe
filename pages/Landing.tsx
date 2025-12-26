@@ -5,7 +5,7 @@ import { Pricing } from '../components/Landing/Pricing';
 import { Demo } from '../components/Landing/Demo';
 import { Footer } from '../components/Footer';
 import { Testimonials } from '../components/Landing/Testimonials';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -15,6 +15,7 @@ export const Landing: React.FC = () => {
     const { t } = useLanguage();
     const { theme } = useTheme();
     const { scrollYProgress } = useScroll();
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
@@ -43,44 +44,74 @@ export const Landing: React.FC = () => {
             />
 
             {/* Navbar */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-white/5 h-20 transition-all">
-                <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-20 transition-all">
+                <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto dark:brightness-0 dark:invert transition-all" />
+                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-7 w-auto dark:brightness-0 dark:invert transition-all" />
                     </div>
 
-                    <div className="hidden lg:flex items-center gap-10">
-                        <nav className="flex items-center gap-8">
-                            <button onClick={() => scrollToSection('features')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">{t('navFeatures')}</button>
-                            <button onClick={() => scrollToSection('pricing')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Planes</button>
-                            <button onClick={() => scrollToSection('faq')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">FAQ</button>
-                            <button onClick={() => scrollToSection('blog')} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Blog</button>
-                            <a href="mailto:hello@diktalo.com" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">Contacto</a>
+                    {/* Desktop Nav */}
+                    <div className="hidden lg:flex items-center gap-12">
+                        <nav className="flex items-center gap-10">
+                            {/* Adjusted font weight to bold/medium, removed black. Increased spacing. */}
+                            <button onClick={() => scrollToSection('features')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">{t('navFeatures')}</button>
+                            <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Planes</button>
+                            <button onClick={() => scrollToSection('faq')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">FAQ</button>
+                            <button onClick={() => scrollToSection('blog')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Blog</button>
+                            <a href="mailto:hello@diktalo.com" className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Contacto</a>
                         </nav>
 
                         <div className="flex items-center gap-6 border-l border-slate-200 dark:border-white/10 pl-10">
-                            <a href="/login" className="px-5 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                            <a href="/login" className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
                                 Login
                             </a>
-                            <a href="/login" className="px-6 py-2.5 bg-primary text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all active:scale-95">
-                                {t('navGetStarted')}
+                            <a href="/login" className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-[0.15em] rounded-lg hover:shadow-lg hover:scale-105 transition-all active:scale-95">
+                                {t('navCtaFree')}
                             </a>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3 pl-2">
                                 <LanguageSelector />
                                 <ThemeToggle />
                             </div>
                         </div>
                     </div>
 
-                    {/* Mobile Menu Toggle (Simplified) */}
-                    <div className="md:hidden flex items-center gap-4">
-                        <ThemeToggle />
-                        <button className="text-slate-900 dark:text-white">
-                            <span className="material-symbols-outlined">menu</span>
+                    {/* Mobile Menu Toggle */}
+                    <div className="lg:hidden flex items-center gap-4">
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="p-2 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors"
+                        >
+                            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
                         </button>
                     </div>
                 </div>
             </nav>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed inset-0 z-40 bg-white dark:bg-background-dark pt-24 px-6 lg:hidden"
+                    >
+                        <div className="flex flex-col gap-6 text-center">
+                            <button onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('navFeatures')}</button>
+                            <button onClick={() => { scrollToSection('pricing'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">Planes</button>
+                            <button onClick={() => { scrollToSection('faq'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
+                            <a href="/login" className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</a>
+                            <a href="/login" className="px-6 py-4 bg-primary text-white text-sm font-bold uppercase tracking-widest rounded-xl mt-4">
+                                {t('navCtaFree')}
+                            </a>
+                            <div className="flex justify-center gap-6 mt-8">
+                                <LanguageSelector />
+                                <ThemeToggle />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Sections with semantic IDs */}
             <main>
