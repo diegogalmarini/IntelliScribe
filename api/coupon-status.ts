@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             code: promo.code,
             remaining: remaining,
             total: max,
-            percent_off: promo.coupon.percent_off,
+            percent_off: (promo as any).coupon.percent_off,
             label: `🔥 Solo quedan ${remaining} ofertas`
         });
 
