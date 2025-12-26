@@ -31,14 +31,14 @@ const LANDING_PLANS = [
     {
         id: 'pro',
         name: 'Pro',
-        price: { monthly: 15, annual: 12 }, // 144€/año
+        price: { monthly: 12, annual: 9 }, // 108€/año
         description: 'Para profesionales independientes.',
         features: [
-            '300 min/mes Transcripción (IA)',
-            '5 GB Almacenamiento',
+            '300 min/mes de Transcripción (IA)',
+            '5 GB Almacenamiento Cloud',
             'Grabación Mic + Sistema',
             'Chat con Grabación (IA)',
-            'Descarga de Audio'
+            'Descarga de Audio Original'
         ],
         highlight: true,
         badge: 'POPULAR',
@@ -47,14 +47,14 @@ const LANDING_PLANS = [
     {
         id: 'business',
         name: 'Business',
-        price: { monthly: 25, annual: 19 }, // 225€/año aprox (ajustado visualmente)
+        price: { monthly: 19, annual: 15 }, // 180€/año
         description: 'Para power users y managers.',
         features: [
-            '600 min/mes Transcripción (IA)',
-            '20 GB Almacenamiento',
+            '600 min/mes de Transcripción (IA)',
+            '20 GB Almacenamiento Cloud',
+            'Todo lo de Pro incluido',
             'Soporte Prioritario',
-            'Panel de Gestión de Equipo',
-            'Todo lo de Pro incluido'
+            'Panel de Gestión de Equipo'
         ],
         highlight: false,
         badge: null,
@@ -63,13 +63,14 @@ const LANDING_PLANS = [
     {
         id: 'business_plus',
         name: 'Business + Call',
-        price: { monthly: 50, annual: 35 }, // 420€/año
+        price: { monthly: 35, annual: 25 }, // 300€/año
         description: 'La suite completa de comunicación.',
         features: [
-            '1200 min/mes Transcripción (IA)',
+            '1200 min/mes de Transcripción (IA)',
             '300 min/mes Llamadas (Dialer)',
-            '50 GB Almacenamiento',
-            '📞 DIALER INCLUIDO',
+            '50 GB Almacenamiento Cloud',
+            'Todo lo de Business incluido',
+            '📞 DIALER INCLUIDO (Calls)',
             'Grabación de Llamadas Salientes'
         ],
         highlight: false,
@@ -163,8 +164,8 @@ export const Pricing: React.FC = () => {
                         <a
                             href="/login" // Redirige al login/registro
                             className={`block w-full py-3 px-4 rounded-lg text-center font-bold transition-all ${plan.highlight
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                                 }`}
                         >
                             {plan.cta}
