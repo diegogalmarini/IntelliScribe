@@ -176,7 +176,7 @@ export function Plans() {
                     </div>
 
                     {/* Tarjetas de Precios */}
-                    <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-4">
+                    <div className="mt-8 space-y-4 sm:mt-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-4">
                         {PLANS.map((plan) => (
                             <div key={plan.id} className={`rounded-lg shadow-lg divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-surface-dark flex flex-col ${plan.highlight ? 'border-2 border-blue-500 relative' : 'border border-gray-200 dark:border-white/10'}`}>
                                 {plan.highlight && (
