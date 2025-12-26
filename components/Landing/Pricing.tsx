@@ -53,7 +53,6 @@ const LANDING_PLANS = [
             '24 min/mes de transcripción',
             'Historial de 7 días',
             'Grabación de Micrófono',
-            'Exportación simple (TXT)',
             '1 Usuario'
         ],
         highlight: false,
@@ -68,10 +67,9 @@ const LANDING_PLANS = [
         features: [
             '300 min/mes (~5 horas)',
             '5 GB Almacenamiento Cloud',
-            'Grabación Mic + Sistema (Reuniones)',
+            'Grabación Mic + Sistema',
             'Chat con Grabación (IA)',
-            'Descarga de Audio Original',
-            'Exportación avanzada (JSON)'
+            'Descarga de Audio Original'
         ],
         highlight: true,
         badge: 'PERSONAL',
@@ -86,7 +84,6 @@ const LANDING_PLANS = [
             'Todo lo de Pro incluido',
             '600 min/mes (~10 horas)',
             '20 GB Almacenamiento Cloud',
-            'Prioridad de Procesamiento',
             'Soporte Prioritario',
             'Panel de Gestión de Equipo'
         ],

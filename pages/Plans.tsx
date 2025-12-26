@@ -18,7 +18,6 @@ const PLANS = [
             '24 min/mes de transcripción',
             'Historial de 7 días',
             'Grabación de Micrófono',
-            'Exportación simple (TXT)',
             '1 Usuario'
         ],
         highlight: false,
@@ -28,49 +27,47 @@ const PLANS = [
     {
         id: 'pro',
         name: 'Pro',
-        // Precio Real: 15€ mes | Anual: 144€ (12€/mes) -> 20% Ahorro
+        // ⚠️ AJUSTA ESTE TEXTO VISUAL A TU PRECIO REAL DE STRIPE
         price: { monthly: 15, annual: 12 },
         description: 'Para profesionales independientes.',
         features: [
             '300 min/mes (~5 horas)',
             '5 GB Almacenamiento Cloud',
-            'Grabación Mic + Sistema (Reuniones)',
+            'Grabación Mic + Sistema',
             'Chat con Grabación (IA)',
-            'Descarga de Audio Original',
-            'Exportación avanzada (JSON)'
+            'Descarga de Audio Original'
         ],
-        highlight: true, // Recomendado
+        highlight: true,
         cta: 'Mejorar a Pro',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_pro_month',
-            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL || 'price_pro_year'
+            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY,
+            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL
         }
     },
     {
         id: 'business',
         name: 'Business',
-        // Precio Real: 25€ mes | Anual: 225€ (18.75€/mes) -> 25% Ahorro
+        // ⚠️ AJUSTA ESTE TEXTO VISUAL A TU PRECIO REAL DE STRIPE
         price: { monthly: 25, annual: 18.75 },
         description: 'Para power users y managers.',
         features: [
             'Todo lo de Pro incluido', // MOVED TO TOP
             '600 min/mes (~10 horas)',
             '20 GB Almacenamiento Cloud',
-            'Prioridad de Procesamiento',
             'Soporte Prioritario',
             'Panel de Gestión de Equipo'
         ],
         highlight: false,
         cta: 'Ir a Business',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY || 'price_biz_month',
-            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL || 'price_biz_year'
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY,
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL
         }
     },
     {
         id: 'business_plus',
         name: 'Business + Call',
-        // Precio Real: 50€ mes | Anual: 420€ (35€/mes) -> 30% Ahorro
+        // ⚠️ AJUSTA ESTE TEXTO VISUAL A TU PRECIO REAL DE STRIPE
         price: { monthly: 50, annual: 35 },
         description: 'La suite completa de comunicación.',
         features: [
@@ -84,8 +81,8 @@ const PLANS = [
         highlight: false,
         cta: 'Obtener Business +',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY || 'price_bizplus_month',
-            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL || 'price_bizplus_year'
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY,
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL
         }
     }
 ];

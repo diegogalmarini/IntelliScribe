@@ -19,6 +19,7 @@ async function buffer(readable) {
 
 // MAPA DE PRECIOS REALES (Producción) -> PLAN INTERNO
 // Using VITE_ prefixed env vars as they are in .env.local and likely injected
+// MAPA DE PRECIOS -> PLAN (Usando variables de entorno)
 const PRICE_ID_TO_PLAN_MAP: Record<string, string> = {
     // PRO
     [process.env.VITE_STRIPE_PRICE_PRO_MONTHLY!]: 'pro',
@@ -33,7 +34,7 @@ const PRICE_ID_TO_PLAN_MAP: Record<string, string> = {
     [process.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL!]: 'business_plus',
 };
 
-// LÍMITES DUROS POR PLAN (Hard Limits)
+// LÍMITES DUROS (Hard Limits)
 const PLAN_LIMITS = {
     free: {
         minutes_limit: 24,
