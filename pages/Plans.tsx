@@ -293,8 +293,8 @@ export function Plans() {
                         ))}
                     </div>
                 </div>
-                <Footer />
             </div>
         </div>
+        </div >
     );
 }
