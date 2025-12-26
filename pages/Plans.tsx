@@ -173,12 +173,13 @@ export function Plans() {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth w-full">
-                <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-10" style={{ zoom: 0.9 }}>
+                <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-10 min-h-screen" style={{ zoom: 0.9 }}>
 
                     <div className="text-center relative">
                         <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
                             Planes Flexibles para tu Crecimiento
                         </h2>
+                        {/* ... existing header logic ... */}
                         <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
                             Elige el plan que mejor se adapte a tus necesidades de transcripción y análisis.
                         </p>
@@ -284,6 +285,7 @@ export function Plans() {
                         ))}
                     </div>
                 </div>
+                <Footer />
             </div>
         </div>
     );
