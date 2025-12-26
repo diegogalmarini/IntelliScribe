@@ -39,8 +39,8 @@ const PLANS = [
         highlight: true, // Recomendado
         cta: 'Mejorar a Pro',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY,
-            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL
+            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_pro_month',
+            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL || 'price_pro_year'
         }
     },
     {
@@ -60,8 +60,8 @@ const PLANS = [
         highlight: false,
         cta: 'Ir a Business',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY,
-            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY || 'price_biz_month',
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL || 'price_biz_year'
         }
     },
     {
@@ -81,14 +81,14 @@ const PLANS = [
         highlight: false,
         cta: 'Obtener Business +',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY,
-            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY || 'price_bizplus_month',
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL || 'price_bizplus_year'
         }
     }
 ];
 
-export default function Plans() {
-    const { user } = useAuth();
+export function Plans() {
+    const { user, session } = useAuth();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [loading, setLoading] = useState<string | null>(null);
 
@@ -106,7 +106,7 @@ export default function Plans() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.access_token}` // Asumiendo que pasas el token
+                    'Authorization': `Bearer ${session?.access_token}` // Asumiendo que pasas el token
                 },
                 body: JSON.stringify({
                     priceId,
@@ -121,9 +121,9 @@ export default function Plans() {
 
             const stripe = await stripePromise;
             if (stripe) {
-                await stripe.redirectToCheckout({ sessionId });
+                await (stripe as any).redirectToCheckout({ sessionId });
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al suscribir:', error);
             alert('Hubo un error al iniciar el pago. Por favor intenta de nuevo.');
         } finally {
@@ -198,8 +198,8 @@ export default function Plans() {
                                     )}
                                     disabled={loading === plan.id || plan.id === 'free'}
                                     className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${plan.id === 'free'
-                                            ? 'bg-gray-400 cursor-default'
-                                            : 'bg-blue-600 hover:bg-blue-700'
+                                        ? 'bg-gray-400 cursor-default'
+                                        : 'bg-blue-600 hover:bg-blue-700'
                                         } transition-colors`}
                                 >
                                     {loading === plan.id ? 'Procesando...' : plan.cta}
