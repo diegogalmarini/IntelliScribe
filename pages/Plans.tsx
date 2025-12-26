@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import { UserProfile } from '../types';
-import { useLanguage } from '../contexts/LanguageContext';
-import { LanguageSelector } from '../components/LanguageSelector';
-import { ThemeToggle } from '../components/ThemeToggle';
-import { stripeService } from '../services/stripeService';
+import { useAuth } from '../contexts/AuthContext';
+import { loadStripe } from '@stripe/stripe-js';
 
-interface PlansProps {
-    user: UserProfile;
-    onUpdateUser: (updatedUser: Partial<UserProfile>) => void;
-}
+// Inicializar Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-// Definición Maestra de Planes Comercial (v3.1)
-export const PLANS = [
+const PLANS = [
     {
         id: 'free',
         name: 'Free',
@@ -24,16 +18,14 @@ export const PLANS = [
             'Exportación simple (TXT)',
             '1 Usuario'
         ],
-        limit: '24 min',
-        storage: '7 días',
         highlight: false,
-        cta: 'Comenzar Gratis',
+        cta: 'Plan Actual',
         priceId: { monthly: '', annual: '' }
     },
     {
         id: 'pro',
         name: 'Pro',
-        // Precio real: 15€/mes. Anual: 144€ (12€/mes) -> Ahorro 20%
+        // Precio Real: 15€ mes | Anual: 144€ (12€/mes) -> 20% Ahorro
         price: { monthly: 15, annual: 12 },
         description: 'Para profesionales independientes.',
         features: [
@@ -44,19 +36,17 @@ export const PLANS = [
             'Descarga de Audio Original',
             'Exportación avanzada (JSON)'
         ],
-        limit: '300 min',
-        storage: '5 GB',
-        highlight: true, // Plan recomendado visualmente
+        highlight: true, // Recomendado
         cta: 'Mejorar a Pro',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_pro_monthly_id',
-            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL || 'price_pro_annual_id'
+            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY,
+            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL
         }
     },
     {
         id: 'business',
         name: 'Business',
-        // Precio real: 25€/mes. Anual: 225€ (18.75€/mes) -> Ahorro 25%
+        // Precio Real: 25€ mes | Anual: 225€ (18.75€/mes) -> 25% Ahorro
         price: { monthly: 25, annual: 18.75 },
         description: 'Para power users y managers.',
         features: [
@@ -67,19 +57,17 @@ export const PLANS = [
             'Soporte Prioritario',
             'Panel de Gestión de Equipo'
         ],
-        limit: '600 min',
-        storage: '20 GB',
         highlight: false,
         cta: 'Ir a Business',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY || 'price_business_monthly_id',
-            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL || 'price_business_annual_id'
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY,
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL
         }
     },
     {
         id: 'business_plus',
         name: 'Business + Call',
-        // Precio real: 50€/mes. Anual: 420€ (35€/mes) -> Ahorro 30%
+        // Precio Real: 50€ mes | Anual: 420€ (35€/mes) -> 30% Ahorro
         price: { monthly: 50, annual: 35 },
         description: 'La suite completa de comunicación.',
         features: [
@@ -90,144 +78,137 @@ export const PLANS = [
             'Grabación de Llamadas Salientes',
             'Número Virtual (Opcional)'
         ],
-        limit: '1200 min',
-        storage: '50 GB',
         highlight: false,
         cta: 'Obtener Business +',
         priceId: {
-            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY || 'price_bizplus_monthly_id',
-            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL || 'price_bizplus_annual_id'
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY,
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL
         }
     }
 ];
 
-export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
-    const { t } = useLanguage();
+export default function Plans() {
+    const { user } = useAuth();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
-    const [currency, setCurrency] = useState<'USD' | 'EUR'>('EUR'); // Default to EUR as per prompt context implies Euro
+    const [loading, setLoading] = useState<string | null>(null);
 
-    const handleSubscribe = async (plan: typeof PLANS[0]) => {
-        if (plan.id === 'free') return; // Should handle downgrade logic or just ignore
-
-        const priceId = billingInterval === 'monthly' ? plan.priceId.monthly : plan.priceId.annual;
-
-        if (!priceId || priceId.startsWith('price_')) {
-            console.error(`Stripe Configuration Error: Price ID missing for ${plan.name}`);
-            alert('Checkout configuration error. Please contact support.');
+    const handleSubscribe = async (priceId: string, planId: string) => {
+        if (!user) {
+            window.location.href = '/login';
             return;
         }
+        if (planId === 'free') return; // Lógica para cancelar o downgrade manual si se requiere
 
-        if (!user.id || !user.email) {
-            alert("Error: User session invalid");
-            return;
+        setLoading(planId);
+        try {
+            // Llamada al backend para crear sesión de Checkout
+            const response = await fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.access_token}` // Asumiendo que pasas el token
+                },
+                body: JSON.stringify({
+                    priceId,
+                    userId: user.id,
+                    email: user.email,
+                    planId // Enviamos el ID del plan para referencia
+                })
+            });
+
+            const { sessionId, error } = await response.json();
+            if (error) throw new Error(error);
+
+            const stripe = await stripePromise;
+            if (stripe) {
+                await stripe.redirectToCheckout({ sessionId });
+            }
+        } catch (error) {
+            console.error('Error al suscribir:', error);
+            alert('Hubo un error al iniciar el pago. Por favor intenta de nuevo.');
+        } finally {
+            setLoading(null);
         }
-
-        await stripeService.startCheckout(priceId, user.id, user.email);
     };
 
     return (
-        <div className="flex flex-1 flex-col h-full overflow-hidden bg-slate-50 dark:bg-background-dark relative transition-colors duration-200">
-            <header className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 bg-white dark:bg-background-dark px-8 py-4 sticky top-0 z-20">
-                <h2 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Planes & Suscripción (v3.1)</h2>
-                <div className="flex items-center gap-3">
-                    <ThemeToggle />
-                    <LanguageSelector />
+        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                <div className="text-center">
+                    <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                        Planes Flexibles para tu Crecimiento
+                    </h2>
+                    <p className="mt-4 text-xl text-gray-600">
+                        Elige el plan que mejor se adapte a tus necesidades de transcripción y análisis.
+                    </p>
+
+                    {/* Toggle Mensual / Anual */}
+                    <div className="mt-6 flex justify-center items-center space-x-4">
+                        <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-gray-900' : 'text-gray-500'}`}>Mensual</span>
+                        <button
+                            onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-gray-200'}`}
+                        >
+                            <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${billingInterval === 'annual' ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </button>
+                        <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-gray-900' : 'text-gray-500'}`}>
+                            Anual <span className="text-green-600 font-bold">(Hasta 30% OFF)</span>
+                        </span>
+                    </div>
                 </div>
-            </header>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
-                <div className="mx-auto max-w-7xl flex flex-col gap-8">
-
-                    {/* Header */}
-                    <div className="text-center mb-4">
-                        <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2">Planes Simples y Transparentes</h1>
-                        <p className="text-slate-500 dark:text-slate-400">Elige la potencia que necesitas. Cambia o cancela cuando quieras.</p>
-                    </div>
-
-                    {/* Controls */}
-                    <div className="flex justify-center mb-8">
-                        <div className="bg-white dark:bg-white/5 p-1 rounded-xl border border-slate-200 dark:border-white/10 inline-flex shadow-sm">
-                            <button
-                                onClick={() => setBillingInterval('monthly')}
-                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${billingInterval === 'monthly' ? 'bg-slate-200 dark:bg-white text-slate-900 dark:text-slate-900 shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'}`}>
-                                Mensual
-                            </button>
-                            <button
-                                onClick={() => setBillingInterval('annual')}
-                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${billingInterval === 'annual' ? 'bg-slate-200 dark:bg-white text-slate-900 dark:text-slate-900 shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'}`}>
-                                Anual
-                                <span className="text-[10px] bg-green-500 text-white px-1.5 rounded font-bold">-20-30%</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Plans Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
-                        {PLANS.map((plan) => {
-                            const isCurrent = user.subscription?.planId === plan.id;
-                            const price = billingInterval === 'monthly' ? plan.price.monthly : plan.price.annual;
-                            const isRecommended = plan.highlight;
-
-                            return (
-                                <div key={plan.id} className={`relative bg-white dark:bg-white/5 rounded-3xl p-8 border transition-all duration-300 flex flex-col h-full ${isRecommended ? 'border-brand-violet ring-2 ring-brand-violet/20 shadow-xl scale-105 z-10' : 'border-slate-200 dark:border-white/10 hover:border-brand-violet/50'}`}>
-                                    {isRecommended && (
-                                        <div className="absolute top-0 right-0 left-0 bg-brand-violet text-white text-[10px] font-black uppercase tracking-widest text-center py-1 rounded-t-2xl">
-                                            Recomendado
-                                        </div>
-                                    )}
-
-                                    <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">{plan.name}</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 h-8">{plan.description}</p>
-
-                                    <div className="mb-6">
-                                        <span className="text-4xl font-black text-slate-900 dark:text-white">€{price}</span>
-                                        <span className="text-slate-400 font-bold ml-1 text-xs">/mes</span>
-                                        {billingInterval === 'annual' && (
-                                            <p className="text-[10px] text-green-500 font-bold mt-1">
-                                                Facturado €{price * 12}/año (Ahorro incluido)
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div className="flex items-center gap-4 mb-6 border-y border-slate-100 dark:border-white/5 py-4">
-                                        <div>
-                                            <p className="text-[10px] uppercase text-slate-400 font-bold">Límite</p>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white">{plan.limit}</p>
-                                        </div>
-                                        <div className="w-px h-8 bg-slate-200 dark:bg-white/10"></div>
-                                        <div>
-                                            <p className="text-[10px] uppercase text-slate-400 font-bold">Storage</p>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white">{plan.storage}</p>
-                                        </div>
-                                    </div>
-
-                                    <ul className="space-y-3 mb-8 flex-grow">
-                                        {plan.features.map((feature, idx) => (
-                                            <li key={idx} className="flex items-start gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
-                                                <span className={`material-symbols-outlined text-sm ${isRecommended ? 'text-brand-violet' : 'text-slate-400'}`}>check</span>
-                                                <span>{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    <button
-                                        onClick={() => handleSubscribe(plan)}
-                                        disabled={isCurrent}
-                                        className={`w-full py-3 rounded-xl font-bold uppercase tracking-wider text-[10px] transition-all ${isCurrent
-                                                ? 'bg-slate-100 dark:bg-white/10 text-slate-400 cursor-default'
-                                                : isRecommended
-                                                    ? 'bg-brand-violet text-white hover:bg-brand-violet/90 shadow-lg shadow-brand-violet/20'
-                                                    : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90'
-                                            }`}
-                                    >
-                                        {isCurrent ? 'Plan Actual' : plan.cta}
-                                    </button>
+                {/* Tarjetas de Precios */}
+                <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-4">
+                    {PLANS.map((plan) => (
+                        <div key={plan.id} className={`rounded-lg shadow-lg divide-y divide-gray-200 bg-white flex flex-col ${plan.highlight ? 'border-2 border-blue-500 relative' : ''}`}>
+                            {plan.highlight && (
+                                <div className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full uppercase tracking-wide">
+                                    Popular
                                 </div>
-                            );
-                        })}
-                    </div>
+                            )}
+                            <div className="p-6 flex-1">
+                                <h3 className="text-lg leading-6 font-medium text-gray-900">{plan.name}</h3>
+                                <p className="mt-4 text-sm text-gray-500">{plan.description}</p>
+                                <p className="mt-8">
+                                    <span className="text-4xl font-extrabold text-gray-900">
+                                        {billingInterval === 'annual' ? plan.price.annual : plan.price.monthly}€
+                                    </span>
+                                    <span className="text-base font-medium text-gray-500">/mes</span>
+                                </p>
+                                {billingInterval === 'annual' && plan.price.annual > 0 && (
+                                    <p className="text-xs text-green-600 mt-1 font-semibold">
+                                        Facturado {plan.price.annual * 12}€ anualmente
+                                    </p>
+                                )}
+
+                                <ul className="mt-6 space-y-4">
+                                    {plan.features.map((feature) => (
+                                        <li key={feature} className="flex">
+                                            <span className="material-symbols-outlined text-green-500">check_circle</span>
+                                            <span className="ml-3 text-sm text-gray-500">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="p-6 bg-gray-50 rounded-b-lg">
+                                <button
+                                    onClick={() => handleSubscribe(
+                                        billingInterval === 'annual' ? plan.priceId.annual : plan.priceId.monthly,
+                                        plan.id
+                                    )}
+                                    disabled={loading === plan.id || plan.id === 'free'}
+                                    className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${plan.id === 'free'
+                                            ? 'bg-gray-400 cursor-default'
+                                            : 'bg-blue-600 hover:bg-blue-700'
+                                        } transition-colors`}
+                                >
+                                    {loading === plan.id ? 'Procesando...' : plan.cta}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
     );
-};
+}

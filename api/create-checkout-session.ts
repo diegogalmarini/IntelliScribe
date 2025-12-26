@@ -1,4 +1,3 @@
-
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -11,19 +10,20 @@ export default async function handler(req, res) {
         return res.status(405).end('Method Not Allowed');
     }
 
-    const { priceId, userId, userEmail } = req.body;
+    const { priceId, email, userId, planId } = req.body;
 
     if (!priceId || !userId) {
         return res.status(400).json({ error: 'Missing priceId or userId' });
     }
 
     try {
-        // Determine success/cancel URLs based on environment
         const protocol = req.headers['x-forwarded-proto'] || 'http';
         const host = req.headers.host;
         const origin = `${protocol}://${host}`;
 
         const session = await stripe.checkout.sessions.create({
+            customer_email: email,
+            client_reference_id: userId,
             payment_method_types: ['card'],
             line_items: [
                 {
@@ -32,18 +32,18 @@ export default async function handler(req, res) {
                 },
             ],
             mode: 'subscription',
-            success_url: `${origin}/dashboard?payment=success`,
-            cancel_url: `${origin}/plans?payment=cancelled`,
-            customer_email: userEmail,
+            allow_promotion_codes: true, // CLAVE PARA CUPONES
+            success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/plans`,
             metadata: {
-                userId: userId, // CRITICAL: This links the payment to the Supabase User
-            },
-            allow_promotion_codes: true,
+                userId: userId,
+                planId: planId // Optional tracking
+            }
         });
 
-        return res.status(200).json({ sessionId: session.id, url: session.url });
+        return res.status(200).json({ sessionId: session.id });
     } catch (err: any) {
-        console.error('Stripe error:', err);
+        console.error('Stripe Checkout Error:', err);
         return res.status(500).json({ error: err.message });
     }
 }
