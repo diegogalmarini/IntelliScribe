@@ -4,6 +4,7 @@ import { Features } from '../components/Landing/Features';
 import { Pricing } from '../components/Landing/Pricing';
 import { Demo } from '../components/Landing/Demo';
 import { Footer } from '../components/Footer';
+import { Testimonials } from '../components/Landing/Testimonials';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -101,22 +102,26 @@ export const Landing: React.FC = () => {
                     <Pricing />
                 </section>
 
+                <Testimonials />
+
                 {/* FAQ Section */}
-                <section id="faq" className="py-32 bg-white dark:bg-background-dark relative overflow-hidden">
+                <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-4xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
-                            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary mb-4">FAQ</h2>
-                            <h3 className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white uppercase tracking-tight">Preguntas Frecuentes</h3>
+                            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">FAQ</h2>
+                            <h3 className="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white tracking-tight">Preguntas Frecuentes</h3>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {[
-                                { q: "¿Qué tan precisa es la transcripción?", a: "Diktalo alcanza una precisión del 98% en ambientes controlados gracias a nuestra integración con los modelos de IA más avanzados de Google y OpenAI." },
-                                { q: "¿Mis datos están seguros?", a: "Absolutamente. Utilizamos cifrado AES-256 de nivel bancario y cumplimos con estándares internacionales de privacidad. Tus grabaciones son tuyas y solo tuyas." },
-                                { q: "¿Cómo funciona el marcador VoIP?", a: "El marcador integrado te permite realizar llamadas directamente desde el navegador. Estas se graban y transcriben automáticamente en tiempo real sin hardware adicional." }
+                                { q: t('faqPrivQ'), a: t('faqPrivA') },
+                                { q: t('faqHardwareQ'), a: t('faqHardwareA') },
+                                { q: t('faqPlansQ'), a: t('faqPlansA') },
+                                { q: t('faqExportQ'), a: t('faqExportA') },
+                                { q: t('faqTeamQ'), a: t('faqTeamA') }
                             ].map((item, idx) => (
-                                <div key={idx} className="p-8 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl">
-                                    <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{item.q}</h4>
-                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{item.a}</p>
+                                <div key={idx} className="p-6 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl transition-all hover:bg-white dark:hover:bg-white/10">
+                                    <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">{item.q}</h4>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{item.a}</p>
                                 </div>
                             ))}
                         </div>
@@ -124,12 +129,12 @@ export const Landing: React.FC = () => {
                 </section>
 
                 {/* Latest Insights (Blog) */}
-                <section id="blog" className="py-32 bg-slate-50 dark:bg-slate-950/50">
+                <section id="blog" className="py-24 bg-slate-50 dark:bg-slate-950/50">
                     <div className="max-w-7xl mx-auto px-4">
-                        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                             <div>
-                                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary mb-4">Blog</h2>
-                                <h3 className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white uppercase tracking-tight">Últimas Noticias</h3>
+                                <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Blog</h2>
+                                <h3 className="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white tracking-tight">Últimas Noticias</h3>
                             </div>
                             <button className="text-[10px] font-black uppercase tracking-[0.2em] px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-white dark:hover:bg-white/5 transition-all uppercase">Ver todas</button>
                         </div>

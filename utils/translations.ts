@@ -333,7 +333,38 @@ export const translations = {
     footerPrivacy: "Privacy Policy",
     footerTerms: "Terms of Service",
     footerSupport: "Support",
-    footerContact: "Contact Us"
+    footerContact: "Contact Us",
+
+    // New Testimonials
+    testim1Name: "Dr. Ana Lopez",
+    testim1Role: "Cardiology Resident",
+    testim1Body: "I used to spend 2 hours transcribing SOAP notes. With Diktalo, I record (with permission) and have the report in the EHR in seconds. Pure magic.",
+    testim2Name: "Carlos Mendez",
+    testim2Role: "VP of Sales, TechFlow",
+    testim2Body: "Automatic BANT analysis changed our CRM game. My team doesn't take notes anymore; they just sell. The VoIP dialer integration is huge.",
+    testim3Name: "Elena R.",
+    testim3Role: "Investigative Journalist",
+    testim3Body: "Accuracy in mixed English/Spanish is superior to anything else. Knowing my sources are secure on encrypted servers is vital.",
+
+    // Expanded FAQs
+    faqPrivQ: "Are my recordings private?",
+    faqPrivA: "Absolutely. We use AES-256 encryption at rest and TLS in transit. We do not sell your data or use it to train public models.",
+    faqHardwareQ: "Do I need the Plaud device or special hardware?",
+    faqHardwareA: "No. Diktalo is 100% software. Your phone or laptop is all you need. Save the $159 cost of a dedicated device.",
+    faqPlansQ: "What happens if I exceed my minutes?",
+    faqPlansA: "We notify you at 80%. If you hit 100%, you can purchase top-up credits or wait for the next billing cycle.",
+    faqExportQ: "What export formats are supported?",
+    faqExportA: "We offer PDF, DOCX (Word), TXT, and JSON. Pro plans and above also allow original audio WAV/MP3 download.",
+    faqTeamQ: "Do you have enterprise plans?",
+    faqTeamA: "Yes, Business+ allows centralized management, unified billing, and custom data retention policies for teams.",
+
+    // New Manual Search
+    manSearchPlaceholder: "How can we help you today?",
+    manQuickActions: "Quick Actions",
+    manCardCalendar: "Connect Calendar",
+    manCardVerify: "Verify Phone",
+    manCardExport: "Export Options",
+    manCardPrivacy: "Privacy Center"
   },
   es: {
     // Auth
@@ -665,6 +696,37 @@ export const translations = {
     footerPrivacy: "Política de Privacidad",
     footerTerms: "Términos de Servicio",
     footerSupport: "Soporte",
-    footerContact: "Contacto"
+    footerContact: "Contacto",
+
+    // New Testimonials
+    testim1Name: "Dra. Ana López",
+    testim1Role: "Residente de Cardiología",
+    testim1Body: "Antes pasaba 2 horas transcribiendo notas SOAP. Con Diktalo, grabo la consulta (con permiso) y tengo el reporte en el EHR en segundos. Es magia pura.",
+    testim2Name: "Carlos Méndez",
+    testim2Role: "VP de Ventas, TechFlow",
+    testim2Body: "El análisis BANT automático ha cambiado nuestro CRM. Mi equipo ya no toma notas, solo vende. La integración con el marcador VoIP es un plus enorme.",
+    testim3Name: "Elena R.",
+    testim3Role: "Periodista de Investigación",
+    testim3Body: "La precisión en inglés y español mezclados es superior a cualquier otra herramienta. Y saber que mis fuentes están seguras en servers encriptados es vital.",
+
+    // Expanded FAQs
+    faqPrivQ: "¿Mis grabaciones son privadas?",
+    faqPrivA: "Totalmente. Usamos encriptación AES-256 en reposo y TLS en tránsito. No vendemos tus datos ni los usamos para entrenar modelos públicos.",
+    faqHardwareQ: "¿Necesito el dispositivo Plaud o hardware especial?",
+    faqHardwareA: "No. Diktalo es 100% software. Tu teléfono o laptop es todo lo que necesitas. Ahorra los $159 que cuesta un dispositivo dedicado.",
+    faqPlansQ: "¿Qué pasa si me paso de minutos?",
+    faqPlansA: "Te avisaremos al llegar al 80%. Si llegas al 100%, podrás recargar crédito extra o esperar al siguiente ciclo de facturación.",
+    faqExportQ: "¿En qué formatos puedo exportar?",
+    faqExportA: "Ofrecemos PDF, DOCX (Word), TXT y JSON para desarrolladores. Los planes Pro y superiores también permiten descargar el audio original WAV/MP3.",
+    faqTeamQ: "¿Tienen planes para empresas?",
+    faqTeamA: "Sí, el plan Business+ permite gestión centralizada, facturación unificada y retención de datos personalizada para equipos.",
+
+    // New Manual Search
+    manSearchPlaceholder: "¿Cómo podemos ayudarte hoy?",
+    manQuickActions: "Acciones Rápidas",
+    manCardCalendar: "Conectar Calendario",
+    manCardVerify: "Verificar Teléfono",
+    manCardExport: "Opciones de Exportación",
+    manCardPrivacy: "Centro de Privacidad"
   }
 };

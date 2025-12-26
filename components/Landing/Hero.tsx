@@ -70,10 +70,9 @@ export const Hero: React.FC = () => {
 
                     <motion.h1
                         variants={itemVariants}
-                        className="text-5xl md:text-7xl lg:text-8xl font-display font-black mb-8 leading-[0.95] text-white tracking-tighter uppercase max-w-5xl"
+                        className="text-4xl md:text-6xl font-display font-bold mb-8 leading-tight text-white tracking-tight max-w-4xl"
                     >
-                        {t('heroTitle').replace('.', '').replace('.', '').replace('.', '')}
-                        <span className="text-primary">.</span>
+                        {t('heroTitle')}
                     </motion.h1>
 
                     <motion.p
