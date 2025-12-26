@@ -317,6 +317,12 @@ export const translations = {
     heroSubtitle: "Integrated VoIP calls, 112+ languages, and enterprise-grade transcription. Your invisible assistant for meetings and calls, no hardware required.",
     heroCTA: "Start for Free",
     heroReview: "Trusted by 10,000+ professionals worldwide",
+
+    // Hero Metrics
+    metricMins: "Minutes Transcribed",
+    metricPros: "Active Professionals",
+    metricSaved: "Hours Saved",
+
     feat1Title: "Global AI Transcription",
     feat1Desc: "Unrivaled accuracy in 112+ languages. Diktalo recognizes technical jargon, accents, and multiple speakers automatically.",
     feat2Title: "Integrated VoIP Dialer",
@@ -681,6 +687,12 @@ export const translations = {
     heroSubtitle: "Llamadas VoIP integradas, más de 112 idiomas y transcripción de nivel empresarial. Tu asistente invisible para reuniones y llamadas, sin hardware adicional.",
     heroCTA: "Comenzar Gratis",
     heroReview: "Confiado por más de 10,000 profesionales en todo el mundo",
+
+    // Hero Metrics
+    metricMins: "Minutos Transcritos",
+    metricPros: "Profesionales Activos",
+    metricSaved: "Horas Ahorradas",
+
     feat1Title: "Transcripción IA Global",
     feat1Desc: "Precisión inigualable en 112+ idiomas. Diktalo reconoce jerga técnica, acentos y múltiples interlocutores automáticamente.",
     feat2Title: "Marcador VoIP Integrado",

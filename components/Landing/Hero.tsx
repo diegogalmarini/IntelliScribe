@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { AnimatedCounter } from '../AnimatedCounter';
 
 export const Hero: React.FC = () => {
     const { t } = useLanguage();
+    const [transcribedMinutes, setTranscribedMinutes] = useState(14200);
+
+    // Live counter simulation: Increment minutes every 3-7 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTranscribedMinutes(prev => prev + 1);
+        }, Math.random() * (7000 - 3000) + 3000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -84,7 +95,7 @@ export const Hero: React.FC = () => {
 
                     <motion.div
                         variants={itemVariants}
-                        className="flex flex-col sm:flex-row items-center gap-4"
+                        className="flex flex-col sm:flex-row items-center gap-4 mb-20"
                     >
                         <a
                             href="/login"
@@ -101,6 +112,31 @@ export const Hero: React.FC = () => {
                             {t('navFeatures')}
                             <span className="material-symbols-outlined text-base">expand_more</span>
                         </button>
+                    </motion.div>
+
+                    {/* Live Metrics Row */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl"
+                    >
+                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+                            <div className="text-3xl font-display font-bold text-white mb-1">
+                                <AnimatedCounter value={transcribedMinutes} duration={3} />+
+                            </div>
+                            <div className="text-xs uppercase tracking-widest text-white/40 font-bold">{t('metricMins')}</div>
+                        </div>
+                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+                            <div className="text-3xl font-display font-bold text-white mb-1">
+                                <AnimatedCounter value={1200} duration={2.5} />+
+                            </div>
+                            <div className="text-xs uppercase tracking-widest text-white/40 font-bold">{t('metricPros')}</div>
+                        </div>
+                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+                            <div className="text-3xl font-display font-bold text-white mb-1">
+                                <AnimatedCounter value={240} duration={2} />h+
+                            </div>
+                            <div className="text-xs uppercase tracking-widest text-white/40 font-bold">{t('metricSaved')}</div>
+                        </div>
                     </motion.div>
 
                     {/* Trust Badges */}
