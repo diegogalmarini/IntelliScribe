@@ -226,7 +226,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth w-full">
-                <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-10">
+                <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-10" style={{ zoom: 0.9 }}>
 
                     {/* HERO SECTION: Greeting & Quick Actions */}
                     <div className="relative overflow-hidden rounded-2xl bg-[#1e2736] border border-border-dark shadow-2xl p-8 md:p-10">
