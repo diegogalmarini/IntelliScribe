@@ -38,6 +38,7 @@ export default async function handler(req, res) {
             metadata: {
                 userId: userId, // CRITICAL: This links the payment to the Supabase User
             },
+            allow_promotion_codes: true,
         });
 
         return res.status(200).json({ sessionId: session.id, url: session.url });
