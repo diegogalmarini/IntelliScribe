@@ -287,13 +287,13 @@ export const translations = {
     man_intro_body: "Welcome to Diktalo. We transform your conversations into structured data using advanced AI. This guide covers the basics of capturing, analyzing, and sharing your meeting insights.",
 
     man_rec_title: "Recording Modes",
-    man_rec_body: "**Meeting Mode:** Best for in-person or speaker capture. Uses noise suppression to isolate voices.\n\n**Call Mode:** Optimized for phone calls.\n* **Speakerphone:** Place your phone near the laptop microphone.\n* **VoIP Dialer:** Use the integrated dialer (Business+ Plan) to call directly from the browser.",
+    man_rec_body: "**Meeting Mode:** Best for in-person or speaker capture. Uses noise suppression to isolate voices.\n\n**Call Mode:** Optimized for phone calls.\n* Speakerphone: Place your phone near the laptop microphone.\n* VoIP Dialer: Use the integrated dialer (Business+ Plan) to call directly from the browser.",
 
     man_edit_title: "The Smart Editor",
-    man_edit_body: "Once processed, your recording opens in the Editor.\n\n* **Transcript:** Click any text to edit typos manually.\n* **Ask Diktalo:** Use the chat sidebar to query your meeting (e.g., 'What dates were mentioned?').\n* **Templates:** Click 'Analyze' to choose specific AI models like Medical SOAP or Sales BANT.",
+    man_edit_body: "Once processed, your recording opens in the Editor.\n\n* Transcript: Click any text to edit typos manually.\n* Ask Diktalo: Use the chat sidebar to query your meeting (e.g., 'What dates were mentioned?').\n* Templates: Click 'Analyze' to choose specific AI models like Medical SOAP or Sales BANT.",
 
     man_int_title: "Integrations (AutoFlow)",
-    man_int_body: "Connect your ecosystem in the **Integrations** tab.\n\n* **Google Calendar:** Auto-titles recordings based on your schedule.\n* **Slack:** Sends meeting summaries to a selected #channel immediately after analysis.\n* **Salesforce:** (Coming Soon) Updates Opportunity fields based on call transcripts.",
+    man_int_body: "Connect your ecosystem in the **Integrations** tab.\n\n* Google Calendar: Auto-titles recordings based on your schedule.\n* Slack: Sends meeting summaries to a selected #channel immediately after analysis.\n* Salesforce: (Coming Soon) Updates Opportunity fields based on call transcripts.",
     limitReachedTitle: "Monthly Limit Reached",
     limitReachedMessage: "You have reached your monthly transcription limit. Upgrade your plan to continue recording and transcribing.",
     playback: "Playback",
@@ -657,13 +657,13 @@ export const translations = {
     man_intro_body: "Bienvenido a Diktalo. Transformamos tus conversaciones en datos estructurados usando IA avanzada. Esta guía cubre lo básico para capturar, analizar y compartir los insights de tus reuniones.",
 
     man_rec_title: "Modos de Grabación",
-    man_rec_body: "**Modo Reunión:** Ideal para capturas en persona. Usa supresión de ruido para aislar voces.\n\n**Modo Llamada:** Optimizado para teléfono.\n* **Altavoz:** Coloca tu teléfono cerca del micrófono del portátil.\n* **Marcador VoIP:** Usa el marcador integrado (Plan Business+) para llamar directamente desde el navegador.",
+    man_rec_body: "**Modo Reunión:** Ideal para capturas en persona. Usa supresión de ruido para aislar voces.\n\n**Modo Llamada:** Optimizado para teléfono.\n* Altavoz: Coloca tu teléfono cerca del micrófono del portátil.\n* Marcador VoIP: Usa el marcador integrado (Plan Business+) para llamar directamente desde el navegador.",
 
     man_edit_title: "El Editor Inteligente",
-    man_edit_body: "Una vez procesado, tu grabación se abre en el Editor.\n\n* **Transcripción:** Haz clic en cualquier texto para editar errores manualmente.\n* **Preguntar a Diktalo:** Usa el chat lateral para hacer consultas sobre tu reunión (ej: '¿Qué fechas se mencionaron?').\n* **Plantillas:** Haz clic en 'Analizar' para elegir modelos de IA específicos como Médico SOAP o Ventas BANT.",
+    man_edit_body: "Una vez procesado, tu grabación se abre en el Editor.\n\n* Transcripción: Haz clic en cualquier texto para editar errores manualmente.\n* Preguntar a Diktalo: Usa el chat lateral para hacer consultas sobre tu reunión (ej: '¿Qué fechas se mencionaron?').\n* Plantillas: Haz clic en 'Analizar' para elegir modelos de IA específicos como Médico SOAP o Ventas BANT.",
 
     man_int_title: "Integraciones (AutoFlow)",
-    man_int_body: "Conecta tu ecosistema en la pestaña **Integraciones**.\n\n* **Google Calendar:** Titula automáticamente las grabaciones basándose en tu agenda.\n* **Slack:** Envía resúmenes a un canal #elegido inmediatamente tras el análisis.\n* **Salesforce:** (Próximamente) Actualiza campos de Oportunidad basados en transcripciones de llamadas.",
+    man_int_body: "Conecta tu ecosistema en la pestaña **Integraciones**.\n\n* Google Calendar: Titula automáticamente las grabaciones basándose en tu agenda.\n* Slack: Envía resúmenes a un canal #elegido inmediatamente tras el análisis.\n* Salesforce: (Próximamente) Actualiza campos de Oportunidad basados en transcripciones de llamadas.",
     limitReachedTitle: "Límite Mensual Alcanzado",
     limitReachedMessage: "Has alcanzado tu límite mensual de transcripción. Mejora tu plan para continuar grabando y transcribiendo.",
     playback: "Reproducción",
