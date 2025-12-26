@@ -1,94 +1,119 @@
-
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
-
 import { stripeService } from '../services/stripeService';
-import { useAuth } from '../contexts/AuthContext'; // Assuming we can get email from here if not in user prop
 
 interface PlansProps {
     user: UserProfile;
     onUpdateUser: (updatedUser: Partial<UserProfile>) => void;
 }
 
+// Definición Maestra de Planes Comercial (v3.1)
+export const PLANS = [
+    {
+        id: 'free',
+        name: 'Free',
+        price: { monthly: 0, annual: 0 },
+        description: 'Para probar la magia de Diktalo.',
+        features: [
+            '24 min/mes de transcripción',
+            'Historial de 7 días',
+            'Grabación de Micrófono',
+            'Exportación simple (TXT)',
+            '1 Usuario'
+        ],
+        limit: '24 min',
+        storage: '7 días',
+        highlight: false,
+        cta: 'Comenzar Gratis',
+        priceId: { monthly: '', annual: '' }
+    },
+    {
+        id: 'pro',
+        name: 'Pro',
+        // Precio real: 15€/mes. Anual: 144€ (12€/mes) -> Ahorro 20%
+        price: { monthly: 15, annual: 12 },
+        description: 'Para profesionales independientes.',
+        features: [
+            '300 min/mes (~5 horas)',
+            '5 GB Almacenamiento Cloud',
+            'Grabación Mic + Sistema (Reuniones)',
+            'Chat con Grabación (IA)',
+            'Descarga de Audio Original',
+            'Exportación avanzada (JSON)'
+        ],
+        limit: '300 min',
+        storage: '5 GB',
+        highlight: true, // Plan recomendado visualmente
+        cta: 'Mejorar a Pro',
+        priceId: {
+            monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_pro_monthly_id',
+            annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL || 'price_pro_annual_id'
+        }
+    },
+    {
+        id: 'business',
+        name: 'Business',
+        // Precio real: 25€/mes. Anual: 225€ (18.75€/mes) -> Ahorro 25%
+        price: { monthly: 25, annual: 18.75 },
+        description: 'Para power users y managers.',
+        features: [
+            '600 min/mes (~10 horas)',
+            '20 GB Almacenamiento Cloud',
+            'Todo lo de Pro incluido',
+            'Prioridad de Procesamiento',
+            'Soporte Prioritario',
+            'Panel de Gestión de Equipo'
+        ],
+        limit: '600 min',
+        storage: '20 GB',
+        highlight: false,
+        cta: 'Ir a Business',
+        priceId: {
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY || 'price_business_monthly_id',
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL || 'price_business_annual_id'
+        }
+    },
+    {
+        id: 'business_plus',
+        name: 'Business + Call',
+        // Precio real: 50€/mes. Anual: 420€ (35€/mes) -> Ahorro 30%
+        price: { monthly: 50, annual: 35 },
+        description: 'La suite completa de comunicación.',
+        features: [
+            '1200 min/mes (~20 horas)',
+            '50 GB Almacenamiento Cloud',
+            'Todo lo de Business incluido',
+            '📞 DIALER INCLUIDO (Llamadas)',
+            'Grabación de Llamadas Salientes',
+            'Número Virtual (Opcional)'
+        ],
+        limit: '1200 min',
+        storage: '50 GB',
+        highlight: false,
+        cta: 'Obtener Business +',
+        priceId: {
+            monthly: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY || 'price_bizplus_monthly_id',
+            annual: import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL || 'price_bizplus_annual_id'
+        }
+    }
+];
+
 export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
     const { t } = useLanguage();
-
-    // --- Pricing Logic ---
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
-    const [currency, setCurrency] = useState<'USD' | 'EUR'>('USD');
+    const [currency, setCurrency] = useState<'USD' | 'EUR'>('EUR'); // Default to EUR as per prompt context implies Euro
 
-    // Simulated Exchange Rate
-    const EXCHANGE_RATE_USD_TO_EUR = 0.92;
+    const handleSubscribe = async (plan: typeof PLANS[0]) => {
+        if (plan.id === 'free') return; // Should handle downgrade logic or just ignore
 
-    const formatPrice = (priceInUSD: number): string => {
-        if (priceInUSD === 0) return t('freePrice');
+        const priceId = billingInterval === 'monthly' ? plan.priceId.monthly : plan.priceId.annual;
 
-        if (currency === 'USD') {
-            return `$${priceInUSD}`;
-        } else {
-            const eur = priceInUSD * EXCHANGE_RATE_USD_TO_EUR;
-            return `€${eur.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        }
-    };
-
-    // --- Plan Hierarchy Logic ---
-    const PLAN_LEVELS = {
-        'free': 0,
-        'pro': 1,
-        'business': 2,
-        'business_plus': 3
-    };
-
-    const currentLevel = PLAN_LEVELS[user.subscription?.planId || 'free'] || 0;
-
-    const getButtonLabel = (targetPlan: 'free' | 'pro' | 'business' | 'business_plus') => {
-        if (user.subscription?.planId === targetPlan) return t('currentPlan') || 'Current Plan';
-        const targetLevel = PLAN_LEVELS[targetPlan];
-        if (currentLevel > targetLevel) return t('downgrade') || 'Downgrade';
-        return t('subscribe');
-    };
-
-
-    const handleSubscribe = async (planType: 'pro' | 'business' | 'business_plus') => {
-        let priceId = '';
-
-        // Select Price ID based on Plan + Interval (Annual/Monthly)
-        // Note: In a real app, you'd have 6 Price IDs (3 plans * 2 intervals).
-        // For MVP, we'll assume Monthly IDs for now or use Env Vars mapping.
-
-        if (billingInterval === 'monthly') {
-            switch (planType) {
-                case 'pro':
-                    priceId = import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY;
-                    break;
-                case 'business':
-                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY;
-                    break;
-                case 'business_plus':
-                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY;
-                    break;
-            }
-        } else {
-            // Annual
-            switch (planType) {
-                case 'pro':
-                    priceId = import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL;
-                    break;
-                case 'business':
-                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL;
-                    break;
-                case 'business_plus':
-                    priceId = import.meta.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL;
-                    break;
-            }
-        }
-
-        if (!priceId) {
-            console.error(`Stripe Error: Price ID not configured for ${planType} ${billingInterval}`);
-            alert(t('errorSubscription') || "Checkout is currently unavailable for this plan. Please contact hello@diktalo.com");
+        if (!priceId || priceId.startsWith('price_')) {
+            console.error(`Stripe Configuration Error: Price ID missing for ${plan.name}`);
+            alert('Checkout configuration error. Please contact support.');
             return;
         }
 
@@ -101,9 +126,9 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
     };
 
     return (
-        <div className="flex flex-1 flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative transition-colors duration-200">
-            <header className="flex items-center justify-between border-b border-slate-200 dark:border-border-dark bg-white/80 dark:bg-[#111722]/80 backdrop-blur-md px-4 md:px-8 py-4 sticky top-0 z-20 transition-colors duration-200">
-                <h2 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">{t('plans')} & {t('subscription')}</h2>
+        <div className="flex flex-1 flex-col h-full overflow-hidden bg-slate-50 dark:bg-background-dark relative transition-colors duration-200">
+            <header className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 bg-white dark:bg-background-dark px-8 py-4 sticky top-0 z-20">
+                <h2 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Planes & Suscripción (v3.1)</h2>
                 <div className="flex items-center gap-3">
                     <ThemeToggle />
                     <LanguageSelector />
@@ -111,244 +136,95 @@ export const Plans: React.FC<PlansProps> = ({ user, onUpdateUser }) => {
             </header>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
-                <div className="mx-auto max-w-[1600px] flex flex-col gap-8">
+                <div className="mx-auto max-w-7xl flex flex-col gap-8">
 
-                    {/* Page Title & Intro */}
-                    <div className="flex flex-col gap-2">
-                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{t('plans')}</h1>
-                        <p className="text-slate-500 dark:text-text-secondary text-lg">{t('plansSubtitle')}</p>
+                    {/* Header */}
+                    <div className="text-center mb-4">
+                        <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2">Planes Simples y Transparentes</h1>
+                        <p className="text-slate-500 dark:text-slate-400">Elige la potencia que necesitas. Cambia o cancela cuando quieras.</p>
                     </div>
 
-                    {/* Current Plan Status - Using Gradient Background */}
-                    <div className="bg-gradient-brand p-[1px] rounded-xl shadow-lg">
-                        <div className="bg-white dark:bg-[#111722] p-6 rounded-[11px] flex flex-col md:flex-row items-center justify-between gap-4 h-full relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-brand opacity-20"></div>
-                            <div className="z-10">
-                                <p className="text-transparent bg-clip-text bg-gradient-brand font-bold text-sm mb-1">{t('currentPlan')}</p>
-                                <h3 className="text-3xl font-black text-slate-900 dark:text-white capitalize tracking-tight">{user.subscription.planId === 'business_plus' ? t('planBizPlus') : user.subscription.planId === 'business' ? t('planBiz') : user.subscription.planId === 'pro' ? t('planPro') : t('planFree')}</h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                                    {user.subscription.planId === 'free'
-                                        ? t('usageMinutes')
-                                            .replace('{used}', user.subscription.minutesUsed.toString())
-                                            .replace('{limit}', user.subscription.minutesLimit.toString())
-                                        : t('unlimitedAccess')}
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-4 z-10">
-                                <div className="text-right">
-                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${user.subscription.status === 'active' ? 'bg-brand-green/10 text-brand-green border-brand-green/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
-                                        {user.subscription.status.toUpperCase()}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Controls Row */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-6">
-                        {/* Currency Toggle */}
-                        <div className="flex items-center gap-2 bg-white dark:bg-surface-dark p-1 rounded-lg border border-slate-200 dark:border-border-dark shadow-sm">
-                            <button
-                                onClick={() => setCurrency('USD')}
-                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${currency === 'USD' ? 'bg-brand-blue text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
-                                USD ($)
-                            </button>
-                            <button
-                                onClick={() => setCurrency('EUR')}
-                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${currency === 'EUR' ? 'bg-brand-blue text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
-                                EUR (€)
-                            </button>
-                        </div>
-
-                        {/* Interval Toggle */}
-                        <div className="bg-white dark:bg-surface-dark p-1 rounded-xl border border-slate-200 dark:border-border-dark inline-flex shadow-sm">
+                    {/* Controls */}
+                    <div className="flex justify-center mb-8">
+                        <div className="bg-white dark:bg-white/5 p-1 rounded-xl border border-slate-200 dark:border-white/10 inline-flex shadow-sm">
                             <button
                                 onClick={() => setBillingInterval('monthly')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${billingInterval === 'monthly' ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>
-                                {t('monthly')}
+                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${billingInterval === 'monthly' ? 'bg-slate-200 dark:bg-white text-slate-900 dark:text-slate-900 shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'}`}>
+                                Mensual
                             </button>
                             <button
                                 onClick={() => setBillingInterval('annual')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${billingInterval === 'annual' ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>
-                                {t('annual')}
-                                <span className="text-[10px] bg-brand-green text-slate-900 px-1.5 rounded font-bold">{t('save20')}</span>
+                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${billingInterval === 'annual' ? 'bg-slate-200 dark:bg-white text-slate-900 dark:text-slate-900 shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'}`}>
+                                Anual
+                                <span className="text-[10px] bg-green-500 text-white px-1.5 rounded font-bold">-20-30%</span>
                             </button>
                         </div>
                     </div>
 
+                    {/* Plans Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+                        {PLANS.map((plan) => {
+                            const isCurrent = user.subscription?.planId === plan.id;
+                            const price = billingInterval === 'monthly' ? plan.price.monthly : plan.price.annual;
+                            const isRecommended = plan.highlight;
 
-
-
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                        {/* 1. FREE PLAN - GREY */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl ${user.subscription.planId === 'free' ? 'border-brand-grey ring-1 ring-brand-grey shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-grey/50'}`}>
-                            <div className="h-2 w-full bg-brand-grey"></div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h4 className="text-lg font-bold text-brand-grey dark:text-slate-200">{t('freeTitle')}</h4>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('freeDesc')}</p>
-                                    </div>
-                                    {user.subscription.planId === 'free' && <span className="bg-brand-grey text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase">Active</span>}
-                                </div>
-
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">{formatPrice(0)}</p>
-                                    <p className="text-slate-400 text-[10px] mt-1 uppercase tracking-wide font-medium">{t('currency')}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('freeF1'), t('freeF2'), t('freeF3')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-xs">
-                                                <span className="material-symbols-outlined text-brand-grey dark:text-slate-400 text-sm font-bold">check</span>
-                                                <span className="leading-tight">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button disabled={user.subscription.planId === 'free'} className="w-full py-3 rounded-xl border border-brand-grey text-brand-grey dark:text-slate-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-xs uppercase tracking-wider">
-                                    {getButtonLabel('free')}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 2. PRO PLAN - VIOLET (#8F53ED) */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'pro' ? 'border-brand-violet ring-1 ring-brand-violet shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-violet/50'}`}>
-                            <div className="h-2 w-full bg-brand-violet"></div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="text-lg font-bold text-slate-900 dark:text-white">{t('proTitle')}</h4>
-                                            <span className="text-[10px] font-bold text-white bg-brand-violet px-2 py-0.5 rounded-full">{t('proBadge')}</span>
+                            return (
+                                <div key={plan.id} className={`relative bg-white dark:bg-white/5 rounded-3xl p-8 border transition-all duration-300 flex flex-col h-full ${isRecommended ? 'border-brand-violet ring-2 ring-brand-violet/20 shadow-xl scale-105 z-10' : 'border-slate-200 dark:border-white/10 hover:border-brand-violet/50'}`}>
+                                    {isRecommended && (
+                                        <div className="absolute top-0 right-0 left-0 bg-brand-violet text-white text-[10px] font-black uppercase tracking-widest text-center py-1 rounded-t-2xl">
+                                            Recomendado
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('proDesc')}</p>
+                                    )}
+
+                                    <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">{plan.name}</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 h-8">{plan.description}</p>
+
+                                    <div className="mb-6">
+                                        <span className="text-4xl font-black text-slate-900 dark:text-white">€{price}</span>
+                                        <span className="text-slate-400 font-bold ml-1 text-xs">/mes</span>
+                                        {billingInterval === 'annual' && (
+                                            <p className="text-[10px] text-green-500 font-bold mt-1">
+                                                Facturado €{price * 12}/año (Ahorro incluido)
+                                            </p>
+                                        )}
                                     </div>
-                                </div>
 
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 12 : 15)}
-                                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
-                                    </p>
-                                    <p className="text-slate-500 text-[10px] mt-1 uppercase font-black tracking-widest">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('proF1'), t('proF2'), t('proF3'), t('proF4')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
-                                                <span className="material-symbols-outlined text-brand-violet text-sm font-bold">check</span>
-                                                <span className="leading-tight">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button
-                                    onClick={() => handleSubscribe('pro')}
-                                    disabled={user.subscription.planId === 'pro'}
-                                    className="w-full py-3 rounded-xl bg-brand-violet hover:bg-[#7a42d1] text-white font-bold transition-colors text-xs uppercase tracking-wider shadow-md shadow-brand-violet/20 disabled:opacity-50 disabled:cursor-default">
-                                    {getButtonLabel('pro')}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 3. BUSINESS - BLUE (#2CA3FF) */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'business' ? 'border-brand-blue ring-1 ring-brand-blue shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-blue/50'}`}>
-                            <div className="h-2 w-full bg-brand-blue"></div>
-                            <div className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="text-lg font-bold text-slate-900 dark:text-white">{t('bizTitle')}</h4>
-                                            <span className="text-[10px] font-bold text-white bg-brand-blue px-2 py-0.5 rounded-full">{t('bizBadge')}</span>
+                                    <div className="flex items-center gap-4 mb-6 border-y border-slate-100 dark:border-white/5 py-4">
+                                        <div>
+                                            <p className="text-[10px] uppercase text-slate-400 font-bold">Límite</p>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white">{plan.limit}</p>
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px]">{t('bizDesc')}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 19 : 25)}
-                                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
-                                    </p>
-                                    <p className="text-slate-500 text-[10px] mt-1 uppercase font-black tracking-widest">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('bizF1'), t('bizF2'), t('bizF3'), t('bizF4')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
-                                                <span className="material-symbols-outlined text-brand-blue text-sm font-bold">verified</span>
-                                                <span className="leading-tight font-medium">{feat}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button
-                                    onClick={() => handleSubscribe('business')}
-                                    disabled={user.subscription.planId === 'business'}
-                                    className="w-full py-3 rounded-xl bg-brand-blue hover:bg-[#208ade] text-white font-bold transition-all shadow-md shadow-brand-blue/25 text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-default">
-                                    {getButtonLabel('business')}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 4. BUSINESS + CALLS - GREEN (#39F672) */}
-                        <div className={`rounded-3xl border flex flex-col transition-all duration-300 bg-white dark:bg-surface-dark overflow-hidden hover:shadow-xl relative transform hover:-translate-y-1 ${user.subscription.planId === 'business_plus' ? 'border-brand-green ring-1 ring-brand-green shadow-lg' : 'border-slate-200 dark:border-border-dark hover:border-brand-green/50'}`}>
-                            <div className="h-2 w-full bg-brand-green"></div>
-                            <div className="p-6 flex flex-col h-full bg-gradient-to-b from-brand-green/5 to-transparent">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <h4 className="text-lg font-black text-slate-900 dark:text-white">{t('bizPlusTitle')}</h4>
-                                            <span className="text-[10px] font-bold text-slate-900 bg-brand-green px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">{t('bizPlusBadge')}</span>
+                                        <div className="w-px h-8 bg-slate-200 dark:bg-white/10"></div>
+                                        <div>
+                                            <p className="text-[10px] uppercase text-slate-400 font-bold">Storage</p>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white">{plan.storage}</p>
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 min-h-[32px]">{t('bizPlusDesc')}</p>
                                     </div>
-                                </div>
 
-                                <div className="mt-4 mb-6">
-                                    <p className="text-3xl font-black text-slate-900 dark:text-white">
-                                        {formatPrice(billingInterval === 'annual' ? 35 : 45)}
-                                        <span className="text-sm font-normal text-slate-500 dark:text-slate-400">/mo</span>
-                                    </p>
-                                    <p className="text-slate-500 text-[10px] mt-1 uppercase font-black tracking-widest">{billingInterval === 'annual' ? 'Billed annually' : 'Billed monthly'}</p>
-                                </div>
-
-                                <div className="flex-1">
-                                    <ul className="flex flex-col gap-3 mb-8">
-                                        {[t('bizPlusF1'), t('bizPlusF2'), t('bizPlusF3'), t('bizPlusF4')].map((feat, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-slate-700 dark:text-white text-xs">
-                                                <span className="material-symbols-outlined text-brand-green text-sm font-bold">stars</span>
-                                                <span className="leading-tight font-bold">{feat}</span>
+                                    <ul className="space-y-3 mb-8 flex-grow">
+                                        {plan.features.map((feature, idx) => (
+                                            <li key={idx} className="flex items-start gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                                                <span className={`material-symbols-outlined text-sm ${isRecommended ? 'text-brand-violet' : 'text-slate-400'}`}>check</span>
+                                                <span>{feature}</span>
                                             </li>
                                         ))}
                                     </ul>
+
+                                    <button
+                                        onClick={() => handleSubscribe(plan)}
+                                        disabled={isCurrent}
+                                        className={`w-full py-3 rounded-xl font-bold uppercase tracking-wider text-[10px] transition-all ${isCurrent
+                                                ? 'bg-slate-100 dark:bg-white/10 text-slate-400 cursor-default'
+                                                : isRecommended
+                                                    ? 'bg-brand-violet text-white hover:bg-brand-violet/90 shadow-lg shadow-brand-violet/20'
+                                                    : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90'
+                                            }`}
+                                    >
+                                        {isCurrent ? 'Plan Actual' : plan.cta}
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => handleSubscribe('business_plus')}
-                                    disabled={user.subscription.planId === 'business_plus'}
-                                    className="w-full py-3 rounded-xl bg-brand-green hover:bg-brand-green/90 text-slate-900 font-bold transition-all shadow-md shadow-brand-green/25 text-xs uppercase tracking-wider transform group-hover:scale-105 disabled:opacity-50 disabled:cursor-default disabled:transform-none">
-                                    {getButtonLabel('business_plus')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Zone 1 Disclaimer Footer */}
-                    <div className="mt-12 text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">{t('zone1Title')}</span>
-                            <br />
-                            {t('zone1Countries')}
-                        </p>
-
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-6 max-w-3xl mx-auto leading-relaxed">
-                            {t('zone1Disclaimer')}
-                        </p>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

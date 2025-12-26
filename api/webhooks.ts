@@ -7,11 +7,11 @@ export const config = {
     },
 };
 
-// Plan Limits Configuration (Diktalo v2.1)
+// Plan Limits Configuration (Diktalo v3.1)
 const PLAN_LIMITS = {
     free: {
         minutes: 24,
-        storageBytes: 0, // No storage limit, only retention-based
+        storageBytes: 0,
         retentionDays: 7,
         canDownload: false,
         allowCalls: false
@@ -125,12 +125,13 @@ export default async function handler(req, res) {
             }
 
             // PLAN LOGIC - Map Stripe amount to plan ID
+            // Logic Update v3.1: Pro (>1000), Biz (>1800), Biz+ (>3000)
             let planId: 'pro' | 'business' | 'business_plus' = 'pro';
             const amount = session.amount_total || 0;
 
-            if (amount >= 3000) planId = 'business_plus';      // $30+ → Business+ (1200 min)
-            else if (amount >= 1500) planId = 'business';      // $15+ → Business (600 min)
-            else planId = 'pro';                               // Default to pro for $8-$14
+            if (amount >= 3000) planId = 'business_plus';      // $30+ -> Business+
+            else if (amount >= 1800) planId = 'business';      // $18+ -> Business
+            else planId = 'pro';                               // Default -> Pro
 
             // Get plan configuration
             const planConfig = PLAN_LIMITS[planId];
