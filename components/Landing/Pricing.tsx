@@ -1,108 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Check, Info } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-// Scarcity Hook (Melting Stock)
-const useScarcity = () => {
-    const [stock, setStock] = useState(89);
+// Hook para obtener escasez REAL desde el backend
+const useRealScarcity = (code: string) => {
+    const [data, setData] = useState<any>(null);
 
     useEffect(() => {
-        // Initialize from localStorage or random
-        const stored = localStorage.getItem('diktalo_early_bird_stock');
-        const lastUpdate = localStorage.getItem('diktalo_early_bird_update');
-        const now = Date.now();
-
-        // Default range 85-95 if new
-        let currentStock = stored ? parseInt(stored) : Math.floor(Math.random() * (95 - 85) + 85);
-
-        if (lastUpdate) {
-            // Decay based on time elapsed if valid
-            const elapsed = now - parseInt(lastUpdate);
-            const drops = Math.floor(elapsed / (45 * 1000)); // approx 1 drop per 45s
-            if (drops > 0) {
-                currentStock = Math.max(3, currentStock - drops);
+        const fetchScarcity = async () => {
+            try {
+                const res = await fetch(`/api/coupon-status?code=${code}`);
+                const json = await res.json();
+                if (json.active) setData(json);
+            } catch (e) {
+                console.error("Error fetching scarcity:", e);
             }
-        }
-
-        setStock(currentStock);
-
-        // Decay Interval
-        const interval = setInterval(() => {
-            setStock(prev => {
-                const next = Math.max(3, prev - 1);
-                localStorage.setItem('diktalo_early_bird_stock', next.toString());
-                localStorage.setItem('diktalo_early_bird_update', Date.now().toString());
-                return next;
-            });
-        }, Math.random() * (90000 - 45000) + 45000); // Random decay 45-90s
-
+        };
+        fetchScarcity();
+        // Actualizar cada 60s para mantener vivo el contador
+        const interval = setInterval(fetchScarcity, 60000);
         return () => clearInterval(interval);
-    }, []);
+    }, [code]);
 
-    return stock;
+    return data;
 };
 
-// DEFINICIÓN DE PLANES (Debe coincidir EXACTAMENTE con Pages/Plans.tsx)
+// PLANES DE LANDING (Sincronizados con la realidad rentable)
 const LANDING_PLANS = [
-    {
-        id: 'free',
-        name: 'Free',
-        price: { monthly: 0, annual: 0 },
-        description: 'Para probar la magia de Diktalo.',
-        features: [
-            '24 min/mes de transcripción',
-            'Historial de 7 días',
-            'Grabación de Micrófono',
-            '1 Usuario'
-        ],
-        highlight: false,
-        badge: null,
-        cta: 'Comenzar Gratis'
-    },
     {
         id: 'pro',
         name: 'Pro',
-        price: { monthly: 12, annual: 9 },
+        price: { monthly: 15, annual: 12 }, // 144€/año
         description: 'Para profesionales independientes.',
         features: [
-            '300 min/mes (~5 horas)',
-            '5 GB Almacenamiento Cloud',
+            '300 min/mes Transcripción (IA)',
+            '5 GB Almacenamiento',
             'Grabación Mic + Sistema',
             'Chat con Grabación (IA)',
-            'Descarga de Audio Original'
+            'Descarga de Audio'
         ],
         highlight: true,
-        badge: 'PERSONAL',
-        cta: 'Mejorar a Pro'
+        badge: 'POPULAR',
+        cta: 'Empezar con Pro'
     },
     {
         id: 'business',
         name: 'Business',
-        price: { monthly: 19, annual: 15 },
+        price: { monthly: 25, annual: 19 }, // 225€/año aprox (ajustado visualmente)
         description: 'Para power users y managers.',
         features: [
-            'Todo lo de Pro incluido',
-            '600 min/mes (~10 horas)',
-            '20 GB Almacenamiento Cloud',
+            '600 min/mes Transcripción (IA)',
+            '20 GB Almacenamiento',
             'Soporte Prioritario',
-            'Panel de Gestión de Equipo'
+            'Panel de Gestión de Equipo',
+            'Todo lo de Pro incluido'
         ],
         highlight: false,
-        badge: 'EQUIPOS',
+        badge: null,
         cta: 'Ir a Business'
     },
     {
         id: 'business_plus',
         name: 'Business + Call',
-        price: { monthly: 35, annual: 25 },
+        price: { monthly: 50, annual: 35 }, // 420€/año
         description: 'La suite completa de comunicación.',
         features: [
-            'Todo lo de Business incluido',
-            '1200 min/mes (~20 horas)',
-            '50 GB Almacenamiento Cloud',
-            '📞 DIALER INCLUIDO (Calls)',
-            'Grabación de Llamadas Salientes',
-            'Número Virtual (Opcional)'
+            '1200 min/mes Transcripción (IA)',
+            '300 min/mes Llamadas (Dialer)',
+            '50 GB Almacenamiento',
+            '📞 DIALER INCLUIDO',
+            'Grabación de Llamadas Salientes'
         ],
         highlight: false,
         badge: 'EMPRESA',
@@ -113,120 +81,105 @@ const LANDING_PLANS = [
 export const Pricing: React.FC = () => {
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
-    const remainingStock = useScarcity();
 
-    const planVariants = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.1 } }
-    };
+    // Conectar al cupón EARLY100 (El de 15% extra para Pro/Biz)
+    const scarcity = useRealScarcity('EARLY100');
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-24 relative">
-            {/* Background Gradients */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl bg-gradient-to-r from-primary/10 to-brand-violet/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 py-24 relative" id="pricing">
+            <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-slate-900 mb-4">
+                    Planes Flexibles y Transparentes
+                </h2>
+                <p className="text-xl text-slate-600">
+                    Sin costes ocultos. Cancela cuando quieras.
+                </p>
 
-            <div className="text-center mb-16 relative z-10">
-                <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Planes</h2>
-                <h3 className="text-3xl md:text-5xl font-display font-bold text-slate-900 dark:text-white tracking-tight mb-8">
-                    Precios simples y transparentes
-                </h3>
-
-                {/* Toggle */}
-                <div className="inline-flex bg-slate-100 dark:bg-white/5 p-1 rounded-full border border-slate-200 dark:border-white/10 relative">
+                {/* Toggle Anual */}
+                <div className="mt-8 flex justify-center items-center gap-4">
+                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold' : 'text-slate-500'}`}>Mensual</span>
                     <button
-                        onClick={() => setBillingInterval('monthly')}
-                        className={`px-6 py-2 rounded-full text-xs font-bold transition-all z-10 ${billingInterval === 'monthly' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                        onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
+                        className={`relative w-14 h-8 rounded-full transition-colors ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-slate-300'}`}
                     >
-                        Mensual
+                        <motion.div
+                            className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow"
+                            animate={{ x: billingInterval === 'annual' ? 24 : 0 }}
+                        />
                     </button>
-                    <button
-                        onClick={() => setBillingInterval('annual')}
-                        className={`px-6 py-2 rounded-full text-xs font-bold transition-all z-10 ${billingInterval === 'annual' ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}
-                    >
-                        Anual <span className="text-green-500 ml-1">-20-30%</span>
-                    </button>
-
-                    {/* Animated Pill */}
-                    <motion.div
-                        layout
-                        className="absolute top-1 bottom-1 bg-white dark:bg-white/10 rounded-full shadow-sm"
-                        initial={false}
-                        animate={{
-                            left: billingInterval === 'monthly' ? '4px' : '50%',
-                            right: billingInterval === 'monthly' ? '50%' : '4px',
-                            x: billingInterval === 'annual' ? 0 : 0
-                        }}
-                    />
+                    <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold' : 'text-slate-500'}`}>
+                        Anual <span className="text-green-600 font-bold ml-1">-30%</span>
+                    </span>
                 </div>
+
+                {/* BARRA DE ESCASEZ (Solo visible si hay cupón activo y es pago anual) */}
+                {scarcity && scarcity.remaining && billingInterval === 'annual' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-8 max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-3"
+                    >
+                        <div className="flex justify-between text-sm font-bold text-red-700 mb-1">
+                            <span>🔥 OFERTA DE LANZAMIENTO ({scarcity.percent_off}% EXTRA)</span>
+                            <span>Quedan {scarcity.remaining}</span>
+                        </div>
+                        <div className="w-full bg-red-200 rounded-full h-2.5">
+                            <div
+                                className="bg-red-600 h-2.5 rounded-full transition-all duration-1000"
+                                style={{ width: `${(scarcity.remaining / scarcity.total) * 100}%` }}
+                            ></div>
+                        </div>
+                        <p className="text-xs text-red-600 mt-1">
+                            Usa el código <b>{scarcity.code}</b> al pagar anualmente.
+                        </p>
+                    </motion.div>
+                )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                {LANDING_PLANS.map((plan) => {
-                    const price = billingInterval === 'monthly' ? plan.price.monthly : plan.price.annual;
+            {/* Grid de Planes */}
+            <div className="grid md:grid-cols-3 gap-8">
+                {LANDING_PLANS.map((plan) => (
+                    <div key={plan.id} className={`relative p-8 bg-white rounded-2xl shadow-lg border ${plan.highlight ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'}`}>
+                        {plan.badge && (
+                            <span className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
+                                {plan.badge}
+                            </span>
+                        )}
+                        <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
+                        <p className="text-sm text-slate-500 mt-2 h-10">{plan.description}</p>
 
-                    return (
-                        <motion.div
-                            key={plan.id}
-                            variants={planVariants}
-                            initial="hidden"
-                            whileInView="show"
-                            viewport={{ once: true }}
-                            className={`relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-8 rounded-3xl border flex flex-col transition-colors ${plan.highlight
-                                ? 'border-brand-violet/50 dark:border-brand-violet/50 hover:border-brand-violet ring-4 ring-brand-violet/10 transform md:-translate-y-4 z-10'
-                                : 'border-slate-200/50 dark:border-white/10 hover:border-primary/30'
+                        <div className="my-6">
+                            <span className="text-4xl font-extrabold text-slate-900">
+                                {billingInterval === 'annual' ? plan.price.annual : plan.price.monthly}€
+                            </span>
+                            <span className="text-slate-500">/mes</span>
+                            {billingInterval === 'annual' && (
+                                <p className="text-xs text-green-600 mt-1 font-semibold">
+                                    Facturado {plan.price.annual * 12}€ anualmente
+                                </p>
+                            )}
+                        </div>
+
+                        <a
+                            href="/login" // Redirige al login/registro
+                            className={`block w-full py-3 px-4 rounded-lg text-center font-bold transition-all ${plan.highlight
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                                 }`}
                         >
-                            {plan.highlight && (
-                                <>
-                                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl animate-pulse z-20">
-                                        🔥 Early Bird Offer
-                                    </div>
-                                </>
-                            )}
+                            {plan.cta}
+                        </a>
 
-                            <h3 className="text-base font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">{plan.name}</h3>
-                            {plan.badge && <p className={`text-xs font-bold mb-4 ${plan.highlight ? 'text-brand-violet' : 'text-blue-500'}`}>{plan.badge}</p>}
-
-                            {/* Scarcity Bar for Pro only */}
-                            {plan.id === 'pro' && (
-                                <div className="mb-6 bg-slate-100 dark:bg-white/5 p-3 rounded-lg border border-slate-200 dark:border-white/10">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Coupon: <span className="text-slate-900 dark:text-white font-black select-all cursor-pointer" onClick={() => navigator.clipboard.writeText('EARLY50')}>EARLY50</span></span>
-                                        <span className="text-[10px] uppercase font-bold text-red-500">{remainingStock} spots left</span>
-                                    </div>
-                                    <div className="h-1.5 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: '100%' }}
-                                            animate={{ width: `${remainingStock}%` }}
-                                            className={`h-full rounded-full ${remainingStock < 10 ? 'bg-red-500' : 'bg-green-500'}`}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="mb-8">
-                                <span className="text-4xl font-black text-slate-900 dark:text-white">€{price}</span>
-                                <span className="text-slate-400 font-bold ml-2">/mes</span>
-                            </div>
-
-                            <ul className="space-y-4 mb-8 flex-grow">
-                                {plan.features.map(f => (
-                                    <li key={f} className={`flex items-start gap-3 text-xs font-medium ${plan.highlight ? 'text-slate-600 dark:text-slate-400 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>
-                                        <span className={`material-symbols-outlined text-lg ${plan.highlight ? 'text-brand-violet' : 'text-slate-400'}`}>check_circle</span>
-                                        <span className="leading-tight">{f}</span>
-                                    </li>
-                                ))}
-                            </ul>
-
-                            <a href="/login" className={`block w-full py-4 text-center rounded-2xl font-black transition-all uppercase tracking-wide text-[10px] ${plan.highlight
-                                ? 'bg-brand-violet text-white hover:bg-brand-violet/90 shadow-lg shadow-brand-violet/20 active:scale-95'
-                                : 'bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10'
-                                }`}>
-                                {plan.cta}
-                            </a>
-                        </motion.div>
-                    );
-                })}
+                        <ul className="mt-8 space-y-4">
+                            {plan.features.map((feature, i) => (
+                                <li key={i} className="flex items-start">
+                                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                                    <span className="text-sm text-slate-600">{feature}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
         </div>
     );

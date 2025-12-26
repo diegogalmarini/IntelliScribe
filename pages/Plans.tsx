@@ -39,9 +39,9 @@ const PLANS_DATA = [
         id: 'pro',
         name: 'Pro',
         prices: {
-            EUR: { monthly: 12, annual: 9 }, // 12€/mes | 9€/mes anual (108€)
-            USD: { monthly: 13, annual: 10 },
-            GBP: { monthly: 10, annual: 8 }
+            EUR: { monthly: 15, annual: 12 },
+            USD: { monthly: 16, annual: 13 },
+            GBP: { monthly: 13, annual: 10 }
         },
         description: 'Para profesionales independientes.',
         features: [
@@ -62,9 +62,9 @@ const PLANS_DATA = [
         id: 'business',
         name: 'Business',
         prices: {
-            EUR: { monthly: 19, annual: 15 }, // 19€/mes | 15€/mes anual (180€)
-            USD: { monthly: 21, annual: 17 },
-            GBP: { monthly: 16, annual: 13 }
+            EUR: { monthly: 25, annual: 19 },
+            USD: { monthly: 26, annual: 20 },
+            GBP: { monthly: 21, annual: 16 }
         },
         description: 'Para power users y managers.',
         features: [
@@ -85,9 +85,9 @@ const PLANS_DATA = [
         id: 'business_plus',
         name: 'Business + Call',
         prices: {
-            EUR: { monthly: 35, annual: 25 }, // 35€/mes | 25€/mes anual (300€)
-            USD: { monthly: 39, annual: 28 },
-            GBP: { monthly: 30, annual: 22 }
+            EUR: { monthly: 50, annual: 35 },
+            USD: { monthly: 52, annual: 37 },
+            GBP: { monthly: 42, annual: 30 }
         },
         description: 'La suite completa de comunicación.',
         features: [
