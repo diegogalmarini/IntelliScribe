@@ -8,11 +8,22 @@ import { useLanguage } from '../contexts/LanguageContext';
 // Inicializar Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-const PLANS = [
+// Configuración de visualización de moneda
+const CURRENCIES = {
+    EUR: { symbol: '€', label: 'EUR', rate: 1 },
+    USD: { symbol: '$', label: 'USD', rate: 1.05 }, // Paridad aproximada SaaS
+    GBP: { symbol: '£', label: 'GBP', rate: 0.85 }
+};
+
+const PLANS_DATA = [
     {
         id: 'free',
         name: 'Free',
-        price: { monthly: 0, annual: 0 },
+        prices: {
+            EUR: { monthly: 0, annual: 0 },
+            USD: { monthly: 0, annual: 0 },
+            GBP: { monthly: 0, annual: 0 }
+        },
         description: 'Para probar la magia de Diktalo.',
         features: [
             '24 min/mes de transcripción',
@@ -27,8 +38,11 @@ const PLANS = [
     {
         id: 'pro',
         name: 'Pro',
-        // ⚠️ AJUSTA ESTE TEXTO VISUAL A TU PRECIO REAL DE STRIPE
-        price: { monthly: 15, annual: 12 },
+        prices: {
+            EUR: { monthly: 15, annual: 12 },
+            USD: { monthly: 15, annual: 12 },
+            GBP: { monthly: 12, annual: 10 }
+        },
         description: 'Para profesionales independientes.',
         features: [
             '300 min/mes (~5 horas)',
@@ -47,11 +61,14 @@ const PLANS = [
     {
         id: 'business',
         name: 'Business',
-        // ⚠️ AJUSTA ESTE TEXTO VISUAL A TU PRECIO REAL DE STRIPE
-        price: { monthly: 25, annual: 18.75 },
+        prices: {
+            EUR: { monthly: 25, annual: 18.75 },
+            USD: { monthly: 29, annual: 24 },
+            GBP: { monthly: 22, annual: 18 }
+        },
         description: 'Para power users y managers.',
         features: [
-            'Todo lo de Pro incluido', // MOVED TO TOP
+            'Todo lo de Pro incluido',
             '600 min/mes (~10 horas)',
             '20 GB Almacenamiento Cloud',
             'Soporte Prioritario',
@@ -67,11 +84,14 @@ const PLANS = [
     {
         id: 'business_plus',
         name: 'Business + Call',
-        // ⚠️ AJUSTA ESTE TEXTO VISUAL A TU PRECIO REAL DE STRIPE
-        price: { monthly: 50, annual: 35 },
+        prices: {
+            EUR: { monthly: 50, annual: 35 },
+            USD: { monthly: 55, annual: 39 },
+            GBP: { monthly: 45, annual: 32 }
+        },
         description: 'La suite completa de comunicación.',
         features: [
-            'Todo lo de Business incluido', // MOVED TO TOP
+            'Todo lo de Business incluido',
             '1200 min/mes (~20 horas)',
             '50 GB Almacenamiento Cloud',
             '📞 DIALER INCLUIDO (Llamadas)',
@@ -91,6 +111,7 @@ export function Plans() {
     const { user, session } = useAuth();
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
+    const [currency, setCurrency] = useState<'EUR' | 'USD' | 'GBP'>('EUR');
     const [loading, setLoading] = useState<string | null>(null);
 
     const handleSubscribe = async (priceId: string, planId: string) => {
@@ -98,22 +119,21 @@ export function Plans() {
             window.location.href = '/login';
             return;
         }
-        if (planId === 'free') return; // Lógica para cancelar o downgrade manual si se requiere
+        if (planId === 'free') return;
 
         setLoading(planId);
         try {
-            // Llamada al backend para crear sesión de Checkout
             const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}` // Asumiendo que pasas el token
+                    'Authorization': `Bearer ${session?.access_token}`
                 },
                 body: JSON.stringify({
                     priceId,
                     userId: user.id,
                     email: user.email,
-                    planId // Enviamos el ID del plan para referencia
+                    planId
                 })
             });
 
@@ -134,7 +154,7 @@ export function Plans() {
 
     return (
         <div className="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark overflow-hidden relative h-screen transition-colors duration-200">
-            {/* Header (Restored from Dashboard Style) */}
+            {/* Header */}
             <header className="h-auto flex flex-row items-center justify-between px-4 py-4 md:px-8 md:py-6 border-b border-slate-200 dark:border-border-dark bg-white/50 dark:bg-background-dark/80 backdrop-blur-sm z-10 transition-colors duration-200">
                 <div className="flex flex-col">
                     <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -148,17 +168,51 @@ export function Plans() {
                 </div>
             </header>
 
-            {/* Content (Scalable Container) */}
+            {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth w-full">
                 <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-10" style={{ zoom: 0.9 }}>
 
-                    <div className="text-center">
+                    <div className="text-center relative">
                         <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
                             Planes Flexibles para tu Crecimiento
                         </h2>
                         <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
                             Elige el plan que mejor se adapte a tus necesidades de transcripción y análisis.
                         </p>
+
+                        {/* Selector de Moneda (Absolute Right) */}
+                        <div className="absolute top-0 right-0 hidden lg:flex bg-white dark:bg-surface-dark rounded-lg p-1 border border-gray-200 dark:border-white/10 shadow-sm">
+                            {(Object.keys(CURRENCIES) as Array<keyof typeof CURRENCIES>).map((curr) => (
+                                <button
+                                    key={curr}
+                                    onClick={() => setCurrency(curr)}
+                                    className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${currency === curr
+                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5'
+                                        }`}
+                                >
+                                    {curr}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Mobile Currency Selector (Visible on small screens) */}
+                        <div className="lg:hidden mt-4 flex justify-center">
+                            <div className="flex bg-white dark:bg-surface-dark rounded-lg p-1 border border-gray-200 dark:border-white/10 shadow-sm">
+                                {(Object.keys(CURRENCIES) as Array<keyof typeof CURRENCIES>).map((curr) => (
+                                    <button
+                                        key={curr}
+                                        onClick={() => setCurrency(curr)}
+                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${currency === curr
+                                            ? 'bg-blue-600 text-white shadow-sm'
+                                            : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5'
+                                            }`}
+                                    >
+                                        {curr}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
 
                         {/* Toggle Mensual / Anual */}
                         <div className="mt-6 flex justify-center items-center space-x-4">
@@ -177,7 +231,7 @@ export function Plans() {
 
                     {/* Tarjetas de Precios */}
                     <div className="mt-8 space-y-4 sm:mt-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-4">
-                        {PLANS.map((plan) => (
+                        {PLANS_DATA.map((plan) => (
                             <div key={plan.id} className={`rounded-lg shadow-lg divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-surface-dark flex flex-col ${plan.highlight ? 'border-2 border-blue-500 relative' : 'border border-gray-200 dark:border-white/10'}`}>
                                 {plan.highlight && (
                                     <div className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full uppercase tracking-wide">
@@ -189,13 +243,13 @@ export function Plans() {
                                     <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">{plan.description}</p>
                                     <p className="mt-8">
                                         <span className="text-4xl font-extrabold text-gray-900 dark:text-white">
-                                            {billingInterval === 'annual' ? plan.price.annual : plan.price.monthly}€
+                                            {CURRENCIES[currency].symbol}{billingInterval === 'annual' ? plan.prices[currency].annual : plan.prices[currency].monthly}
                                         </span>
                                         <span className="text-base font-medium text-gray-500 dark:text-gray-400">/mes</span>
                                     </p>
-                                    {billingInterval === 'annual' && plan.price.annual > 0 && (
+                                    {billingInterval === 'annual' && plan.prices[currency].annual > 0 && (
                                         <p className="text-xs text-green-600 mt-1 font-semibold">
-                                            Facturado {plan.price.annual * 12}€ anualmente
+                                            Facturado {CURRENCIES[currency].symbol}{plan.prices[currency].annual * 12} anualmente
                                         </p>
                                     )}
 
