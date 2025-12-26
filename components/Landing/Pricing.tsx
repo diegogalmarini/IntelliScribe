@@ -62,7 +62,7 @@ const LANDING_PLANS = [
     {
         id: 'pro',
         name: 'Pro',
-        price: { monthly: 15, annual: 12 },
+        price: { monthly: 12, annual: 9 },
         description: 'Para profesionales independientes.',
         features: [
             '300 min/mes (~5 horas)',
@@ -78,7 +78,7 @@ const LANDING_PLANS = [
     {
         id: 'business',
         name: 'Business',
-        price: { monthly: 25, annual: 18.75 },
+        price: { monthly: 19, annual: 15 },
         description: 'Para power users y managers.',
         features: [
             'Todo lo de Pro incluido',
@@ -94,13 +94,13 @@ const LANDING_PLANS = [
     {
         id: 'business_plus',
         name: 'Business + Call',
-        price: { monthly: 50, annual: 35 },
+        price: { monthly: 35, annual: 25 },
         description: 'La suite completa de comunicación.',
         features: [
             'Todo lo de Business incluido',
             '1200 min/mes (~20 horas)',
             '50 GB Almacenamiento Cloud',
-            '📞 DIALER INCLUIDO (Llamadas)',
+            '📞 DIALER INCLUIDO (Calls)',
             'Grabación de Llamadas Salientes',
             'Número Virtual (Opcional)'
         ],
