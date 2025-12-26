@@ -4,6 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Footer } from '../components/Footer';
 
 // Inicializar Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
@@ -121,6 +122,13 @@ export function Plans() {
         }
         if (planId === 'free') {
             window.location.href = '/dashboard';
+            return;
+        }
+
+
+        if (!priceId) {
+            console.error('Price ID missing. Check env vars.');
+            alert('Error de configuración: El ID del precio no está disponible. Contacta soporte.');
             return;
         }
 
