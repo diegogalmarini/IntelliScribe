@@ -33,6 +33,13 @@ const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default
 const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
 const AdminPlans = lazy(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor }))); // <--- NUEVO
 
+// --- Wrapper para páginas que necesitan scroll (FIX VISUAL) ---
+const ScrollablePage = ({ children }: { children: React.ReactNode }) => (
+    <div className="h-full w-full overflow-y-auto overflow-x-hidden relative scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600">
+        {children}
+    </div>
+);
+
 const AppContent: React.FC = () => {
     // Check path on load
     const isResetPassword = window.location.pathname === '/reset-password' || window.location.hash.includes('type=recovery');
@@ -557,31 +564,40 @@ const AppContent: React.FC = () => {
                         </div>
                     )}
 
+                    {/* WRAPPED IN SCROLLABLE CONTAINER */}
                     {currentRoute === AppRoute.INTEGRATIONS && (
-                        <Integrations
-                            integrations={integrations}
-                            onToggle={handleToggleIntegration}
-                        />
+                        <ScrollablePage>
+                            <Integrations
+                                integrations={integrations}
+                                onToggle={handleToggleIntegration}
+                            />
+                        </ScrollablePage>
                     )}
 
                     {currentRoute === AppRoute.SETTINGS && (
-                        <Settings
-                            user={user}
-                            onUpdateUser={handleUpdateUser}
-                            onLogout={handleLogout}
-                            initialTab="profile"
-                        />
+                        <ScrollablePage>
+                            <Settings
+                                user={user}
+                                onUpdateUser={handleUpdateUser}
+                                onLogout={handleLogout}
+                                initialTab="profile"
+                            />
+                        </ScrollablePage>
                     )}
 
                     {currentRoute === AppRoute.SUBSCRIPTION && (
-                        <Plans
-                            user={user}
-                        // onUpdateUser={handleUpdateUser} // Comentado si el componente Plans no lo usa en la nueva versión
-                        />
+                        <ScrollablePage>
+                            <Plans
+                                user={user}
+                            // onUpdateUser={handleUpdateUser} // Comentado si el componente Plans no lo usa en la nueva versión
+                            />
+                        </ScrollablePage>
                     )}
 
                     {currentRoute === AppRoute.MANUAL && (
-                        <Manual />
+                        <ScrollablePage>
+                            <Manual />
+                        </ScrollablePage>
                     )}
 
                     {currentRoute === AppRoute.RESET_PASSWORD && (
