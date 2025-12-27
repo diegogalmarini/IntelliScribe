@@ -75,6 +75,10 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     // Export State
     const [showExportMenu, setShowExportMenu] = useState(false);
 
+    // Speaker Renaming State
+    const [renamingSpeakerId, setRenamingSpeakerId] = useState<string | null>(null);
+    const [newSpeakerName, setNewSpeakerName] = useState('');
+
     // LAZY LOAD DETAILS & SIGN URL
     useEffect(() => {
         let mounted = true;
@@ -261,6 +265,30 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         const time = Number(e.target.value);
         audioRef.current.currentTime = time;
         setCurrentTime(time);
+    };
+
+    const handleRenameSpeaker = (oldName: string) => {
+        if (!newSpeakerName.trim()) {
+            setRenamingSpeakerId(null);
+            return;
+        }
+
+        const updatedSegments = segments.map(seg =>
+            seg.speaker === oldName ? { ...seg, speaker: newSpeakerName.trim() } : seg
+        );
+
+        setSegments(updatedSegments);
+        onUpdateRecording(recording.id, { segments: updatedSegments });
+        setRenamingSpeakerId(null);
+        setNewSpeakerName('');
+    };
+
+    const formatSpeakerName = (rawName: string) => {
+        if (rawName.startsWith('SPEAKER_')) {
+            const num = rawName.split('_')[1];
+            return `Hablante ${parseInt(num) + 1}`;
+        }
+        return rawName;
     };
 
     const handleSeekTime = (time: number) => {
@@ -654,10 +682,9 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                 {/* Main Editor */}
                 <div className="flex-1 overflow-y-auto p-4 lg:p-10 flex justify-center">
                     <div className="flex flex-col max-w-4xl w-full gap-6">
-                        {/* Premium Media Player Glassmorphism */}
-                        <div className="sticky top-0 z-40 mb-6 group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
-                            <div className="relative bg-[#1e2736]/80 backdrop-blur-xl rounded-2xl p-4 md:p-6 border border-white/10 shadow-2xl">
+                        {/* Premium Media Player - Solid PLAUD Style */}
+                        <div className="sticky top-0 z-40 mb-8 pt-4 pb-6 bg-background-light dark:bg-background-dark">
+                            <div className="relative bg-white dark:bg-[#1e2736] rounded-2xl p-4 md:p-6 border border-slate-200 dark:border-white/5 shadow-xl">
                                 <div className="flex flex-col gap-4">
                                     <div className="flex items-center gap-4 md:gap-6">
                                         <button
@@ -807,8 +834,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             ) : (
                                 <div className="space-y-6">
                                     {segments.map((segment) => (
-                                        <div key={segment.id} className="flex gap-4 group">
-                                            <div className="flex-shrink-0 w-16 pt-1">
+                                        <div key={segment.id} className="flex gap-6 group hover:bg-slate-50 dark:hover:bg-white/[0.02] p-3 -mx-3 rounded-xl transition-colors">
+                                            <div className="flex-shrink-0 w-14 pt-1">
                                                 <button
                                                     onClick={() => {
                                                         if (audioRef.current) {
@@ -819,18 +846,45 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                             setIsPlaying(true);
                                                         }
                                                     }}
-                                                    className="text-xs font-mono text-primary hover:bg-primary/10 px-1.5 py-0.5 rounded transition-colors"
+                                                    className="text-[11px] font-mono text-slate-400 hover:text-primary hover:bg-primary/10 px-1.5 py-0.5 rounded transition-all"
                                                 >
                                                     {segment.timestamp}
                                                 </button>
                                             </div>
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className={`text-xs font-bold uppercase tracking-wider bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}>
-                                                        {segment.speaker}
-                                                    </span>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    {renamingSpeakerId === segment.id ? (
+                                                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
+                                                            <input
+                                                                type="text"
+                                                                value={newSpeakerName}
+                                                                onChange={(e) => setNewSpeakerName(e.target.value)}
+                                                                onBlur={() => handleRenameSpeaker(segment.speaker)}
+                                                                onKeyDown={(e) => e.key === 'Enter' && handleRenameSpeaker(segment.speaker)}
+                                                                autoFocus
+                                                                placeholder="Nombre..."
+                                                                className="bg-primary/10 border border-primary/30 text-xs font-bold text-primary px-2 py-0.5 rounded outline-none w-32"
+                                                            />
+                                                            <button
+                                                                onClick={() => handleRenameSpeaker(segment.speaker)}
+                                                                className="text-primary hover:text-primary-dark"
+                                                            >
+                                                                <span className="material-symbols-outlined text-sm">check</span>
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <span
+                                                            onClick={() => {
+                                                                setRenamingSpeakerId(segment.id);
+                                                                setNewSpeakerName(segment.speaker);
+                                                            }}
+                                                            className={`text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-primary/10 px-2 py-0.5 rounded transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}
+                                                        >
+                                                            {formatSpeakerName(segment.speaker)}
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm md:text-base">
+                                                <p className="text-slate-800 dark:text-slate-200 leading-relaxed text-base tracking-tight font-medium">
                                                     {segment.text}
                                                 </p>
                                             </div>
