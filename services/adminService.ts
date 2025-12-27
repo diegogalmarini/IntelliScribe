@@ -28,7 +28,7 @@ export const adminService = {
                 return false;
             }
 
-            return data?.role === 'admin' || data?.role === 'super_admin';
+            return data?.role === 'admin' || data?.role === 'super_admin' || data?.role === 'Administrator';
         } catch (error) {
             console.error('[adminService] Exception in isAdmin:', error);
             return false;
