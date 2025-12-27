@@ -123,10 +123,16 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         };
     }, [initialRecording.id]);
 
-    // Sync title edit state when recording updates
+    // Sync local state when props change meaningfully
     useEffect(() => {
-        setEditTitle(recording.title);
-    }, [recording.title]);
+        setRecording(prev => ({
+            ...prev,
+            title: initialRecording.title,
+            date: initialRecording.date,
+            status: initialRecording.status
+        }));
+        setEditTitle(initialRecording.title);
+    }, [initialRecording.title, initialRecording.date, initialRecording.status]);
 
     // Audio Device Setup
     useEffect(() => {
