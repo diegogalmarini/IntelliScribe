@@ -111,7 +111,7 @@ export const PlansEditor: React.FC = () => {
     );
 
     return (
-        <div className="space-y-8 pb-20">
+        <div className="p-8 pb-20 space-y-8">
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-white">Editor de Planes y Precios</h2>
@@ -165,8 +165,8 @@ export const PlansEditor: React.FC = () => {
                                     onClick={() => savePlan(plan)}
                                     disabled={savingId === plan.id}
                                     className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all shadow-lg ${successId === plan.id
-                                            ? 'bg-green-600 text-white shadow-green-900/20'
-                                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-900/20'
+                                        ? 'bg-green-600 text-white shadow-green-900/20'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-900/20'
                                         } disabled:opacity-50`}
                                 >
                                     {savingId === plan.id && <RefreshCw className="w-4 h-4 animate-spin" />}
@@ -317,8 +317,8 @@ export const PlansEditor: React.FC = () => {
                                 onClick={() => saveSetting(setting.key, setting.value)}
                                 disabled={savingId === setting.key}
                                 className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold shadow-lg transition-all ${successId === setting.key
-                                        ? 'bg-green-600 text-white shadow-green-900/20'
-                                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-900/20'
+                                    ? 'bg-green-600 text-white shadow-green-900/20'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-900/20'
                                     }`}
                             >
                                 {savingId === setting.key ? 'Guardando...' : (successId === setting.key ? '¡Guardado!' : 'Guardar Texto Legal')}
