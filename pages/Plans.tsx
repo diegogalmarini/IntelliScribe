@@ -32,7 +32,7 @@ const useRealScarcity = (code: string) => {
     return data;
 };
 
-export default function Plans() {
+export function Plans() {
     const { user } = useAuth();
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
