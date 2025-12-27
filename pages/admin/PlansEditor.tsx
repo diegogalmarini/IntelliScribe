@@ -9,6 +9,7 @@ export const PlansEditor: React.FC = () => {
     const [settings, setSettings] = useState<AppSetting[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<string | null>(null);
+    const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         loadData();
@@ -84,12 +85,10 @@ export const PlansEditor: React.FC = () => {
         });
 
         if (success) {
-            // Feedback visual sutil en lugar de alert invasivo
-            const btn = document.getElementById(`btn-save-${plan.id}`);
-            if (btn) {
-                btn.innerText = "¡Guardado!";
-                setTimeout(() => btn.innerText = "Guardar", 2000);
-            }
+            setSaveSuccess(prev => ({ ...prev, [plan.id]: true }));
+            setTimeout(() => {
+                setSaveSuccess(prev => ({ ...prev, [plan.id]: false }));
+            }, 2000);
         } else {
             alert('Error al guardar. Verifica tus permisos de administrador.');
         }
@@ -160,13 +159,15 @@ export const PlansEditor: React.FC = () => {
                                     Destacado
                                 </label>
                                 <button
-                                    id={`btn-save-${plan.id}`}
                                     onClick={() => savePlan(plan)}
                                     disabled={saving === plan.id}
-                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-all shadow-lg shadow-blue-900/20"
+                                    className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-all shadow-lg ${saveSuccess[plan.id]
+                                            ? 'bg-green-600 hover:bg-green-700 shadow-green-900/20'
+                                            : 'bg-blue-600 hover:bg-blue-700 shadow-blue-900/20'
+                                        }`}
                                 >
                                     {saving === plan.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    {saving === plan.id ? '...' : 'Guardar'}
+                                    {saving === plan.id ? '...' : saveSuccess[plan.id] ? '¡Guardado!' : 'Guardar'}
                                 </button>
                             </div>
                         </div>
