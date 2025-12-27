@@ -97,9 +97,10 @@ export default async function handler(req: any, res: any) {
 
                     // Aplicar límites dinámicos leídos de la tabla plans_configuration
                     minutes_limit: limits.transcription_minutes,
-                    // Conversión de GB a Bytes para storage (si usas bytes en RLS) o guardar GB directo
-                    // Asumimos que guardas el límite en bytes para compatibilidad técnica:
                     storage_limit: (limits.storage_gb || 0) * 1024 * 1024 * 1024,
+
+                    // Sincronizar fecha de reseteo: Hoy + 1 mes
+                    usage_reset_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
 
                     updated_at: new Date().toISOString()
                 })
@@ -111,6 +112,33 @@ export default async function handler(req: any, res: any) {
             }
 
             return sendJson(res, 200, { received: true, plan: planId });
+        }
+
+        // Reseteo mensual via Webhook (Recomendado para mayor precisión en mensuales)
+        if (event.type === 'invoice.payment_succeeded') {
+            const invoice = event.data.object;
+            const customerId = invoice.customer;
+
+            // No reseteamos si es la primera factura (ya lo hace checkout.session.completed)
+            // prevent unnecessary double reset
+            if (invoice.billing_reason === 'subscription_create') {
+                return sendJson(res, 200, { received: true, note: 'Initial invoice skipped' });
+            }
+
+            console.log(`[Webhook] Renovación mensual detectada para cliente: ${customerId}`);
+
+            // Resetear minutos y avanzar fecha de reseteo
+            const { error } = await supabaseAdmin
+                .from('profiles')
+                .update({
+                    minutes_used: 0,
+                    usage_reset_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('stripe_customer_id', customerId);
+
+            if (error) console.error('[Webhook] Error resetting usage on renewal:', error);
+            return sendJson(res, 200, { received: true, action: 'monthly_usage_reset' });
         }
 
         // Manejar cancelación (opcional, para volver a free automáticamente al terminar periodo)
