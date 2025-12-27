@@ -7,10 +7,14 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { PlanConfig, AppSetting } from '../types';
+import { PlanConfig, AppSetting, UserProfile } from '../types';
 
 // Inicializar Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+interface PlansProps {
+    user: UserProfile;
+}
 
 // --- HOOK DE ESCASEZ (Marketing) ---
 const useRealScarcity = (code: string) => {
@@ -32,8 +36,7 @@ const useRealScarcity = (code: string) => {
     return data;
 };
 
-export function Plans() {
-    const { user } = useAuth();
+export function Plans({ user }: PlansProps) {
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [loading, setLoading] = useState<string | null>(null);
@@ -170,7 +173,7 @@ export function Plans() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                                    Hola, {user.email?.split('@')[0] || user.firstName}
+                                    Hola, {user.firstName || user.email?.split('@')[0]}
                                 </h3>
                                 <p className="text-gray-500 dark:text-gray-400">
                                     Tu plan actual es <span className="font-bold uppercase text-blue-600">{currentPlanId.replace('_', ' ')}</span>
@@ -221,8 +224,8 @@ export function Plans() {
                         </span>
                     </div>
 
-                    {/* --- BARRA DE ESCASEZ (Marketing) --- */}
-                    {scarcity && scarcity.remaining && billingInterval === 'annual' && (
+                    {/* --- BARRA DE ESCASEZ (Comentada temporalmente por petición del usuario) --- */}
+                    {/* scarcity && scarcity.remaining && billingInterval === 'annual' && (
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -242,7 +245,7 @@ export function Plans() {
                                 Se aplica automáticamente al pagar Anual.
                             </p>
                         </motion.div>
-                    )}
+                    ) */}
                 </div>
 
                 {/* --- SECCIÓN 3: GRID DE PRECIOS DINÁMICO --- */}
