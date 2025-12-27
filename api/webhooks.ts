@@ -1,14 +1,15 @@
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { stripe } from '../services/stripeService';
+import { supabaseAdmin } from '../lib/supabase';
 
-// Configuration for Vercel body parsing
+// Helper para parsear el body de Stripe si es necesario (generalmente Vercel lo maneja)
+// Nota: Si usas la integración estándar de Vercel/Next, a veces req.body ya viene parseado.
+// Esta configuración asegura que recibamos el raw body si fuera necesario para la firma.
 export const config = {
     api: {
         bodyParser: false,
     },
 };
 
-// Helper for buffer
 async function buffer(readable) {
     const chunks = [];
     for await (const chunk of readable) {
@@ -17,45 +18,20 @@ async function buffer(readable) {
     return Buffer.concat(chunks);
 }
 
-// MAPA DE PRECIOS REALES (Producción) -> PLAN INTERNO
-// Using VITE_ prefixed env vars as they are in .env.local and likely injected
-// MAPA DE PRECIOS -> PLAN (Usando variables de entorno)
-const PRICE_ID_TO_PLAN_MAP: Record<string, string> = {
-    // PRO
-    [process.env.VITE_STRIPE_PRICE_PRO_MONTHLY!]: 'pro',
-    [process.env.VITE_STRIPE_PRICE_PRO_ANNUAL!]: 'pro',
+// Lógica dinámica: Consultar DB para saber qué plan es este precio
+const getPlanFromDB = async (priceId: string) => {
+    // Buscar si el ID corresponde a precio mensual o anual en nuestra tabla de configuración
+    const { data, error } = await supabaseAdmin
+        .from('plans_configuration')
+        .select('*')
+        .or(`stripe_price_id_monthly.eq.${priceId},stripe_price_id_annual.eq.${priceId}`)
+        .single();
 
-    // BUSINESS
-    [process.env.VITE_STRIPE_PRICE_BUSINESS_MONTHLY!]: 'business',
-    [process.env.VITE_STRIPE_PRICE_BUSINESS_ANNUAL!]: 'business',
-
-    // BUSINESS PLUS
-    [process.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_MONTHLY!]: 'business_plus',
-    [process.env.VITE_STRIPE_PRICE_BUSINESS_PLUS_ANNUAL!]: 'business_plus',
-};
-
-// LÍMITES DUROS (Hard Limits)
-const PLAN_LIMITS = {
-    free: {
-        minutes_limit: 24,
-        storage_limit: 0,
-        retention_days: 7
-    },
-    pro: {
-        minutes_limit: 300,
-        storage_limit: 5368709120, // 5 GB
-        retention_days: 365
-    },
-    business: {
-        minutes_limit: 600,
-        storage_limit: 21474836480, // 20 GB
-        retention_days: 365
-    },
-    business_plus: {
-        minutes_limit: 1200,
-        storage_limit: 53687091200, // 50 GB
-        retention_days: 365
+    if (error || !data) {
+        console.error(`[Webhook] Plan not found in DB for Price ID: ${priceId}`);
+        return null;
     }
+    return data;
 };
 
 const sendJson = (res, statusCode, data) => {
@@ -64,97 +40,96 @@ const sendJson = (res, statusCode, data) => {
     res.end(JSON.stringify(data));
 };
 
-export default async function handler(req, res) {
+export default async function handler(req: any, res: any) {
     if (req.method !== 'POST') {
         return sendJson(res, 405, { error: 'Method Not Allowed' });
     }
 
     try {
-        if (!process.env.STRIPE_SECRET_KEY) throw new Error("Missing STRIPE_SECRET_KEY");
-
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-            apiVersion: '2024-12-18.acacia' as any,
-        });
-
-        const buf = await buffer(req);
         const signature = req.headers['stripe-signature'];
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+        const buf = await buffer(req);
 
         let event;
         try {
-            if (webhookSecret && signature) {
+            if (webhookSecret) {
                 event = stripe.webhooks.constructEvent(buf, signature, webhookSecret);
             } else {
+                // Fallback para desarrollo local sin firma estricta
                 event = JSON.parse(buf.toString());
             }
-        } catch (e: any) {
-            return sendJson(res, 200, { status: "error", message: `Signature Verification Failed: ${e.message}` });
+        } catch (err: any) {
+            console.error(`⚠️  Webhook signature verification failed.`, err.message);
+            return sendJson(res, 400, { error: `Webhook Error: ${err.message}` });
         }
 
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object;
-            const userId = session.metadata?.userId || session.client_reference_id;
 
-            if (!userId) {
-                return sendJson(res, 200, { status: "skipped", message: "No userId in session metadata" });
-            }
-
-            console.log(`[Webhook] Processing User: ${userId}`);
-
-            // Initialize Supabase Admin
-            const supabaseUrl = process.env.VITE_SUPABASE_URL;
-            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-            if (!supabaseUrl || !supabaseKey) {
-                return sendJson(res, 200, {
-                    status: "error",
-                    message: "Missing Supabase Config. Check SUPABASE_SERVICE_ROLE_KEY."
-                });
-            }
-
-            const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
-
-            // Fetch Line Items to identify price
+            // 1. Recuperar el ID del precio pagado desde Stripe
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
             const priceId = lineItems.data[0]?.price?.id;
 
-            // Map Price ID to Plan
-            let planId = 'free';
-            if (priceId && PRICE_ID_TO_PLAN_MAP[priceId]) {
-                planId = PRICE_ID_TO_PLAN_MAP[priceId];
-            } else {
-                // Fallback: If map fails, try to infer from amount (legacy safety net)
-                console.warn(`[Webhook] Price ID ${priceId} not found in map. Falling back to amount.`);
-                const amount = session.amount_total || 0;
-                if (amount >= 3000) planId = 'business_plus';
-                else if (amount >= 1800) planId = 'business';
-                else planId = 'pro';
+            if (!priceId) {
+                console.error('[Webhook] No price ID found in session');
+                return sendJson(res, 400, { error: 'No price ID' });
             }
 
-            const limits = PLAN_LIMITS[planId as keyof typeof PLAN_LIMITS];
+            // 2. BUSCAR PLAN EN DB (Dinámico - Aquí está el ahorro de líneas)
+            // En lugar de tener un mapa gigante harcoded, preguntamos a Supabase.
+            const planConfig = await getPlanFromDB(priceId);
 
-            console.log(`[Webhook] Updating ${userId} to ${planId}`);
+            // Fallback a 'free' si falla la DB, pero intentamos usar los datos reales
+            const planId = planConfig?.id || 'free';
 
-            // Update Profile
-            const { error, data } = await supabaseAdmin
+            // Usar los límites de la DB. Si no existen, defaults seguros.
+            const limits = planConfig?.limits || { transcription_minutes: 24, storage_gb: 0 };
+
+            console.log(`[Webhook] Pago recibido (${priceId}). Asignando Plan: ${planId} con límites:`, limits);
+
+            // 3. Actualizar usuario en Supabase con los datos obtenidos
+            const { error } = await supabaseAdmin
                 .from('profiles')
                 .update({
-                    plan_id: planId, // Assuming column is 'plan_id' based on previous schema, user said 'plan' but DB likely 'plan_id'
+                    plan_id: planId,
                     subscription_status: 'active',
                     stripe_customer_id: session.customer,
-                    minutes_limit: limits.minutes_limit,
-                    storage_limit: limits.storage_limit,
+
+                    // Aplicar límites dinámicos leídos de la tabla plans_configuration
+                    minutes_limit: limits.transcription_minutes,
+                    // Conversión de GB a Bytes para storage (si usas bytes en RLS) o guardar GB directo
+                    // Asumimos que guardas el límite en bytes para compatibilidad técnica:
+                    storage_limit: (limits.storage_gb || 0) * 1024 * 1024 * 1024,
+
                     updated_at: new Date().toISOString()
                 })
-                .eq('id', userId)
-                .select();
+                .eq('id', session.client_reference_id || session.metadata.userId);
 
             if (error) {
-                console.error('[Webhook] Update Error:', error);
-                throw error;
+                console.error('[Webhook Error] Error updating profile:', error);
+                return sendJson(res, 500, { error: 'Database update failed' });
             }
 
-            return sendJson(res, 200, { status: "success", plan: planId, userId });
+            return sendJson(res, 200, { received: true, plan: planId });
+        }
+
+        // Manejar cancelación (opcional, para volver a free automáticamente al terminar periodo)
+        if (event.type === 'customer.subscription.deleted') {
+            const subscription = event.data.object;
+            const customerId = subscription.customer;
+
+            // Buscar usuario por stripe_customer_id y hacer downgrade
+            const { error } = await supabaseAdmin
+                .from('profiles')
+                .update({
+                    plan_id: 'free',
+                    subscription_status: 'canceled',
+                    minutes_limit: 24,
+                    storage_limit: 0
+                })
+                .eq('stripe_customer_id', customerId);
+
+            if (error) console.error('[Webhook] Error downgrading user:', error);
         }
 
         return sendJson(res, 200, { received: true });

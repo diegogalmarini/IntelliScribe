@@ -1,5 +1,3 @@
-
-
 export interface NoteItem {
   id: string;
   timestamp: string;
@@ -100,7 +98,8 @@ export enum AppRoute {
   // Admin routes
   ADMIN_OVERVIEW = 'admin-overview',
   ADMIN_USERS = 'admin-users',
-  ADMIN_FINANCIALS = 'admin-financials'
+  ADMIN_FINANCIALS = 'admin-financials',
+  ADMIN_PLANS = 'admin-plans' // <--- NUEVA RUTA AGREGADA
 }
 
 // ========== ADMIN TYPES ==========
@@ -143,4 +142,35 @@ export interface PhoneCall {
   durationSeconds: number;
   cost: number;
   date: string;
+}
+
+// ========== DYNAMIC PLANS TYPES (NUEVOS) ==========
+
+export interface PlanLimits {
+  transcription_minutes: number;
+  call_minutes?: number;
+  storage_gb?: number;
+  users?: number;
+}
+
+export interface PlanConfig {
+  id: string;
+  name: string;
+  description: string;
+  price_monthly: number;
+  price_annual: number;
+  stripe_price_id_monthly: string;
+  stripe_price_id_annual: string;
+  features: string[];
+  limits: PlanLimits;
+  highlight: boolean;
+  badge_text?: string | null;
+  is_active: boolean;
+  updated_at?: string;
+}
+
+export interface AppSetting {
+  key: string;
+  value: string;
+  description?: string;
 }
