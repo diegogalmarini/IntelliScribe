@@ -36,6 +36,13 @@ export const AdminLayout: React.FC<Props> = ({
             icon: 'attach_money',
             label: 'Financials',
             description: 'Calls & revenue tracking'
+        },
+        // --- NUEVA PESTAÑA AÑADIDA AQUÍ ---
+        {
+            route: AppRoute.ADMIN_PLANS,
+            icon: 'price_change', // Icono de Google Fonts
+            label: 'Planes & Precios',
+            description: 'Editor de productos y límites'
         }
     ];
 
@@ -67,8 +74,8 @@ export const AdminLayout: React.FC<Props> = ({
                                 key={item.route}
                                 onClick={() => onNavigate(item.route)}
                                 className={`w-full flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
-                                        ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/30'
-                                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                                    ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/30'
+                                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                                     }`}
                             >
                                 <span className="material-symbols-outlined text-2xl">

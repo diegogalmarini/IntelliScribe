@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AdminStats, AdminUser, PhoneCall, Recording } from '../types';
+import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting } from '../types';
 
 /**
  * Admin Service
@@ -37,7 +37,6 @@ export const adminService = {
 
     /**
      * Get comprehensive statistics for Overview dashboard
-     * Calculates MRR, active users, total usage, costs, and growth trends
      */
     async getStats(): Promise<AdminStats | null> {
         try {
@@ -79,8 +78,7 @@ export const adminService = {
             // Gross profit
             const grossProfit = mrr - estimatedCost;
 
-            // Growth trends (vs last month) - simplified for MVP
-            // In production, you'd query historical data
+            // Growth trends (vs last month)
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -89,7 +87,7 @@ export const adminService = {
             ).length;
 
             const userGrowth = totalUsers > 0 ? (newUsersThisMonth / totalUsers) * 100 : 0;
-            const mrrGrowth = 5; // Placeholder - would need historical MRR data
+            const mrrGrowth = 5;
 
             return {
                 mrr: Math.round(mrr * 100) / 100,
@@ -109,9 +107,6 @@ export const adminService = {
 
     /**
      * Get all users with pagination and search
-     * @param page - Page number (1-indexed)
-     * @param pageSize - Results per page
-     * @param search - Optional search query (email, name, UUID)
      */
     async getAllUsers(
         page: number = 1,
@@ -168,8 +163,6 @@ export const adminService = {
 
     /**
      * Update user's plan manually
-     * @param userId - User UUID
-     * @param planId - New plan ID
      */
     async updateUserPlan(userId: string, planId: string): Promise<boolean> {
         try {
@@ -182,8 +175,6 @@ export const adminService = {
                 console.error('[adminService] Error updating user plan:', error);
                 return false;
             }
-
-            console.log(`[adminService] Updated user ${userId} to plan ${planId}`);
             return true;
         } catch (error) {
             console.error('[adminService] Exception in updateUserPlan:', error);
@@ -193,9 +184,6 @@ export const adminService = {
 
     /**
      * Add credits to user account
-     * @param userId - User UUID
-     * @param minutes - Number of minutes to add
-     * @param type - 'limit' (increase cap) or 'used' (refund usage)
      */
     async addCredits(
         userId: string,
@@ -218,10 +206,8 @@ export const adminService = {
             const updates: any = {};
 
             if (type === 'limit') {
-                // Increase the limit
                 updates.minutes_limit = (profile.minutes_limit || 0) + minutes;
             } else {
-                // Decrease usage (refund)
                 updates.minutes_used = Math.max(0, (profile.minutes_used || 0) - minutes);
             }
 
@@ -234,8 +220,6 @@ export const adminService = {
                 console.error('[adminService] Error adding credits:', error);
                 return false;
             }
-
-            console.log(`[adminService] Added ${minutes} minutes to user ${userId} (type: ${type})`);
             return true;
         } catch (error) {
             console.error('[adminService] Exception in addCredits:', error);
@@ -245,8 +229,6 @@ export const adminService = {
 
     /**
      * Ban or unban a user
-     * @param userId - User UUID
-     * @param banned - true to ban, false to unban
      */
     async toggleBanUser(userId: string, banned: boolean): Promise<boolean> {
         try {
@@ -259,8 +241,6 @@ export const adminService = {
                 console.error('[adminService] Error toggling ban:', error);
                 return false;
             }
-
-            console.log(`[adminService] User ${userId} ${banned ? 'banned' : 'unbanned'}`);
             return true;
         } catch (error) {
             console.error('[adminService] Exception in toggleBanUser:', error);
@@ -270,8 +250,6 @@ export const adminService = {
 
     /**
      * Get recent phone calls from recordings
-     * Filters for recordings tagged with 'phone-call'
-     * @param limit - Maximum number of calls to return
      */
     async getPhoneCalls(limit: number = 50): Promise<PhoneCall[]> {
         try {
@@ -302,8 +280,6 @@ export const adminService = {
 
             // Parse calls from recordings
             const calls: PhoneCall[] = recordings.map(rec => {
-                // Extract phone numbers from title/description
-                // Title format: "Call to +34..."
                 const toMatch = rec.title.match(/Call to (\+\d+)/);
                 const fromMatch = rec.description.match(/from (\+\d+)/);
 
@@ -339,7 +315,6 @@ export const adminService = {
 
     /**
      * Get all recordings for a specific user (Ghost Mode)
-     * @param userId - User UUID
      */
     async getUserRecordings(userId: string): Promise<Recording[]> {
         try {
@@ -400,5 +375,63 @@ export const adminService = {
                 : 0,
             createdAt: profile.created_at
         }));
+    },
+
+    // --- NUEVOS MÉTODOS PARA GESTIÓN DE PLANES ---
+
+    /**
+     * Obtener configuración de todos los planes
+     */
+    async getPlansConfig(): Promise<PlanConfig[]> {
+        const { data, error } = await supabase
+            .from('plans_configuration')
+            .select('*')
+            .order('price_monthly', { ascending: true });
+
+        if (error) {
+            console.error('[adminService] Error fetching plans config:', error);
+            return [];
+        }
+        return data || [];
+    },
+
+    /**
+     * Actualizar un plan específico
+     */
+    async updatePlanConfig(planId: string, updates: Partial<PlanConfig>): Promise<boolean> {
+        const { error } = await supabase
+            .from('plans_configuration')
+            .update(updates)
+            .eq('id', planId);
+
+        if (error) {
+            console.error('[adminService] Error updating plan:', error);
+            return false;
+        }
+        return true;
+    },
+
+    /**
+     * Obtener configuraciones globales (texto legal, etc.)
+     */
+    async getAppSettings(): Promise<AppSetting[]> {
+        const { data, error } = await supabase
+            .from('app_settings')
+            .select('*');
+
+        if (error) return [];
+        return data || [];
+    },
+
+    /**
+     * Actualizar una configuración global
+     */
+    async updateAppSetting(key: string, value: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('app_settings')
+            .update({ value, updated_at: new Date() })
+            .eq('key', key);
+
+        return !error;
     }
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
@@ -32,6 +31,7 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ 
 const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
 const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default: m.Users })));
 const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
+const AdminPlans = lazy(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor }))); // <--- NUEVO
 
 const AppContent: React.FC = () => {
     // Check path on load
@@ -201,7 +201,8 @@ const AppContent: React.FC = () => {
             const protectedRoutes = [
                 AppRoute.DASHBOARD, AppRoute.RECORDING, AppRoute.EDITOR,
                 AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
-                AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS
+                AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS,
+                AppRoute.ADMIN_PLANS // <--- NUEVO: Proteger la nueva ruta
             ];
 
             if (protectedRoutes.includes(currentRoute)) {
@@ -575,7 +576,7 @@ const AppContent: React.FC = () => {
                     {currentRoute === AppRoute.SUBSCRIPTION && (
                         <Plans
                             user={user}
-                            onUpdateUser={handleUpdateUser}
+                        // onUpdateUser={handleUpdateUser} // Comentado si el componente Plans no lo usa en la nueva versión
                         />
                     )}
 
@@ -593,7 +594,8 @@ const AppContent: React.FC = () => {
                     {/* CRITICAL: Using Suspense for lazy-loaded admin components */}
                     {(currentRoute === AppRoute.ADMIN_OVERVIEW ||
                         currentRoute === AppRoute.ADMIN_USERS ||
-                        currentRoute === AppRoute.ADMIN_FINANCIALS) && (
+                        currentRoute === AppRoute.ADMIN_FINANCIALS ||
+                        currentRoute === AppRoute.ADMIN_PLANS) && ( // <--- NUEVO: Condición para Plans
                             <Suspense fallback={
                                 <div className="flex items-center justify-center h-full bg-slate-900">
                                     <div className="flex flex-col items-center gap-3">
@@ -613,6 +615,7 @@ const AppContent: React.FC = () => {
                                         {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
                                         {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
                                         {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
+                                        {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />} {/* <--- NUEVO: Renderizado */}
                                     </AdminLayout>
                                 </AdminRoute>
                             </Suspense>

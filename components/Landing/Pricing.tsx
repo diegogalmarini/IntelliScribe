@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Info } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { supabase } from '../../lib/supabase';
+import { PlanConfig } from '../../types';
 
 // Hook para obtener escasez REAL desde el backend
 const useRealScarcity = (code: string) => {
     const [data, setData] = useState<any>(null);
-
     useEffect(() => {
         const fetchScarcity = async () => {
             try {
+                if (!code) return;
                 const res = await fetch(`/api/coupon-status?code=${code}`);
                 const json = await res.json();
                 if (json.active) setData(json);
@@ -18,87 +20,43 @@ const useRealScarcity = (code: string) => {
             }
         };
         fetchScarcity();
-        // Actualizar cada 60s para mantener vivo el contador
-        const interval = setInterval(fetchScarcity, 60000);
-        return () => clearInterval(interval);
     }, [code]);
-
     return data;
 };
-
-const LANDING_PLANS = [
-    {
-        id: 'free',
-        name: 'Free',
-        price: { monthly: 0, annual: 0 },
-        description: 'Para probar la magia de Diktalo.',
-        features: [
-            '24 min/mes de transcripción',
-            'Historial de 7 días',
-            'Grabación de Micrófono',
-            '1 Usuario'
-        ],
-        highlight: false,
-        badge: null,
-        cta: 'Comenzar Gratis'
-    },
-    {
-        id: 'pro',
-        name: 'Pro',
-        price: { monthly: 12, annual: 9 }, // 108€/año
-        description: 'Para profesionales independientes.',
-        features: [
-            '300 min/mes de Transcripción (IA)',
-            '5 GB Almacenamiento Cloud',
-            'Grabación Mic + Sistema',
-            'Chat con Grabación (IA)',
-            'Descarga de Audio Original'
-        ],
-        highlight: true,
-        badge: 'POPULAR',
-        cta: 'Empezar con Pro'
-    },
-    {
-        id: 'business',
-        name: 'Business',
-        price: { monthly: 19, annual: 15 }, // 180€/año
-        description: 'Para power users y managers.',
-        features: [
-            '600 min/mes de Transcripción (IA)',
-            '20 GB Almacenamiento Cloud',
-            'Todo lo de Pro incluido',
-            'Soporte Prioritario',
-            'Panel de Gestión de Equipo'
-        ],
-        highlight: false,
-        badge: null,
-        cta: 'Ir a Business'
-    },
-    {
-        id: 'business_plus',
-        name: 'Business + Call',
-        price: { monthly: 35, annual: 25 }, // 300€/año
-        description: 'La suite completa de comunicación.',
-        features: [
-            '1200 min/mes de Transcripción (IA)',
-            '300 min/mes Llamadas (Dialer)',
-            '50 GB Almacenamiento Cloud',
-            'Todo lo de Business incluido',
-            '📞 DIALER INCLUIDO (Calls)',
-            'Grabación de Llamadas Salientes'
-        ],
-        highlight: false,
-        badge: 'EMPRESA',
-        cta: 'Obtener Business +'
-    }
-];
 
 export const Pricing: React.FC = () => {
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
 
-    // Conectar al cupón EARLY100 (El de 15% extra para Pro/Biz)
+    // Estados Dinámicos
+    const [plans, setPlans] = useState<PlanConfig[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Conectar al cupón EARLY100
     const scarcity = useRealScarcity('EARLY100');
+
+    useEffect(() => {
+        const fetchPlans = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('plans_configuration')
+                    .select('*')
+                    .eq('is_active', true)
+                    .neq('id', 'free') // Opcional: Ocultar Free en Landing si solo quieres vender
+                    .order('price_monthly', { ascending: true });
+
+                if (error) throw error;
+                if (data) setPlans(data);
+            } catch (err) {
+                console.error('Error loading landing plans:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPlans();
+    }, []);
+
+    if (loading) return <div className="py-24 text-center">Cargando ofertas...</div>;
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-24 relative" id="pricing">
@@ -112,7 +70,7 @@ export const Pricing: React.FC = () => {
 
                 {/* Toggle Anual */}
                 <div className="mt-8 flex justify-center items-center gap-4">
-                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold' : 'text-slate-500'}`}>Mensual</span>
+                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>Mensual</span>
                     <button
                         onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
                         className={`relative w-14 h-8 rounded-full transition-colors ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-slate-300'}`}
@@ -122,12 +80,12 @@ export const Pricing: React.FC = () => {
                             animate={{ x: billingInterval === 'annual' ? 24 : 0 }}
                         />
                     </button>
-                    <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold' : 'text-slate-500'}`}>
+                    <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
                         Anual <span className="text-green-600 font-bold ml-1">-30%</span>
                     </span>
                 </div>
 
-                {/* BARRA DE ESCASEZ (Solo visible si hay cupón activo y es pago anual) */}
+                {/* BARRA DE ESCASEZ */}
                 {scarcity && scarcity.remaining && billingInterval === 'annual' && (
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -151,50 +109,60 @@ export const Pricing: React.FC = () => {
                 )}
             </div>
 
-            {/* Grid de Planes */}
+            {/* Grid de Planes Dinámico */}
             <div className="grid md:grid-cols-3 gap-8">
-                {LANDING_PLANS.map((plan) => (
-                    <div key={plan.id} className={`relative p-8 bg-white rounded-2xl shadow-lg border ${plan.highlight ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'}`}>
-                        {plan.badge && (
-                            <span className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
-                                {plan.badge}
-                            </span>
-                        )}
-                        <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
-                        <p className="text-sm text-slate-500 mt-2 h-10">{plan.description}</p>
+                {plans.map((plan) => {
+                    const monthlyPrice = plan.price_monthly;
+                    const annualPrice = plan.price_annual;
+                    // Precio mensual equivalente al pagar anual
+                    const annualMonthlyEquiv = annualPrice > 0 ? Math.round(annualPrice / 12) : 0;
 
-                        <div className="my-6">
-                            <span className="text-4xl font-extrabold text-slate-900">
-                                {billingInterval === 'annual' ? plan.price.annual : plan.price.monthly}€
-                            </span>
-                            <span className="text-slate-500">/mes</span>
-                            {billingInterval === 'annual' && (
-                                <p className="text-xs text-green-600 mt-1 font-semibold">
-                                    Facturado {plan.price.annual * 12}€ anualmente
-                                </p>
+                    return (
+                        <div key={plan.id} className={`relative p-8 bg-white rounded-2xl shadow-lg border ${plan.highlight ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'}`}>
+                            {plan.badge_text && (
+                                <span className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
+                                    {plan.badge_text}
+                                </span>
                             )}
+                            <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
+                            <p className="text-sm text-slate-500 mt-2 h-10">{plan.description}</p>
+
+                            <div className="my-6">
+                                <span className="text-4xl font-extrabold text-slate-900">
+                                    {billingInterval === 'annual' && annualPrice > 0
+                                        ? `${annualMonthlyEquiv}€`
+                                        : `${monthlyPrice}€`
+                                    }
+                                </span>
+                                <span className="text-slate-500">/mes</span>
+                                {billingInterval === 'annual' && annualPrice > 0 && (
+                                    <p className="text-xs text-green-600 mt-1 font-semibold">
+                                        Facturado {annualPrice}€ anualmente
+                                    </p>
+                                )}
+                            </div>
+
+                            <a
+                                href="/login"
+                                className={`block w-full py-3 px-4 rounded-lg text-center font-bold transition-all ${plan.highlight
+                                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                        : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                                    }`}
+                            >
+                                {plan.id === 'pro' ? 'Empezar con Pro' : plan.id === 'business' ? 'Ir a Business' : 'Obtener Business +'}
+                            </a>
+
+                            <ul className="mt-8 space-y-4">
+                                {(plan.features || []).map((feature, i) => (
+                                    <li key={i} className="flex items-start">
+                                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                                        <span className="text-sm text-slate-600">{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-
-                        <a
-                            href="/login" // Redirige al login/registro
-                            className={`block w-full py-3 px-4 rounded-lg text-center font-bold transition-all ${plan.highlight
-                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                                : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
-                                }`}
-                        >
-                            {plan.cta}
-                        </a>
-
-                        <ul className="mt-8 space-y-4">
-                            {plan.features.map((feature, i) => (
-                                <li key={i} className="flex items-start">
-                                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                                    <span className="text-sm text-slate-600">{feature}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
