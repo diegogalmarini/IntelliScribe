@@ -61,6 +61,7 @@ export interface UserSubscription {
   minutesUsed: number;
   minutesLimit: number; // -1 for unlimited
   storageDaysLimit: number; // 7 for free, -1 for unlimited
+  usageResetDate?: string; // Next reset date
 }
 
 export interface UserProfile {

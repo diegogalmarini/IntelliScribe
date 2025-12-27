@@ -103,6 +103,70 @@ const AppContent: React.FC = () => {
 
     const [activeRecordingId, setActiveRecordingId] = useState<string | null>(null);
 
+    // --- REFRESHABLE FETCHERS ---
+    const fetchProfile = async () => {
+        if (!supabaseUser) return;
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', supabaseUser.id)
+            .single();
+
+        if (data && !error) {
+            console.log("Profile loaded from DB:", data);
+            setUser(prev => ({
+                ...prev,
+                id: supabaseUser.id,
+                email: supabaseUser.email || prev.email,
+                firstName: data.first_name || prev.firstName,
+                lastName: data.last_name || prev.lastName,
+                avatarUrl: data.avatar_url || prev.avatarUrl,
+                phone: data.phone || prev.phone,
+                phoneVerified: data.phone_verified || false,
+                role: data.role || 'Member',
+                subscription: {
+                    ...prev.subscription,
+                    planId: data.plan_id || 'free',
+                    status: data.subscription_status || 'active',
+                    minutesLimit: data.minutes_limit || 24,
+                    minutesUsed: data.minutes_used || 0,
+                    usageResetDate: data.usage_reset_date
+                }
+            }));
+        } else if (supabaseUser) {
+            setUser(prev => ({
+                ...prev,
+                id: supabaseUser.id,
+                email: supabaseUser.email || prev.email,
+            }));
+        }
+    };
+
+    const fetchData = async () => {
+        if (!supabaseUser) return;
+        setIsLoadingData(true);
+        try {
+            console.log(`[DEBUG] Fetching data for user: ${supabaseUser.id}`);
+            const [dbFolders, dbRecordings] = await Promise.all([
+                databaseService.getFolders(supabaseUser.id),
+                databaseService.getRecordings(supabaseUser.id)
+            ]);
+
+            console.log(`[DEBUG] Data fetched: ${dbRecordings.length} recordings, ${dbFolders.length} folders`);
+            setFolders([
+                { id: 'ALL', name: t('allRecordings'), icon: 'list', type: 'system' },
+                { id: 'FAVORITES', name: t('favorites'), icon: 'star', type: 'system' },
+                ...dbFolders
+            ]);
+
+            setRecordings(dbRecordings);
+
+        } catch (err) {
+            console.error("Failed to load user data:", err);
+        } finally {
+            setIsLoadingData(false);
+        }
+    };
 
     // --- DATA LOADING & AUTH EFFECT ---
     useEffect(() => {
@@ -112,86 +176,21 @@ const AppContent: React.FC = () => {
         const isRecovery = window.location.hash.includes('type=recovery') || currentRoute === AppRoute.RESET_PASSWORD;
 
         if (supabaseUser && supabaseUser.email) {
-
-            // 1. Fetch Profile
-            const fetchProfile = async () => {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', supabaseUser.id)
-                    .single();
-
-                if (data && !error) {
-                    console.log("Profile loaded form DB:", data);
-                    setUser(prev => ({
-                        ...prev,
-                        id: supabaseUser.id,
-                        email: supabaseUser.email || prev.email,
-                        firstName: data.first_name || prev.firstName,
-                        lastName: data.last_name || prev.lastName,
-                        avatarUrl: data.avatar_url || prev.avatarUrl,
-                        phone: data.phone || prev.phone,
-                        phoneVerified: data.phone_verified || false,
-                        role: data.role || 'Member', // CRITICAL: Map role from DB
-                        subscription: {
-                            ...prev.subscription,
-                            planId: data.plan_id || 'free',
-                            status: data.subscription_status || 'active',
-                            minutesLimit: data.minutes_limit || 24,
-                        }
-                    }));
-                } else {
-                    setUser(prev => ({
-                        ...prev,
-                        id: supabaseUser.id,
-                        email: supabaseUser.email || prev.email,
-                    }));
-                }
-            };
-
-            // 2. Fetch Data (Recordings & Folders)
-            const fetchData = async () => {
-                setIsLoadingData(true);
-                try {
-                    console.log(`[DEBUG] Fetching data for user: ${supabaseUser.id}`);
-                    const [dbFolders, dbRecordings] = await Promise.all([
-                        databaseService.getFolders(supabaseUser.id),
-                        databaseService.getRecordings(supabaseUser.id)
-                    ]);
-
-                    console.log(`[DEBUG] Data fetched: ${dbRecordings.length} recordings, ${dbFolders.length} folders`);
-                    setFolders([
-                        { id: 'ALL', name: t('allRecordings'), icon: 'list', type: 'system' },
-                        { id: 'FAVORITES', name: t('favorites'), icon: 'star', type: 'system' },
-                        ...dbFolders
-                    ]);
-
-                    setRecordings(dbRecordings);
-
-                } catch (err) {
-                    console.error("Failed to load user data:", err);
-                } finally {
-                    setIsLoadingData(false);
-                }
-            };
-
             fetchProfile();
             fetchData();
-            setIsInitialized(true); // Mark as initialized to prevent loop
+            setIsInitialized(true);
 
-            // Special Check: If returning from Stripe Payment, poll DB to get updated plan
+            // Special Check: If returning from Stripe Payment, poll DB
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('payment') === 'success') {
                 console.log("Payment success detected! Polling for plan update...");
-                setTimeout(() => { console.log("Polling #1..."); fetchProfile(); }, 2000);
-                setTimeout(() => { console.log("Polling #2..."); fetchProfile(); }, 5000);
-                setTimeout(() => { console.log("Polling #3..."); fetchProfile(); }, 8000);
+                setTimeout(() => fetchProfile(), 2000);
+                setTimeout(() => fetchProfile(), 5000);
+                setTimeout(() => fetchProfile(), 8000);
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
-            // ONLY REDIRECT IF NOT IN RECOVERY MODE
             if (!isRecovery) {
-                // SMART REDIRECT: If user is logged in and on Landing or Login, send to Dashboard
                 if (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN) {
                     navigate(AppRoute.DASHBOARD);
                 }
@@ -200,16 +199,12 @@ const AppContent: React.FC = () => {
             }
 
         } else if (!supabaseUser && !authLoading) {
-            // Keep track that we are initialized even for guests
             setIsInitialized(true);
-
-            // If No User:
-            // 1. If trying to access protected routes, send to Landing
             const protectedRoutes = [
                 AppRoute.DASHBOARD, AppRoute.RECORDING, AppRoute.EDITOR,
                 AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
                 AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS,
-                AppRoute.ADMIN_PLANS // <--- NUEVO: Proteger la nueva ruta
+                AppRoute.ADMIN_PLANS
             ];
 
             if (protectedRoutes.includes(currentRoute)) {
@@ -538,6 +533,7 @@ const AppContent: React.FC = () => {
                             selectedFolderId={selectedFolderId}
                             folders={folders}
                             onImportRecording={handleRecordingComplete}
+                            onRefreshProfile={fetchProfile}
                         />
                     )}
 
