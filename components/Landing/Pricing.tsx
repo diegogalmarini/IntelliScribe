@@ -42,7 +42,6 @@ export const Pricing: React.FC = () => {
                     .from('plans_configuration')
                     .select('*')
                     .eq('is_active', true)
-                    .neq('id', 'free') // Opcional: Ocultar Free en Landing si solo quieres vender
                     .order('price_monthly', { ascending: true });
 
                 if (error) throw error;
@@ -85,8 +84,8 @@ export const Pricing: React.FC = () => {
                     </span>
                 </div>
 
-                {/* BARRA DE ESCASEZ */}
-                {scarcity && scarcity.remaining && billingInterval === 'annual' && (
+                {/* BARRA DE ESCASEZ (Comentada temporalmente por petición del usuario) */}
+                {/* scarcity && scarcity.remaining && billingInterval === 'annual' && (
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -106,7 +105,7 @@ export const Pricing: React.FC = () => {
                             Usa el código <b>{scarcity.code}</b> al pagar anualmente.
                         </p>
                     </motion.div>
-                )}
+                ) */}
             </div>
 
             {/* Grid de Planes Dinámico */}
@@ -145,11 +144,11 @@ export const Pricing: React.FC = () => {
                             <a
                                 href="/login"
                                 className={`block w-full py-3 px-4 rounded-lg text-center font-bold transition-all ${plan.highlight
-                                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                                        : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                                     }`}
                             >
-                                {plan.id === 'pro' ? 'Empezar con Pro' : plan.id === 'business' ? 'Ir a Business' : 'Obtener Business +'}
+                                {plan.id === 'free' ? 'Empezar Gratis' : plan.id === 'pro' ? 'Empezar con Pro' : plan.id === 'business' ? 'Ir a Business' : 'Obtener Business +'}
                             </a>
 
                             <ul className="mt-8 space-y-4">

@@ -17,6 +17,7 @@ interface DashboardProps {
     folders: Folder[];
     onImportRecording?: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[]) => void;
     user: UserProfile; // Added User prop for greeting
+    onRefreshProfile?: () => void; // Added for data integrity
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -29,7 +30,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     selectedFolderId,
     folders,
     onImportRecording,
-    user
+    user,
+    onRefreshProfile
 }) => {
     const { t } = useLanguage();
     const [showGuide, setShowGuide] = useState(() => {
@@ -61,10 +63,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
     // File Import Ref
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = () => setActiveMenuId(null);
         window.addEventListener('click', handleClickOutside);
+
+        // Force refresh profile on load to handle post-payment state or stale usage
+        if (onRefreshProfile) {
+            console.log("[Dashboard] Forcing profile refresh...");
+            onRefreshProfile();
+        }
+
         return () => window.removeEventListener('click', handleClickOutside);
     }, []);
 
