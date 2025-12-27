@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
 import { PlanConfig, AppSetting } from '../../types';
-import { motion } from 'framer-motion';
-import { Plus, Trash2, Save, RefreshCw, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Save, RefreshCw, AlertCircle, Check } from 'lucide-react'; // Agregamos Check icon
 
 export const PlansEditor: React.FC = () => {
     const [plans, setPlans] = useState<PlanConfig[]>([]);
     const [settings, setSettings] = useState<AppSetting[]>([]);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState<string | null>(null);
-    const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
+
+    // Estados para controlar visualmente qué botón está cargando o tuvo éxito
+    const [savingId, setSavingId] = useState<string | null>(null);
+    const [successId, setSuccessId] = useState<string | null>(null);
 
     useEffect(() => {
         loadData();
@@ -40,8 +41,6 @@ export const PlansEditor: React.FC = () => {
         }));
     };
 
-    // --- NUEVA LÓGICA PARA FEATURES ---
-
     const handleFeatureChange = (planId: string, featureIndex: number, value: string) => {
         setPlans(prev => prev.map(p => {
             if (p.id !== planId) return p;
@@ -67,10 +66,10 @@ export const PlansEditor: React.FC = () => {
         }));
     };
 
-    // ----------------------------------
-
     const savePlan = async (plan: PlanConfig) => {
-        setSaving(plan.id);
+        setSavingId(plan.id); // Activar spinner
+        setSuccessId(null);   // Resetear éxito previo
+
         const success = await adminService.updatePlanConfig(plan.id, {
             name: plan.name,
             description: plan.description,
@@ -84,23 +83,25 @@ export const PlansEditor: React.FC = () => {
             limits: plan.limits
         });
 
+        setSavingId(null); // Desactivar spinner
+
         if (success) {
-            setSaveSuccess(prev => ({ ...prev, [plan.id]: true }));
-            setTimeout(() => {
-                setSaveSuccess(prev => ({ ...prev, [plan.id]: false }));
-            }, 2000);
+            // Mostrar estado de éxito (Check verde) de forma segura para React
+            setSuccessId(plan.id);
+            setTimeout(() => setSuccessId(null), 3000); // Quitar el check después de 3 seg
         } else {
-            alert('Error al guardar. Verifica tus permisos de administrador.');
+            // El error ya se maneja con alerts en el servicio si es necesario
         }
-        setSaving(null);
     };
 
     const saveSetting = async (key: string, value: string) => {
-        setSaving(key);
+        setSavingId(key);
         const success = await adminService.updateAppSetting(key, value);
-        if (success) alert('Configuración guardada.');
-        else alert('Error al guardar configuración.');
-        setSaving(null);
+        setSavingId(null);
+        if (success) {
+            setSuccessId(key);
+            setTimeout(() => setSuccessId(null), 3000);
+        }
     };
 
     if (loading) return (
@@ -158,16 +159,23 @@ export const PlansEditor: React.FC = () => {
                                     />
                                     Destacado
                                 </label>
+
+                                {/* BOTÓN DE GUARDAR SEGURO (React Friendly) */}
                                 <button
                                     onClick={() => savePlan(plan)}
-                                    disabled={saving === plan.id}
-                                    className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-all shadow-lg ${saveSuccess[plan.id]
-                                            ? 'bg-green-600 hover:bg-green-700 shadow-green-900/20'
-                                            : 'bg-blue-600 hover:bg-blue-700 shadow-blue-900/20'
-                                        }`}
+                                    disabled={savingId === plan.id}
+                                    className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-bold transition-all shadow-lg ${successId === plan.id
+                                            ? 'bg-green-600 text-white shadow-green-900/20'
+                                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-900/20'
+                                        } disabled:opacity-50`}
                                 >
-                                    {saving === plan.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    {saving === plan.id ? '...' : saveSuccess[plan.id] ? '¡Guardado!' : 'Guardar'}
+                                    {savingId === plan.id && <RefreshCw className="w-4 h-4 animate-spin" />}
+                                    {successId === plan.id && <Check className="w-4 h-4" />}
+                                    {!savingId && !successId && <Save className="w-4 h-4" />}
+
+                                    <span>
+                                        {savingId === plan.id ? '...' : (successId === plan.id ? '¡Guardado!' : 'Guardar')}
+                                    </span>
                                 </button>
                             </div>
                         </div>
@@ -307,10 +315,13 @@ export const PlansEditor: React.FC = () => {
                         <div className="mt-4 text-right">
                             <button
                                 onClick={() => saveSetting(setting.key, setting.value)}
-                                disabled={saving === setting.key}
-                                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-blue-900/20"
+                                disabled={savingId === setting.key}
+                                className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold shadow-lg transition-all ${successId === setting.key
+                                        ? 'bg-green-600 text-white shadow-green-900/20'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-900/20'
+                                    }`}
                             >
-                                {saving === setting.key ? 'Guardando...' : 'Guardar Texto Legal'}
+                                {savingId === setting.key ? 'Guardando...' : (successId === setting.key ? '¡Guardado!' : 'Guardar Texto Legal')}
                             </button>
                         </div>
                     </div>
