@@ -682,9 +682,9 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                 {/* Main Editor */}
                 <div className="flex-1 overflow-y-auto p-4 lg:p-10 flex justify-center">
                     <div className="flex flex-col max-w-4xl w-full gap-6">
-                        {/* Premium Media Player - Solid PLAUD Style */}
-                        <div className="sticky top-0 z-40 mb-8 pt-4 pb-6 bg-background-light dark:bg-background-dark">
-                            <div className="relative bg-white dark:bg-[#1e2736] rounded-2xl p-4 md:p-6 border border-slate-200 dark:border-white/5 shadow-xl">
+                        {/* Premium Media Player - Integrated PLAUD Style */}
+                        <div className="sticky top-0 z-40 pt-4 pb-8 bg-background-light dark:bg-background-dark">
+                            <div className="relative bg-white dark:bg-[#1e2736] rounded-2xl p-4 md:p-6 border border-slate-200 dark:border-white/5 shadow-2xl">
                                 <div className="flex flex-col gap-4">
                                     <div className="flex items-center gap-4 md:gap-6">
                                         <button
@@ -815,8 +815,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             </div>
                         </div>
 
-                        {/* Transcript Content */}
-                        <div className="bg-white dark:bg-[#1e2736] rounded-xl shadow-sm border border-slate-200 dark:border-border-dark min-h-[500px] p-6">
+                        {/* Transcript Content - Borderless Flow */}
+                        <div className="min-h-[500px]">
                             {segments.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-64 text-center">
                                     <div className="size-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 text-slate-400">
@@ -832,7 +832,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                     </button>
                                 </div>
                             ) : (
-                                <div className="space-y-6">
+                                <div className="space-y-4">
                                     {segments.map((segment) => (
                                         <div key={segment.id} className="flex gap-6 group hover:bg-slate-50 dark:hover:bg-white/[0.02] p-3 -mx-3 rounded-xl transition-colors">
                                             <div className="flex-shrink-0 w-14 pt-1">
@@ -852,7 +852,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                 </button>
                                             </div>
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2">
+                                                <div className="flex items-center gap-2">
                                                     {renamingSpeakerId === segment.id ? (
                                                         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
                                                             <input
@@ -863,14 +863,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                                 onKeyDown={(e) => e.key === 'Enter' && handleRenameSpeaker(segment.speaker)}
                                                                 autoFocus
                                                                 placeholder="Nombre..."
-                                                                className="bg-primary/10 border border-primary/30 text-xs font-bold text-primary px-2 py-0.5 rounded outline-none w-32"
+                                                                className="bg-primary/10 border border-primary/30 text-[10px] font-bold text-primary px-2 py-0.5 rounded outline-none w-24"
                                                             />
-                                                            <button
-                                                                onClick={() => handleRenameSpeaker(segment.speaker)}
-                                                                className="text-primary hover:text-primary-dark"
-                                                            >
-                                                                <span className="material-symbols-outlined text-sm">check</span>
-                                                            </button>
                                                         </div>
                                                     ) : (
                                                         <span
@@ -878,13 +872,13 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                                 setRenamingSpeakerId(segment.id);
                                                                 setNewSpeakerName(segment.speaker);
                                                             }}
-                                                            className={`text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-primary/10 px-2 py-0.5 rounded transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}
+                                                            className={`text-[10px] font-black uppercase tracking-[0.15em] cursor-pointer hover:bg-primary/10 px-1 rounded transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}
                                                         >
                                                             {formatSpeakerName(segment.speaker)}
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-slate-800 dark:text-slate-200 leading-relaxed text-base tracking-tight font-medium">
+                                                <p className="text-slate-800 dark:text-slate-200 leading-relaxed text-sm lg:text-base tracking-tight font-medium mt-1">
                                                     {segment.text}
                                                 </p>
                                             </div>
