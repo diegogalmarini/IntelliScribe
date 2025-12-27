@@ -28,7 +28,7 @@ export const adminService = {
                 return false;
             }
 
-            return data?.role === 'admin';
+            return data?.role === 'admin' || data?.role === 'super_admin';
         } catch (error) {
             console.error('[adminService] Exception in isAdmin:', error);
             return false;
@@ -377,7 +377,7 @@ export const adminService = {
         }));
     },
 
-    // --- NUEVOS MÉTODOS PARA GESTIÓN DE PLANES ---
+    // --- MÉTODOS PARA GESTIÓN DE PLANES (ACTUALIZADO CON DIAGNÓSTICO) ---
 
     /**
      * Obtener configuración de todos los planes
@@ -396,18 +396,40 @@ export const adminService = {
     },
 
     /**
-     * Actualizar un plan específico
+     * Actualizar un plan específico (CON DIAGNÓSTICO DE PERMISOS)
      */
     async updatePlanConfig(planId: string, updates: Partial<PlanConfig>): Promise<boolean> {
-        const { error } = await supabase
-            .from('plans_configuration')
-            .update(updates)
-            .eq('id', planId);
+        console.log(`[adminService] Intentando actualizar plan ${planId}...`);
 
-        if (error) {
-            console.error('[adminService] Error updating plan:', error);
+        // 1. Verificar sesión
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            console.error('[adminService] Error: No hay usuario autenticado');
             return false;
         }
+
+        // 2. Intentar Update
+        const { data, error } = await supabase
+            .from('plans_configuration')
+            .update(updates)
+            .eq('id', planId)
+            .select(); // Vital para saber si realmente se actualizó
+
+        if (error) {
+            console.error('[adminService] Error de DB:', error.message);
+            alert(`Error de Base de Datos: ${error.message}`);
+            return false;
+        }
+
+        // 3. Verificar si se actualizó algo (Si length es 0, es problema de permisos RLS)
+        if (data && data.length === 0) {
+            console.error('[adminService] FALLO SILENCIOSO: Supabase devolvió OK pero actualizó 0 filas.');
+            console.error('[adminService] CAUSA: Tu usuario no tiene el rol "admin" o "super_admin" en la tabla profiles.');
+            alert('Error de Permisos: No tienes rol de Admin en la base de datos. Ejecuta el script SQL de permisos.');
+            return false;
+        }
+
+        console.log('[adminService] Plan actualizado correctamente:', data);
         return true;
     },
 
@@ -427,11 +449,22 @@ export const adminService = {
      * Actualizar una configuración global
      */
     async updateAppSetting(key: string, value: string): Promise<boolean> {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('app_settings')
             .update({ value, updated_at: new Date() })
-            .eq('key', key);
+            .eq('key', key)
+            .select();
 
-        return !error;
+        if (error) {
+            console.error('[adminService] Error updating setting:', error);
+            return false;
+        }
+
+        if (data && data.length === 0) {
+            alert('Error: No tienes permisos para editar la configuración global (RLS blocked).');
+            return false;
+        }
+
+        return true;
     }
 };
