@@ -120,8 +120,6 @@ html {
     -ms-text-size-adjust: 100%;
     font-family: var(--suisse);
     height: 100%;
-    font-size: 62.5%;
-    /* Correctly scale rem to 10px base for easier math */
 }
 
 body {
@@ -129,7 +127,8 @@ body {
     color: var(--content-primary);
     background-color: var(--base-bg);
     min-height: 100%;
-    font-size: 1.6rem;
+    font-size: 1rem;
+    /* 16px base back to normal */
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -166,7 +165,8 @@ a {
 h1,
 .h1 {
     letter-spacing: -.027em !important;
-    font-size: 7.2rem !important;
+    font-size: 4.5rem !important;
+    /* 72px / 16px */
     font-weight: 500 !important;
     line-height: 1.03 !important;
     margin: 0;
@@ -175,7 +175,8 @@ h1,
 h2,
 .h2 {
     letter-spacing: -.01em !important;
-    font-size: 3.6rem !important;
+    font-size: 2.25rem !important;
+    /* 36px / 16px */
     font-weight: 500 !important;
     line-height: 1.2 !important;
     margin: 0;
@@ -238,12 +239,14 @@ button {
 
     h1,
     .h1 {
-        font-size: 4.8rem !important;
+        font-size: 3rem !important;
+        /* 48px */
     }
 
     h2,
     .h2 {
-        font-size: 2.8rem !important;
+        font-size: 1.75rem !important;
+        /* 28px */
     }
 }
 
@@ -251,6 +254,7 @@ button {
 
     h1,
     .h1 {
-        font-size: 3.8rem !important;
+        font-size: 2.375rem !important;
+        /* 38px */
     }
 }
