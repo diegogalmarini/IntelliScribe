@@ -35,7 +35,7 @@ export const Landing: React.FC = () => {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark min-h-screen font-sans transition-colors duration-300">
+        <div className="landing-page bg-background-light dark:bg-background-dark min-h-screen font-sans transition-colors duration-300">
             {/* SEO metadata would typically go in Header or via Helmet, assuming main index.html handles base SEO */}
 
             {/* Reading Progress Bar */}
