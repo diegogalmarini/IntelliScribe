@@ -23,10 +23,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { action, payload, language = 'en' } = req.body;
 
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
     if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({ error: 'Server Error: Missing GEMINI_API_KEY in environment variables.' });
     }
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (!supabaseUrl || !supabaseServiceKey) {
         return res.status(500).json({ error: 'Server Error: Missing SUPABASE_URL or SERVICE_ROLE_KEY.' });
     }
 
@@ -48,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are an expert executive assistant. Analyze the following meeting transcript and provide a structured summary including: 1. Executive Summary, 2. Key Decisions, 3. Action Items. Use Markdown formatting.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-1.5-flash',
                 contents: prompt,
                 config: { temperature: 0.3 }
             });
@@ -63,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are Diktalo. Answer based ONLY on this context:\n${transcript}`;
 
             const chat = genAI.chats.create({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-1.5-flash',
                 config: { systemInstruction },
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] }))
             });
@@ -117,7 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (!finalBase64) throw new Error('No audio data or URL provided');
 
             const response = await genAI.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-1.5-flash',
                 contents: {
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },

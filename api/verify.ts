@@ -57,7 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const accountSid = process.env.TWILIO_ACCOUNT_SID;
         const authToken = process.env.TWILIO_AUTH_TOKEN;
         const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
-        const supabaseUrl = process.env.VITE_SUPABASE_URL;
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         const missingVars = [];

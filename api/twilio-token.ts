@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 🔴 AUDITORÍA DE SEGURIDAD: Validar en el Servidor que el usuario tenga el plan correcto
     // No podemos confiar en el estado del cliente (AppRoute.PLANS solo filtra visualmente)
     try {
-        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!supabaseUrl || !supabaseServiceKey) {
