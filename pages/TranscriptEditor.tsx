@@ -562,16 +562,16 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     }
 
     return (
-        <div className="flex-1 flex flex-col h-screen bg-background-light dark:bg-[#0b0f17] overflow-hidden transition-colors duration-200" onClick={() => { setShowExportMenu(false); setShowTemplateMenu(false); }}>
+        <div className="flex-1 flex flex-col h-screen bg-slate-50 dark:bg-[#0b0f17] overflow-hidden transition-colors duration-200" onClick={() => { setShowExportMenu(false); setShowTemplateMenu(false); }}>
             {/* Hidden Audio Element */}
             <audio ref={audioRef} src={signedAudioUrl || undefined} preload="none" />
 
             {/* FIXED AREA: Header + Slim Player */}
-            <div className="flex-shrink-0 flex flex-col z-50 shadow-xl border-b border-white/5">
+            <div className="flex-shrink-0 flex flex-col z-50 shadow-xl border-b border-slate-200 dark:border-white/5">
                 {/* Header */}
-                <header className="flex items-center justify-between whitespace-nowrap bg-[#111722] px-4 lg:px-10 py-2 border-b border-white/5">
-                    <div className="flex items-center gap-2 md:gap-4 text-white flex-shrink min-w-0">
-                        <div className="size-8 text-slate-400 hover:text-white cursor-pointer flex items-center justify-center rounded-full hover:bg-white/5 transition-all" onClick={() => onNavigate(AppRoute.DASHBOARD)}>
+                <header className="flex items-center justify-between whitespace-nowrap bg-white dark:bg-[#111722] px-4 lg:px-10 py-2 border-b border-slate-200 dark:border-white/5">
+                    <div className="flex items-center gap-2 md:gap-4 text-slate-900 dark:text-white flex-shrink min-w-0">
+                        <div className="size-8 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-all" onClick={() => onNavigate(AppRoute.DASHBOARD)}>
                             <span className="material-symbols-outlined text-xl">arrow_back</span>
                         </div>
                         <div className="flex flex-col min-w-0">
@@ -584,11 +584,11 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                         onBlur={handleTitleSave}
                                         onKeyDown={handleTitleKeyDown}
                                         autoFocus
-                                        className="bg-transparent border-b border-primary text-white text-sm md:text-base font-bold outline-none p-0 w-[140px] md:w-[200px]"
+                                        className="bg-transparent border-b border-primary text-slate-900 dark:text-white text-sm md:text-base font-bold outline-none p-0 w-[140px] md:w-[200px]"
                                     />
                                 ) : (
                                     <>
-                                        <h2 className="text-white text-sm md:text-base font-bold cursor-pointer hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-[200px] md:max-w-md" onClick={() => setIsEditingTitle(true)}>
+                                        <h2 className="text-slate-900 dark:text-white text-sm md:text-base font-bold cursor-pointer hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-[200px] md:max-w-md" onClick={() => setIsEditingTitle(true)}>
                                             {recording.title}
                                         </h2>
                                         <button onClick={() => setIsEditingTitle(true)} className="text-slate-500 hover:text-primary transition-colors flex items-center">
@@ -609,7 +609,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowTemplateMenu(!showTemplateMenu); }}
                                 disabled={segments.length === 0 || isSummarizing}
-                                className="flex items-center h-8 px-3 rounded-full bg-[#232f48] text-white text-xs font-semibold hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50">
+                                className="flex items-center h-8 px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50">
                                 {isSummarizing ? (
                                     <span className="material-symbols-outlined animate-spin text-base">sync</span>
                                 ) : (
@@ -619,7 +619,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                 <span className="material-symbols-outlined text-xs opacity-50">expand_more</span>
                             </button>
                             {showTemplateMenu && (
-                                <div className="absolute right-0 top-10 w-64 bg-[#1e2736] border border-white/10 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                <div className="absolute right-0 top-10 w-64 bg-white dark:bg-[#1e2736] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                                     <div className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-white/5">{t('selectTemplate')}</div>
                                     {[
                                         { id: 'general', label: t('templateGeneral'), icon: 'summarize' },
@@ -631,7 +631,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                         <button
                                             key={tpl.id}
                                             onClick={() => { setSelectedTemplate(tpl.id); handleSummarize(); setShowTemplateMenu(false); }}
-                                            className="w-full text-left px-4 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2 group transition-colors">
+                                            className="w-full text-left px-4 py-2 text-xs text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/5 flex items-center gap-2 group transition-colors">
                                             <span className={`material-symbols-outlined text-lg ${selectedTemplate === tpl.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'}`}>{tpl.icon}</span>
                                             <span>{tpl.label}</span>
                                             {selectedTemplate === tpl.id && <span className="ml-auto material-symbols-outlined text-sm text-primary">check</span>}
@@ -644,7 +644,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         <button
                             onClick={(e) => { e.stopPropagation(); setShowChat(!showChat); }}
                             disabled={segments.length === 0}
-                            className={`flex items-center h-8 px-3 rounded-full text-white text-xs font-semibold transition-all gap-1.5 ${showChat ? 'bg-primary' : 'bg-[#232f48] hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
+                            className={`flex items-center h-8 px-3 rounded-full text-xs font-semibold transition-all gap-1.5 ${showChat ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
                             <span className="material-symbols-outlined text-base">auto_awesome</span>
                             <span className="hidden md:inline">{t('askDiktalo')}</span>
                         </button>
@@ -653,7 +653,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             onClick={handleDownloadAudio}
                             disabled={!recording.audioUrl}
                             title={user.subscription.planId === 'free' ? t('downloadRequiresPro') : t('downloadAudio')}
-                            className={`flex items-center h-8 px-3 rounded-full text-white text-xs font-semibold transition-all gap-1.5 ${user.subscription.planId === 'free' ? 'bg-slate-700 opacity-50 cursor-not-allowed' : 'bg-[#232f48] hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
+                            className={`flex items-center h-8 px-3 rounded-full text-xs font-semibold transition-all gap-1.5 ${user.subscription.planId === 'free' ? 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-400 opacity-50 cursor-not-allowed' : 'bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
                             <span className="material-symbols-outlined text-base">{user.subscription.planId === 'free' ? 'lock' : 'download'}</span>
                             <span className="hidden md:inline text-[10px] md:text-xs">Audio</span>
                         </button>
@@ -662,14 +662,14 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowExportMenu(!showExportMenu); }}
                                 disabled={segments.length === 0}
-                                className="flex items-center h-8 w-8 md:w-auto md:px-3 rounded-full bg-[#232f48] text-white text-xs font-semibold hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50">
+                                className="flex items-center h-8 w-8 md:w-auto md:px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50">
                                 <span className="material-symbols-outlined text-base">ios_share</span>
                                 <span className="hidden md:inline">{t('export')}</span>
                             </button>
                             {showExportMenu && (
-                                <div className="absolute right-0 top-10 w-48 bg-[#1e2736] border border-white/10 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                <div className="absolute right-0 top-10 w-48 bg-white dark:bg-[#1e2736] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                                     {['txt', 'srt', 'json', 'clipboard'].map((fmt) => (
-                                        <button key={fmt} onClick={() => { handleExport(fmt as any); setShowExportMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs text-white hover:bg-white/5 flex items-center gap-2 transition-colors">
+                                        <button key={fmt} onClick={() => { handleExport(fmt as any); setShowExportMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/5 flex items-center gap-2 transition-colors">
                                             <span className="material-symbols-outlined text-base text-slate-400">
                                                 {fmt === 'txt' ? 'description' : fmt === 'srt' ? 'closed_caption' : fmt === 'json' ? 'data_object' : 'content_copy'}
                                             </span>
@@ -683,7 +683,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                 </header>
 
                 {/* SLIM PLAYER BAR */}
-                <div className="bg-[#161b22] px-4 lg:px-10 py-3 flex items-center gap-4">
+                <div className="bg-slate-100 dark:bg-[#161b22] px-4 lg:px-10 py-3 flex items-center gap-4">
                     <button
                         onClick={togglePlay}
                         disabled={!signedAudioUrl}
@@ -723,17 +723,17 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         <div className="relative">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowSpeedMenu(!showSpeedMenu); }}
-                                className="flex items-center gap-1.5 h-8 px-2.5 bg-white/5 rounded-full border border-white/10 text-slate-300 text-[10px] font-bold hover:text-white transition-all">
+                                className="flex items-center gap-1.5 h-8 px-2.5 bg-slate-200 dark:bg-white/5 rounded-full border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-[10px] font-bold hover:text-slate-900 dark:hover:text-white transition-all">
                                 <span className="material-symbols-outlined text-base">speed</span>
                                 {playbackRate}x
                             </button>
                             {showSpeedMenu && (
-                                <div className="absolute bottom-10 right-0 w-24 bg-[#1e2736] border border-white/10 rounded-xl shadow-2xl py-1 z-50">
+                                <div className="absolute bottom-10 right-0 w-24 bg-white dark:bg-[#1e2736] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50">
                                     {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map(rate => (
                                         <button
                                             key={rate}
                                             onClick={() => { handlePlaybackRateChange(rate); setShowSpeedMenu(false); }}
-                                            className={`w-full text-left px-4 py-2 text-[10px] hover:bg-white/5 ${playbackRate === rate ? 'text-primary font-bold' : 'text-slate-300'}`}
+                                            className={`w-full text-left px-4 py-2 text-[10px] hover:bg-slate-100 dark:hover:bg-white/5 ${playbackRate === rate ? 'text-primary font-bold' : 'text-slate-700 dark:text-slate-300'}`}
                                         >
                                             {rate === 1.0 ? 'Normal' : `${rate}x`}
                                         </button>
@@ -766,15 +766,15 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             </div>
 
             {/* SCROLLABLE AREA: Transcript */}
-            <div className="flex-1 overflow-y-auto relative bg-[#0b0f17]">
+            <div className="flex-1 overflow-y-auto relative bg-white dark:bg-[#0b0f17]">
                 <main className="max-w-4xl mx-auto w-full px-4 lg:px-10 py-6 mb-20">
                     <div className="min-h-[500px]">
                         {segments.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-64 text-center">
-                                <div className="size-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-slate-400">
+                                <div className="size-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 text-slate-400">
                                     <span className="material-symbols-outlined text-3xl">graphic_eq</span>
                                 </div>
-                                <h3 className="text-lg font-medium text-white mb-2">{t('noTranscript')}</h3>
+                                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">{t('noTranscript')}</h3>
                                 <p className="text-sm text-slate-500 max-w-xs mb-6">{t('readyToTranscribe')}</p>
                                 <button
                                     onClick={handleTranscribeAudio}
@@ -786,7 +786,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         ) : (
                             <div className="space-y-3">
                                 {segments.map((segment) => (
-                                    <div key={segment.id} className="flex gap-4 group hover:bg-white/[0.02] p-2 -mx-2 rounded-lg transition-all duration-200">
+                                    <div key={segment.id} className="flex gap-4 group hover:bg-slate-50 dark:hover:bg-white/[0.02] p-2 -mx-2 rounded-lg transition-all duration-200">
                                         <div className="flex-shrink-0 w-10">
                                             <button
                                                 onClick={() => {
@@ -827,7 +827,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-slate-300 leading-normal text-sm lg:text-[15px] font-medium tracking-tight whitespace-pre-wrap">
+                                            <p className="text-slate-700 dark:text-slate-300 leading-normal text-sm lg:text-[15px] font-medium tracking-tight whitespace-pre-wrap">
                                                 {segment.text}
                                             </p>
                                         </div>
