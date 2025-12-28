@@ -13,7 +13,8 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [language, setLanguage] = useState<Language>('es'); // Default to Spanish as requested by style
 
   const t = (key: keyof typeof translations['en']) => {
-    return translations[language][key] || key;
+    const val = translations[language][key];
+    return val !== undefined ? val : key;
   };
 
   return (

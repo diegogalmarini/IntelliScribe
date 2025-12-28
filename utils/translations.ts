@@ -375,13 +375,13 @@ export const translations = {
     manCardPrivacy: "Privacy Center",
 
     // Insights Section
-    insightsTitlePre: "You're missing the key details.",
-    insightsTitleHighlight: "Use AI to see every word.",
-    insightsTitlePost: "",
+    insightsTitlePre: "Powerful ",
+    insightsTitleHighlight: "Insights",
+    insightsTitlePost: " from every word",
     insightsSubtitle: "Extract meaningful decisions and action items from every conversation, automatically and in real-time.",
     insightsFeature1: "Verified verbatim transcripts",
-    insightsFeature2: "Automated executive summary",
-    insightsFeature3: "Instant cloud indexing",
+    insightsFeature2: "Automated executive briefings",
+    insightsFeature3: "Secure cloud indexing",
     insightsAiAnalysis: "SYSTEM: ACTIVE",
 
     // Solutions Section
@@ -760,12 +760,12 @@ export const translations = {
     manCardPrivacy: "Centro de Privacidad",
 
     // Insights Section
-    insightsTitlePre: "Pierdes los detalles clave.",
-    insightsTitleHighlight: "Usa IA para verlo todo.",
-    insightsTitlePost: "",
+    insightsTitlePre: "Insights ",
+    insightsTitleHighlight: "Poderosos",
+    insightsTitlePost: " de cada palabra",
     insightsSubtitle: "Extrae decisiones clave y tareas pendientes de cada conversación, de forma automática y en tiempo real.",
     insightsFeature1: "Transcripción verbatim verificada",
-    insightsFeature2: "Resumen ejecutivo automatizado",
+    insightsFeature2: "Resúmenes ejecutivos automatizados",
     insightsFeature3: "Indexado instantáneo en la nube",
     insightsAiAnalysis: "SISTEMA: ACTIVO",
 

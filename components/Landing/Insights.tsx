@@ -6,18 +6,18 @@ export const Insights: React.FC = () => {
     const { t } = useLanguage();
 
     return (
-        <section id="insights" className="py-32 bg-white dark:bg-[#0b0f17] transition-colors duration-200 overflow-hidden">
+        <section id="insights" className="py-24 bg-white dark:bg-background-dark transition-colors duration-200 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col lg:flex-row items-center gap-24">
-                    {/* Left Column: Extreme Minimalism Typography */}
+                <div className="flex flex-col lg:flex-row items-center gap-16">
+                    {/* Left Column: Premium Typography (Owner.com inspired) */}
                     <div className="flex-1 text-left">
                         <motion.h2
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-4xl md:text-6xl font-display font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[1.05]"
+                            className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-tight"
                         >
-                            {t('insightsTitlePre')} {t('insightsTitleHighlight')} {t('insightsTitlePost')}
+                            Insights <span className="text-brand-green">Poderosos</span> de cada palabra
                         </motion.h2>
 
                         <motion.p
@@ -25,16 +25,16 @@ export const Insights: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg md:text-xl text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium max-w-lg"
+                            className="text-base md:text-lg text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium max-w-xl"
                         >
                             {t('insightsSubtitle')}
                         </motion.p>
 
-                        <div className="space-y-5">
+                        <div className="space-y-6">
                             {[
-                                { key: 'insightsFeature1' },
-                                { key: 'insightsFeature2' },
-                                { key: 'insightsFeature3' }
+                                { key: 'insightsFeature1', icon: 'lyrics' },
+                                { key: 'insightsFeature2', icon: 'history_edu' },
+                                { key: 'insightsFeature3', icon: 'inventory_2' }
                             ].map((feature, idx) => (
                                 <motion.div
                                     key={feature.key}
@@ -42,88 +42,95 @@ export const Insights: React.FC = () => {
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.2 + idx * 0.1 }}
-                                    className="flex items-center gap-3 text-slate-900 dark:text-slate-200 font-bold"
+                                    className="flex items-center gap-4 text-slate-700 dark:text-slate-200 font-bold italic"
                                 >
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white"></div>
+                                    <span className="material-symbols-outlined text-brand-green">{feature.icon}</span>
                                     {t(feature.key as any)}
                                 </motion.div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Right Column: Monochromatic Wireframe Showcase */}
+                    {/* Right Column: High-Fidelity App Mockup */}
                     <div className="flex-1 w-full relative">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.98 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="relative bg-[#f8f9fa] dark:bg-slate-900 rounded-[2rem] p-4 border border-slate-200 dark:border-white/5"
+                            className="relative bg-slate-900 rounded-[2.5rem] p-4 shadow-2xl border border-white/10"
                         >
-                            <div className="bg-white dark:bg-background-dark rounded-xl overflow-hidden aspect-video flex flex-col p-8 border border-slate-100 dark:border-white/5">
-                                {/* Monochromatic Header */}
-                                <div className="flex justify-between items-center mb-10">
-                                    <div className="flex gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-                                        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-                                        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
+                            <div className="bg-background-dark rounded-2xl overflow-hidden border border-white/5 aspect-video flex flex-col p-8">
+                                {/* Header Minimalista */}
+                                <div className="flex justify-between items-center mb-8">
+                                    <div className="flex gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
                                     </div>
-                                    <div className="text-[10px] text-slate-300 font-mono tracking-widest uppercase">
-                                        Processing...
+                                    <div className="px-3 py-1 bg-white/5 rounded-lg text-[10px] text-white/50 font-mono tracking-widest uppercase">
+                                        REC-50239-X
                                     </div>
                                 </div>
 
-                                {/* Simplified Wave (Pure Gray) */}
+                                {/* Area de Visualización de Ondas */}
                                 <div className="flex-1 flex flex-col justify-center">
-                                    <div className="flex items-center justify-center gap-2 h-10 mb-10">
-                                        {[...Array(18)].map((_, i) => (
+                                    <div className="flex items-center justify-center gap-1.5 h-16 mb-10">
+                                        {[...Array(15)].map((_, i) => (
                                             <motion.div
                                                 key={i}
                                                 animate={{
                                                     height: [
-                                                        `${20 + Math.random() * 50}%`,
-                                                        `${30 + Math.random() * 40}%`,
-                                                        `${20 + Math.random() * 50}%`
+                                                        `${20 + Math.random() * 60}%`,
+                                                        `${40 + Math.random() * 40}%`,
+                                                        `${20 + Math.random() * 60}%`
                                                     ]
                                                 }}
                                                 transition={{
                                                     repeat: Infinity,
-                                                    duration: 2,
-                                                    ease: "linear"
+                                                    duration: 1.5 + Math.random(),
+                                                    ease: "easeInOut"
                                                 }}
-                                                className="w-0.5 bg-slate-200 dark:bg-slate-700"
+                                                className="w-2 rounded-full bg-gradient-to-t from-primary/80 to-brand-green opacity-90"
                                             />
                                         ))}
                                     </div>
 
-                                    {/* Minimalist Progress */}
-                                    <div className="space-y-4 max-w-xs mx-auto w-full">
-                                        <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    {/* Barra de Progreso y Estados */}
+                                    <div className="space-y-4 max-w-sm mx-auto w-full">
+                                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                                             <motion.div
                                                 initial={{ width: 0 }}
-                                                whileInView={{ width: "70%" }}
-                                                transition={{ duration: 3 }}
-                                                className="h-full bg-slate-900 dark:bg-white"
+                                                whileInView={{ width: "85%" }}
+                                                transition={{ duration: 2, ease: "easeOut" }}
+                                                className="h-full bg-primary"
                                             />
                                         </div>
-                                        <div className="h-1 bg-slate-50 dark:bg-slate-800/50 rounded-full w-2/3"></div>
+                                        <div className="flex gap-3">
+                                            <div className="h-1.5 bg-white/5 rounded-full flex-[3]"></div>
+                                            <div className="h-1.5 bg-white/5 rounded-full flex-1"></div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Ghost Controls */}
-                                <div className="mt-8 flex justify-center gap-10">
-                                    <div className="text-slate-200">
-                                        <span className="material-symbols-outlined text-base">pause</span>
+                                {/* Controles (Literalmente como en el original) */}
+                                <div className="mt-8 flex justify-center gap-6">
+                                    <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-primary cursor-pointer hover:bg-primary/30 transition-all shadow-lg active:scale-95">
+                                        <span className="material-symbols-outlined text-lg">pause</span>
                                     </div>
-                                    <div className="text-slate-900 dark:text-white">
-                                        <span className="material-symbols-outlined text-base">stop</span>
+                                    <div className="w-11 h-11 rounded-full bg-red-500 flex items-center justify-center text-white cursor-pointer hover:scale-105 transition-all shadow-xl active:scale-95">
+                                        <span className="material-symbols-outlined text-lg">stop</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Minimal Tag (No Purple) */}
-                            <div className="absolute top-8 right-8 bg-slate-900 dark:bg-white px-3 py-1.5 rounded text-white dark:text-slate-900 font-bold text-[9px] uppercase tracking-widest">
+                            {/* Badge de IA Badge */}
+                            <motion.div
+                                animate={{ y: [0, -5, 0] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute -top-6 -right-6 bg-brand-violet px-5 py-2.5 rounded-2xl shadow-2xl text-white font-black text-xs uppercase tracking-widest border border-white/20"
+                            >
                                 {t('insightsAiAnalysis')}
-                            </div>
+                            </motion.div>
                         </motion.div>
                     </div>
                 </div>
