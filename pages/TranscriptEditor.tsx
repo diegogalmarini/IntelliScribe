@@ -331,8 +331,11 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                 const parts = signedAudioUrl.split(',');
                 const meta = parts[0];
                 base64 = parts[1];
-                const matches = meta.match(/:(.*?);/);
-                if (matches && matches[1]) mimeType = matches[1];
+                // Defensive check for meta
+                if (meta) {
+                    const matches = meta.match(/:(.*?);/);
+                    if (matches && matches[1]) mimeType = matches[1];
+                }
             } else {
                 if (recording.audioUrl?.endsWith('.webm')) mimeType = 'audio/webm';
                 else if (recording.audioUrl?.endsWith('.wav')) mimeType = 'audio/wav';
