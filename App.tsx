@@ -477,7 +477,11 @@ const AppContent: React.FC = () => {
         return (
             <div className="h-screen w-full flex flex-col items-center justify-center bg-background-dark">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="material-symbols-outlined text-primary text-5xl animate-pulse">waves</span>
+                    <img
+                        src="/logo-diktalo.svg"
+                        alt="Diktalo"
+                        className="h-12 w-auto animate-pulse"
+                    />
                     <span className="text-4xl font-display font-black text-white tracking-tight">Diktalo</span>
                 </div>
                 <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
