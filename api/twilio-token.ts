@@ -20,6 +20,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Missing userId' });
     }
 
+    // 🔴 AUDITORÍA DE SEGURIDAD: Validar en el Servidor que el usuario tenga el plan correcto
+    // No podemos confiar en el estado del cliente (AppRoute.PLANS solo filtra visualmente)
+    try {
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseServiceKey) {
+            console.error('[TOKEN] Configuración de Supabase ausente');
+            return res.status(500).json({ error: 'Configuration Error' });
+        }
+
+        // Consultar directamente el perfil del usuario para verificar su plan
+        const response = await fetch(
+            `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=plan_id`,
+            {
+                headers: {
+                    'apikey': supabaseServiceKey,
+                    'Authorization': `Bearer ${supabaseServiceKey}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            console.error('[TOKEN] Error consultando perfil:', response.statusText);
+            return res.status(500).json({ error: 'Identity verification failed' });
+        }
+
+        const data = await response.json();
+        const profile = data[0];
+
+        if (!profile || profile.plan_id !== 'business_plus') {
+            console.warn(`[SECURITY] 🛑 Intento de acceso no autorizado al Dialer. User: ${userId}, Plan: ${profile?.plan_id || 'unknown'}`);
+            return res.status(403).json({
+                error: 'Unauthorized',
+                message: 'El acceso al Dialer requiere un plan Business Plus.'
+            });
+        }
+
+        console.log(`[TOKEN] ✅ Acceso concedido para user ${userId} (Plan: business_plus)`);
+
+    } catch (err) {
+        console.error('[TOKEN] Crash durante validación:', err);
+        return res.status(500).json({ error: 'Validation process failed' });
+    }
+
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const apiKey = process.env.TWILIO_API_KEY_SID;
     const apiSecret = process.env.TWILIO_API_KEY_SECRET;

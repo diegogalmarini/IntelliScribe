@@ -71,6 +71,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     const [segments, setSegments] = useState<TranscriptSegment[]>(recording.segments || []);
     const [isTranscribing, setIsTranscribing] = useState(false);
     const [summary, setSummary] = useState<string>(recording.summary || '');
+    const [summaryError, setSummaryError] = useState<string | null>(null);
 
     // Export State
     const [showExportMenu, setShowExportMenu] = useState(false);
@@ -367,14 +368,15 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     const handleSummarize = async () => {
         if (segments.length === 0) return;
         setIsSummarizing(true);
+        setSummaryError(null);
+        setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
         try {
             const summaryText = await generateMeetingSummary(fullTranscript, language);
             setSummary(summaryText);
             onUpdateRecording(recording.id, { summary: summaryText });
-            setShowSummaryModal(true);
-        } catch (error) {
+        } catch (error: any) {
             logger.error('Failed to summarize', { error, recordingId: recording.id }, user.id);
-            alert("Failed to generate summary.");
+            setSummaryError(error.message || "Failed to generate summary.");
         } finally {
             setIsSummarizing(false);
             setShowTemplateMenu(false);
@@ -909,21 +911,35 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 md:p-10 prose prose-invert prose-sm md:prose-base max-w-none">
-                            {summary ? (
-                                <ReactMarkdown>{summary}</ReactMarkdown>
-                            ) : (
+                            {isSummarizing ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-                                    <span className="material-symbols-outlined text-4xl animate-spin mb-4">sync</span>
+                                    <span className="material-symbols-outlined text-4xl animate-spin mb-4 text-primary">sync</span>
                                     <p className="text-sm">{t('thinking')}...</p>
                                 </div>
+                            ) : summaryError ? (
+                                <div className="flex flex-col items-center justify-center h-48 text-center px-4">
+                                    <span className="material-symbols-outlined text-4xl text-red-500 mb-4">error</span>
+                                    <p className="text-sm text-slate-400 mb-6">{summaryError}</p>
+                                    <button
+                                        onClick={handleSummarize}
+                                        className="flex items-center gap-2 px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full text-sm font-bold border border-white/10 transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">replay</span>
+                                        {t('retry') || 'Retry'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <ReactMarkdown>{summary}</ReactMarkdown>
                             )}
                         </div>
                         <div className="p-5 border-t border-white/5 flex justify-end gap-3 bg-[#0b0f17]">
-                            <button
-                                onClick={() => { navigator.clipboard.writeText(summary); alert('Summary copied!'); }}
-                                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors">
-                                {t('export')}
-                            </button>
+                            {!summaryError && summary && (
+                                <button
+                                    onClick={() => { navigator.clipboard.writeText(summary); alert('Summary copied!'); }}
+                                    className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors">
+                                    {t('export')}
+                                </button>
+                            )}
                             <button
                                 onClick={() => setShowSummaryModal(false)}
                                 className="px-6 py-2 bg-primary hover:bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-primary/20 transition-all">
