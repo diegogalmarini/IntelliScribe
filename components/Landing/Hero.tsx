@@ -20,26 +20,13 @@ export const Hero: React.FC = () => {
 
             <div className="container mx-auto px-4 relative z-10 text-center">
 
-                {/* 2. Badge de Estatus */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-semibold mb-8 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-default"
-                >
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    v1.0 Public Beta Access
-                </motion.div>
 
                 {/* 3. Titular de Alto Impacto */}
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="h1-owner text-slate-900 dark:text-white mb-6"
+                    className="h1 text-slate-900 dark:text-white mb-6"
                 >
                     Tu Segundo Cerebro <br className="hidden md:block" />
                     Corporativo.
@@ -64,7 +51,7 @@ export const Hero: React.FC = () => {
                 >
                     <Link
                         to="/login"
-                        className="w-full sm:w-auto px-10 py-5 bg-slate-950 text-white font-bold text-lg transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group btn-owner"
+                        className="w-full sm:w-auto px-10 py-5 bg-slate-950 text-white font-semibold text-lg transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group rounded-xl"
                     >
                         Empezar gratis
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

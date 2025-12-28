@@ -30,10 +30,10 @@ export const Testimonials: React.FC = () => {
         <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16">
-                    <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Testimonials</h2>
-                    <h3 className="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white tracking-tight">
+                    <p className="text-xs font-bold text-slate-500 mb-3">Testimonios</p>
+                    <h2 className="h2 text-slate-900 dark:text-white">
                         {t('heroReview')}
-                    </h3>
+                    </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -50,7 +50,7 @@ export const Testimonials: React.FC = () => {
                                 <img src={item.image} alt={item.name} className="size-12 rounded-full object-cover ring-2 ring-primary/20" />
                                 <div>
                                     <h4 className="font-bold text-slate-900 dark:text-white text-sm">{item.name}</h4>
-                                    <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">{item.role}</p>
+                                    <p className="text-xs text-slate-500 font-medium">{item.role}</p>
                                 </div>
                             </div>
                             <div className="flex gap-1 text-amber-400 mb-4 text-sm">
