@@ -1,159 +1,160 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { AnimatedCounter } from '../AnimatedCounter';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowRight, Play, ShieldCheck, Smartphone, Monitor } from 'lucide-react';
 
 export const Hero: React.FC = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { t } = useLanguage();
-    const [transcribedMinutes, setTranscribedMinutes] = useState(14200);
-
-    // Live counter simulation: Increment minutes every 3-7 seconds
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTranscribedMinutes(prev => prev + 1);
-        }, Math.random() * (7000 - 3000) + 3000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2,
-                delayChildren: 0.3
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.8 }
-        }
-    };
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-20 overflow-hidden bg-slate-950 transition-colors duration-200">
-            {/* Ambient Background Structure */}
-            <div className="absolute inset-0 z-0 overflow-hidden">
-                {/* Moving Blobs */}
-                <motion.div
-                    animate={{
-                        x: [0, 100, 0],
-                        y: [0, 50, 0],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary/20 blur-[150px] rounded-full"
-                ></motion.div>
-                <motion.div
-                    animate={{
-                        x: [0, -80, 0],
-                        y: [0, -40, 0],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-violet/10 blur-[150px] rounded-full"
-                ></motion.div>
+        <div className="relative overflow-hidden bg-white dark:bg-[#0b0f17] pt-32 pb-20 lg:pt-48 lg:pb-32 transition-colors duration-300">
 
-                {/* Subtle Grid Overlay */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-150 contrast-150 mix-blend-overlay"></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/50 to-slate-950"></div>
+            {/* 1. Fondo Técnico (Grid Sutil) */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+            <div className="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 pointer-events-none">
+                <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute bottom-20 right-10 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] animate-pulse delay-1000" />
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-center">
+            <div className="container mx-auto px-4 relative z-10 text-center">
+
+                {/* 2. Badge de Estatus */}
                 <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="flex flex-col items-center"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-semibold mb-8 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors cursor-default"
                 >
-                    <motion.div variants={itemVariants} className="mb-8">
-                        <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                            {t('heroReview')}
-                        </span>
-                    </motion.div>
-
-                    <motion.h1
-                        variants={itemVariants}
-                        className="text-4xl md:text-6xl font-display font-bold mb-8 leading-tight text-white tracking-tight max-w-4xl"
-                    >
-                        {t('heroTitle')}
-                    </motion.h1>
-
-                    <motion.p
-                        variants={itemVariants}
-                        className="text-lg md:text-xl text-slate-400 mb-12 leading-relaxed max-w-2xl font-medium"
-                    >
-                        {t('heroSubtitle')}
-                    </motion.p>
-
-                    <motion.div
-                        variants={itemVariants}
-                        className="flex flex-col sm:flex-row items-center gap-4 mb-20"
-                    >
-                        <a
-                            href="/login"
-                            className="px-12 py-5 bg-white text-slate-950 font-bold rounded-full shadow-[0_0_50px_rgba(255,255,255,0.15)] flex items-center gap-3 transition-all hover:scale-105 active:scale-95 text-xs uppercase tracking-[0.2em] group"
-                        >
-                            {t('heroCTA')}
-                            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
-                        </a>
-
-                        <button
-                            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="px-10 py-5 text-white/60 font-bold hover:text-white transition-all flex items-center gap-2 text-xs uppercase tracking-[0.2em]"
-                        >
-                            {t('navFeatures')}
-                            <span className="material-symbols-outlined text-base">expand_more</span>
-                        </button>
-                    </motion.div>
-
-                    {/* Live Metrics Row */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl"
-                    >
-                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-                            <div className="text-3xl font-display font-bold text-white mb-1">
-                                <AnimatedCounter value={transcribedMinutes} duration={3} />+
-                            </div>
-                            <div className="text-xs uppercase tracking-widest text-white/40 font-bold">{t('metricMins')}</div>
-                        </div>
-                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-                            <div className="text-3xl font-display font-bold text-white mb-1">
-                                <AnimatedCounter value={1200} duration={2.5} />+
-                            </div>
-                            <div className="text-xs uppercase tracking-widest text-white/40 font-bold">{t('metricPros')}</div>
-                        </div>
-                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-                            <div className="text-3xl font-display font-bold text-white mb-1">
-                                <AnimatedCounter value={240} duration={2} />h+
-                            </div>
-                            <div className="text-xs uppercase tracking-widest text-white/40 font-bold">{t('metricSaved')}</div>
-                        </div>
-                    </motion.div>
-
-                    {/* Trust Badges */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="mt-24 pt-10 border-t border-white/5 w-full max-w-4xl"
-                    >
-                        <p className="text-[10px] font-black tracking-[0.3em] text-white/30 uppercase mb-8">Powered by Industry Leaders</p>
-                        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                            <span className="font-black text-xl italic tracking-tighter text-white">TWILIO</span>
-                            <span className="font-black text-xl italic tracking-tighter text-white">SUPABASE</span>
-                            <span className="font-black text-xl italic tracking-tighter text-white">GEMINI AI</span>
-                            <span className="font-black text-xl italic tracking-tighter text-white">STRIPE</span>
-                        </div>
-                    </motion.div>
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    v1.0 Public Beta Access
                 </motion.div>
+
+                {/* 3. Titular de Alto Impacto */}
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white mb-6 leading-[1.1]"
+                >
+                    Tu Segundo Cerebro <br className="hidden md:block" />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400">
+                        Corporativo.
+                    </span>
+                </motion.h1>
+
+                {/* 4. Subtítulo Aspiracional */}
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed"
+                >
+                    Graba en el móvil, decide en la web. <span className="font-semibold text-slate-900 dark:text-white">Diktalo</span> unifica llamadas, grabaciones y tareas en un solo sistema operativo de inteligencia.
+                </motion.p>
+
+                {/* 5. CTAs de Conversión */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+                >
+                    <Link
+                        to="/login"
+                        className="w-full sm:w-auto px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-all shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 flex items-center justify-center gap-2 group"
+                    >
+                        Empezar Gratis
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+
+                    <button
+                        onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white dark:bg-white/5 text-slate-700 dark:text-white font-semibold text-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                    >
+                        <Play className="w-5 h-5 fill-current" />
+                        Ver Demo
+                    </button>
+                </motion.div>
+
+                {/* 6. Social Proof (Trust Battery) */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-medium text-slate-500 dark:text-slate-500 mb-20"
+                >
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>SOC2 & GDPR Ready</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Smartphone className="w-4 h-4" />
+                        <span>iOS & Android PWA</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Monitor className="w-4 h-4" />
+                        <span>Web Desktop</span>
+                    </div>
+                </motion.div>
+
+                {/* 7. VISUAL HERO (Ecosistema Dual - Estilo Owner.com) */}
+                <motion.div
+                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 1, delay: 0.6, type: "spring" }}
+                    className="relative mx-auto max-w-6xl px-4"
+                >
+                    {/* Sombra Glow detrás */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 via-blue-500/5 to-transparent blur-3xl -z-10 transform translate-y-20"></div>
+
+                    <div className="relative">
+                        {/* A. Imagen de Escritorio (Desktop) - CENTRADA */}
+                        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#161b22] shadow-2xl overflow-hidden">
+                            <img
+                                src="/images/hero-desktop.png"
+                                alt="Diktalo Desktop Dashboard"
+                                className="w-full h-auto"
+                                onError={(e) => {
+                                    // Fallback temporal si no existe la imagen aún
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.parentElement!.style.height = '500px';
+                                    e.currentTarget.parentElement!.style.display = 'flex';
+                                    e.currentTarget.parentElement!.style.alignItems = 'center';
+                                    e.currentTarget.parentElement!.style.justifyContent = 'center';
+                                    e.currentTarget.parentElement!.innerHTML = '<span class="text-slate-400">Desktop Mockup Placeholder</span>';
+                                }}
+                            />
+                        </div>
+
+                        {/* B. Imagen de Móvil (Mobile) - FLOTANTE SOBREPUESTA */}
+                        <motion.div
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 1, duration: 0.8 }}
+                            className="hidden md:block absolute -bottom-10 -right-4 md:-bottom-16 md:-right-12 w-[25%] md:w-[20%] min-w-[140px] rounded-[2.5rem] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden z-20"
+                        >
+                            <img
+                                src="/images/hero-mobile.png"
+                                alt="Diktalo Mobile App"
+                                className="w-full h-auto rounded-[2rem]"
+                                onError={(e) => {
+                                    // Fallback temporal
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.parentElement!.style.height = '300px';
+                                    e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-white text-xs">Mobile</div>';
+                                }}
+                            />
+                        </motion.div>
+                    </div>
+
+                </motion.div>
+
             </div>
-        </section>
+        </div>
     );
 };
