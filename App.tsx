@@ -50,7 +50,7 @@ const AppContent: React.FC = () => {
         if (path === '/terms') return AppRoute.TERMS;
         if (path === '/privacy') return AppRoute.PRIVACY;
         if (path === '/login') return AppRoute.LOGIN;
-        if (path === '/dashboard') return AppRoute.DASHBOARD;
+        if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
     };
 
@@ -125,7 +125,7 @@ const AppContent: React.FC = () => {
     const [activeRecordingId, setActiveRecordingId] = useState<string | null>(null);
 
     // --- REFRESHABLE FETCHERS ---
-    const fetchProfile = async () => {
+    const fetchProfile = React.useCallback(async () => {
         if (!supabaseUser) return;
         const { data, error } = await supabase
             .from('profiles')
@@ -161,9 +161,9 @@ const AppContent: React.FC = () => {
                 email: supabaseUser.email || prev.email,
             }));
         }
-    };
+    }, [supabaseUser]);
 
-    const fetchData = async () => {
+    const fetchData = React.useCallback(async () => {
         if (!supabaseUser) return;
         setIsLoadingData(true);
         try {
@@ -187,7 +187,7 @@ const AppContent: React.FC = () => {
         } finally {
             setIsLoadingData(false);
         }
-    };
+    }, [supabaseUser, t]);
 
     // --- DATA LOADING & AUTH EFFECT ---
     useEffect(() => {

@@ -66,13 +66,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     useEffect(() => {
         const handleClickOutside = () => setActiveMenuId(null);
         window.addEventListener('click', handleClickOutside);
-
-        // Force refresh profile on load to handle post-payment state or stale usage
-        if (onRefreshProfile) {
-            console.log("[Dashboard] Forcing profile refresh...");
-            onRefreshProfile();
-        }
-
         return () => window.removeEventListener('click', handleClickOutside);
     }, []);
 
