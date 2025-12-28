@@ -375,14 +375,14 @@ export const translations = {
     manCardPrivacy: "Privacy Center",
 
     // Insights Section
-    insightsTitlePre: "Get full control of your ",
-    insightsTitleHighlight: "conversations",
+    insightsTitlePre: "You're missing the key details.",
+    insightsTitleHighlight: "Use AI to see every word.",
     insightsTitlePost: "",
-    insightsSubtitle: "Our AI engine analyzes every word in real-time, extracting meaningful insights and action items automatically.",
-    insightsFeature1: "Verified high-fidelity transcripts",
-    insightsFeature2: "Automated executive briefings",
-    insightsFeature3: "Secure cloud indexing",
-    insightsAiAnalysis: "AI Status: Active",
+    insightsSubtitle: "Extract meaningful decisions and action items from every conversation, automatically and in real-time.",
+    insightsFeature1: "Verified verbatim transcripts",
+    insightsFeature2: "Automated executive summary",
+    insightsFeature3: "Instant cloud indexing",
+    insightsAiAnalysis: "SYSTEM: ACTIVE",
 
     // Solutions Section
     solSectionTag: "Solutions",
@@ -760,14 +760,14 @@ export const translations = {
     manCardPrivacy: "Centro de Privacidad",
 
     // Insights Section
-    insightsTitlePre: "Control total de cada ",
-    insightsTitleHighlight: "conversación",
+    insightsTitlePre: "Pierdes los detalles clave.",
+    insightsTitleHighlight: "Usa IA para verlo todo.",
     insightsTitlePost: "",
-    insightsSubtitle: "Nuestra IA analiza cada palabra en tiempo real, extrayendo los puntos clave y tareas pendientes automáticamente.",
-    insightsFeature1: "Transcripción verificada de alta fidelidad",
-    insightsFeature2: "Resúmenes ejecutivos automatizados",
-    insightsFeature3: "Indexado seguro en la nube",
-    insightsAiAnalysis: "Estado IA: Activo",
+    insightsSubtitle: "Extrae decisiones clave y tareas pendientes de cada conversación, de forma automática y en tiempo real.",
+    insightsFeature1: "Transcripción verbatim verificada",
+    insightsFeature2: "Resumen ejecutivo automatizado",
+    insightsFeature3: "Indexado instantáneo en la nube",
+    insightsAiAnalysis: "SISTEMA: ACTIVO",
 
     // Solutions Section
     solSectionTag: "Soluciones",
