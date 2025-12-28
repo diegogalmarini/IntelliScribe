@@ -60,10 +60,10 @@ export const Pricing: React.FC = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 py-24 relative" id="pricing">
             <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-slate-900 mb-4">
-                    Planes Flexibles y Transparentes
+                <h2 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white mb-4">
+                    Planes flexibles y trasparentes
                 </h2>
-                <p className="text-xl text-slate-600">
+                <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400">
                     Sin costes ocultos. Cancela cuando quieras.
                 </p>
 

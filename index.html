@@ -128,6 +128,39 @@
     .bg-gradient-brand {
       background: linear-gradient(90deg, #8F53ED 0%, #2CA3FF 50%, #39F672 100%);
     }
+
+    /* OWNER.COM TYPOGRAPHY SYSTEM */
+    .h1-owner {
+      letter-spacing: -0.027em !important;
+      font-size: 5.2rem !important;
+      font-weight: 600 !important;
+      line-height: 1.03 !important;
+    }
+
+    /* Small screens fallback for H1 */
+    @media (max-width: 768px) {
+      .h1-owner {
+        font-size: 3.5rem !important;
+      }
+    }
+
+    .h2-section {
+      letter-spacing: -0.02em !important;
+      line-height: 1.1 !important;
+      font-weight: 700 !important;
+    }
+
+    .btn-owner {
+      transition: all 0.2s ease-in-out;
+      border-radius: 0.75rem !important;
+      /* rounded-xl */
+      font-weight: 600 !important;
+    }
+
+    .btn-owner:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    }
   </style>
   <script type="importmap">
 {
