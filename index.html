@@ -1,103 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diktalo</title>
-  <!-- PWA Settings -->
-  <meta name="theme-color" content="#111827">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo-diktalo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Diktalo - AI Meeting Assistant</title>
+  <meta name="description" content="Capture, Transcribe, and Analyze meetings with AI." />
+
+  <!-- PWA / Mobile Readiness -->
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Diktalo" />
+  <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+
+  <!-- Standard Styles -->
+  <link rel="stylesheet" href="/style.css" />
+
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-    rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#2CA3FF", // Updated primary to match the mid-blue
-            "primary-hover": "#1d90e2",
-            "background-light": "#f6f6f8",
-            "background-dark": "#101622",
-            "surface-dark": "#1e2736",
-            "surface-light": "#ffffff",
-            "border-dark": "#232f48",
-            "border-light": "#e2e8f0",
-            "text-secondary": "#92a4c9",
-            "card-dark": "#1e2736",
-            // BRAND PALETTE - NEW GRADIENT SCALE
-            "brand-violet": "#8F53ED",
-            "brand-blue": "#2CA3FF",
-            "brand-green": "#39F672",
-            "brand-grey": "#64748b",
-          },
-          fontFamily: {
-            display: ["Inter", "sans-serif"],
-            sans: ["Inter", "sans-serif"],
-          },
-          borderRadius: {
-            DEFAULT: "0.25rem",
-            lg: "0.5rem",
-            xl: "0.75rem",
-            "2xl": "1rem",
-            full: "9999px",
-          },
-          animation: {
-            "pulse-red": "pulse-red 2s infinite",
-            "wave": "wave 1s ease-in-out infinite",
-          },
-          keyframes: {
-            "pulse-red": {
-              "0%": { boxShadow: "0 0 0 0 rgba(239, 68, 68, 0.7)" },
-              "70%": { boxShadow: "0 0 0 6px rgba(239, 68, 68, 0)" },
-              "100%": { boxShadow: "0 0 0 0 rgba(239, 68, 68, 0)" },
-            },
-            "wave": {
-              "0%, 100%": { height: "20%" },
-              "50%": { height: "100%" },
-            },
-          },
-        },
-      },
-    };
-  </script>
-  <style>
-    /* Essential Symbols & Scrollbar ONLY */
-    .material-symbols-outlined {
-      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-    }
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    .material-symbols-filled {
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background-color: #374151;
-      border-radius: 20px;
-    }
-  </style>
-  <link rel="stylesheet" href="/style.css">
-
-  <!-- Google Analytics 4 (GA4) -->
+  <!-- Global Analytics (Google Tag) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-H50QCZL8CS"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -107,7 +37,7 @@
   </script>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased">
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased overflow-x-hidden">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

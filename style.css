@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* 
   OWNER.COM INSPIRED DESIGN SYSTEM for DIKTALO
   Strictly Scoped for the Landing Page to protect SaaS Core
