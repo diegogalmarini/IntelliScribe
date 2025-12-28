@@ -37,6 +37,7 @@ export const Hero: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
+                    style={{ textAlign: 'center' }}
                     className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mt-4 mb-14 max-w-2xl mx-auto leading-relaxed px-4"
                 >
                     Graba en el móvil, decide en la web. <span className="font-semibold text-slate-900 dark:text-white">Diktalo</span> unifica llamadas, grabaciones y tareas en un solo sistema operativo de inteligencia.
