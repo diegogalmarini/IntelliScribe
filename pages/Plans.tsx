@@ -339,15 +339,8 @@ export function Plans({ user }: PlansProps) {
 
                 {/* --- SECCIÓN 4: FOOTER LEGAL DINÁMICO --- */}
                 {legalText && (
-                    <div className="mt-16 text-center border-t border-gray-200 dark:border-slate-800 pt-8">
-                        <div className="inline-flex items-center justify-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg mb-4">
-                            <AlertTriangle className="w-4 h-4 text-yellow-600 mr-2" />
-                            <span className="text-xs font-bold text-yellow-700 dark:text-yellow-500 uppercase tracking-wide">
-                                Aviso Legal
-                            </span>
-                        </div>
-
-                        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed whitespace-pre-wrap">
+                    <div className="mt-16 border-t border-gray-200 dark:border-slate-800 pt-8">
+                        <p className="text-[10px] text-gray-400 dark:text-white/60 w-full text-center leading-relaxed whitespace-pre-wrap px-4">
                             {legalText}
                         </p>
                     </div>
