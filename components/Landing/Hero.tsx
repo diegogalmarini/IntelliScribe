@@ -39,7 +39,7 @@ export const Hero: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 dark:text-white mb-6 leading-[1.1]"
+                    className="h1-owner text-slate-900 dark:text-white mb-6"
                 >
                     Tu Segundo Cerebro <br className="hidden md:block" />
                     Corporativo.
@@ -64,18 +64,18 @@ export const Hero: React.FC = () => {
                 >
                     <Link
                         to="/login"
-                        className="w-full sm:w-auto px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-all shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 flex items-center justify-center gap-2 group"
+                        className="w-full sm:w-auto px-10 py-5 bg-slate-950 text-white font-bold text-lg transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group btn-owner"
                     >
-                        Empezar Gratis
+                        Empezar gratis
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
 
                     <button
                         onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white dark:bg-white/5 text-slate-700 dark:text-white font-semibold text-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-white/5 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 btn-owner"
                     >
                         <Play className="w-5 h-5 fill-current" />
-                        Ver Demo
+                        Ver demo
                     </button>
                 </motion.div>
 

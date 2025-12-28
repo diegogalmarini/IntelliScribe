@@ -15,7 +15,7 @@ export const Insights: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-tight"
+                            className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white mb-6"
                         >
                             {t('insightsTitlePre')}{t('insightsTitleHighlight')}{t('insightsTitlePost')}
                         </motion.h2>
@@ -25,7 +25,7 @@ export const Insights: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="text-base md:text-lg text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium max-w-xl"
+                            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed font-medium max-w-xl"
                         >
                             {t('insightsSubtitle')}
                         </motion.p>
@@ -127,7 +127,7 @@ export const Insights: React.FC = () => {
                             <motion.div
                                 animate={{ y: [0, -5, 0] }}
                                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute -top-6 -right-6 bg-brand-violet px-5 py-2.5 rounded-2xl shadow-2xl text-white font-black text-xs uppercase tracking-widest border border-white/20"
+                                className="absolute -top-6 -right-6 bg-brand-violet px-5 py-2.5 rounded-2xl shadow-2xl text-white font-bold text-[10px] tracking-widest border border-white/20"
                             >
                                 {t('insightsAiAnalysis')}
                             </motion.div>

@@ -3,7 +3,6 @@ import { Hero } from '../components/Landing/Hero';
 import { Insights } from '../components/Landing/Insights';
 import { Solutions } from '../components/Landing/Solutions';
 import { Pricing } from '../components/Landing/Pricing';
-import { Demo } from '../components/Landing/Demo';
 import { Footer } from '../components/Footer';
 import { Testimonials } from '../components/Landing/Testimonials';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
@@ -54,19 +53,18 @@ export const Landing: React.FC = () => {
                     {/* Desktop Nav */}
                     <div className="hidden lg:flex items-center gap-12">
                         <nav className="flex items-center gap-10">
-                            {/* Adjusted font weight to bold/medium, removed black. Increased spacing. */}
-                            <button onClick={() => scrollToSection('solutions')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">{t('solSectionTag')}</button>
-                            <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Planes</button>
-                            <button onClick={() => scrollToSection('faq')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">FAQ</button>
-                            <button onClick={() => scrollToSection('blog')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Blog</button>
-                            <a href="mailto:hello@diktalo.com" className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Contacto</a>
+                            <button onClick={() => scrollToSection('solutions')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Soluciones</button>
+                            <button onClick={() => scrollToSection('pricing')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Planes</button>
+                            <button onClick={() => scrollToSection('faq')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</button>
+                            <button onClick={() => scrollToSection('blog')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Blog</button>
+                            <a href="mailto:hello@diktalo.com" className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Contacto</a>
                         </nav>
 
                         <div className="flex items-center gap-6 border-l border-slate-200 dark:border-white/10 pl-10">
-                            <a href="/login" className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+                            <a href="/login" className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
                                 Login
                             </a>
-                            <a href="/login" className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold uppercase tracking-[0.15em] rounded-lg hover:shadow-lg hover:scale-105 transition-all active:scale-95">
+                            <a href="/login" className="px-5 py-2.5 bg-slate-950 text-white text-[13px] font-semibold rounded-lg hover:shadow-lg transition-all active:scale-95 btn-owner">
                                 {t('navCtaFree')}
                             </a>
                             <div className="flex items-center gap-3 pl-2">
@@ -140,8 +138,8 @@ export const Landing: React.FC = () => {
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-4xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
-                            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">FAQ</h2>
-                            <h3 className="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white tracking-tight">Preguntas Frecuentes</h3>
+                            <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3">FAQ</p>
+                            <h3 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white">Preguntas frecuentes</h3>
                         </div>
                         <div className="space-y-4">
                             {[
@@ -165,10 +163,10 @@ export const Landing: React.FC = () => {
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                             <div>
-                                <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Blog</h2>
-                                <h3 className="text-3xl md:text-4xl font-display font-bold text-slate-900 dark:text-white tracking-tight">Últimas Noticias</h3>
+                                <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3">Blog</p>
+                                <h3 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white">Últimas noticias</h3>
                             </div>
-                            <button className="text-[10px] font-black uppercase tracking-[0.2em] px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-white dark:hover:bg-white/5 transition-all uppercase">Ver todas</button>
+                            <button className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Ver todas</button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {[
@@ -198,15 +196,15 @@ export const Landing: React.FC = () => {
                     </div>
 
                     <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-                        <h2 className="text-3xl md:text-5xl font-display font-black text-white mb-8 tracking-tight uppercase">
+                        <h2 className="text-3xl md:text-5xl h2-section text-white mb-8">
                             {t('ctaTitle')}
                         </h2>
-                        <p className="text-white/80 text-base md:text-lg max-w-2xl mx-auto mb-12 font-medium">
+                        <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium">
                             {t('ctaDesc')}
                         </p>
                         <a
                             href="/login"
-                            className="inline-block px-12 py-5 bg-white text-primary text-xs font-bold rounded-full hover:bg-slate-50 hover:scale-105 transition-all shadow-2xl active:scale-95 uppercase tracking-[0.2em]"
+                            className="inline-block px-12 py-5 bg-white text-slate-900 text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-2xl active:scale-95"
                         >
                             {t('ctaButton')}
                         </a>

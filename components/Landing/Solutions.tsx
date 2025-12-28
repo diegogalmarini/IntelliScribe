@@ -91,8 +91,8 @@ export const Solutions: React.FC = () => {
 
                 {/* Header de Sección */}
                 <div className="text-center mb-16">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-3">{t('solSectionTag')}</p>
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                    <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3">Soluciones</p>
+                    <h2 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white">
                         {t('solSectionTitle')}
                     </h2>
                 </div>
@@ -127,11 +127,7 @@ export const Solutions: React.FC = () => {
                         >
                             {/* Lado L: Texto Humanizado */}
                             <div className="order-2 lg:order-1">
-                                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${activeContent.bg} ${activeContent.color}`}>
-                                    {activeTab.toUpperCase()} MODE
-                                </div>
-
-                                <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
+                                <h3 className="text-3xl md:text-4xl h2-section text-slate-900 dark:text-white mb-6">
                                     {activeContent.title}
                                 </h3>
 
@@ -168,14 +164,11 @@ export const Solutions: React.FC = () => {
                                         }}
                                     />
 
-                                    {/* Recording Simulation Overlay */}
+                                    {/* Recording Simulation Overlay (Simplified) */}
                                     <div className="absolute bottom-6 left-6 right-6 bg-slate-900/40 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 flex items-center justify-between z-20">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                                            <span className="text-white text-xs font-black uppercase tracking-widest">Recording in Progress</span>
-                                        </div>
-                                        <div className={`px-2 py-1 rounded text-[10px] font-bold bg-white/10 text-white`}>
-                                            {activeContent.label.split(' ')[0]} Mode
+                                            <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                                            <span className="text-white text-[11px] font-bold">Grabando...</span>
                                         </div>
                                     </div>
                                 </motion.div>

@@ -382,7 +382,7 @@ export const translations = {
     insightsFeature1: "Verified verbatim transcripts",
     insightsFeature2: "Automated executive briefings",
     insightsFeature3: "Secure cloud indexing",
-    insightsAiAnalysis: "SYSTEM: ACTIVE",
+    insightsAiAnalysis: "Sistema activo",
 
     // Solutions Section
     solSectionTag: "Solutions",
@@ -767,7 +767,7 @@ export const translations = {
     insightsFeature1: "Transcripción verbatim verificada",
     insightsFeature2: "Resúmenes ejecutivos automatizados",
     insightsFeature3: "Indexado instantáneo en la nube",
-    insightsAiAnalysis: "SISTEMA: ACTIVO",
+    insightsAiAnalysis: "Sistema activo",
 
     // Solutions Section
     solSectionTag: "Soluciones",
