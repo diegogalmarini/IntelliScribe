@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Hero } from '../components/Landing/Hero';
 import { Insights } from '../components/Landing/Insights';
-import { Features } from '../components/Landing/Features';
+import { Solutions } from '../components/Landing/Solutions';
 import { Pricing } from '../components/Landing/Pricing';
 import { Demo } from '../components/Landing/Demo';
 import { Footer } from '../components/Footer';
@@ -55,7 +55,7 @@ export const Landing: React.FC = () => {
                     <div className="hidden lg:flex items-center gap-12">
                         <nav className="flex items-center gap-10">
                             {/* Adjusted font weight to bold/medium, removed black. Increased spacing. */}
-                            <button onClick={() => scrollToSection('features')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">{t('navFeatures')}</button>
+                            <button onClick={() => scrollToSection('solutions')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">{t('solSectionTag')}</button>
                             <button onClick={() => scrollToSection('pricing')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Planes</button>
                             <button onClick={() => scrollToSection('faq')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">FAQ</button>
                             <button onClick={() => scrollToSection('blog')} className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">Blog</button>
@@ -98,7 +98,7 @@ export const Landing: React.FC = () => {
                         className="fixed inset-0 z-40 bg-white dark:bg-background-dark pt-24 px-6 lg:hidden"
                     >
                         <div className="flex flex-col gap-6 text-center">
-                            <button onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('navFeatures')}</button>
+                            <button onClick={() => { scrollToSection('solutions'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('solSectionTag')}</button>
                             <button onClick={() => { scrollToSection('pricing'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">Planes</button>
                             <button onClick={() => { scrollToSection('faq'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
                             <a href="/login" className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</a>
@@ -119,13 +119,13 @@ export const Landing: React.FC = () => {
                 <Hero />
                 <Insights />
 
-                <section id="features">
+                <section id="solutions">
                     <motion.div
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ margin: "-100px", once: true }}
                     >
-                        <Features />
+                        <Solutions />
                     </motion.div>
                 </section>
 
