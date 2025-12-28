@@ -11,20 +11,25 @@ const callAIEndpoint = async (action: string, payload: any, language: 'en' | 'es
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'AI Service Error');
+      throw new Error(errorData.error || `AI Service Error (${response.status})`);
     }
 
     const json = await response.json();
     return json.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(`API Call Failed (${action}):`, error);
-    return null;
+    throw error; // Throw so UI can handle retry
   }
 };
 
 export const generateMeetingSummary = async (transcript: string, language: 'en' | 'es' = 'en'): Promise<string> => {
-  const result = await callAIEndpoint('summary', { transcript }, language);
-  return result || (language === 'es' ? "Error generando resumen." : "Error generating summary.");
+  try {
+    const result = await callAIEndpoint('summary', { transcript }, language);
+    if (!result) throw new Error("No output from AI");
+    return result;
+  } catch (error: any) {
+    throw new Error(language === 'es' ? "Error al generar el resumen de la reunión. Intente de nuevo." : "Failed to generate meeting summary. Please try again.");
+  }
 };
 
 export const chatWithTranscript = async (
@@ -33,8 +38,13 @@ export const chatWithTranscript = async (
   newMessage: string,
   language: 'en' | 'es' = 'en'
 ): Promise<string> => {
-  const result = await callAIEndpoint('chat', { transcript, history, message: newMessage }, language);
-  return result || (language === 'es' ? "No pude responder." : "I couldn't generate a response.");
+  try {
+    const result = await callAIEndpoint('chat', { transcript, history, message: newMessage }, language);
+    if (!result) throw new Error("No output from AI");
+    return result;
+  } catch (error: any) {
+    throw new Error(language === 'es' ? "Lo siento, hubo un error al procesar tu mensaje." : "Sorry, there was an error processing your message.");
+  }
 };
 
 export const transcribeAudio = async (
@@ -43,6 +53,11 @@ export const transcribeAudio = async (
   language: 'en' | 'es' = 'en',
   audioUrl?: string
 ): Promise<Partial<TranscriptSegment>[]> => {
-  const result = await callAIEndpoint('transcribe', { audioBase64, mimeType, audioUrl }, language);
-  return result || [];
+  try {
+    const result = await callAIEndpoint('transcribe', { audioBase64, mimeType, audioUrl }, language);
+    return result || [];
+  } catch (error) {
+    console.error("Transcription failed:", error);
+    return []; // Return empty for legacy compatibility or allow UI to handle
+  }
 };

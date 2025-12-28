@@ -180,13 +180,15 @@ const AppContent: React.FC = () => {
             fetchData();
             setIsInitialized(true);
 
-            // Special Check: If returning from Stripe Payment, poll DB
+            // Special Check: If returning from Stripe Payment, poll DB aggressively
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('payment') === 'success') {
-                console.log("Payment success detected! Polling for plan update...");
-                setTimeout(() => fetchProfile(), 2000);
-                setTimeout(() => fetchProfile(), 5000);
-                setTimeout(() => fetchProfile(), 8000);
+                console.log("💳 Payment success detected! Polling for plan upgrade...");
+                // Poll multiple times because webhooks can have slight latency
+                const pollIntervals = [1000, 3000, 5000, 8000, 12000];
+                pollIntervals.forEach(ms => setTimeout(() => fetchProfile(), ms));
+
+                // Clear the URL but keep the information for the user session if needed
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 

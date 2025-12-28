@@ -98,6 +98,7 @@ export const translations = {
     close: "Close",
     loading: "Loading",
     audioNotReady: "Audio not ready",
+    retry: "Retry",
 
     // System Report
     sysReportTitle: "System Diagnostics",
@@ -468,6 +469,7 @@ export const translations = {
     close: "Cerrar",
     loading: "Cargando",
     audioNotReady: "Audio no disponible",
+    retry: "Reintentar",
 
     // System Report
     sysReportTitle: "Diagnóstico del Sistema",

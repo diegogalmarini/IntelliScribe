@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (supabaseUrl && supabaseServiceKey) {
                 const response = await fetch(
-                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified`,
+                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified,plan_id`,
                     {
                         headers: {
                             'apikey': supabaseServiceKey,
@@ -47,6 +47,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const data = await response.json();
                     if (data.length > 0) {
                         const profile = data[0];
+
+                        // 🔴 SEGURIDAD: Bloquear llamada si el plan no es el correcto
+                        if (profile.plan_id !== 'business_plus') {
+                            console.warn(`[VOICE] 🛑 Bloqueando llamada para user ${userId} (Plan: ${profile.plan_id})`);
+                            twiml.say({ language: 'es-ES' }, 'Su suscripción actual no permite realizar llamadas salientes. Por favor, actualice su plan.');
+                            res.setHeader('Content-Type', 'text/xml');
+                            return res.status(200).send(twiml.toString());
+                        }
 
                         // Use user's phone if phone_verified is true
                         if (profile.phone_verified && profile.phone) {
@@ -67,7 +75,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Continue with fallback
         }
     } else {
-        console.log('[VOICE] No userId provided, using fallback caller ID');
+        console.log('[VOICE] No userId provided, blocking call for security');
+        twiml.say({ language: 'es-ES' }, 'Error de autenticación. No se puede iniciar la llamada.');
+        res.setHeader('Content-Type', 'text/xml');
+        return res.status(200).send(twiml.toString());
     }
 
     console.log(`[VOICE] Calling ${to} from ${callerId} (verified: ${verificationStatus})`);
