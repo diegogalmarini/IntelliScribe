@@ -3,6 +3,12 @@ import { supabase } from '../lib/supabase';
 
 export const getSignedAudioUrl = async (path: string): Promise<string | null> => {
     try {
+        // DEFENSIVE CHECK: Ensure path is defined and not empty
+        if (!path || typeof path !== 'string') {
+            console.error('[Storage] Invalid path provided to getSignedAudioUrl:', path);
+            return null;
+        }
+
         // SMART LEGACY HANDLER:
         // If the path looks like a full URL (contains 'http'), extract the relative path
         let relativePath = path;

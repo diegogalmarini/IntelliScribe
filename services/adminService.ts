@@ -280,8 +280,9 @@ export const adminService = {
 
             // Parse calls from recordings
             const calls: PhoneCall[] = recordings.map(rec => {
-                const toMatch = rec.title.match(/Call to (\+\d+)/);
-                const fromMatch = rec.description.match(/from (\+\d+)/);
+                // Defensive checks for undefined/null values
+                const toMatch = rec.title ? rec.title.match(/Call to (\+\d+)/) : null;
+                const fromMatch = rec.description ? rec.description.match(/from (\+\d+)/) : null;
 
                 const profile = profileMap.get(rec.user_id);
                 const userName = profile
