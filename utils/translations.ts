@@ -382,7 +382,11 @@ export const translations = {
     insightsFeature1: "High-fidelity transcription",
     insightsFeature2: "AI-generated executive summaries",
     insightsFeature3: "Instant cloud archiving",
-    insightsAiAnalysis: "AI Analysis: Active"
+    insightsAiAnalysis: "AI Analysis: Active",
+
+    // Solutions Section
+    solSectionTag: "Solutions",
+    solSectionTitle: "Built for Every Workflow"
   },
   es: {
     // Auth
@@ -763,6 +767,10 @@ export const translations = {
     insightsFeature1: "Transcripción de alta fidelidad",
     insightsFeature2: "Resúmenes ejecutivos generados por IA",
     insightsFeature3: "Archivado instantáneo en la nube",
-    insightsAiAnalysis: "Análisis IA: Activo"
+    insightsAiAnalysis: "Análisis IA: Activo",
+
+    // Solutions Section
+    solSectionTag: "Soluciones",
+    solSectionTitle: "Diseñado para cada Profesión"
   }
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
     Stethoscope,
     Briefcase,
@@ -79,19 +80,20 @@ const workflows = [
     }
 ];
 
-export const Features: React.FC = () => {
+export const Solutions: React.FC = () => {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('medical');
     const activeContent = workflows.find(w => w.id === activeTab) || workflows[1];
 
     return (
-        <section id="features" className="py-24 bg-white dark:bg-[#0b0f17] transition-colors duration-300">
+        <section id="solutions" className="py-24 bg-white dark:bg-[#0b0f17] transition-colors duration-300">
             <div className="container mx-auto px-4">
 
                 {/* Header de Sección */}
                 <div className="text-center mb-16">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">Funciones</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">{t('solSectionTag')}</p>
                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                        Built for Every Workflow
+                        {t('solSectionTitle')}
                     </h2>
                 </div>
 
@@ -102,8 +104,8 @@ export const Features: React.FC = () => {
                             key={workflow.id}
                             onClick={() => setActiveTab(workflow.id)}
                             className={`px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${activeTab === workflow.id
-                                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl scale-105'
-                                    : 'bg-slate-100 dark:bg-white/5 text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10'
+                                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl scale-105'
+                                : 'bg-slate-100 dark:bg-white/5 text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10'
                                 }`}
                         >
                             <workflow.icon className="w-4 h-4" />
