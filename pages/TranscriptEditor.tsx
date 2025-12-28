@@ -687,17 +687,17 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                     <button
                         onClick={togglePlay}
                         disabled={!signedAudioUrl}
-                        className={`size-10 rounded-full text-white flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 flex-shrink-0 ${!signedAudioUrl ? 'bg-gray-700 opacity-50' : 'bg-primary shadow-lg shadow-primary/20'}`}>
+                        className={`size-10 rounded-full text-white flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 flex-shrink-0 ${!signedAudioUrl ? 'bg-gray-400 dark:bg-gray-700 opacity-50' : 'bg-primary shadow-lg shadow-primary/20'}`}>
                         <span className="material-symbols-outlined text-2xl">{isPlaying ? 'pause' : 'play_arrow'}</span>
                     </button>
 
                     <div className="flex-1 flex flex-col gap-1 min-w-0">
-                        <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
-                            <span className="text-white font-bold">{formatTime(currentTime)}</span>
+                        <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                            <span className="text-slate-900 dark:text-white font-bold">{formatTime(currentTime)}</span>
                             <span>{formatTime(isFinite(duration) && duration > 0 ? duration : recording.durationSeconds)}</span>
                         </div>
 
-                        <div className="relative h-8 bg-black/40 rounded-lg overflow-hidden group/wave border border-white/5">
+                        <div className="relative h-8 bg-slate-200 dark:bg-black/40 rounded-lg overflow-hidden group/wave border border-slate-300 dark:border-white/5">
                             {signedAudioUrl ? (
                                 <WaveformVisualizer
                                     audioUrl={signedAudioUrl}
@@ -711,7 +711,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                     barGap={1}
                                 />
                             ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-slate-600 text-[10px] italic">
+                                <div className="absolute inset-0 flex items-center justify-center text-slate-500 dark:text-slate-600 text-[10px] italic">
                                     {t('loading')}...
                                 </div>
                             )}
@@ -745,15 +745,15 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         {/* Speaker Toggle */}
                         {supportsSetSinkId && outputDevices.length > 0 && (
                             <div className="relative">
-                                <div className="flex items-center gap-1.5 h-8 px-2.5 bg-white/5 rounded-full border border-white/10 text-slate-300">
+                                <div className="flex items-center gap-1.5 h-8 px-2.5 bg-slate-200 dark:bg-white/5 rounded-full border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300">
                                     <span className="material-symbols-outlined text-base">volume_up</span>
                                     <select
                                         value={selectedOutputId}
                                         onChange={handleOutputChange}
-                                        className="bg-transparent text-slate-300 text-[10px] font-bold outline-none focus:text-white max-w-[100px] truncate cursor-pointer"
+                                        className="bg-transparent text-slate-700 dark:text-slate-300 text-[10px] font-bold outline-none focus:text-slate-900 dark:focus:text-white max-w-[100px] truncate cursor-pointer"
                                     >
                                         {outputDevices.map(device => (
-                                            <option key={device.deviceId} value={device.deviceId} className="bg-[#1e2736]">
+                                            <option key={device.deviceId} value={device.deviceId} className="bg-white dark:bg-[#1e2736]">
                                                 {device.label || `Device ${device.deviceId.slice(0, 5)}...`}
                                             </option>
                                         ))}
@@ -841,13 +841,13 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
             {/* AI Chat Sidebar */}
             {showChat && (
-                <div className="w-80 md:w-96 border-l border-white/5 bg-[#0b0f17] flex flex-col shadow-2xl absolute right-0 top-0 bottom-0 z-[60] animate-in slide-in-from-right duration-300">
-                    <div className="p-4 border-b border-white/5 flex justify-between items-center bg-[#111722] text-white">
+                <div className="w-80 md:w-96 border-l border-slate-200 dark:border-white/5 bg-white dark:bg-[#0b0f17] flex flex-col shadow-2xl absolute right-0 top-0 bottom-0 z-[60] animate-in slide-in-from-right duration-300">
+                    <div className="p-4 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white">
                         <h3 className="text-sm font-bold flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary text-lg">auto_awesome</span>
                             {t('askDiktalo')}
                         </h3>
-                        <button onClick={() => setShowChat(false)} className="text-slate-500 hover:text-white transition-colors">
+                        <button onClick={() => setShowChat(false)} className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
                             <span className="material-symbols-outlined text-xl">close</span>
                         </button>
                     </div>
@@ -860,7 +860,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         )}
                         {chatHistory.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${msg.role === 'user' ? 'bg-primary text-white rounded-br-none' : 'bg-[#1e2736] text-slate-300 border border-white/5 rounded-bl-none'}`}>
+                                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${msg.role === 'user' ? 'bg-primary text-white rounded-br-none' : 'bg-slate-100 dark:bg-[#1e2736] text-slate-900 dark:text-slate-300 border border-slate-200 dark:border-white/5 rounded-bl-none'}`}>
                                     <div className="prose prose-invert prose-sm">
                                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                                     </div>
@@ -869,7 +869,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                         ))}
                         {isTyping && (
                             <div className="flex justify-start">
-                                <div className="bg-[#1e2736] rounded-2xl px-4 py-3 border border-white/5 rounded-bl-none">
+                                <div className="bg-slate-100 dark:bg-[#1e2736] rounded-2xl px-4 py-3 border border-slate-200 dark:border-white/5 rounded-bl-none">
                                     <div className="flex gap-1">
                                         <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
                                         <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:0.2s]" />
@@ -879,7 +879,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                             </div>
                         )}
                     </div>
-                    <div className="p-4 border-t border-white/5 bg-[#111722]">
+                    <div className="p-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#111722]">
                         <div className="relative">
                             <input
                                 type="text"
@@ -887,7 +887,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleAskDiktalo()}
                                 placeholder={t('askDiktalo')}
-                                className="w-full bg-[#1e2736] text-white rounded-full py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 border border-white/10"
+                                className="w-full bg-white dark:bg-[#1e2736] text-slate-900 dark:text-white rounded-full py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 border border-slate-200 dark:border-white/10"
                             />
                             <button
                                 onClick={handleAskDiktalo}
@@ -903,13 +903,13 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             {/* Modals */}
             {showSummaryModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-[#111722] rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-white/10">
-                        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-[#111722] text-white">
+                    <div className="bg-white dark:bg-[#111722] rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 dark:border-white/10">
+                        <div className="p-5 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white">
                             <h3 className="text-base font-bold flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary text-xl">auto_awesome</span>
                                 {t('meetingSummary')}
                             </h3>
-                            <button onClick={() => setShowSummaryModal(false)} className="text-slate-500 hover:text-white transition-colors">
+                            <button onClick={() => setShowSummaryModal(false)} className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
                                 <span className="material-symbols-outlined text-xl">close</span>
                             </button>
                         </div>
@@ -935,11 +935,11 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
                                 <ReactMarkdown>{summary}</ReactMarkdown>
                             )}
                         </div>
-                        <div className="p-5 border-t border-white/5 flex justify-end gap-3 bg-[#0b0f17]">
+                        <div className="p-5 border-t border-slate-200 dark:border-white/5 flex justify-end gap-3 bg-slate-50 dark:bg-[#0b0f17]">
                             {!summaryError && summary && (
                                 <button
                                     onClick={() => { navigator.clipboard.writeText(summary); alert('Summary copied!'); }}
-                                    className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors">
+                                    className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                                     {t('export')}
                                 </button>
                             )}
