@@ -372,7 +372,17 @@ export const translations = {
     manCardCalendar: "Connect Calendar",
     manCardVerify: "Verify Phone",
     manCardExport: "Export Options",
-    manCardPrivacy: "Privacy Center"
+    manCardPrivacy: "Privacy Center",
+
+    // Insights Section
+    insightsTitlePre: "Powerful",
+    insightsTitleHighlight: "Insights",
+    insightsTitlePost: "from Every Word",
+    insightsSubtitle: "Our wave-analysis engine processes audio in real-time, identifying speakers, sentiment, and key topics. See Diktalo in action.",
+    insightsFeature1: "High-fidelity transcription",
+    insightsFeature2: "AI-generated executive summaries",
+    insightsFeature3: "Instant cloud archiving",
+    insightsAiAnalysis: "AI Analysis: Active"
   },
   es: {
     // Auth
@@ -743,6 +753,16 @@ export const translations = {
     manCardCalendar: "Conectar Calendario",
     manCardVerify: "Verificar Teléfono",
     manCardExport: "Opciones de Exportación",
-    manCardPrivacy: "Centro de Privacidad"
+    manCardPrivacy: "Centro de Privacidad",
+
+    // Insights Section
+    insightsTitlePre: "Insights",
+    insightsTitleHighlight: "Poderosos",
+    insightsTitlePost: "de Cada Palabra",
+    insightsSubtitle: "Nuestro motor de análisis de ondas procesa audio en tiempo real, identificando interlocutores, sentimiento y temas clave. Mira Diktalo en acción.",
+    insightsFeature1: "Transcripción de alta fidelidad",
+    insightsFeature2: "Resúmenes ejecutivos generados por IA",
+    insightsFeature3: "Archivado instantáneo en la nube",
+    insightsAiAnalysis: "Análisis IA: Activo"
   }
 };

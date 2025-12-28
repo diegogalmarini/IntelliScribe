@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Hero } from '../components/Landing/Hero';
+import { Insights } from '../components/Landing/Insights';
 import { Features } from '../components/Landing/Features';
 import { Pricing } from '../components/Landing/Pricing';
 import { Demo } from '../components/Landing/Demo';
@@ -116,6 +117,7 @@ export const Landing: React.FC = () => {
             {/* Sections with semantic IDs */}
             <main>
                 <Hero />
+                <Insights />
 
                 <section id="features">
                     <motion.div
