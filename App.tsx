@@ -69,6 +69,8 @@ const AppContent: React.FC = () => {
         else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
         else if (path === '/login') newRoute = AppRoute.LOGIN;
         else if (path === '/dashboard') newRoute = AppRoute.DASHBOARD;
+        else if (path === '/recording') newRoute = AppRoute.RECORDING;
+        else if (path === '/editor' || path.startsWith('/editor/')) newRoute = AppRoute.EDITOR;
         else if (path === '/recordings' || path.startsWith('/transcript/')) newRoute = AppRoute.DASHBOARD;
         else if (path === '/integrations') newRoute = AppRoute.INTEGRATIONS;
         else if (path === '/plans') newRoute = AppRoute.SUBSCRIPTION;
