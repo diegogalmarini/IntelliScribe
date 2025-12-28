@@ -70,6 +70,14 @@ const AppContent: React.FC = () => {
         else if (path === '/login') newRoute = AppRoute.LOGIN;
         else if (path === '/dashboard') newRoute = AppRoute.DASHBOARD;
         else if (path === '/recordings' || path.startsWith('/transcript/')) newRoute = AppRoute.DASHBOARD;
+        else if (path === '/integrations') newRoute = AppRoute.INTEGRATIONS;
+        else if (path === '/plans') newRoute = AppRoute.SUBSCRIPTION;
+        else if (path === '/settings') newRoute = AppRoute.SETTINGS;
+        else if (path === '/manual') newRoute = AppRoute.MANUAL;
+        else if (path === '/admin') newRoute = AppRoute.ADMIN_OVERVIEW;
+        else if (path === '/admin/users') newRoute = AppRoute.ADMIN_USERS;
+        else if (path === '/admin/financials') newRoute = AppRoute.ADMIN_FINANCIALS;
+        else if (path === '/admin/plans') newRoute = AppRoute.ADMIN_PLANS;
 
         if (newRoute !== currentRoute) {
             setCurrentRoute(newRoute);
@@ -247,9 +255,19 @@ const AppContent: React.FC = () => {
             [AppRoute.LANDING]: '/',
             [AppRoute.LOGIN]: '/login',
             [AppRoute.DASHBOARD]: '/dashboard',
+            [AppRoute.RECORDING]: '/recording',
+            [AppRoute.EDITOR]: '/editor',
+            [AppRoute.INTEGRATIONS]: '/integrations',
+            [AppRoute.SUBSCRIPTION]: '/plans',
+            [AppRoute.SETTINGS]: '/settings',
+            [AppRoute.MANUAL]: '/manual',
             [AppRoute.TERMS]: '/terms',
             [AppRoute.PRIVACY]: '/privacy',
-            [AppRoute.RESET_PASSWORD]: '/reset-password'
+            [AppRoute.RESET_PASSWORD]: '/reset-password',
+            [AppRoute.ADMIN_OVERVIEW]: '/admin',
+            [AppRoute.ADMIN_USERS]: '/admin/users',
+            [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
+            [AppRoute.ADMIN_PLANS]: '/admin/plans'
         };
 
         if (pathMap[route]) {
