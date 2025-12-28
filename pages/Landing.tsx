@@ -130,8 +130,6 @@ export const Landing: React.FC = () => {
 
                 <Insights />
 
-                <Demo />
-
                 <section id="pricing">
                     <Pricing />
                 </section>
