@@ -117,7 +117,6 @@ export const Landing: React.FC = () => {
             {/* Sections with semantic IDs */}
             <main>
                 <Hero />
-                <Insights />
 
                 <section id="solutions">
                     <motion.div
@@ -128,6 +127,8 @@ export const Landing: React.FC = () => {
                         <Solutions />
                     </motion.div>
                 </section>
+
+                <Insights />
 
                 <Demo />
 
