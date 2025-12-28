@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
@@ -54,6 +55,26 @@ const AppContent: React.FC = () => {
     };
 
     const [currentRoute, setCurrentRoute] = useState<AppRoute>(getInitialRoute());
+    const location = useLocation();
+    const navigateRR = useNavigate();
+
+    // Sync state with URL changes (for browser back/forward and Links)
+    useEffect(() => {
+        const path = location.pathname;
+        const isResetPassword = path === '/reset-password' || location.hash.includes('type=recovery');
+
+        let newRoute: AppRoute = AppRoute.LANDING;
+        if (isResetPassword) newRoute = AppRoute.RESET_PASSWORD;
+        else if (path === '/terms') newRoute = AppRoute.TERMS;
+        else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
+        else if (path === '/login') newRoute = AppRoute.LOGIN;
+        else if (path === '/dashboard') newRoute = AppRoute.DASHBOARD;
+        else if (path === '/recordings' || path.startsWith('/transcript/')) newRoute = AppRoute.DASHBOARD;
+
+        if (newRoute !== currentRoute) {
+            setCurrentRoute(newRoute);
+        }
+    }, [location.pathname, location.hash, currentRoute]);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -232,7 +253,7 @@ const AppContent: React.FC = () => {
         };
 
         if (pathMap[route]) {
-            window.history.pushState({}, '', pathMap[route]);
+            navigateRR(pathMap[route]);
         }
 
         setCurrentRoute(route);
