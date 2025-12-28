@@ -17,7 +17,7 @@ export const Insights: React.FC = () => {
                             viewport={{ once: true }}
                             className="text-3xl md:text-5xl font-display font-black text-slate-900 dark:text-white mb-8 tracking-tight leading-tight"
                         >
-                            Insights <span className="text-brand-green">Poderosos</span> de cada palabra
+                            {t('insightsTitlePre')}{t('insightsTitleHighlight')}{t('insightsTitlePost')}
                         </motion.h2>
 
                         <motion.p
