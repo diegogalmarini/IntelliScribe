@@ -65,11 +65,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark flex flex-col transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
       `}>
-        {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-border-dark/50">
-          <div className="flex items-center gap-2 text-primary cursor-pointer" onClick={() => { handleDashboardClick(); onClose(); }}>
-            <span className="material-symbols-outlined text-3xl">waves</span>
-            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Diktalo</span>
+          <div className="flex items-center cursor-pointer" onClick={() => { handleDashboardClick(); onClose(); }}>
+            <img
+              src="/logo-diktalo.svg"
+              alt="Diktalo"
+              className="h-8 w-auto dark:hidden transition-all"
+            />
+            <img
+              src="/logo-diktalo-b.svg"
+              alt="Diktalo"
+              className="h-8 w-auto hidden dark:block transition-all"
+            />
           </div>
           <button onClick={onClose} className="md:hidden text-slate-400 hover:text-slate-600">
             <span className="material-symbols-outlined">close</span>

@@ -48,7 +48,8 @@ export const Landing: React.FC = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-20 transition-all">
                 <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-7 w-auto dark:brightness-0 dark:invert transition-all" />
+                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-7 w-auto dark:hidden transition-all" />
+                        <img src="/logo-diktalo-b.svg" alt="Diktalo Logo" className="h-7 w-auto hidden dark:block transition-all" />
                     </div>
 
                     {/* Desktop Nav */}

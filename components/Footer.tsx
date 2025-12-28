@@ -10,7 +10,8 @@ export const Footer: React.FC = () => {
                 {/* Logo & Tagline Area */}
                 <div className="lg:col-span-1">
                     <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto dark:brightness-0 dark:invert transition-all" />
+                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto dark:hidden transition-all" />
+                        <img src="/logo-diktalo-b.svg" alt="Diktalo Logo" className="h-8 w-auto hidden dark:block transition-all" />
                     </div>
                     <p className="text-slate-500 dark:text-slate-400 text-xs font-medium max-w-xs mb-8 leading-relaxed">
                         {t('footerTagline')}
