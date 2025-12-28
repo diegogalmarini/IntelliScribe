@@ -375,14 +375,14 @@ export const translations = {
     manCardPrivacy: "Privacy Center",
 
     // Insights Section
-    insightsTitlePre: "Powerful",
-    insightsTitleHighlight: "Insights",
-    insightsTitlePost: "from Every Word",
-    insightsSubtitle: "Our wave-analysis engine processes audio in real-time, identifying speakers, sentiment, and key topics. See Diktalo in action.",
-    insightsFeature1: "High-fidelity transcription",
-    insightsFeature2: "AI-generated executive summaries",
-    insightsFeature3: "Instant cloud archiving",
-    insightsAiAnalysis: "AI Analysis: Active",
+    insightsTitlePre: "Get full control of your ",
+    insightsTitleHighlight: "conversations",
+    insightsTitlePost: "",
+    insightsSubtitle: "Our AI engine analyzes every word in real-time, extracting meaningful insights and action items automatically.",
+    insightsFeature1: "Verified high-fidelity transcripts",
+    insightsFeature2: "Automated executive briefings",
+    insightsFeature3: "Secure cloud indexing",
+    insightsAiAnalysis: "AI Status: Active",
 
     // Solutions Section
     solSectionTag: "Solutions",
@@ -760,14 +760,14 @@ export const translations = {
     manCardPrivacy: "Centro de Privacidad",
 
     // Insights Section
-    insightsTitlePre: "Insights",
-    insightsTitleHighlight: "Poderosos",
-    insightsTitlePost: "de Cada Palabra",
-    insightsSubtitle: "Nuestro motor de análisis de ondas procesa audio en tiempo real, identificando interlocutores, sentimiento y temas clave. Mira Diktalo en acción.",
-    insightsFeature1: "Transcripción de alta fidelidad",
-    insightsFeature2: "Resúmenes ejecutivos generados por IA",
-    insightsFeature3: "Archivado instantáneo en la nube",
-    insightsAiAnalysis: "Análisis IA: Activo",
+    insightsTitlePre: "Control total de cada ",
+    insightsTitleHighlight: "conversación",
+    insightsTitlePost: "",
+    insightsSubtitle: "Nuestra IA analiza cada palabra en tiempo real, extrayendo los puntos clave y tareas pendientes automáticamente.",
+    insightsFeature1: "Transcripción verificada de alta fidelidad",
+    insightsFeature2: "Resúmenes ejecutivos automatizados",
+    insightsFeature3: "Indexado seguro en la nube",
+    insightsAiAnalysis: "Estado IA: Activo",
 
     // Solutions Section
     solSectionTag: "Soluciones",
