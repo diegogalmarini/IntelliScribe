@@ -5,6 +5,7 @@ import { Solutions } from '../components/Landing/Solutions';
 import { Pricing } from '../components/Landing/Pricing';
 import { Footer } from '../components/Footer';
 import { Testimonials } from '../components/Landing/Testimonials';
+import { Features } from '../components/Landing/Features';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -100,7 +101,7 @@ export const Landing: React.FC = () => {
                             <button onClick={() => { scrollToSection('pricing'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">Planes</button>
                             <button onClick={() => { scrollToSection('faq'); setIsMenuOpen(false); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
                             <a href="/login" className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</a>
-                            <a href="/login" className="px-6 py-4 bg-primary text-white text-sm font-bold uppercase tracking-widest rounded-xl mt-4">
+                            <a href="/login" className="px-6 py-4 bg-primary text-white text-sm font-semibold rounded-xl mt-4">
                                 {t('navCtaFree')}
                             </a>
                             <div className="flex justify-center gap-6 mt-8">
@@ -126,6 +127,8 @@ export const Landing: React.FC = () => {
                     </motion.div>
                 </section>
 
+                <Features />
+
                 <Insights />
 
                 <section id="pricing">
@@ -138,8 +141,8 @@ export const Landing: React.FC = () => {
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-4xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
-                            <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3">FAQ</p>
-                            <h3 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white">Preguntas frecuentes</h3>
+                            <p className="text-xs font-bold text-slate-500 mb-3">Preguntas frecuentes</p>
+                            <h3 className="h2 text-slate-900 dark:text-white">Preguntas frecuentes</h3>
                         </div>
                         <div className="space-y-4">
                             {[
@@ -163,8 +166,8 @@ export const Landing: React.FC = () => {
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                             <div>
-                                <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3">Blog</p>
-                                <h3 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white">Últimas noticias</h3>
+                                <p className="text-xs font-bold text-slate-500 mb-3">Blog</p>
+                                <h3 className="h2 text-slate-900 dark:text-white">Últimas noticias</h3>
                             </div>
                             <button className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Ver todas</button>
                         </div>
@@ -180,9 +183,9 @@ export const Landing: React.FC = () => {
                                             <span className="material-symbols-outlined text-4xl text-white/20">newspaper</span>
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-3 block">{post.cat}</span>
+                                    <span className="text-[10px] font-bold text-primary mb-3 block">{post.cat}</span>
                                     <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-primary transition-colors">{post.title}</h4>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{post.date}</p>
+                                    <p className="text-xs font-bold text-slate-400">{post.date}</p>
                                 </div>
                             ))}
                         </div>
@@ -196,7 +199,7 @@ export const Landing: React.FC = () => {
                     </div>
 
                     <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-                        <h2 className="text-3xl md:text-5xl h2-section text-white mb-8">
+                        <h2 className="h2 text-white mb-8">
                             {t('ctaTitle')}
                         </h2>
                         <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium">

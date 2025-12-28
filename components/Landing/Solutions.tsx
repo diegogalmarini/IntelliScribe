@@ -92,7 +92,7 @@ export const Solutions: React.FC = () => {
                 {/* Header de Sección */}
                 <div className="text-center mb-16">
                     <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3">Soluciones</p>
-                    <h2 className="text-3xl md:text-5xl h2-section text-slate-900 dark:text-white">
+                    <h2 className="h2 text-slate-900 dark:text-white">
                         {t('solSectionTitle')}
                     </h2>
                 </div>
@@ -127,7 +127,7 @@ export const Solutions: React.FC = () => {
                         >
                             {/* Lado L: Texto Humanizado */}
                             <div className="order-2 lg:order-1">
-                                <h3 className="text-3xl md:text-4xl h2-section text-slate-900 dark:text-white mb-6">
+                                <h3 className="h2 text-slate-900 dark:text-white mb-6">
                                     {activeContent.title}
                                 </h3>
 
