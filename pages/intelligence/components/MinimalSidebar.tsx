@@ -60,15 +60,12 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
         <div className="w-64 h-full bg-white dark:bg-[#171717] flex flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
-                <div className="flex items-center gap-2 px-2">
+                <div className="flex items-center justify-center px-2">
                     <img
                         src={document.documentElement.classList.contains('dark') ? '/logo-diktalo-b.svg' : '/logo-diktalo.svg'}
                         alt="Diktalo"
-                        className="w-5 h-5"
+                        className="w-6 h-6"
                     />
-                    <span className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
-                        Diktalo
-                    </span>
                 </div>
             </div>
 
