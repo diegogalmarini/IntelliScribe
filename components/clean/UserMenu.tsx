@@ -19,9 +19,10 @@ interface UserMenuProps {
     user: UserProfile;
     onNavigate: (route: AppRoute) => void;
     onLogout: () => void;
+    onOpenSettings: () => void;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout, onOpenSettings }) => {
     const { t } = useLanguage();
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
@@ -50,11 +51,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout }
     }, []);
 
     const menuItems = [
-        { icon: User, label: t('profile') || 'Perfil', action: () => onNavigate(AppRoute.SETTINGS) },
         { icon: CreditCard, label: t('plans') || 'Planes', action: () => onNavigate(AppRoute.SUBSCRIPTION) },
-        { icon: Puzzle, label: t('integrations') || 'Integraciones', action: () => onNavigate(AppRoute.INTEGRATIONS) },
-        { icon: BookOpen, label: t('manual') || 'Manual y ayuda', action: () => onNavigate(AppRoute.MANUAL) },
-        { icon: Settings, label: t('settings') || 'Configuración', action: () => onNavigate(AppRoute.SETTINGS) },
+        { icon: Settings, label: t('settings') || 'Configuración', action: onOpenSettings },
     ];
 
     const themeOptions = [
