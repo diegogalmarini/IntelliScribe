@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
+import DashboardIntelligence from './pages/DashboardIntelligence';
 import { LiveRecording } from './pages/LiveRecording';
 import { TranscriptEditor } from './pages/TranscriptEditor';
 import { Integrations } from './pages/Integrations';
