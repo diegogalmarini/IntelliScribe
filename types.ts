@@ -100,7 +100,8 @@ export enum AppRoute {
   ADMIN_OVERVIEW = 'admin-overview',
   ADMIN_USERS = 'admin-users',
   ADMIN_FINANCIALS = 'admin-financials',
-  ADMIN_PLANS = 'admin-plans' // <--- NUEVA RUTA AGREGADA
+  ADMIN_PLANS = 'admin-plans', // <--- NUEVA RUTA AGREGADA
+  INTELLIGENCE = 'intelligence' // NEW: Intelligence Dashboard (testing)
 }
 
 // ========== ADMIN TYPES ==========
