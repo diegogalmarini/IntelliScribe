@@ -85,7 +85,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <button
                                 key={item.id}
                                 onClick={() => setSelectedSection(item.id)}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-0.5 ${selectedSection === item.id
+                                className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-left transition-colors mb-0.5 ${selectedSection === item.id
                                     ? 'bg-white dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] shadow-sm'
                                     : 'text-[#676767] dark:text-[#acacac] hover:bg-white/60 dark:hover:bg-white/5'
                                     }`}
@@ -100,7 +100,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                         <button
                             onClick={handlePlansClick}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors text-[#676767] dark:text-[#b4b4b4] hover:bg-white/60 dark:hover:bg-white/[0.03]"
+                            className="w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-left transition-colors text-[#676767] dark:text-[#b4b4b4] hover:bg-white/60 dark:hover:bg-white/[0.03]"
                         >
                             <ExternalLink size={18} strokeWidth={2} />
                             <span className="text-[15px] font-normal flex-1">Planes</span>
@@ -111,7 +111,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="p-2 border-t border-black/[0.05] dark:border-white/[0.05]">
                         <button
                             onClick={handleLogoutClick}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-1.5 rounded-lg text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                         >
                             <LogOut size={18} strokeWidth={2} />
                             <span className="text-[15px] font-normal">Cerrar Sesión</span>
@@ -123,7 +123,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex-1 flex flex-col bg-white dark:bg-[#202123]">
                     {/* Header */}
                     <div className="flex items-center justify-between px-8 py-4 border-b border-black/5 dark:border-white/5">
-                        <h2 className="text-base font-semibold text-[#0d0d0d] dark:text-[#ececec]">
+                        <h2 className="text-[13px] font-semibold text-[#0d0d0d] dark:text-[#ececec]">
                             {menuItems.find(item => item.id === selectedSection)?.label}
                         </h2>
                         <button
@@ -141,7 +141,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="space-y-8 max-w-2xl">
                                 {/* Avatar Section */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[12px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2.5">
                                         Foto de Perfil
                                     </h3>
                                     <div className="flex items-center gap-4">
@@ -156,7 +156,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 {user.firstName?.charAt(0) || 'U'}
                                             </div>
                                         )}
-                                        <button className="px-4 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] text-sm font-medium rounded-lg hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors flex items-center gap-2">
+                                        <button className="px-4 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] text-[12px] font-medium rounded-lg hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors flex items-center gap-2">
                                             <Camera size={16} />
                                             Cambiar Foto
                                         </button>
@@ -181,19 +181,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                                <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
                                                     Apellidos
                                                 </label>
                                                 <input
                                                     type="text"
                                                     defaultValue={user.lastName}
-                                                    className="w-full px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                            <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
                                                 Email
                                             </label>
                                             <div className="flex items-center gap-2">
@@ -201,7 +201,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     type="email"
                                                     value={user.email}
                                                     disabled
-                                                    className="flex-1 px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#676767] dark:text-[#acacac] text-sm"
+                                                    className="flex-1 px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#676767] dark:text-[#acacac] text-[12px]"
                                                 />
                                                 <Mail size={16} className="text-[#676767]" />
                                             </div>
@@ -211,7 +211,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2 flex items-center gap-2">
+                                            <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2 flex items-center gap-2">
                                                 Teléfono
                                                 {user.subscription?.planId === 'business_plus' && (
                                                     <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded">
@@ -224,7 +224,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     type="tel"
                                                     placeholder="+34 XXX XXX XXX"
                                                     disabled={user.subscription?.planId !== 'business_plus'}
-                                                    className="flex-1 px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                                                    className="flex-1 px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                                                 />
                                                 <Phone size={16} className="text-[#676767]" />
                                             </div>
@@ -236,11 +236,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                            <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
                                                 Zona Horaria
                                             </label>
                                             <div className="flex items-center gap-2">
-                                                <select className="flex-1 px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <select className="flex-1 px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500">
                                                     <option>Europa/Madrid (GMT+1)</option>
                                                     <option>Europa/London (GMT+0)</option>
                                                     <option>America/New_York (GMT-5)</option>
@@ -253,7 +253,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Save Button */}
                                 <div className="pt-4 border-t border-black/5 dark:border-white/5">
-                                    <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                    <button className="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-lg transition-colors flex items-center gap-2">
                                         <Save size={16} />
                                         Guardar Cambios
                                     </button>
@@ -266,38 +266,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="space-y-8 max-w-2xl">
                                 {/* Change Password */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[12px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2.5">
                                         Cambiar Contraseña
                                     </h3>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                            <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
                                                 Contraseña Actual
                                             </label>
                                             <input
                                                 type="password"
-                                                className="w-full px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                            <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
                                                 Nueva Contraseña
                                             </label>
                                             <input
                                                 type="password"
-                                                className="w-full px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                            <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
                                                 Confirmar Nueva Contraseña
                                             </label>
                                             <input
                                                 type="password"
-                                                className="w-full px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
                                         </div>
-                                        <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                        <button className="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-lg transition-colors flex items-center gap-2">
                                             <Lock size={16} />
                                             Cambiar Contraseña
                                         </button>
@@ -306,7 +306,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Active Sessions */}
                                 <div className="pt-8 border-t border-black/5 dark:border-white/5">
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[12px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2.5">
                                         Sesiones Activas
                                     </h3>
                                     <div className="space-y-3">
@@ -315,7 +315,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <div className="flex items-start gap-3">
                                                     <Monitor size={20} className="text-[#676767] mt-0.5" />
                                                     <div>
-                                                        <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-sm">
+                                                        <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-[12px]">
                                                             Chrome en Windows
                                                         </div>
                                                         <div className="text-xs text-[#676767] dark:text-[#acacac] mt-1">
@@ -329,7 +329,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </div>
                                         </div>
                                     </div>
-                                    <button className="mt-4 text-sm text-red-600 dark:text-red-400 hover:underline">
+                                    <button className="mt-4 text-[12px] text-red-600 dark:text-red-400 hover:underline">
                                         Cerrar todas las demás sesiones
                                     </button>
                                 </div>
@@ -341,13 +341,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="space-y-8 max-w-2xl">
                                 {/* Email Notifications */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[12px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2.5">
                                         Notificaciones por Email
                                     </h3>
                                     <div className="space-y-4">
                                         <label className="flex items-start justify-between p-4 bg-[#f7f7f8] dark:bg-[#2a2b32] rounded-lg border border-black/5 dark:border-white/5 cursor-pointer hover:border-black/10 dark:hover:border-white/10 transition-colors">
                                             <div className="flex-1">
-                                                <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-sm mb-1">
+                                                <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-[12px] mb-1">
                                                     Nueva Grabación Procesada
                                                 </div>
                                                 <div className="text-xs text-[#676767] dark:text-[#acacac]">
@@ -364,7 +364,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                         <label className="flex items-start justify-between p-4 bg-[#f7f7f8] dark:bg-[#2a2b32] rounded-lg border border-black/5 dark:border-white/5 cursor-pointer hover:border-black/10 dark:hover:border-white/10 transition-colors">
                                             <div className="flex-1">
-                                                <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-sm mb-1">
+                                                <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-[12px] mb-1">
                                                     Resumen Semanal de Insights
                                                 </div>
                                                 <div className="text-xs text-[#676767] dark:text-[#acacac]">
@@ -381,7 +381,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                         <label className="flex items-start justify-between p-4 bg-[#f7f7f8] dark:bg-[#2a2b32] rounded-lg border border-black/5 dark:border-white/5 cursor-pointer hover:border-black/10 dark:hover:border-white/10 transition-colors">
                                             <div className="flex-1">
-                                                <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-sm mb-1">
+                                                <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-[12px] mb-1">
                                                     Novedades del Producto
                                                 </div>
                                                 <div className="text-xs text-[#676767] dark:text-[#acacac]">
@@ -400,12 +400,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Push Notifications */}
                                 <div className="pt-8 border-t border-black/5 dark:border-white/5">
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[12px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2.5">
                                         Alertas de Navegador
                                     </h3>
                                     <label className="flex items-start justify-between p-4 bg-[#f7f7f8] dark:bg-[#2a2b32] rounded-lg border border-black/5 dark:border-white/5 cursor-pointer hover:border-black/10 dark:hover:border-white/10 transition-colors">
                                         <div className="flex-1">
-                                            <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-sm mb-1">
+                                            <div className="font-medium text-[#0d0d0d] dark:text-[#ececec] text-[12px] mb-1">
                                                 Notificaciones Push
                                             </div>
                                             <div className="text-xs text-[#676767] dark:text-[#acacac]">
@@ -423,7 +423,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Save Button */}
                                 <div className="pt-4 border-t border-black/5 dark:border-white/5">
-                                    <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                    <button className="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-medium rounded-lg transition-colors flex items-center gap-2">
                                         <Save size={16} />
                                         Guardar Preferencias
                                     </button>
@@ -434,10 +434,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* INTEGRACIONES */}
                         {selectedSection === 'integrations' && (
                             <div className="space-y-6 max-w-2xl">
-                                <p className="text-sm text-[#676767] dark:text-[#acacac]">
+                                <p className="text-[12px] text-[#676767] dark:text-[#acacac]">
                                     Conecta Diktalo con tus herramientas favoritas.
                                 </p>
-                                <div className="text-sm text-[#676767] dark:text-[#acacac]">
+                                <div className="text-[12px] text-[#676767] dark:text-[#acacac]">
                                     Integraciones próximamente disponibles.
                                 </div>
                             </div>
@@ -446,7 +446,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* CONFIGURACIÓN */}
                         {selectedSection === 'settings' && (
                             <div className="space-y-6 max-w-2xl">
-                                <p className="text-sm text-[#676767] dark:text-[#acacac]">
+                                <p className="text-[12px] text-[#676767] dark:text-[#acacac]">
                                     Configuraciones de tema, idioma y preferencias próximamente.
                                 </p>
                             </div>
@@ -456,26 +456,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {selectedSection === 'privacy' && (
                             <div className="space-y-8 max-w-2xl">
                                 <div>
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[12px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2.5">
                                         Exportar Datos
                                     </h3>
-                                    <p className="text-sm text-[#676767] dark:text-[#acacac] mb-4">
+                                    <p className="text-[12px] text-[#676767] dark:text-[#acacac] mb-2.5">
                                         Descarga una copia de todos tus datos.
                                     </p>
-                                    <button className="px-5 py-2.5 bg-[#f7f7f8] dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] text-sm font-medium rounded-lg hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors flex items-center gap-2">
+                                    <button className="px-5 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] text-[12px] font-medium rounded-lg hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors flex items-center gap-2">
                                         <Download size={16} />
                                         Exportar Datos
                                     </button>
                                 </div>
 
                                 <div className="pt-8 border-t border-black/5 dark:border-white/5">
-                                    <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-4">
+                                    <h3 className="text-[12px] font-semibold text-red-600 dark:text-red-400 mb-2.5">
                                         Eliminar Cuenta
                                     </h3>
-                                    <p className="text-sm text-[#676767] dark:text-[#acacac] mb-4">
+                                    <p className="text-[12px] text-[#676767] dark:text-[#acacac] mb-2.5">
                                         Esta acción es permanente y no se puede deshacer.
                                     </p>
-                                    <button className="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center gap-2">
+                                    <button className="px-5 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[12px] font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center gap-2">
                                         <Trash2 size={16} />
                                         Eliminar Mi Cuenta
                                     </button>
@@ -496,7 +496,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <div className="font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-1.5">
                                         Manual de Usuario
                                     </div>
-                                    <div className="text-sm text-[#676767] dark:text-[#acacac]">
+                                    <div className="text-[12px] text-[#676767] dark:text-[#acacac]">
                                         Aprende a usar todas las funciones de Diktalo
                                     </div>
                                 </button>
@@ -505,7 +505,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <div className="font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-1.5">
                                         Chat de Soporte
                                     </div>
-                                    <div className="text-sm text-[#676767] dark:text-[#acacac] mb-4">
+                                    <div className="text-[12px] text-[#676767] dark:text-[#acacac] mb-2.5">
                                         Habla con nuestro equipo de soporte
                                     </div>
                                     <button
@@ -514,7 +514,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 window.$crisp.push(['do', 'chat:open']);
                                             }
                                         }}
-                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-[12px] font-medium"
                                     >
                                         Abrir Chat
                                     </button>
@@ -532,19 +532,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2">
                             ¿Cerrar sesión?
                         </h3>
-                        <p className="text-sm text-[#676767] dark:text-[#acacac] mb-6">
+                        <p className="text-[12px] text-[#676767] dark:text-[#acacac] mb-6">
                             ¿Estás seguro que deseas cerrar tu sesión?
                         </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowLogoutConfirm(false)}
-                                className="flex-1 px-4 py-2.5 border border-black/10 dark:border-white/20 text-[#0d0d0d] dark:text-[#ececec] rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-sm font-medium"
+                                className="flex-1 px-4 py-1.5 border border-black/10 dark:border-white/20 text-[#0d0d0d] dark:text-[#ececec] rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-[12px] font-medium"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmLogout}
-                                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                                className="flex-1 px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-[12px] font-medium"
                             >
                                 Cerrar Sesión
                             </button>
@@ -555,3 +555,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
     );
 };
+
