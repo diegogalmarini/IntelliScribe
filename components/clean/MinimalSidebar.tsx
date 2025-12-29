@@ -33,6 +33,31 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 />
             </div>
 
+            {/* Usage Indicator */}
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                    {user.subscription.minutesLimit === -1 ? (
+                        <span className="font-medium">Ilimitado</span>
+                    ) : (
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between items-center">
+                                <span>{user.subscription.minutesUsed} / {user.subscription.minutesLimit} min</span>
+                                <span className="font-medium">{Math.round((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100)}%</span>
+                            </div>
+                            <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full transition-all ${(user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 90 ? 'bg-red-500' :
+                                            (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
+                                                'bg-blue-500'
+                                        }`}
+                                    style={{ width: `${Math.min((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* New Recording Button */}
             <div className="p-3">
                 <button
