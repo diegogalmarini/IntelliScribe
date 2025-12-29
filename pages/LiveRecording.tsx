@@ -25,6 +25,11 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     const [isPaused, setIsPaused] = useState(false);
     const [seconds, setSeconds] = useState(0);
     const secondsRef = useRef(0);
+
+    // Hold interaction states
+    const [holdType, setHoldType] = useState<'pause' | 'stop' | null>(null);
+    const [holdProgress, setHoldProgress] = useState(0);
+    const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
     const [recordingMode, setRecordingMode] = useState<'meeting' | 'call'>('meeting');
 
     const [callMethod, setCallMethod] = useState<'external' | 'voip'>('external');
@@ -340,6 +345,44 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         setIsPaused(!isPaused);
     };
 
+    // --- HOLD TO ACTION LOGIC ---
+    const HOLD_DURATION_PAUSE = 2000;
+    const HOLD_DURATION_STOP = 3000;
+
+    const startHold = (type: 'pause' | 'stop') => {
+        if (holdTimerRef.current) return;
+
+        setHoldType(type);
+        setHoldProgress(0);
+        const startTime = Date.now();
+        const duration = type === 'pause' ? HOLD_DURATION_PAUSE : HOLD_DURATION_STOP;
+
+        holdTimerRef.current = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min((elapsed / duration) * 100, 100);
+            setHoldProgress(progress);
+
+            if (elapsed >= duration) {
+                cancelHold();
+                if (type === 'pause') togglePause();
+                else handleStopButton();
+            }
+        }, 16); // ~60fps
+    };
+
+    const cancelHold = () => {
+        if (holdTimerRef.current) {
+            clearInterval(holdTimerRef.current);
+            holdTimerRef.current = null;
+        }
+        setHoldType(null);
+        setHoldProgress(0);
+    };
+
+    const handleResumeTap = () => {
+        if (isPaused) togglePause();
+    };
+
     // VoIP Simulation
     const handleDial = () => {
         if (!phoneNumber.trim()) return;
@@ -478,12 +521,12 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 <div className="flex bg-slate-200 dark:bg-surface-dark rounded-lg p-0.5 w-fit">
                                     <button
                                         onClick={() => setRecordingMode('meeting')}
-                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${recordingMode === 'meeting' ? 'bg-white dark:bg-primary text-primary dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${recordingMode === 'meeting' ? 'bg-white dark:bg-red-600 text-red-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
                                         {t('modeMeeting')}
                                     </button>
                                     <button
                                         onClick={() => setRecordingMode('call')}
-                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${recordingMode === 'call' ? 'bg-white dark:bg-primary text-primary dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${recordingMode === 'call' ? 'bg-white dark:bg-red-600 text-red-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
                                         {t('modeCall')}
                                     </button>
                                 </div>
@@ -510,9 +553,9 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
                         <LanguageSelector />
-                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${isRecording && !isPaused ? 'bg-red-500/10 border-red-500/20' : 'bg-yellow-500/10 border-yellow-500/20'}`}>
-                            <div className={`size-2.5 rounded-full ${isRecording && !isPaused ? 'bg-red-500 animate-pulse-red' : 'bg-yellow-500'}`}></div>
-                            <span className={`${isRecording && !isPaused ? 'text-red-500' : 'text-yellow-500'} text-xs font-bold uppercase tracking-wider`}>
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${isRecording && !isPaused ? 'bg-red-500/10 border-red-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+                            <div className={`size-2.5 rounded-full ${isRecording && !isPaused ? 'bg-red-500 animate-pulse-red' : 'bg-red-500/50'}`}></div>
+                            <span className="text-red-500 text-xs font-bold uppercase tracking-wider">
                                 {isPaused ? t('paused') : (isRecording ? t('recording') : t('ready'))}
                             </span>
                         </div>
@@ -626,7 +669,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     {visualizerData.map((h, i) => (
                                         <div
                                             key={i}
-                                            className={`w-2 rounded-full transition-all duration-75 ${isRecording ? 'bg-primary' : 'bg-slate-400 dark:bg-slate-600'}`}
+                                            className={`w-2 rounded-full transition-all duration-75 ${isRecording ? (isPaused ? 'bg-slate-400' : 'bg-red-500') : 'bg-slate-400 dark:bg-slate-600'}`}
                                             style={{ height: `${h}%` }}
                                         ></div>
                                     ))}
@@ -656,7 +699,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                         </div>
 
                         <div className="px-4 md:px-8 pb-8 pt-4 flex flex-col items-center border-t border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">
-                            <div className={`text-5xl md:text-7xl font-mono font-bold tracking-wider mb-8 tabular-nums ${callStatus === 'active' ? 'text-green-500' : 'text-slate-900 dark:text-white'}`}>
+                            <div className={`text-5xl md:text-7xl font-mono font-bold tracking-wider mb-8 tabular-nums ${callStatus === 'active' ? 'text-green-500' : (isRecording && !isPaused ? 'text-red-500' : 'text-slate-900 dark:text-white')}`}>
                                 {formatTime(seconds)}
                             </div>
 
@@ -665,8 +708,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     <div className="absolute left-0 top-1/2 -translate-y-1/2 md:block">
                                         <button
                                             onClick={handleMark}
-                                            className="group flex flex-col items-center gap-1 text-slate-500 hover:text-primary transition-colors">
-                                            <div className="size-10 md:size-12 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center bg-transparent group-hover:bg-primary/10 group-hover:border-primary transition-all">
+                                            className="group flex flex-col items-center gap-1 text-slate-500 hover:text-red-500 transition-colors">
+                                            <div className="size-10 md:size-12 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center bg-transparent group-hover:bg-red-500/10 group-hover:border-red-500 transition-all">
                                                 <span className="material-symbols-outlined text-xl md:text-2xl">flag</span>
                                             </div>
                                             <span className="hidden md:block text-xs font-medium">{t('mark')}</span>
@@ -690,21 +733,75 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     !isRecording ? (
                                         <button
                                             onClick={startRecording}
-                                            className="size-16 md:size-20 rounded-full bg-primary hover:bg-primary-hover shadow-lg shadow-primary/30 text-white flex items-center justify-center transition-all transform hover:scale-105" title="Start Recording">
+                                            className="size-16 md:size-20 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 text-white flex items-center justify-center transition-all transform hover:scale-105" title="Start Recording">
                                             <span className="material-symbols-outlined text-3xl md:text-4xl">mic</span>
                                         </button>
                                     ) : (
                                         <>
-                                            <button
-                                                onClick={handleStopButton}
-                                                className="size-12 md:size-14 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white flex items-center justify-center transition-all" title="Stop Recording">
-                                                <span className="material-symbols-outlined text-2xl md:text-3xl">stop_circle</span>
-                                            </button>
-                                            <button
-                                                onClick={togglePause}
-                                                className="size-16 md:size-20 rounded-full bg-primary hover:bg-primary-hover shadow-lg shadow-primary/30 text-white flex items-center justify-center transition-all transform hover:scale-105" title={isPaused ? "Resume" : "Pause"}>
-                                                <span className="material-symbols-outlined text-4xl md:text-5xl">{isPaused ? 'play_arrow' : 'pause'}</span>
-                                            </button>
+                                            {/* STOP BUTTON */}
+                                            <div className="relative group p-2">
+                                                <svg className="absolute inset-0 size-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                                                    <circle
+                                                        cx="50" cy="50" r="46"
+                                                        fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                        className="text-slate-200 dark:text-slate-800"
+                                                    />
+                                                    {holdType === 'stop' && (
+                                                        <circle
+                                                            cx="50" cy="50" r="46"
+                                                            fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                            strokeDasharray="289"
+                                                            strokeDashoffset={289 - (289 * holdProgress) / 100}
+                                                            strokeLinecap="round"
+                                                            className="text-red-500 transition-all duration-75"
+                                                        />
+                                                    )}
+                                                </svg>
+                                                <button
+                                                    onMouseDown={() => startHold('stop')}
+                                                    onMouseUp={cancelHold}
+                                                    onMouseLeave={cancelHold}
+                                                    onTouchStart={() => startHold('stop')}
+                                                    onTouchEnd={cancelHold}
+                                                    className="size-14 md:size-16 rounded-full bg-slate-900 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title="Hold to Stop">
+                                                    <span className="material-symbols-outlined text-2xl md:text-3xl">stop</span>
+                                                </button>
+                                                <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">Hold to stop</p>
+                                            </div>
+
+                                            {/* PAUSE / RESUME BUTTON */}
+                                            <div className="relative group p-2">
+                                                <svg className="absolute inset-0 size-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                                                    <circle
+                                                        cx="50" cy="50" r="46"
+                                                        fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                        className="text-slate-200 dark:text-slate-800"
+                                                    />
+                                                    {holdType === 'pause' && (
+                                                        <circle
+                                                            cx="50" cy="50" r="46"
+                                                            fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                            strokeDasharray="289"
+                                                            strokeDashoffset={289 - (289 * holdProgress) / 100}
+                                                            strokeLinecap="round"
+                                                            className="text-red-500 transition-all duration-75"
+                                                        />
+                                                    )}
+                                                </svg>
+                                                <button
+                                                    onMouseDown={() => !isPaused && startHold('pause')}
+                                                    onMouseUp={cancelHold}
+                                                    onMouseLeave={cancelHold}
+                                                    onTouchStart={() => !isPaused && startHold('pause')}
+                                                    onTouchEnd={cancelHold}
+                                                    onClick={handleResumeTap}
+                                                    className={`size-20 md:size-24 rounded-full ${isPaused ? 'bg-red-500 shadow-red-500/40' : 'bg-red-500 shadow-red-500/20'} hover:bg-red-600 shadow-xl text-white flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 z-10 relative`} title={isPaused ? "Tap to Resume" : "Hold to Pause"}>
+                                                    <span className="material-symbols-outlined text-5xl md:text-6xl">{isPaused ? 'play_arrow' : 'pause'}</span>
+                                                </button>
+                                                <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    {isPaused ? 'Tap to resume' : 'Hold to pause'}
+                                                </p>
+                                            </div>
                                         </>
                                     )
                                 )}
