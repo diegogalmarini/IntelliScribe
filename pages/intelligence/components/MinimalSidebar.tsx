@@ -151,7 +151,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                             onClick={closeContextMenu}
                                         />
 
-                                        <div className="absolute left-full ml-2 top-0 w-56 bg-[#2a2a2a] rounded-xl shadow-2xl border border-white/10 py-2 z-[101]">
+                                        <div className="absolute right-0 top-8 w-56 bg-[#2a2a2a] rounded-xl shadow-2xl border border-white/10 py-2 z-[101]">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
