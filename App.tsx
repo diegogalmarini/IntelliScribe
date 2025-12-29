@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import DashboardIntelligence from './pages/DashboardIntelligence';
+import DashboardClean from './pages/DashboardClean';
 import { LiveRecording } from './pages/LiveRecording';
 import { TranscriptEditor } from './pages/TranscriptEditor';
 import { Integrations } from './pages/Integrations';
@@ -578,7 +579,7 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.INTELLIGENCE && (
-                        <DashboardIntelligence
+                        <DashboardClean
                             user={user}
                             recordings={recordings}
                             onNavigate={navigate}
@@ -588,6 +589,7 @@ const AppContent: React.FC = () => {
                             onMoveRecording={handleMoveRecording}
                             selectedFolderId={selectedFolderId}
                             folders={folders}
+                            onLogout={handleLogout}
                         />
                     )}
 
