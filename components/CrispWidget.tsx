@@ -15,6 +15,14 @@ const CrispWidget = () => {
                 s.src = "https://client.crisp.chat/l.js";
                 s.async = true;
                 d.getElementsByTagName("head")[0].appendChild(s);
+
+                // Hide Crisp widget by default
+                setTimeout(() => {
+                    const crispButton = document.querySelector('.crisp-client');
+                    if (crispButton) {
+                        (crispButton as HTMLElement).style.display = 'none';
+                    }
+                }, 1000);
             })();
         } else {
             console.warn('[Crisp] No VITE_CRISP_WEBSITE_ID found, skipping initialization.');
