@@ -474,6 +474,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     {t('confirmDelete')} <br />
                                     <span className="font-bold text-white block mt-1">"{actionModal.title}"</span>
                                 </p>
+                                <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 text-[11px] leading-relaxed text-orange-200">
+                                    <span className="font-bold text-orange-400 block mb-0.5">⚠️ {t('statusWarning')}</span>
+                                    {t('deleteWarningMinutes')}
+                                </div>
                                 <div className="flex justify-end gap-3 mt-4">
                                     <button
                                         onClick={() => setActionModal(null)}

@@ -97,6 +97,7 @@ export const translations = {
     confirmDelete: "Are you sure you want to delete this recording?",
     close: "Close",
     loading: "Loading",
+    deleteWarningMinutes: "Note: Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.",
     audioNotReady: "Audio not ready",
     retry: "Retry",
 
@@ -482,6 +483,7 @@ export const translations = {
     confirmDelete: "¿Estás seguro de que quieres eliminar esta grabación?",
     close: "Cerrar",
     loading: "Cargando",
+    deleteWarningMinutes: "Nota: Eliminar esta grabación libera espacio, pero los minutos consumidos NO se recuperarán.",
     audioNotReady: "Audio no disponible",
     retry: "Reintentar",
 
