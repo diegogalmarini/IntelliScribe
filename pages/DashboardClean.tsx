@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Recording, AppRoute, Folder, UserProfile } from '../types';
 import { MinimalSidebar } from '../components/clean/MinimalSidebar';
 import { UserMenu } from '../components/clean/UserMenu';
@@ -29,6 +29,8 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isDialerOpen, setIsDialerOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Format plan name for display
     const formatPlanName = (planId: string) => {
@@ -50,13 +52,32 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
         onNavigate(AppRoute.RECORDING);
     };
 
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            // TODO: Implement proper file upload to backend
+            console.log('File selected:', file.name);
+            // For now, navigate to recording page
+            onNavigate(AppRoute.RECORDING);
+        }
+    };
+
     const handleAction = (type: 'record' | 'upload' | 'call') => {
-        if (type === 'record' || type === 'call') {
+        if (type === 'record') {
             onNavigate(AppRoute.RECORDING);
         }
         if (type === 'upload') {
-            // Handle upload - could open file dialog
-            console.log('Upload action triggered');
+            // Trigger hidden file input click
+            fileInputRef.current?.click();
+        }
+        if (type === 'call') {
+            // Open dialer only for Business+ users
+            if (user?.subscription?.planId === 'business_plus') {
+                setIsDialerOpen(true);
+            } else {
+                // Could show upgrade modal here
+                alert('La función de llamadas está disponible solo para Business+');
+            }
         }
     };
 
@@ -68,6 +89,15 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
 
     return (
         <div className="flex h-screen bg-white dark:bg-[#1a1a1a] overflow-hidden">
+            {/* Hidden file input for upload */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*,.mp3,.wav,.m4a,.webm"
+                onChange={handleFileUpload}
+                className="hidden"
+            />
+
             {/* Minimal Sidebar */}
             <MinimalSidebar
                 recordings={recordings}
@@ -176,6 +206,24 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
                 onClose={() => setIsSettingsOpen(false)}
                 onUpdateUser={onUpdateUser}
             />
+
+            {/* Dialer Modal (TODO: Implement) */}
+            {isDialerOpen && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+                    <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full">
+                        <h2 className="text-xl font-semibold mb-4">Dialer</h2>
+                        <p className="text-slate-600 dark:text-slate-400 mb-4">
+                            Dialer component will be integrated here
+                        </p>
+                        <button
+                            onClick={() => setIsDialerOpen(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
