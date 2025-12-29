@@ -161,23 +161,51 @@ export const Dashboard: React.FC<DashboardProps> = ({
         setActiveMenuId(null);
     };
 
-    const confirmDelete = () => {
-        if (actionModal && actionModal.type === 'delete') {
-            // Second confirmation with browser prompt (includes minute warning)
-            // Defensive: use fallbacks in case translations aren't loaded
-            const deleteMsg = t('confirmDelete') || 'Are you sure you want to delete this recording?';
-            const warningMsg = t('deleteWarningMinutes') || 'Note: Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.';
-            const confirmMsg = `${deleteMsg}
+    const confirmDelete = (e?: any) => {
+        if (e && e.stopPropagation) e.stopPropagation();
 
-${warningMsg}`;
-            const confirmed = window.confirm(confirmMsg);
+        // Use timeout to decouple from current event stack and ensure UI is ready
+        setTimeout(() => {
+            console.log("🟠 [DELETE-DEBUG] confirmDelete triggered. State:", actionModal);
 
-            if (confirmed) {
-                onDeleteRecording(actionModal.id);
-                setActionModal(null);
+            if (!actionModal || actionModal.type !== 'delete') {
+                console.error("🔴 [DELETE-DEBUG] Invalid state:", actionModal);
+                return;
             }
-            // If not confirmed, modal stays open
-        }
+
+            try {
+                // Defensive string construction with explicit fallbacks
+                let deleteText = "Are you sure you want to delete this recording?";
+                let warningText = "Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.";
+
+                try {
+                    const tDelete = t('confirmDelete');
+                    if (tDelete) deleteText = String(tDelete);
+
+                    const tWarn = t('deleteWarningMinutes');
+                    if (tWarn) warningText = String(tWarn);
+                } catch (tErr) {
+                    console.warn("Translation lookup failed, using fallbacks:", tErr);
+                }
+
+                const fullMessage = `${deleteText}\n\n⚠️ ${warningText}`;
+
+                console.log("🟠 [DELETE-DEBUG] Requesting window.confirm with:", fullMessage);
+                const result = window.confirm(fullMessage);
+                console.log("🟢 [DELETE-DEBUG] Confirm result:", result);
+
+                if (result) {
+                    console.log("🔵 [DELETE-DEBUG] User confirmed. Calling onDeleteRecording for ID:", actionModal.id);
+                    onDeleteRecording(actionModal.id);
+                    setActionModal(null);
+                } else {
+                    console.log("⚪ [DELETE-DEBUG] User cancelled.");
+                }
+            } catch (err) {
+                console.error("🔴 [DELETE-DEBUG] CRITICAL EXCEPTION:", err);
+                alert("Error: " + err);
+            }
+        }, 50);
     };
 
     const openRenameModal = (e: React.MouseEvent, id: string, currentTitle: string) => {
