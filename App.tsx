@@ -454,6 +454,17 @@ const AppContent: React.FC = () => {
         }
     };
 
+    // For Intelligence Dashboard - doesn't navigate, just updates active recording
+    const handleSelectRecordingIntelligence = async (id: string) => {
+        setActiveRecordingId(id);
+
+        // Fetch full details if not already loaded
+        const full = await databaseService.getRecordingDetails(id);
+        if (full) {
+            setRecordings(prev => prev.map(r => r.id === id ? full : r));
+        }
+    };
+
     const handleUpdateRecording = async (id: string, updates: Partial<Recording>) => {
         setRecordings(prev => prev.map(rec =>
             rec.id === id ? { ...rec, ...updates } : rec
