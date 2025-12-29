@@ -411,10 +411,10 @@ const AppContent: React.FC = () => {
 
     const handleDeleteRecording = async (id: string) => {
         const recording = recordings.find(r => r.id === id);
-        if (!recording) return;
+        if (!recording || !supabaseUser) return;
 
-        const confirmed = window.confirm(t('confirmDelete'));
-        if (!confirmed) return;
+        // Note: Confirmation is now handled by the custom modal in Dashboard.tsx
+        // Removing window.confirm to avoid double-confirmation confusion.
 
         const success = await databaseService.deleteRecording(id);
 
@@ -424,7 +424,7 @@ const AppContent: React.FC = () => {
 
             // Return minutes to user's quota
             const minutesToReturn = Math.max(1, Math.ceil(recording.durationSeconds / 60));
-            await databaseService.decrementUsage(user.id!, recording.durationSeconds);
+            await databaseService.decrementUsage(supabaseUser.id, recording.durationSeconds);
 
             // Update local state
             setUser(prev => ({
