@@ -61,7 +61,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center gap-2 px-2">
-                    <span className="text-[15px] font-semibold text-[#0d0d0d] dark:text-white">
+                    <span className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
                         Diktalo
                     </span>
                 </div>
@@ -69,7 +69,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
 
             {/* Usage Indicator */}
             <div className="px-3 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
-                <div className="px-2 text-[13px] text-[#676767] dark:text-[#c5c5c5]">
+                <div className="px-2 text-[12px] text-[#676767] dark:text-[#c5c5c5]">
                     {user.subscription.minutesLimit === -1 ? (
                         <span className="font-normal">Ilimitado</span>
                     ) : (
@@ -81,8 +81,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             <div className="h-1 bg-[#e5e5e5] dark:bg-[#2a2a2a] rounded-full overflow-hidden">
                                 <div
                                     className={`h-full transition-all ${(user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 90 ? 'bg-red-500' :
-                                            (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
-                                                'bg-blue-500'
+                                        (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
+                                            'bg-blue-500'
                                         }`}
                                     style={{ width: `${Math.min((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100, 100)}%` }}
                                 />
@@ -96,7 +96,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             <div className="p-2">
                 <button
                     onClick={onNewRecording}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 text-[14px] font-normal text-[#0d0d0d] dark:text-white hover:bg-[#f0f0f0] dark:hover:bg-white/[0.08] rounded-lg transition-colors border border-black/10 dark:border-white/10"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-normal text-[#0d0d0d] dark:text-white hover:bg-[#f0f0f0] dark:hover:bg-white/[0.08] rounded-lg transition-colors border border-black/10 dark:border-white/10"
                 >
                     <Plus size={16} strokeWidth={2} />
                     <span>Nueva Sesión</span>
@@ -106,7 +106,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             {/* Recordings List */}
             <div className="flex-1 overflow-y-auto px-2 pb-2">
                 {recordings.length === 0 ? (
-                    <p className="text-[13px] text-[#8e8e8e] dark:text-[#8e8e8e] text-center py-8 px-3">
+                    <p className="text-[12px] text-[#8e8e8e] dark:text-[#8e8e8e] text-center py-8 px-3">
                         No hay grabaciones
                     </p>
                 ) : (
@@ -115,9 +115,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             <div key={recording.id} className="relative">
                                 <button
                                     onClick={() => onSelectRecording(recording.id)}
-                                    className={`w-full text-left px-3 py-2.5 rounded-lg text-[14px] transition-colors group ${selectedId === recording.id
-                                            ? 'bg-[#f0f0f0] dark:bg-[#2a2a2a] text-[#0d0d0d] dark:text-white'
-                                            : 'text-[#676767] dark:text-[#c5c5c5] hover:bg-[#f7f7f8] dark:hover:bg-white/[0.05]'
+                                    className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition-colors group ${selectedId === recording.id
+                                        ? 'bg-[#f0f0f0] dark:bg-[#2a2a2a] text-[#0d0d0d] dark:text-white'
+                                        : 'text-[#676767] dark:text-[#c5c5c5] hover:bg-[#f7f7f8] dark:hover:bg-white/[0.05]'
                                         }`}
                                 >
                                     <div className="flex items-start justify-between gap-2">
@@ -125,7 +125,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                             <div className="truncate font-normal">
                                                 {recording.title || 'Sin título'}
                                             </div>
-                                            <div className="text-[12px] text-[#8e8e8e] dark:text-[#8e8e8e] mt-1">
+                                            <div className="text-[11px] text-[#8e8e8e] dark:text-[#8e8e8e] mt-0.5">
                                                 {new Date(recording.date).toLocaleDateString('es-ES', {
                                                     month: 'short',
                                                     day: 'numeric'
@@ -151,13 +151,13 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                             onClick={closeContextMenu}
                                         />
 
-                                        <div className="absolute right-1 top-0 w-52 bg-[#2c2c2c] rounded-lg shadow-xl border border-white/10 py-1.5 z-[101]">
+                                        <div className="absolute right-1 top-0 w-52 bg-[#2c2c2c] rounded-lg shadow-xl border border-white/10 py-1 z-[101]">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleViewNotes(recording.id);
                                                 }}
-                                                className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
+                                                className="w-full text-left px-3 py-1.5 text-[13px] text-white hover:bg-white/10 flex items-center gap-2.5 transition-colors"
                                             >
                                                 <FileText size={16} strokeWidth={1.5} />
                                                 <span>Ver Notas y Archivos</span>
@@ -188,7 +188,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                     e.stopPropagation();
                                                     handleDelete(recording.id);
                                                 }}
-                                                className="w-full text-left px-3 py-2 text-[14px] text-red-400 hover:bg-red-900/20 flex items-center gap-3 transition-colors"
+                                                className="w-full text-left px-3 py-1.5 text-[13px] text-red-400 hover:bg-red-900/20 flex items-center gap-2.5 transition-colors"
                                             >
                                                 <Trash2 size={16} strokeWidth={1.5} />
                                                 <span>Eliminar</span>
