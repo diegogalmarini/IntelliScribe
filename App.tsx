@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import DashboardIntelligence from './pages/DashboardIntelligence';
-import DashboardClean from './pages/DashboardClean';
+import IntelligenceDashboard from './pages/intelligence/IntelligenceDashboard';
 import { LiveRecording } from './pages/LiveRecording';
 import { TranscriptEditor } from './pages/TranscriptEditor';
 import { Integrations } from './pages/Integrations';
