@@ -413,11 +413,8 @@ const AppContent: React.FC = () => {
         const recording = recordings.find(r => r.id === id);
         if (!recording || !supabaseUser) return;
 
-        // User preference: Dual confirmation (Custom Modal + Browser Prompt)
-        // AND critical business logic: Deleting does NOT recover minutes.
-        const confirmMsg = `${t('confirmDelete')}\n\n${t('deleteWarningMinutes')}`;
-        const confirmed = window.confirm(confirmMsg);
-        if (!confirmed) return;
+        // Note: Confirmation is handled by Dashboard.tsx (custom modal + browser prompt)
+        // This function only executes after user has confirmed twice.
 
         const success = await databaseService.deleteRecording(id);
 
