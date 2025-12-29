@@ -530,14 +530,20 @@ const AppContent: React.FC = () => {
     return (
         <ThemeProvider>
             <CrispWidget />
-            <div className="flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200">
+            <motion.div
+                className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+            >
                 {/* Sidebar */}
-                {currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && (
+                {/* Hide Sidebar for Intelligence route - it has its own minimal sidebar */}
+                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && (
                     <Sidebar
                         currentRoute={currentRoute}
                         onNavigate={navigate}
                         activeFolderId={selectedFolderId}
-                        onSelectFolder={handleFolderSelect}
+                        onSelectFolder={setSelectedFolderId}
                         folders={folders}
                         onAddFolder={handleAddFolder}
                         onDeleteFolder={handleDeleteFolder}
