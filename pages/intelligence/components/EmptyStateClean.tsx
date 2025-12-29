@@ -40,7 +40,7 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
         <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-4xl mx-auto">
             {/* Greeting */}
             <h1 className="text-4xl font-normal text-[#1f1f1f] dark:text-white mb-3">
-                {t('greetingHello') || 'Hola'} {userName}
+                Hola, {userName}
             </h1>
             <p className="text-[#8e8e8e] dark:text-[#8e8e8e] text-lg mb-16">
                 {t('intelligenceWelcome') || '¿Por dónde empezamos?'}
