@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Recording, UserProfile } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2 } from 'lucide-react';
+import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic } from 'lucide-react';
 
 interface MinimalSidebarProps {
     recordings: Recording[];
@@ -61,6 +61,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center gap-2 px-2">
+                    <Mic size={18} className="text-[#0d0d0d] dark:text-white" />
                     <span className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
                         Diktalo
                     </span>
