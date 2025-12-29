@@ -57,7 +57,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     return (
-        <div className="w-64 h-full bg-white dark:bg-[#171717] flex flex-col border-r border-black/[0.05] dark:border-white/[0.05]">
+        <div className="w-64 h-full bg-white dark:bg-[#171717] flex flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center gap-2 px-2">
@@ -151,7 +151,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                             onClick={closeContextMenu}
                                         />
 
-                                        <div className="absolute left-full ml-2 top-0 w-56 bg-[#2a2a2a] rounded-xl shadow-2xl border border-white/10 py-2 z-[200]">
+                                        <div className="absolute right-1 top-8 w-56 bg-[#2a2a2a] rounded-xl shadow-2xl border border-white/10 py-2 z-[200]">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
