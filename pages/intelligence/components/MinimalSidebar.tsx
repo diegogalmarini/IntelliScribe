@@ -1,5 +1,5 @@
 import React from 'react';
-import { Recording, UserProfile } from '../../types';
+import { Recording, UserProfile } from '../../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Plus } from 'lucide-react';
 
@@ -47,8 +47,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full transition-all ${(user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 90 ? 'bg-red-500' :
-                                            (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
-                                                'bg-blue-500'
+                                        (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
+                                            'bg-blue-500'
                                         }`}
                                     style={{ width: `${Math.min((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100, 100)}%` }}
                                 />

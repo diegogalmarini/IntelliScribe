@@ -1,5 +1,5 @@
 import React from 'react';
-import { Recording } from '../../types';
+import { Recording } from '../../../types';
 import { MessageSquare, User, Sparkles } from 'lucide-react';
 
 interface ChatInterfaceProps {

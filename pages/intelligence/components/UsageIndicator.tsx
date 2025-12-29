@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserProfile } from '../../types';
+import { UserProfile } from '../../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface UsageIndicatorProps {
@@ -28,8 +28,8 @@ export const UsageIndicator: React.FC<UsageIndicatorProps> = ({ user }) => {
                         <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all ${percentage > 90 ? 'bg-red-500' :
-                                        percentage > 70 ? 'bg-yellow-500' :
-                                            'bg-blue-500'
+                                    percentage > 70 ? 'bg-yellow-500' :
+                                        'bg-blue-500'
                                     }`}
                                 style={{ width: `${Math.min(percentage, 100)}%` }}
                             />
