@@ -4,6 +4,7 @@ import { MinimalSidebar } from '../components/clean/MinimalSidebar';
 import { UserMenu } from '../components/clean/UserMenu';
 import { UsageIndicator } from '../components/clean/UsageIndicator';
 import { EmptyStateClean } from '../components/clean/EmptyStateClean';
+import { SettingsModal } from '../components/clean/SettingsModal';
 
 interface DashboardCleanProps {
     onNavigate: (route: AppRoute) => void;
@@ -16,6 +17,7 @@ interface DashboardCleanProps {
     folders: Folder[];
     user: UserProfile;
     onLogout: () => void;
+    onUpdateUser?: (updates: Partial<UserProfile>) => void;
 }
 
 export const DashboardClean: React.FC<DashboardCleanProps> = ({
@@ -26,6 +28,7 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
     onLogout
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // Format plan name for display
     const formatPlanName = (planId: string) => {
@@ -96,6 +99,7 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
                         user={user}
                         onNavigate={onNavigate}
                         onLogout={onLogout}
+                        onOpenSettings={() => setIsSettingsOpen(true)}
                     />
                 </div>
 
@@ -167,6 +171,14 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
                     )}
                 </div>
             </div>
+
+            {/* Settings Modal */}
+            <SettingsModal
+                user={user}
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                onUpdateUser={onUpdateUser}
+            />
         </div>
     );
 };
