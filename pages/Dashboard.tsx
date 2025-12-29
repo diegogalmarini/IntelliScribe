@@ -50,6 +50,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const [viewingRecording, setViewingRecording] = useState<Recording | null>(null);
     const [actionModal, setActionModal] = useState<{ type: 'rename' | 'delete' | 'move', id: string, title?: string } | null>(null);
     const [tempRenameTitle, setTempRenameTitle] = useState('');
+    const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
 
     // System Report Modal State
     const [showSystemReport, setShowSystemReport] = useState(false);
@@ -157,6 +158,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     const openDeleteModal = (e: React.MouseEvent, id: string, title: string) => {
         e.stopPropagation();
+        setIsDeleteConfirmed(false);
         setActionModal({ type: 'delete', id, title });
         setActiveMenuId(null);
     };
@@ -164,48 +166,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const confirmDelete = (e?: any) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
-        // Use timeout to decouple from current event stack and ensure UI is ready
-        setTimeout(() => {
-            console.log("🟠 [DELETE-DEBUG] confirmDelete triggered. State:", actionModal);
-
-            if (!actionModal || actionModal.type !== 'delete') {
-                console.error("🔴 [DELETE-DEBUG] Invalid state:", actionModal);
-                return;
-            }
-
-            try {
-                // Defensive string construction with explicit fallbacks
-                let deleteText = "Are you sure you want to delete this recording?";
-                let warningText = "Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.";
-
-                try {
-                    const tDelete = t('confirmDelete');
-                    if (tDelete) deleteText = String(tDelete);
-
-                    const tWarn = t('deleteWarningMinutes');
-                    if (tWarn) warningText = String(tWarn);
-                } catch (tErr) {
-                    console.warn("Translation lookup failed, using fallbacks:", tErr);
-                }
-
-                const fullMessage = `${deleteText}\n\n⚠️ ${warningText}`;
-
-                console.log("🟠 [DELETE-DEBUG] Requesting window.confirm with:", fullMessage);
-                const result = window.confirm(fullMessage);
-                console.log("🟢 [DELETE-DEBUG] Confirm result:", result);
-
-                if (result) {
-                    console.log("🔵 [DELETE-DEBUG] User confirmed. Calling onDeleteRecording for ID:", actionModal.id);
-                    onDeleteRecording(actionModal.id);
-                    setActionModal(null);
-                } else {
-                    console.log("⚪ [DELETE-DEBUG] User cancelled.");
-                }
-            } catch (err) {
-                console.error("🔴 [DELETE-DEBUG] CRITICAL EXCEPTION:", err);
-                alert("Error: " + err);
-            }
-        }, 50);
+        if (actionModal && actionModal.type === 'delete') {
+            onDeleteRecording(actionModal.id);
+            setActionModal(null);
+        }
     };
 
     const openRenameModal = (e: React.MouseEvent, id: string, currentTitle: string) => {
@@ -518,6 +482,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     <span className="font-bold text-orange-400 block mb-0.5">⚠️ {t('statusWarning') || 'Warning'}</span>
                                     {t('deleteWarningMinutes') || 'Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.'}
                                 </div>
+                                <div className="flex items-center gap-3 px-1 pt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="confirm-delete-check"
+                                        checked={isDeleteConfirmed}
+                                        onChange={(e) => setIsDeleteConfirmed(e.target.checked)}
+                                        className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-red-600 focus:ring-red-500 focus:ring-offset-[#1e2736]"
+                                    />
+                                    <label htmlFor="confirm-delete-check" className="text-sm text-slate-300 cursor-pointer select-none">
+                                        {t('statusWarning') ? (t('deleteWarningMinutes') ? t('deleteWarningMinutes').split(',')[1] || "Minutos NO se recuperan" : "Confirm permanent deletion") : "Confirm permanent deletion"}
+                                    </label>
+                                </div>
                                 <div className="flex justify-end gap-3 mt-4">
                                     <button
                                         onClick={() => setActionModal(null)}
@@ -526,7 +502,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     </button>
                                     <button
                                         onClick={confirmDelete}
-                                        className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-lg shadow-red-900/20">
+                                        disabled={!isDeleteConfirmed}
+                                        className={`px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition-all
+                                            ${isDeleteConfirmed
+                                                ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/20'
+                                                : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
+                                    >
                                         {t('delete')}
                                     </button>
                                 </div>
