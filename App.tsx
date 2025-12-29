@@ -575,6 +575,20 @@ const AppContent: React.FC = () => {
                         />
                     )}
 
+                    {currentRoute === AppRoute.INTELLIGENCE && (
+                        <DashboardIntelligence
+                            user={user}
+                            recordings={recordings}
+                            onNavigate={navigate}
+                            onSelectRecording={handleSelectRecording}
+                            onDeleteRecording={handleDeleteRecording}
+                            onRenameRecording={handleRenameRecording}
+                            onMoveRecording={handleMoveRecording}
+                            selectedFolderId={selectedFolderId}
+                            folders={folders}
+                        />
+                    )}
+
                     {currentRoute === AppRoute.RECORDING && (
                         <LiveRecording
                             onNavigate={navigate}
