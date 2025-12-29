@@ -585,7 +585,7 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.INTELLIGENCE && (
-                        <DashboardClean
+                        <IntelligenceDashboard
                             user={user}
                             recordings={recordings}
                             onNavigate={navigate}
