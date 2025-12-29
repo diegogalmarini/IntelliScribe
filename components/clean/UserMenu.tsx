@@ -84,21 +84,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout, 
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50">
-                    {/* User Info */}
-                    <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-                        <div className="font-medium text-slate-900 dark:text-white">
-                            {user.firstName} {user.lastName}
-                        </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {user.email}
-                        </div>
-                        <div className="mt-2">
-                            <span className="inline-block px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2f2f2f] text-[#444746] dark:text-[#e3e3e3] text-xs font-medium rounded-md">
-                                {formatPlanName(user.subscription.planId)}
-                            </span>
-                        </div>
-                    </div>
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50">
 
                     {/* Menu Items */}
                     <div className="py-1">

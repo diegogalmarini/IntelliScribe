@@ -61,6 +61,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* Main Content */}
                         <div className="flex-1 overflow-y-auto p-6">
                             <div className="max-w-2xl space-y-6">
+                                {/* Profile Header */}
+                                <div className="flex items-center gap-4 pb-6 border-b border-[#e5e5e5] dark:border-[#3c3c3c]">
+                                    {user.avatarUrl ? (
+                                        <img
+                                            src={user.avatarUrl}
+                                            alt={user.firstName}
+                                            className="w-16 h-16 rounded-full"
+                                        />
+                                    ) : (
+                                        <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-medium">
+                                            {user.firstName?.charAt(0) || 'U'}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <div className="font-semibold text-[#1f1f1f] dark:text-white text-lg">
+                                            {user.firstName} {user.lastName}
+                                        </div>
+                                        <div className="text-sm text-[#444746] dark:text-slate-400">
+                                            {user.email}
+                                        </div>
+                                        <div className="mt-2">
+                                            <span className="inline-block px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2f2f2f] text-[#444746] dark:text-[#e3e3e3] text-xs font-medium rounded-md">
+                                                {user.subscription?.planId ? user.subscription.planId.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Free'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* Profile Section */}
                                 <div className="space-y-4">
                                     <h3 className="text-sm font-semibold text-[#1f1f1f] dark:text-white uppercase tracking-wider">
