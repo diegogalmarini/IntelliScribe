@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AppRoute, UserProfile } from '../../../types';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import {
     User,
     CreditCard,
@@ -13,7 +13,7 @@ import {
     LogOut,
     ChevronDown
 } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface UserMenuProps {
     user: UserProfile;
