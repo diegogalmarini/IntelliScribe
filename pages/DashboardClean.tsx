@@ -27,6 +27,17 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
+    // Format plan name for display
+    const formatPlanName = (planId: string) => {
+        const names: Record<string, string> = {
+            'free': 'Free',
+            'pro': 'Pro',
+            'business': 'Business',
+            'business_plus': 'Business Plus'
+        };
+        return names[planId] || planId;
+    };
+
     const handleSelectRecording = (id: string) => {
         setSelectedId(id);
         onSelectRecording(id);
@@ -73,10 +84,10 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Bar */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                    {/* Plan Badge */}
+                    {/* Plan Badge - Gemini style */}
                     <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded">
-                            {user?.subscription?.planId?.toUpperCase() || 'FREE'}
+                        <span className="px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2f2f2f] text-[#444746] dark:text-[#e3e3e3] text-xs font-medium rounded-md">
+                            {formatPlanName(user?.subscription?.planId || 'free')}
                         </span>
                     </div>
 

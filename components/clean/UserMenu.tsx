@@ -27,6 +27,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout }
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    // Format plan name
+    const formatPlanName = (planId: string) => {
+        const names: Record<string, string> = {
+            'free': 'Free',
+            'pro': 'Pro',
+            'business': 'Business',
+            'business_plus': 'Business Plus'
+        };
+        return names[planId] || planId;
+    };
+
     // Close on outside click
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -85,8 +96,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout }
                             {user.email}
                         </div>
                         <div className="mt-2">
-                            <span className="inline-block px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded">
-                                {user.subscription.planId.toUpperCase()}
+                            <span className="inline-block px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2f2f2f] text-[#444746] dark:text-[#e3e3e3] text-xs font-medium rounded-md">
+                                {formatPlanName(user.subscription.planId)}
                             </span>
                         </div>
                     </div>
@@ -121,8 +132,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout }
                                     setIsOpen(false);
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${theme === option.value
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
                                     }`}
                             >
                                 <option.icon size={18} />
