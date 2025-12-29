@@ -30,6 +30,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     const [holdType, setHoldType] = useState<'pause' | 'stop' | null>(null);
     const [holdProgress, setHoldProgress] = useState(0);
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const holdSuccessRef = useRef(false);
     const [recordingMode, setRecordingMode] = useState<'meeting' | 'call'>('meeting');
 
     const [callMethod, setCallMethod] = useState<'external' | 'voip'>('external');
@@ -363,9 +364,13 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
             setHoldProgress(progress);
 
             if (elapsed >= duration) {
+                holdSuccessRef.current = true; // Mark hold as successful to block click
                 cancelHold();
                 if (type === 'pause') togglePause();
                 else handleStopButton();
+
+                // Reset flag after click event likely fired
+                setTimeout(() => { holdSuccessRef.current = false; }, 500);
             }
         }, 16); // ~60fps
     };
@@ -379,7 +384,11 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
         setHoldProgress(0);
     };
 
-    const handleResumeTap = () => {
+    const handleResumeTap = (e?: React.MouseEvent) => {
+        if (holdSuccessRef.current) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            return;
+        }
         if (isPaused) togglePause();
     };
 
