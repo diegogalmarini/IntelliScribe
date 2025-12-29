@@ -122,8 +122,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {/* Main Content Area */}
                 <div className="flex-1 flex flex-col bg-white dark:bg-[#202123]">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-8 py-5 border-b border-black/5 dark:border-white/5">
-                        <h2 className="text-xl font-semibold text-[#0d0d0d] dark:text-[#ececec]">
+                    <div className="flex items-center justify-between px-8 py-4 border-b border-black/5 dark:border-white/5">
+                        <h2 className="text-base font-semibold text-[#0d0d0d] dark:text-[#ececec]">
                             {menuItems.find(item => item.id === selectedSection)?.label}
                         </h2>
                         <button
@@ -165,19 +165,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Personal Info */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-4">
+                                    <h3 className="text-[13px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-3">
                                         Información Personal
                                     </h3>
                                     <div className="space-y-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                                <label className="block text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] mb-1.5">
                                                     Nombre
                                                 </label>
                                                 <input
                                                     type="text"
                                                     defaultValue={user.firstName}
-                                                    className="w-full px-3 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="w-full px-3 py-1.5 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[#0d0d0d] dark:text-[#ececec] text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 />
                                             </div>
                                             <div>
