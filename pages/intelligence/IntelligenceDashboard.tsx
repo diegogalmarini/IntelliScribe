@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Recording, AppRoute, Folder, UserProfile } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
-import { UserMenu } from './components/UserMenu';
+import { ProfileAvatar } from './components/ProfileAvatar';
 import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
 import { ChatInterface } from './components/ChatInterface';
@@ -122,11 +122,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         <span className="px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2f2f2f] text-[#444746] dark:text-[#e3e3e3] text-xs font-medium rounded-md">
                             {formatPlanName(user?.subscription?.planId || 'free')}
                         </span>
-                        <UserMenu
+                        <ProfileAvatar
                             user={user}
-                            onNavigate={onNavigate}
-                            onLogout={onLogout}
-                            onOpenSettings={() => setIsSettingsOpen(true)}
+                            onClick={() => setIsSettingsOpen(true)}
                         />
                     </div>
                 </div>
@@ -151,6 +149,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
                 onUpdateUser={onUpdateUser}
+                onNavigate={onNavigate}
+                onLogout={onLogout}
             />
 
             {/* Dialer Modal (TODO: Implement) */}
