@@ -163,8 +163,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     const confirmDelete = () => {
         if (actionModal && actionModal.type === 'delete') {
-            onDeleteRecording(actionModal.id);
-            setActionModal(null);
+            // Second confirmation with browser prompt (includes minute warning)
+            const confirmMsg = `${t('confirmDelete')}\n\n${t('deleteWarningMinutes')}`;
+            const confirmed = window.confirm(confirmMsg);
+
+            if (confirmed) {
+                onDeleteRecording(actionModal.id);
+                setActionModal(null);
+            }
+            // If not confirmed, modal stays open
         }
     };
 
