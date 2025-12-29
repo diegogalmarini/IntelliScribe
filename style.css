@@ -264,3 +264,13 @@
 .dark * {
     scrollbar-color: rgba(155, 155, 155, 0.2) transparent;
 }
+
+/* Hide Crisp chat widget completely */
+.crisp-client,
+#crisp-chatbox,
+.crisp-1rjpbb7 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
