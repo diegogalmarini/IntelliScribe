@@ -4,7 +4,7 @@ import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
 import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
-import { ChatInterface } from './components/ChatInterface';
+import { RecordingDetailView } from './components/RecordingDetailView';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
@@ -132,7 +132,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 {/* Content Area - Chat Interface or Empty State */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
                     {activeRecording ? (
-                        <ChatInterface recording={activeRecording} />
+                        <RecordingDetailView recording={activeRecording} />
                     ) : (
                         <EmptyStateClean
                             userName={user?.firstName || 'Usuario'}
