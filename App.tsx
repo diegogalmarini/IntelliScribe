@@ -695,7 +695,7 @@ const AppContent: React.FC = () => {
                             </Suspense>
                         )}
                 </div>
-            </div>
+            </motion.div>
 
             {/* Global VoIP Dialer - Only for Business Plus */}
             {user && user.subscription?.planId === 'business_plus' && (
