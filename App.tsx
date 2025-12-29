@@ -600,7 +600,7 @@ const AppContent: React.FC = () => {
                             user={user}
                             recordings={recordings}
                             onNavigate={navigate}
-                            onSelectRecording={handleSelectRecording}
+                            onSelectRecording={handleSelectRecordingIntelligence}
                             onDeleteRecording={handleDeleteRecording}
                             onRenameRecording={handleRenameRecording}
                             onMoveRecording={handleMoveRecording}
