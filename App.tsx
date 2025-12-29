@@ -52,6 +52,7 @@ const AppContent: React.FC = () => {
         if (path === '/privacy') return AppRoute.PRIVACY;
         if (path === '/login') return AppRoute.LOGIN;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
+        if (path === '/intelligence') return AppRoute.INTELLIGENCE;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
     };
 
@@ -70,6 +71,7 @@ const AppContent: React.FC = () => {
         else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
         else if (path === '/login') newRoute = AppRoute.LOGIN;
         else if (path === '/dashboard') newRoute = AppRoute.DASHBOARD;
+        else if (path === '/intelligence') newRoute = AppRoute.INTELLIGENCE;
         else if (path === '/recording') newRoute = AppRoute.RECORDING;
         else if (path === '/editor' || path.startsWith('/editor/')) newRoute = AppRoute.EDITOR;
         else if (path === '/recordings' || path.startsWith('/transcript/')) newRoute = AppRoute.DASHBOARD;
