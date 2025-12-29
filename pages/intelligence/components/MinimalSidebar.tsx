@@ -151,15 +151,15 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                             onClick={closeContextMenu}
                                         />
 
-                                        <div className="absolute right-1 top-0 w-52 bg-[#2c2c2c] rounded-lg shadow-xl border border-white/10 py-1 z-[101]">
+                                        <div className="absolute left-full ml-2 top-0 w-56 bg-[#2a2a2a] rounded-xl shadow-2xl border border-white/10 py-2 z-[101]">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleViewNotes(recording.id);
                                                 }}
-                                                className="w-full text-left px-3 py-1.5 text-[13px] text-white hover:bg-white/10 flex items-center gap-2.5 transition-colors"
+                                                className="w-full text-left px-4 py-2.5 text-[14px] text-[#ececec] hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
-                                                <FileText size={16} strokeWidth={1.5} />
+                                                <FileText size={18} strokeWidth={1.5} />
                                                 <span>Ver Notas y Archivos</span>
                                             </button>
                                             <button
@@ -169,7 +169,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 }}
                                                 className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
-                                                <Edit3 size={16} strokeWidth={1.5} />
+                                                <Edit3 size={18} strokeWidth={1.5} />
                                                 <span>Renombrar</span>
                                             </button>
                                             <button
@@ -179,18 +179,18 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 }}
                                                 className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
-                                                <FolderInput size={16} strokeWidth={1.5} />
+                                                <FolderInput size={18} strokeWidth={1.5} />
                                                 <span>Mover a...</span>
                                             </button>
-                                            <div className="my-1 border-t border-white/10"></div>
+                                            <div className="my-1.5 border-t border-white/10"></div>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleDelete(recording.id);
                                                 }}
-                                                className="w-full text-left px-3 py-1.5 text-[13px] text-red-400 hover:bg-red-900/20 flex items-center gap-2.5 transition-colors"
+                                                className="w-full text-left px-4 py-2.5 text-[14px] text-red-400 hover:bg-red-900/20 flex items-center gap-3 transition-colors"
                                             >
-                                                <Trash2 size={16} strokeWidth={1.5} />
+                                                <Trash2 size={18} strokeWidth={1.5} />
                                                 <span>Eliminar</span>
                                             </button>
                                         </div>
