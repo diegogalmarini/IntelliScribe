@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProfile } from '../../../types';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface UsageIndicatorProps {
     user: UserProfile;
