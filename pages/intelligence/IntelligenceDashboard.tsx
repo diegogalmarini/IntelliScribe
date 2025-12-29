@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Recording, AppRoute, Folder, UserProfile } from '../types';
-import { MinimalSidebar } from '../components/clean/MinimalSidebar';
-import { UserMenu } from '../components/clean/UserMenu';
-import { EmptyStateClean } from '../components/clean/EmptyStateClean';
-import { SettingsModal } from '../components/clean/SettingsModal';
-import { ChatInterface } from '../components/clean/ChatInterface';
+import { Recording, AppRoute, Folder, UserProfile } from '../../types';
+import { MinimalSidebar } from './components/MinimalSidebar';
+import { UserMenu } from './components/UserMenu';
+import { EmptyStateClean } from './components/EmptyStateClean';
+import { SettingsModal } from './components/SettingsModal';
+import { ChatInterface } from './components/ChatInterface';
 
-interface DashboardCleanProps {
+interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
     recordings: Recording[];
     onSelectRecording: (id: string) => void;
@@ -20,7 +20,7 @@ interface DashboardCleanProps {
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
 }
 
-export const DashboardClean: React.FC<DashboardCleanProps> = ({
+export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onNavigate,
     recordings,
     onSelectRecording,
@@ -174,4 +174,4 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
     );
 };
 
-export default DashboardClean;
+export default IntelligenceDashboard;
