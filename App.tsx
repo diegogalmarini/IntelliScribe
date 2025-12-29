@@ -413,8 +413,11 @@ const AppContent: React.FC = () => {
         const recording = recordings.find(r => r.id === id);
         if (!recording || !supabaseUser) return;
 
-        // Note: Confirmation is now handled by the custom modal in Dashboard.tsx
-        // Removing window.confirm to avoid double-confirmation confusion.
+        // User preference: Dual confirmation (Custom Modal + Browser Prompt)
+        // AND critical business logic: Deleting does NOT recover minutes.
+        const confirmMsg = `${t('confirmDelete')}\n\n${t('deleteWarningMinutes')}`;
+        const confirmed = window.confirm(confirmMsg);
+        if (!confirmed) return;
 
         const success = await databaseService.deleteRecording(id);
 
@@ -422,18 +425,8 @@ const AppContent: React.FC = () => {
             setRecordings(prev => prev.filter(r => r.id !== id));
             if (activeRecordingId === id) setActiveRecordingId(null);
 
-            // Return minutes to user's quota
-            const minutesToReturn = Math.max(1, Math.ceil(recording.durationSeconds / 60));
-            await databaseService.decrementUsage(supabaseUser.id, recording.durationSeconds);
-
-            // Update local state
-            setUser(prev => ({
-                ...prev,
-                subscription: {
-                    ...prev.subscription,
-                    minutesUsed: Math.max(0, prev.subscription.minutesUsed - minutesToReturn)
-                }
-            }));
+            // Note: minutesUsed is NOT decremented here to prevent infinite replay/delete abuse.
+            // Only storage is freed on Supabase (handled by cascade/service).
         } else {
             alert('Failed to delete recording.');
         }
