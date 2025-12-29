@@ -446,9 +446,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* CONFIGURACIÓN */}
                         {selectedSection === 'settings' && (
                             <div className="space-y-6 max-w-2xl">
-                                <p className="text-[12px] text-[#676767] dark:text-[#acacac]">
-                                    Configuraciones de tema, idioma y preferencias próximamente.
-                                </p>
+                                <h3 className="text-[11px] font-semibold text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                    Apariencia
+                                </h3>
+
+                                <div>
+                                    <label className="block text-[11px] font-normal text-[#0d0d0d] dark:text-[#ececec] mb-2">
+                                        Tema
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <button
+                                            onClick={() => setTheme('light')}
+                                            className={`px-4 py-2 rounded-lg border text-[12px] font-normal transition-colors ${theme === 'light'
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
+                                                }`}
+                                        >
+                                            Claro
+                                        </button>
+                                        <button
+                                            onClick={() => setTheme('dark')}
+                                            className={`px-4 py-2 rounded-lg border text-[12px] font-normal transition-colors ${theme === 'dark'
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
+                                                }`}
+                                        >
+                                            Oscuro
+                                        </button>
+                                        <button
+                                            onClick={() => setTheme('system')}
+                                            className={`px-4 py-2 rounded-lg border text-[12px] font-normal transition-colors ${theme === 'system'
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
+                                                }`}
+                                        >
+                                            Sistema
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
