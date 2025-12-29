@@ -75,43 +75,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-[#202123] rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex overflow-hidden border border-black/10 dark:border-white/10">
+            <div className="bg-white dark:bg-[#202123] rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex overflow-hidden border border-black/[0.05] dark:border-white/[0.05]">
                 {/* Sidebar Navigation */}
-                <div className="w-64 bg-[#f7f7f8] dark:bg-[#171717] border-r border-black/5 dark:border-white/5 flex flex-col">
-                    {/* User Header */}
-                    <div className="p-5 border-b border-black/5 dark:border-white/5">
-                        <div className="flex items-start gap-3 mb-3">
-                            {user.avatarUrl ? (
-                                <img
-                                    src={user.avatarUrl}
-                                    alt={user.firstName}
-                                    className="w-11 h-11 rounded-full ring-2 ring-black/5 dark:ring-white/10"
-                                />
-                            ) : (
-                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-base font-medium ring-2 ring-black/5">
-                                    {user.firstName?.charAt(0) || 'U'}
-                                </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-[#0d0d0d] dark:text-[#ececec] text-base truncate">
-                                    {user.firstName} {user.lastName}
-                                </div>
-                                <div className="text-xs text-[#676767] dark:text-[#acacac] truncate mt-0.5">
-                                    {formatPlanName(user.subscription?.planId || 'free')}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="w-64 bg-[#f7f7f8] dark:bg-[#1a1a1a] border-r border-black/[0.03] dark:border-white/[0.03] flex flex-col">
 
                     {/* Navigation Menu */}
-                    <nav className="flex-1 px-2 py-2 overflow-y-auto">
+                    <nav className="flex-1 px-2 py-3 overflow-y-auto">
                         {menuItems.map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => setSelectedSection(item.id)}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-0.5 ${selectedSection === item.id
-                                        ? 'bg-white dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] shadow-sm'
-                                        : 'text-[#676767] dark:text-[#acacac] hover:bg-white/60 dark:hover:bg-white/5'
+                                    ? 'bg-white dark:bg-[#2a2b32] text-[#0d0d0d] dark:text-[#ececec] shadow-sm'
+                                    : 'text-[#676767] dark:text-[#acacac] hover:bg-white/60 dark:hover:bg-white/5'
                                     }`}
                             >
                                 <item.icon size={18} strokeWidth={2} />
@@ -119,26 +95,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             </button>
                         ))}
 
-                        {/* Plans Button - Divider */}
-                        <div className="my-2 border-t border-black/5 dark:border-white/5"></div>
+                        {/* Divider */}
+                        <div className="my-3 border-t border-black/[0.05] dark:border-white/[0.05]"></div>
 
                         <button
                             onClick={handlePlansClick}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors text-[#676767] dark:text-[#acacac] hover:bg-white/60 dark:hover:bg-white/5"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors text-[#676767] dark:text-[#b4b4b4] hover:bg-white/60 dark:hover:bg-white/[0.03]"
                         >
                             <ExternalLink size={18} strokeWidth={2} />
-                            <span className="text-[15px] font-medium flex-1">Planes y Suscripción</span>
+                            <span className="text-[15px] font-normal flex-1">Planes</span>
                         </button>
                     </nav>
 
                     {/* Logout Button */}
-                    <div className="p-2 border-t border-black/5 dark:border-white/5">
+                    <div className="p-2 border-t border-black/[0.05] dark:border-white/[0.05]">
                         <button
                             onClick={handleLogoutClick}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                         >
                             <LogOut size={18} strokeWidth={2} />
-                            <span className="text-[15px] font-medium">Cerrar Sesión</span>
+                            <span className="text-[15px] font-normal">Cerrar Sesión</span>
                         </button>
                     </div>
                 </div>
