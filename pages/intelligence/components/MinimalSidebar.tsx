@@ -61,7 +61,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center gap-2 px-2">
-                    <Mic size={18} className="text-[#0d0d0d] dark:text-white" />
+                    <img src="/logo-diktalo.svg" alt="Diktalo" className="w-5 h-5" />
                     <span className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
                         Diktalo
                     </span>
