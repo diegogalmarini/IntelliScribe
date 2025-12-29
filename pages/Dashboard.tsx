@@ -164,7 +164,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const confirmDelete = () => {
         if (actionModal && actionModal.type === 'delete') {
             // Second confirmation with browser prompt (includes minute warning)
-            const confirmMsg = `${t('confirmDelete')}\n\n${t('deleteWarningMinutes')}`;
+            const confirmMsg = `${t('confirmDelete')}
+
+${t('deleteWarningMinutes')}`;
             const confirmed = window.confirm(confirmMsg);
 
             if (confirmed) {
