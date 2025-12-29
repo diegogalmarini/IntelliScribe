@@ -57,7 +57,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     return (
-        <div className="w-64 h-full bg-white dark:bg-[#171717] flex flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-hidden">
+        <div className="w-64 h-full bg-white dark:bg-[#171717] flex flex-col border-r border-black/[0.05] dark:border-white/[0.05]">
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center gap-2 px-2">
@@ -104,7 +104,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             </div>
 
             {/* Recordings List */}
-            <div className="flex-1 overflow-y-auto px-2 pb-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-500 dark:hover:scrollbar-thumb-gray-500">
+            <div className="flex-1 overflow-y-auto px-2 pb-2">
                 {recordings.length === 0 ? (
                     <p className="text-[12px] text-[#8e8e8e] dark:text-[#8e8e8e] text-center py-8 px-3">
                         No hay grabaciones
