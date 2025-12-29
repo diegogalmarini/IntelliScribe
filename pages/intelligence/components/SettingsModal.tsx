@@ -6,6 +6,7 @@ import {
     Monitor, Download, Trash2, Save
 } from 'lucide-react';
 import { UserProfile, AppRoute } from '../../../types';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface SettingsModalProps {
     user: UserProfile;
@@ -28,6 +29,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
     const [selectedSection, setSelectedSection] = useState<Section>('profile');
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const { theme, setTheme } = useTheme();
 
     // Form states
     const [emailNotifications, setEmailNotifications] = useState({
@@ -458,8 +460,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <button
                                             onClick={() => setTheme('light')}
                                             className={`px-4 py-2 rounded-lg border text-[12px] font-normal transition-colors ${theme === 'light'
-                                                    ? 'bg-blue-600 text-white border-blue-600'
-                                                    : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
+                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
                                                 }`}
                                         >
                                             Claro
@@ -467,8 +469,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <button
                                             onClick={() => setTheme('dark')}
                                             className={`px-4 py-2 rounded-lg border text-[12px] font-normal transition-colors ${theme === 'dark'
-                                                    ? 'bg-blue-600 text-white border-blue-600'
-                                                    : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
+                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
                                                 }`}
                                         >
                                             Oscuro
@@ -476,8 +478,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <button
                                             onClick={() => setTheme('system')}
                                             className={`px-4 py-2 rounded-lg border text-[12px] font-normal transition-colors ${theme === 'system'
-                                                    ? 'bg-blue-600 text-white border-blue-600'
-                                                    : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
+                                                ? 'bg-blue-600 text-white border-blue-600'
+                                                : 'bg-[#f7f7f8] dark:bg-[#2a2b32] border-black/10 dark:border-white/10 text-[#0d0d0d] dark:text-[#ececec] hover:border-black/20 dark:hover:border-white/20'
                                                 }`}
                                         >
                                             Sistema
