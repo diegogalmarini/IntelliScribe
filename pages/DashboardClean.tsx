@@ -98,85 +98,86 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
                             onOpenSettings={() => setIsSettingsOpen(true)}
                         />
                     </div>
-
-                    {/* Content Area */}
-                    <div className="flex-1 overflow-hidden">
-                        {activeRecording ? (
-                            <div className="h-full overflow-y-auto p-6">
-                                {/* Recording Detail View */}
-                                <div className="max-w-4xl mx-auto space-y-6">
-                                    {/* Title */}
-                                    <h1 className="text-2xl font-normal text-slate-900 dark:text-white">
-                                        {activeRecording.title || 'Sin título'}
-                                    </h1>
-
-                                    {/* Audio Player */}
-                                    {activeRecording.audioUrl && (
-                                        <div className="py-4">
-                                            <audio
-                                                controls
-                                                src={activeRecording.audioUrl}
-                                                className="w-full"
-                                            />
-                                        </div>
-                                    )}
-
-                                    {/* Transcription */}
-                                    {activeRecording.segments && activeRecording.segments.length > 0 && (
-                                        <div className="space-y-3">
-                                            <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                                                Transcripción
-                                            </h2>
-                                            <div className="space-y-4">
-                                                {activeRecording.segments.map((segment, idx) => (
-                                                    <div key={idx} className="flex gap-4">
-                                                        <span className="text-xs text-slate-400 font-mono shrink-0 pt-1">
-                                                            {segment.timestamp}
-                                                        </span>
-                                                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                                {segment.speaker}:
-                                                            </span>{' '}
-                                                            {segment.text}
-                                                        </p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Summary */}
-                                    {activeRecording.summary && (
-                                        <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-800">
-                                            <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                                                Resumen
-                                            </h2>
-                                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                                                {activeRecording.summary}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ) : (
-                            <EmptyStateClean
-                                userName={user?.firstName || 'Usuario'}
-                                onAction={handleAction}
-                                showCallButton={showCallButton}
-                            />
-                        )}
-                    </div>
                 </div>
 
-                {/* Settings Modal */}
-                <SettingsModal
-                    user={user}
-                    isOpen={isSettingsOpen}
-                    onClose={() => setIsSettingsOpen(false)}
-                    onUpdateUser={onUpdateUser}
-                />
+                {/* Content Area */}
+                <div className="flex-1 overflow-hidden">
+                    {activeRecording ? (
+                        <div className="h-full overflow-y-auto p-6">
+                            {/* Recording Detail View */}
+                            <div className="max-w-4xl mx-auto space-y-6">
+                                {/* Title */}
+                                <h1 className="text-2xl font-normal text-slate-900 dark:text-white">
+                                    {activeRecording.title || 'Sin título'}
+                                </h1>
+
+                                {/* Audio Player */}
+                                {activeRecording.audioUrl && (
+                                    <div className="py-4">
+                                        <audio
+                                            controls
+                                            src={activeRecording.audioUrl}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Transcription */}
+                                {activeRecording.segments && activeRecording.segments.length > 0 && (
+                                    <div className="space-y-3">
+                                        <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                            Transcripción
+                                        </h2>
+                                        <div className="space-y-4">
+                                            {activeRecording.segments.map((segment, idx) => (
+                                                <div key={idx} className="flex gap-4">
+                                                    <span className="text-xs text-slate-400 font-mono shrink-0 pt-1">
+                                                        {segment.timestamp}
+                                                    </span>
+                                                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                        <span className="font-medium text-slate-900 dark:text-white">
+                                                            {segment.speaker}:
+                                                        </span>{' '}
+                                                        {segment.text}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Summary */}
+                                {activeRecording.summary && (
+                                    <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-800">
+                                        <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                            Resumen
+                                        </h2>
+                                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                            {activeRecording.summary}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <EmptyStateClean
+                            userName={user?.firstName || 'Usuario'}
+                            onAction={handleAction}
+                            showCallButton={showCallButton}
+                        />
+                    )}
+                </div>
             </div>
-            );
+
+            {/* Settings Modal */}
+            <SettingsModal
+                user={user}
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                onUpdateUser={onUpdateUser}
+            />
+        </div>
+    );
 };
 
-            export default DashboardClean;
+export default DashboardClean;
