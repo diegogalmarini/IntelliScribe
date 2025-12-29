@@ -64,7 +64,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     <img
                         src={document.documentElement.classList.contains('dark') ? '/logo-diktalo-b.svg' : '/logo-diktalo.svg'}
                         alt="Diktalo"
-                        className="w-6 h-6"
+                        className="h-8 w-auto"
                     />
                 </div>
             </div>
