@@ -25,7 +25,8 @@ export const DashboardClean: React.FC<DashboardCleanProps> = ({
     recordings,
     onSelectRecording,
     user,
-    onLogout
+    onLogout,
+    onUpdateUser
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
