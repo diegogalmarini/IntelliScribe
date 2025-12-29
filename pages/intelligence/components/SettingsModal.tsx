@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { UserProfile } from '../../types';
+import { UserProfile } from '../../../types';
 
 interface SettingsModalProps {
     user: UserProfile;

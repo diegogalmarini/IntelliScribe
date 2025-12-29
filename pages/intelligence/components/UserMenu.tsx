@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AppRoute, UserProfile } from '../../types';
+import { AppRoute, UserProfile } from '../../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
 import {
     User,
