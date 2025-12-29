@@ -164,9 +164,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const confirmDelete = () => {
         if (actionModal && actionModal.type === 'delete') {
             // Second confirmation with browser prompt (includes minute warning)
-            const confirmMsg = `${t('confirmDelete')}
+            // Defensive: use fallbacks in case translations aren't loaded
+            const deleteMsg = t('confirmDelete') || 'Are you sure you want to delete this recording?';
+            const warningMsg = t('deleteWarningMinutes') || 'Note: Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.';
+            const confirmMsg = `${deleteMsg}
 
-${t('deleteWarningMinutes')}`;
+${warningMsg}`;
             const confirmed = window.confirm(confirmMsg);
 
             if (confirmed) {
