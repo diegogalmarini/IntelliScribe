@@ -483,12 +483,12 @@ ${warningMsg}`;
                                     <h3 className="text-xl font-bold text-white">{t('delete')}</h3>
                                 </div>
                                 <p className="text-slate-300 text-sm">
-                                    {t('confirmDelete')} <br />
+                                    {t('confirmDelete') || 'Are you sure you want to delete this recording?'} <br />
                                     <span className="font-bold text-white block mt-1">"{actionModal.title}"</span>
                                 </p>
                                 <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 text-[11px] leading-relaxed text-orange-200">
-                                    <span className="font-bold text-orange-400 block mb-0.5">⚠️ {t('statusWarning')}</span>
-                                    {t('deleteWarningMinutes')}
+                                    <span className="font-bold text-orange-400 block mb-0.5">⚠️ {t('statusWarning') || 'Warning'}</span>
+                                    {t('deleteWarningMinutes') || 'Deleting this recording resets storage space, but used transcription minutes will NOT be recovered.'}
                                 </div>
                                 <div className="flex justify-end gap-3 mt-4">
                                     <button
