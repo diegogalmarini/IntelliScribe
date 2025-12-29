@@ -1,5 +1,5 @@
 import React from 'react';
-import { Recording } from '../../types';
+import { Recording, UserProfile } from '../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Plus } from 'lucide-react';
 
@@ -9,6 +9,7 @@ interface MinimalSidebarProps {
     onSelectRecording: (id: string) => void;
     onNewRecording: () => void;
     userFirstName: string;
+    user: UserProfile;
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -16,7 +17,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     selectedId,
     onSelectRecording,
     onNewRecording,
-    userFirstName
+    userFirstName,
+    user
 }) => {
     const { t } = useLanguage();
 
@@ -55,8 +57,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                 key={recording.id}
                                 onClick={() => onSelectRecording(recording.id)}
                                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${selectedId === recording.id
-                                        ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white'
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                                    ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                                     }`}
                             >
                                 <div className="truncate font-medium">
