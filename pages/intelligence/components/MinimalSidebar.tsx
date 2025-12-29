@@ -112,10 +112,10 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 ) : (
                     <div className="space-y-0.5">
                         {recordings.map(recording => (
-                            <div key={recording.id} className="relative group">
+                            <div key={recording.id} className="relative">
                                 <button
                                     onClick={() => onSelectRecording(recording.id)}
-                                    className={`w-full text-left px-3 py-2.5 rounded-lg text-[14px] transition-colors ${selectedId === recording.id
+                                    className={`w-full text-left px-3 py-2.5 rounded-lg text-[14px] transition-colors group ${selectedId === recording.id
                                             ? 'bg-[#f0f0f0] dark:bg-[#2a2a2a] text-[#0d0d0d] dark:text-white'
                                             : 'text-[#676767] dark:text-[#c5c5c5] hover:bg-[#f7f7f8] dark:hover:bg-white/[0.05]'
                                         }`}
@@ -134,7 +134,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                         </div>
                                         <button
                                             onClick={(e) => handleContextMenu(e, recording.id)}
-                                            className={`p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${contextMenuId === recording.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                                            className={`p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/10 transition-opacity ${contextMenuId === recording.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                                                 }`}
                                         >
                                             <MoreHorizontal size={16} className="text-[#676767] dark:text-[#c5c5c5]" />
@@ -147,38 +147,50 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                     <>
                                         {/* Backdrop to close menu */}
                                         <div
-                                            className="fixed inset-0 z-10"
+                                            className="fixed inset-0 z-[100]"
                                             onClick={closeContextMenu}
                                         />
 
-                                        <div className="absolute right-2 top-full mt-1 w-48 bg-white dark:bg-[#2a2a2a] rounded-lg shadow-lg border border-black/10 dark:border-white/10 py-1 z-20">
+                                        <div className="absolute right-1 top-0 w-52 bg-[#2c2c2c] rounded-lg shadow-xl border border-white/10 py-1.5 z-[101]">
                                             <button
-                                                onClick={() => handleViewNotes(recording.id)}
-                                                className="w-full text-left px-3 py-2 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#f0f0f0] dark:hover:bg-white/5 flex items-center gap-2"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleViewNotes(recording.id);
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
-                                                <FileText size={14} />
+                                                <FileText size={16} strokeWidth={1.5} />
                                                 <span>Ver Notas y Archivos</span>
                                             </button>
                                             <button
-                                                onClick={() => handleRename(recording.id)}
-                                                className="w-full text-left px-3 py-2 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#f0f0f0] dark:hover:bg-white/5 flex items-center gap-2"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRename(recording.id);
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
-                                                <Edit3 size={14} />
+                                                <Edit3 size={16} strokeWidth={1.5} />
                                                 <span>Renombrar</span>
                                             </button>
                                             <button
-                                                onClick={() => handleMoveTo(recording.id)}
-                                                className="w-full text-left px-3 py-2 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#f0f0f0] dark:hover:bg-white/5 flex items-center gap-2"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleMoveTo(recording.id);
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
-                                                <FolderInput size={14} />
+                                                <FolderInput size={16} strokeWidth={1.5} />
                                                 <span>Mover a...</span>
                                             </button>
-                                            <div className="my-1 border-t border-black/5 dark:border-white/5"></div>
+                                            <div className="my-1 border-t border-white/10"></div>
                                             <button
-                                                onClick={() => handleDelete(recording.id)}
-                                                className="w-full text-left px-3 py-2 text-[13px] text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-2"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(recording.id);
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-[14px] text-red-400 hover:bg-red-900/20 flex items-center gap-3 transition-colors"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={16} strokeWidth={1.5} />
                                                 <span>Eliminar</span>
                                             </button>
                                         </div>
