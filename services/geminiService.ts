@@ -22,9 +22,9 @@ const callAIEndpoint = async (action: string, payload: any, language: 'en' | 'es
   }
 };
 
-export const generateMeetingSummary = async (transcript: string, language: 'en' | 'es' = 'en'): Promise<string> => {
+export const generateMeetingSummary = async (transcript: string, language: 'en' | 'es' = 'en', template: string = 'general'): Promise<string> => {
   try {
-    const result = await callAIEndpoint('summary', { transcript }, language);
+    const result = await callAIEndpoint('summary', { transcript, template }, language);
     if (!result) throw new Error("No output from AI");
     return result;
   } catch (error: any) {
