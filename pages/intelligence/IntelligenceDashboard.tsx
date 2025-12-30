@@ -102,14 +102,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             onRecordingComplete(base64Audio, durationSeconds, title, notes, media, audioBlob);
             setIsRecording(false);
 
-            // Open editor with the newly created recording after a short delay
-            setTimeout(() => {
-                const latestRecording = recordings[0];
-                if (latestRecording) {
-                    setEditorRecording(latestRecording);
-                    setIsEditorOpen(true);
-                }
-            }, 500);
+            // Navigate to editor page
+            onNavigate(AppRoute.EDITOR);
         };
     };
 
@@ -120,6 +114,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleCloseEditor = () => {
         setIsEditorOpen(false);
         setEditorRecording(null);
+    };
+
+    const handleNavigateToEditor = () => {
+        if (activeRecording) {
+            onSelectRecording(activeRecording.id);
+            onNavigate(AppRoute.EDITOR);
+        }
     };
 
     // Debounced search effect
@@ -225,7 +226,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onCancel={handleCancelRecording}
                         />
                     ) : activeRecording ? (
-                        <RecordingDetailView recording={activeRecording} />
+                        <RecordingDetailView
+                            recording={activeRecording}
+                            onNavigateToEditor={handleNavigateToEditor}
+                        />
                     ) : (
                         <EmptyStateClean
                             userName={user?.firstName || 'Usuario'}

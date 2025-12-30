@@ -9,9 +9,10 @@ import { ExportModal } from './ExportModal';
 
 interface RecordingDetailViewProps {
     recording: Recording;
+    onNavigateToEditor?: () => void;
 }
 
-export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ recording }) => {
+export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ recording, onNavigateToEditor }) => {
     const { theme, setTheme } = useTheme();
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
@@ -194,7 +195,7 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                     </div>
 
                     {/* Transcription Card */}
-                    {hasTranscript && (
+                    {hasTranscript ? (
                         <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                             <div className="flex items-center gap-2 mb-4">
                                 <FileText size={16} className="text-[#8e8e8e]" />
@@ -219,6 +220,28 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <FileText size={16} className="text-[#8e8e8e]" />
+                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                    Transcripción
+                                </h2>
+                            </div>
+                            <div className="flex flex-col items-center justify-center py-8">
+                                <Mic size={48} className="text-[#8e8e8e]/30 mb-4" />
+                                <p className="text-[13px] text-[#8e8e8e] mb-6">Transcripción no disponible</p>
+                                {onNavigateToEditor && (
+                                    <button
+                                        onClick={onNavigateToEditor}
+                                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2"
+                                    >
+                                        <Sparkles size={16} />
+                                        Generar Transcripción
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}
