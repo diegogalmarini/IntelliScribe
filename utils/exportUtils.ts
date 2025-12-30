@@ -1,5 +1,9 @@
 import { Recording } from '../types';
 
+const sanitizeFilename = (filename: string): string => {
+    return filename.replace(/[<>:"/\\|?*]+/g, '_').trim();
+};
+
 export const exportAsPDF = async (recording: Recording, onStart?: () => void, onComplete?: () => void) => {
     if (onStart) onStart();
     try {
@@ -79,11 +83,12 @@ export const exportAsPDF = async (recording: Recording, onStart?: () => void, on
         }
 
         // Manual download to ensure filename is correct
+        const safeTitle = sanitizeFilename(recording.title || 'document');
         const pdfBlob = doc.output('blob');
         const url = URL.createObjectURL(pdfBlob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${recording.title || 'document'}.pdf`;
+        link.download = `${safeTitle}.pdf`;
         document.body.appendChild(link);
         link.click();
 
@@ -139,9 +144,10 @@ export const exportAsDoc = (recording: Recording, onStart?: () => void, onComple
 
         const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(htmlContent);
 
+        const safeTitle = sanitizeFilename(recording.title || 'document');
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${recording.title || 'document'}.doc`;
+        link.download = `${safeTitle}.doc`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
