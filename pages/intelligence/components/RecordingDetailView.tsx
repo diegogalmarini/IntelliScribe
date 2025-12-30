@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Recording } from '../../../types';
-import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X } from 'lucide-react';
+import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { ChatModal } from './ChatModal';
@@ -18,6 +18,10 @@ interface RecordingDetailViewProps {
 export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [isMuted, setIsMuted] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState('');
@@ -25,6 +29,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename 
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
+    const audioRef = React.useRef<HTMLAudioElement>(null);
 
     React.useEffect(() => {
         const loadSignedUrl = async () => {
@@ -37,6 +42,71 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename 
         };
         loadSignedUrl();
     }, [recording.audioUrl]);
+
+    // Initialize duration from DB, fallback to loaded metadata later if DB is 0
+    React.useEffect(() => {
+        if (recording.durationSeconds) {
+            setDuration(recording.durationSeconds);
+        }
+    }, [recording.durationSeconds]);
+
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const togglePlay = () => {
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.pause();
+            } else {
+                audioRef.current.play();
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
+
+    const handleTimeUpdate = () => {
+        if (audioRef.current) {
+            setCurrentTime(audioRef.current.currentTime);
+        }
+    };
+
+    const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const time = parseFloat(e.target.value);
+        if (audioRef.current) {
+            audioRef.current.currentTime = time;
+            setCurrentTime(time);
+        }
+    };
+
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const vol = parseFloat(e.target.value);
+        setVolume(vol);
+        if (audioRef.current) {
+            audioRef.current.volume = vol;
+        }
+        setIsMuted(vol === 0);
+    };
+
+    const toggleMute = () => {
+        if (audioRef.current) {
+            const newMuteState = !isMuted;
+            setIsMuted(newMuteState);
+            audioRef.current.muted = newMuteState;
+            if (newMuteState) {
+                setVolume(0);
+            } else {
+                setVolume(1);
+                audioRef.current.volume = 1;
+            }
+        }
+    };
+
+    const handleEnded = () => {
+        setIsPlaying(false);
+    };
 
     const formatDate = (dateString: string) => {
         if (!dateString) return 'Fecha no disponible';
@@ -213,14 +283,65 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename 
 
                         {recording.audioUrl ? (
                             <div className="space-y-4">
+                                <div className="bg-[#f7f7f8] dark:bg-[#1f1f1f] rounded-lg p-3 flex items-center gap-4">
+                                    {/* Play/Pause Button */}
+                                    <button
+                                        onClick={togglePlay}
+                                        className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors flex-shrink-0"
+                                    >
+                                        {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+                                    </button>
+
+                                    {/* Time and Slider */}
+                                    <div className="flex-1 space-y-1">
+                                        <div className="flex items-center justify-between text-[11px] text-[#8e8e8e] font-medium">
+                                            <span>{formatTime(currentTime)}</span>
+                                            <span>{formatTime(duration || 0)}</span>
+                                        </div>
+                                        <div className="relative h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer group">
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max={duration || 100}
+                                                value={currentTime}
+                                                onChange={handleSeek}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            />
+                                            <div
+                                                className="absolute top-0 left-0 h-full bg-blue-600 rounded-full pointer-events-none transition-all duration-100"
+                                                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                                            />
+                                            {/* Thumb handle visual */}
+                                            <div
+                                                className="absolute top-1/2 -mt-1.5 h-3 w-3 bg-white border-2 border-blue-600 rounded-full shadow-sm pointer-events-none transition-all duration-100 opacity-0 group-hover:opacity-100"
+                                                style={{ left: `calc(${(currentTime / (duration || 1)) * 100}% - 6px)` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Volume */}
+                                    <div className="flex items-center gap-2 group relative w-8 hover:w-24 transition-all duration-300">
+                                        <button onClick={toggleMute} className="text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors">
+                                            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                                        </button>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="1"
+                                            step="0.1"
+                                            value={volume}
+                                            onChange={handleVolumeChange}
+                                            className="w-0 group-hover:w-16 h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer transition-all duration-300 opacity-0 group-hover:opacity-100 accent-blue-600"
+                                        />
+                                    </div>
+                                </div>
+
                                 <audio
-                                    controls
+                                    ref={audioRef}
                                     src={signedAudioUrl || undefined}
-                                    className="w-full"
-                                    style={{
-                                        height: '40px',
-                                        borderRadius: '8px'
-                                    }}
+                                    onTimeUpdate={handleTimeUpdate}
+                                    onEnded={handleEnded}
+                                    className="hidden"
                                 />
 
                                 {/* Download Button */}
