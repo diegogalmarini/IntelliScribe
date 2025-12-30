@@ -18,6 +18,12 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
     const [seconds, setSeconds] = useState(0);
     const secondsRef = useRef(0);
 
+    // Hold interaction states
+    const [holdType, setHoldType] = useState<'pause' | 'stop' | null>(null);
+    const [holdProgress, setHoldProgress] = useState(0);
+    const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const holdSuccessRef = useRef(false);
+
     // Session data
     const [sessionTitle, setSessionTitle] = useState(t('newSession') || 'Nueva Sesión');
     const [recordingMode, setRecordingMode] = useState<'meeting' | 'call' | 'speaker'>('meeting');
@@ -273,6 +279,51 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
         if (mediaRecorderRef.current) mediaRecorderRef.current.stop();
     };
 
+    // --- HOLD TO ACTION LOGIC ---
+    const HOLD_DURATION_PAUSE = 2000;
+    const HOLD_DURATION_STOP = 3000;
+
+    const startHold = (type: 'pause' | 'stop') => {
+        if (holdTimerRef.current) return;
+
+        setHoldType(type);
+        setHoldProgress(0);
+        const startTime = Date.now();
+        const duration = type === 'pause' ? HOLD_DURATION_PAUSE : HOLD_DURATION_STOP;
+
+        holdTimerRef.current = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min((elapsed / duration) * 100, 100);
+            setHoldProgress(progress);
+
+            if (elapsed >= duration) {
+                holdSuccessRef.current = true;
+                cancelHold();
+                if (type === 'pause') togglePause();
+                else stopRecording();
+
+                setTimeout(() => { holdSuccessRef.current = false; }, 500);
+            }
+        }, 16); // ~60fps
+    };
+
+    const cancelHold = () => {
+        if (holdTimerRef.current) {
+            clearInterval(holdTimerRef.current);
+            holdTimerRef.current = null;
+        }
+        setHoldType(null);
+        setHoldProgress(0);
+    };
+
+    const handleResumeTap = (e?: React.MouseEvent) => {
+        if (holdSuccessRef.current) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            return;
+        }
+        if (isPaused) togglePause();
+    };
+
     const handleSendNote = () => {
         if (!currentNote.trim()) return;
         const newNote: NoteItem = {
@@ -449,18 +500,76 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                     </button>
                                 ) : (
                                     <>
-                                        <button
-                                            onClick={stopRecording}
-                                            className="w-14 h-14 rounded-full bg-[#1f1f1f] dark:bg-white text-white dark:text-[#1f1f1f] flex items-center justify-center transition-all"
-                                        >
-                                            <Square size={24} />
-                                        </button>
-                                        <button
-                                            onClick={togglePause}
-                                            className="w-14 h-14 rounded-full bg-[#8e8e8e] hover:bg-[#444746] text-white flex items-center justify-center transition-all"
-                                        >
-                                            {isPaused ? <Play size={24} /> : <Pause size={24} />}
-                                        </button>
+                                        {/* STOP BUTTON */}
+                                        <div className="relative group p-2">
+                                            <svg className="absolute inset-0 size-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                                                <circle
+                                                    cx="50" cy="50" r="46"
+                                                    fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                    className="text-[#d0d0d0] dark:text-[#3c3c3c]"
+                                                />
+                                                {holdType === 'stop' && (
+                                                    <circle
+                                                        cx="50" cy="50" r="46"
+                                                        fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                        strokeDasharray="289"
+                                                        strokeDashoffset={289 - (289 * holdProgress) / 100}
+                                                        strokeLinecap="round"
+                                                        className="text-red-500 transition-all duration-75"
+                                                    />
+                                                )}
+                                            </svg>
+                                            <button
+                                                onMouseDown={() => startHold('stop')}
+                                                onMouseUp={cancelHold}
+                                                onMouseLeave={cancelHold}
+                                                onTouchStart={() => startHold('stop')}
+                                                onTouchEnd={cancelHold}
+                                                className="w-14 h-14 rounded-full bg-[#1f1f1f] dark:bg-white text-white dark:text-[#1f1f1f] flex items-center justify-center transition-all active:scale-95 z-10 relative"
+                                                title="Mantén para detener (3s)"
+                                            >
+                                                <Square size={24} />
+                                            </button>
+                                            <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
+                                                Mantén 3s
+                                            </p>
+                                        </div>
+
+                                        {/* PAUSE / RESUME BUTTON */}
+                                        <div className="relative group p-2">
+                                            <svg className="absolute inset-0 size-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                                                <circle
+                                                    cx="50" cy="50" r="46"
+                                                    fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                    className="text-[#d0d0d0] dark:text-[#3c3c3c]"
+                                                />
+                                                {holdType === 'pause' && (
+                                                    <circle
+                                                        cx="50" cy="50" r="46"
+                                                        fill="transparent" stroke="currentColor" strokeWidth="4"
+                                                        strokeDasharray="289"
+                                                        strokeDashoffset={289 - (289 * holdProgress) / 100}
+                                                        strokeLinecap="round"
+                                                        className="text-red-500 transition-all duration-75"
+                                                    />
+                                                )}
+                                            </svg>
+                                            <button
+                                                onMouseDown={() => !isPaused && startHold('pause')}
+                                                onMouseUp={cancelHold}
+                                                onMouseLeave={cancelHold}
+                                                onTouchStart={() => !isPaused && startHold('pause')}
+                                                onTouchEnd={cancelHold}
+                                                onClick={handleResumeTap}
+                                                className="w-14 h-14 rounded-full bg-[#8e8e8e] hover:bg-[#444746] text-white flex items-center justify-center transition-all active:scale-95 z-10 relative"
+                                                title={isPaused ? "Toca para reanudar" : "Mantén para pausar (2s)"}
+                                            >
+                                                {isPaused ? <Play size={24} /> : <Pause size={24} />}
+                                            </button>
+                                            <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
+                                                {isPaused ? 'Toca' : 'Mantén 2s'}
+                                            </p>
+                                        </div>
                                     </>
                                 )}
 
