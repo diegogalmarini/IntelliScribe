@@ -560,16 +560,16 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     }
 
     return (
-        <div className="flex-1 flex flex-col h-screen bg-slate-50 dark:bg-[#0b0f17] overflow-hidden transition-colors duration-200" onClick={() => { setShowExportMenu(false); setShowTemplateMenu(false); }}>
+        <div className="flex-1 flex flex-col h-full bg-slate-50 dark:bg-[#0b0f17] overflow-hidden transition-colors duration-200" onClick={() => { setShowExportMenu(false); setShowTemplateMenu(false); }}>
             {/* Hidden Audio Element */}
             <audio ref={audioRef} src={signedAudioUrl || undefined} preload="none" />
 
             {/* FIXED AREA: Header + Slim Player */}
-            <div className="flex-shrink-0 flex flex-col z-50 shadow-xl border-b border-slate-200 dark:border-white/5">
+            <div className="flex-shrink-0 flex flex-col z-50 border-b border-black/[0.05] dark:border-white/[0.05]">
                 {/* Header */}
-                <header className="flex items-center justify-between whitespace-nowrap bg-white dark:bg-[#111722] px-4 lg:px-10 py-2 border-b border-slate-200 dark:border-white/5">
-                    <div className="flex items-center gap-2 md:gap-4 text-slate-900 dark:text-white flex-shrink min-w-0">
-                        <div className="size-8 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-all" onClick={onClose}>
+                <header className="flex items-center justify-between whitespace-nowrap bg-white dark:bg-[#1a1a1a] px-6 py-3">
+                    <div className="flex items-center gap-4 text-slate-900 dark:text-white flex-shrink min-w-0">
+                        <div className="size-8 text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-white cursor-pointer flex items-center justify-center rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all" onClick={onClose}>
                             <span className="material-symbols-outlined text-xl">close</span>
                         </div>
                         <div className="flex flex-col min-w-0">
@@ -582,20 +582,20 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                         onBlur={handleTitleSave}
                                         onKeyDown={handleTitleKeyDown}
                                         autoFocus
-                                        className="bg-transparent border-b border-primary text-slate-900 dark:text-white text-sm md:text-base font-bold outline-none p-0 w-[140px] md:w-[200px]"
+                                        className="bg-transparent border-b border-blue-600 text-[#0d0d0d] dark:text-white text-[15px] font-semibold outline-none p-0 w-[200px]"
                                     />
                                 ) : (
                                     <>
-                                        <h2 className="text-slate-900 dark:text-white text-sm md:text-base font-bold cursor-pointer hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-[200px] md:max-w-md" onClick={() => setIsEditingTitle(true)}>
+                                        <h2 className="text-[#0d0d0d] dark:text-white text-[15px] font-semibold cursor-pointer hover:text-blue-600 transition-colors truncate max-w-[200px] md:max-w-md" onClick={() => setIsEditingTitle(true)}>
                                             {recording.title}
                                         </h2>
-                                        <button onClick={() => setIsEditingTitle(true)} className="text-slate-500 hover:text-primary transition-colors flex items-center">
+                                        <button onClick={() => setIsEditingTitle(true)} className="text-[#8e8e8e] hover:text-blue-600 transition-colors flex items-center">
                                             <span className="material-symbols-outlined text-xs">edit</span>
                                         </button>
                                     </>
                                 )}
                             </div>
-                            <span className="text-[10px] text-slate-500 font-medium">{recording.date}</span>
+                            <span className="text-[11px] text-[#8e8e8e] font-medium">{recording.date}</span>
                         </div>
                     </div>
 
@@ -681,7 +681,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                 </header>
 
                 {/* SLIM PLAYER BAR */}
-                <div className="bg-slate-100 dark:bg-[#161b22] px-4 lg:px-10 py-3 flex items-center gap-4">
+                <div className="bg-white dark:bg-[#1a1a1a] px-6 py-4 flex items-center gap-4">
                     <button
                         onClick={togglePlay}
                         disabled={!signedAudioUrl}
@@ -764,28 +764,38 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             </div>
 
             {/* SCROLLABLE AREA: Transcript */}
-            <div className="flex-1 overflow-y-auto relative bg-white dark:bg-[#0b0f17]">
-                <main className="max-w-4xl mx-auto w-full px-4 lg:px-10 py-6 mb-20">
+            <div className="flex-1 overflow-y-auto relative bg-white dark:bg-[#1a1a1a]">
+                <main className="max-w-4xl mx-auto w-full px-6 py-8 mb-20">
                     <div className="min-h-[500px]">
                         {segments.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-64 text-center">
-                                <div className="size-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 text-slate-400">
-                                    <span className="material-symbols-outlined text-3xl">graphic_eq</span>
+                            <div className="flex flex-col items-center justify-center h-[50vh] text-center">
+                                <div className="size-20 rounded-full bg-blue-50 dark:bg-blue-900/10 flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
+                                    <span className="material-symbols-outlined text-4xl">mic</span>
                                 </div>
-                                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">{t('noTranscript')}</h3>
-                                <p className="text-sm text-slate-500 max-w-xs mb-6">{t('readyToTranscribe')}</p>
+                                <h3 className="text-xl font-semibold text-[#0d0d0d] dark:text-white mb-2">{t('noTranscript')}</h3>
+                                <p className="text-[#8e8e8e] max-w-xs mb-8">{t('readyToTranscribe')}</p>
                                 <button
                                     onClick={handleTranscribeAudio}
                                     disabled={isTranscribing || !signedAudioUrl}
-                                    className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium transition-colors shadow-lg shadow-primary/20 disabled:opacity-50">
-                                    {isTranscribing ? t('processing') : t('generateTranscript')}
+                                    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2 text-sm">
+                                    {isTranscribing ? (
+                                        <>
+                                            <span className="material-symbols-outlined animate-spin text-lg">sync</span>
+                                            {t('processing')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-lg">auto_awesome</span>
+                                            {t('generateTranscript')}
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {segments.map((segment) => (
-                                    <div key={segment.id} className="flex gap-4 group hover:bg-slate-50 dark:hover:bg-white/[0.02] p-2 -mx-2 rounded-lg transition-all duration-200">
-                                        <div className="flex-shrink-0 w-10">
+                                    <div key={segment.id} className="flex gap-6 group hover:bg-black/[0.02] dark:hover:bg-white/[0.02] p-4 -mx-4 rounded-xl transition-all duration-200">
+                                        <div className="flex-shrink-0 w-12 pt-1">
                                             <button
                                                 onClick={() => {
                                                     if (audioRef.current) {
@@ -796,7 +806,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                                         setIsPlaying(true);
                                                     }
                                                 }}
-                                                className="text-[10px] font-mono font-bold text-slate-500 hover:text-primary transition-colors mt-0.5"
+                                                className="text-[11px] font-mono font-medium text-[#8e8e8e] hover:text-blue-600 transition-colors"
                                             >
                                                 {segment.timestamp}
                                             </button>
