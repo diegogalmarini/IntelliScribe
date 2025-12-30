@@ -7,6 +7,7 @@ import { ChatModal } from './ChatModal';
 import { AnalysisModal } from './AnalysisModal';
 import { ExportModal } from './ExportModal';
 import { useLanguage } from '../../../contexts/LanguageContext'; // Added based on instruction
+import { getSignedAudioUrl } from '../../../services/storageService';
 
 interface RecordingDetailViewProps {
     recording: Recording;
@@ -16,11 +17,23 @@ interface RecordingDetailViewProps {
 export const RecordingDetailView = ({ recording, onGenerateTranscript }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
-    const [theme, setTheme] = useState<'light' | 'dark'>('light'); // Mock theme state
     const [isGenerating, setIsGenerating] = useState(false);
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
+    const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        const loadSignedUrl = async () => {
+            if (recording.audioUrl) {
+                const url = await getSignedAudioUrl(recording.audioUrl);
+                setSignedAudioUrl(url);
+            } else {
+                setSignedAudioUrl(null);
+            }
+        };
+        loadSignedUrl();
+    }, [recording.audioUrl]);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -47,10 +60,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
         setChatOpen(true);
     };
 
-    const handleAudio = () => {
-        // Toggle audio panel or show audio options
-        console.log('Audio actions for:', recording.id);
-    };
+
 
     const handleExport = () => {
         setExportOpen(true);
@@ -75,9 +85,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
         }
     };
 
-    const toggleTheme = () => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
-    };
+
 
     // Clean markdown from code blocks
     const cleanMarkdown = (text: string) => {
@@ -103,19 +111,6 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
-                        {/* Dark/Light Mode Toggle */}
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                            title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-                        >
-                            {theme === 'dark' ? (
-                                <Sun size={18} className="text-[#8e8e8e]" />
-                            ) : (
-                                <Moon size={18} className="text-[#8e8e8e]" />
-                            )}
-                        </button>
-
                         {/* Analizar */}
                         <button
                             onClick={handleAnalyze}
@@ -132,15 +127,6 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
                         >
                             <MessageCircle size={16} />
                             <span>Preguntar a Diktalo</span>
-                        </button>
-
-                        {/* Audio */}
-                        <button
-                            onClick={handleAudio}
-                            className="flex items-center gap-2 px-3 py-1.5 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
-                        >
-                            <Mic size={16} />
-                            <span>Audio</span>
                         </button>
 
                         {/* Exportar */}
@@ -174,7 +160,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
                             <div className="space-y-4">
                                 <audio
                                     controls
-                                    src={recording.audioUrl}
+                                    src={signedAudioUrl || undefined}
                                     className="w-full"
                                     style={{
                                         height: '40px',
