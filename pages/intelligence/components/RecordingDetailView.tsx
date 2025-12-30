@@ -13,9 +13,10 @@ interface RecordingDetailViewProps {
     recording: Recording;
     onGenerateTranscript?: () => Promise<void>;
     onRename?: (newTitle: string) => void;
+    onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -25,6 +26,11 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename 
     const [isGenerating, setIsGenerating] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState('');
+
+    // Speaker Editing State
+    const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null); // Stores the speaker ID/Name currently being edited
+    const [editedSpeakerName, setEditedSpeakerName] = useState('');
+
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
@@ -138,6 +144,23 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename 
 
     const handleCancelEdit = () => {
         setIsEditingTitle(false);
+    };
+
+    // Speaker Edit Handlers
+    const handleStartEditSpeaker = (currentName: string) => {
+        setEditingSpeaker(currentName);
+        setEditedSpeakerName(currentName);
+    };
+
+    const handleSaveSpeaker = (oldName: string) => {
+        if (onUpdateSpeaker && editedSpeakerName.trim() && editedSpeakerName !== oldName) {
+            onUpdateSpeaker(oldName, editedSpeakerName.trim());
+        }
+        setEditingSpeaker(null);
+    };
+
+    const handleCancelEditSpeaker = () => {
+        setEditingSpeaker(null);
     };
 
     const hasTranscript = recording.segments && recording.segments.length > 0;
@@ -378,9 +401,42 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename 
                                         </span>
                                         <div className="flex-1">
                                             <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
-                                                <span className="font-semibold text-blue-600 dark:text-blue-400">
-                                                    {segment.speaker}:
-                                                </span>{' '}
+                                                {editingSpeaker === segment.speaker ? (
+                                                    <span className="inline-flex items-center gap-1 mr-2">
+                                                        <input
+                                                            type="text"
+                                                            value={editedSpeakerName}
+                                                            onChange={(e) => setEditedSpeakerName(e.target.value)}
+                                                            className="text-blue-600 dark:text-blue-400 font-semibold bg-transparent border-b border-blue-500 focus:outline-none w-32"
+                                                            autoFocus
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter') handleSaveSpeaker(segment.speaker!);
+                                                                if (e.key === 'Escape') handleCancelEditSpeaker();
+                                                            }}
+                                                        />
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleSaveSpeaker(segment.speaker!); }}
+                                                            className="p-0.5 hover:bg-green-500/10 rounded text-green-600"
+                                                        >
+                                                            <Check size={14} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleCancelEditSpeaker(); }}
+                                                            className="p-0.5 hover:bg-red-500/10 rounded text-red-600"
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        className="font-semibold text-blue-600 dark:text-blue-400 mr-1 cursor-pointer hover:underline decoration-blue-400/50"
+                                                        onClick={() => onUpdateSpeaker && handleStartEditSpeaker(segment.speaker!)}
+                                                        title="Clic para cambiar nombre"
+                                                    >
+                                                        {segment.speaker}:
+                                                    </span>
+                                                )}
                                                 {segment.text}
                                             </p>
                                         </div>

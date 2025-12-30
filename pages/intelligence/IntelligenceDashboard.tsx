@@ -131,6 +131,28 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setIsEditorOpen(false);
     };
 
+    // --- RENAME SPEAKER Logic ---
+    const handleUpdateSpeaker = async (recordingId: string, oldSpeaker: string, newSpeaker: string) => {
+        const recording = recordings.find(r => r.id === recordingId);
+        if (!recording || !recording.segments) return;
+
+        // Optimistic update
+        const updatedSegments = recording.segments.map(s =>
+            s.speaker === oldSpeaker ? { ...s, speaker: newSpeaker } : s
+        );
+
+        // Notify parent to update state
+        onUpdateRecording(recordingId, { segments: updatedSegments });
+
+        // DB Update
+        try {
+            await databaseService.updateRecording(recordingId, { segments: updatedSegments });
+        } catch (error) {
+            console.error("Failed to update speaker", error);
+            // Revert on error (optional implementation)
+        }
+    };
+
     const handleGenerateTranscript = async () => {
         if (!activeRecording || !onUpdateRecording) return;
 
@@ -278,6 +300,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             recording={activeRecording}
                             onGenerateTranscript={handleGenerateTranscript}
                             onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
+                            onUpdateSpeaker={(oldS, newS) => handleUpdateSpeaker(activeRecording.id, oldS, newS)}
                         />
                     ) : (
                         <EmptyStateClean
