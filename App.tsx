@@ -613,6 +613,7 @@ const AppContent: React.FC = () => {
                             folders={folders}
                             onLogout={handleLogout}
                             onSearch={handleSearch}
+                            onRecordingComplete={handleRecordingComplete}
                         />
                     )}
 
