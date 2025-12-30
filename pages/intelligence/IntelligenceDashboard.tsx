@@ -24,6 +24,11 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onNavigate,
     recordings,
     onSelectRecording,
+    onDeleteRecording,
+    onRenameRecording,
+    onMoveRecording,
+    selectedFolderId,
+    folders,
     user,
     onLogout,
     onUpdateUser
@@ -31,6 +36,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isDialerOpen, setIsDialerOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Format plan name for display
@@ -82,6 +88,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
+    // Filter recordings
+    const filteredRecordings = recordings.filter(r =>
+        r.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.transcription_text?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     // Find active recording
     const activeRecording = selectedId ? recordings.find(r => r.id === selectedId) : null;
 
@@ -101,12 +113,18 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
             {/* Minimal Sidebar */}
             <MinimalSidebar
-                recordings={recordings}
+                recordings={filteredRecordings}
                 selectedId={selectedId}
                 onSelectRecording={handleSelectRecording}
                 onNewRecording={handleNewRecording}
                 userFirstName={user?.firstName || 'Usuario'}
                 user={user}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onRenameRecording={onRenameRecording}
+                onDeleteRecording={onDeleteRecording}
+                onMoveRecording={onMoveRecording}
+                folders={folders}
             />
 
             {/* Main Content */}

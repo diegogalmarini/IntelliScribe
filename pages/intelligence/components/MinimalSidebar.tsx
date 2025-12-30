@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Recording, UserProfile } from '../../../types';
+import React, { useState, useRef, useEffect } from 'react';
+import { Recording, UserProfile, Folder } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic } from 'lucide-react';
+import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic, Search, X } from 'lucide-react';
 
 interface MinimalSidebarProps {
     recordings: Recording[];
@@ -10,6 +10,12 @@ interface MinimalSidebarProps {
     onNewRecording: () => void;
     userFirstName: string;
     user: UserProfile;
+    searchQuery?: string;
+    onSearchChange?: (query: string) => void;
+    onRenameRecording?: (id: string, newTitle: string) => void;
+    onDeleteRecording?: (id: string) => void;
+    onMoveRecording?: (id: string, folderId: string) => void;
+    folders?: Folder[];
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -18,10 +24,28 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onSelectRecording,
     onNewRecording,
     userFirstName,
-    user
+    user,
+    searchQuery = '',
+    onSearchChange,
+    onRenameRecording,
+    onDeleteRecording,
+    onMoveRecording,
+    folders = []
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
+    const [renamingId, setRenamingId] = useState<string | null>(null);
+    const [renameValue, setRenameValue] = useState('');
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+    const [moveModalId, setMoveModalId] = useState<string | null>(null);
+    const renameInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (renamingId && renameInputRef.current) {
+            renameInputRef.current.focus();
+            renameInputRef.current.select();
+        }
+    }, [renamingId]);
 
     const handleContextMenu = (e: React.MouseEvent, recordingId: string) => {
         e.stopPropagation();
@@ -33,21 +57,49 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     const handleRename = (id: string) => {
-        // TODO: Implement rename functionality
-        console.log('Rename recording:', id);
+        const recording = recordings.find(r => r.id === id);
+        if (recording) {
+            setRenameValue(recording.title || '');
+            setRenamingId(id);
+        }
         closeContextMenu();
+    };
+
+    const saveRename = () => {
+        if (renamingId && renameValue.trim() && onRenameRecording) {
+            onRenameRecording(renamingId, renameValue.trim());
+        }
+        setRenamingId(null);
+        setRenameValue('');
+    };
+
+    const cancelRename = () => {
+        setRenamingId(null);
+        setRenameValue('');
     };
 
     const handleMoveTo = (id: string) => {
-        // TODO: Implement move to project
-        console.log('Move recording:', id);
+        setMoveModalId(id);
         closeContextMenu();
     };
 
+    const handleMoveToFolder = (recordingId: string, folderId: string) => {
+        if (onMoveRecording) {
+            onMoveRecording(recordingId, folderId);
+        }
+        setMoveModalId(null);
+    };
+
     const handleDelete = (id: string) => {
-        // TODO: Implement delete with confirmation
-        console.log('Delete recording:', id);
+        setDeleteConfirmId(id);
         closeContextMenu();
+    };
+
+    const confirmDelete = () => {
+        if (deleteConfirmId && onDeleteRecording) {
+            onDeleteRecording(deleteConfirmId);
+        }
+        setDeleteConfirmId(null);
     };
 
     const handleViewNotes = (id: string) => {
@@ -94,6 +146,30 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 </div>
             </div>
 
+            {/* Search Bar */}
+            {onSearchChange && (
+                <div className="px-3 py-2">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-2.5 text-[#8e8e8e]" size={14} />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => onSearchChange(e.target.value)}
+                            placeholder="Buscar..."
+                            className="w-full pl-9 pr-8 py-2 bg-[#f7f7f8] dark:bg-[#2a2a2a] border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => onSearchChange('')}
+                                className="absolute right-2 top-2 p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                            >
+                                <X size={14} className="text-[#8e8e8e]" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* New Recording Button */}
             <div className="p-2">
                 <button
@@ -124,9 +200,25 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                 >
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex-1 min-w-0">
-                                            <div className="truncate font-normal">
-                                                {recording.title || 'Sin título'}
-                                            </div>
+                                            {renamingId === recording.id ? (
+                                                <input
+                                                    ref={renameInputRef}
+                                                    type="text"
+                                                    value={renameValue}
+                                                    onChange={(e) => setRenameValue(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') saveRename();
+                                                        if (e.key === 'Escape') cancelRename();
+                                                    }}
+                                                    onBlur={saveRename}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="w-full px-2 py-1 bg-white dark:bg-[#1a1a1a] border border-blue-500 rounded text-[13px] text-[#0d0d0d] dark:text-white focus:outline-none"
+                                                />
+                                            ) : (
+                                                <div className="truncate font-normal">
+                                                    {recording.title || 'Sin título'}
+                                                </div>
+                                            )}
                                             <div className="text-[11px] text-[#8e8e8e] dark:text-[#8e8e8e] mt-0.5">
                                                 {(() => {
                                                     const date = new Date(recording.date);
@@ -207,6 +299,70 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmId && (
+                <>
+                    <div className="fixed inset-0 bg-black/50 z-[300]" onClick={() => setDeleteConfirmId(null)} />
+                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-2xl z-[400] p-6">
+                        <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-2">
+                            ¿Eliminar grabación?
+                        </h3>
+                        <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5] mb-6">
+                            Esta acción no se puede deshacer.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="flex-1 px-4 py-2.5 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] font-medium hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-[13px] font-medium hover:bg-red-700 transition-colors"
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Move to Folder Modal */}
+            {moveModalId && (
+                <>
+                    <div className="fixed inset-0 bg-black/50 z-[300]" onClick={() => setMoveModalId(null)} />
+                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-2xl z-[400] p-6">
+                        <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-4">
+                            Mover a carpeta
+                        </h3>
+                        <div className="space-y-2 mb-6">
+                            {folders.length === 0 ? (
+                                <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5]">
+                                    No hay carpetas disponibles
+                                </p>
+                            ) : (
+                                folders.map(folder => (
+                                    <button
+                                        key={folder.id}
+                                        onClick={() => handleMoveToFolder(moveModalId, folder.id)}
+                                        className="w-full text-left px-4 py-3 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
+                                    >
+                                        {folder.name}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                        <button
+                            onClick={() => setMoveModalId(null)}
+                            className="w-full px-4 py-2.5 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] font-medium hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
