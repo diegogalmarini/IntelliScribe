@@ -6,6 +6,7 @@ import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
 import { RecordingDetailView } from './components/RecordingDetailView';
 import { InlineRecorder } from './components/InlineRecorder';
+import { InlineEditor } from './components/InlineEditor';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
@@ -21,6 +22,7 @@ interface IntelligenceDashboardProps {
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
     onSearch?: (query: string) => Promise<Recording[]>;
     onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => void;
+    onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -36,11 +38,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onLogout,
     onUpdateUser,
     onSearch,
-    onRecordingComplete
+    onRecordingComplete,
+    onUpdateRecording
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [editorRecording, setEditorRecording] = useState<Recording | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -96,11 +101,25 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const base64Audio = reader.result as string;
             onRecordingComplete(base64Audio, durationSeconds, title, notes, media, audioBlob);
             setIsRecording(false);
+
+            // Open editor with the newly created recording after a short delay
+            setTimeout(() => {
+                const latestRecording = recordings[0];
+                if (latestRecording) {
+                    setEditorRecording(latestRecording);
+                    setIsEditorOpen(true);
+                }
+            }, 500);
         };
     };
 
     const handleCancelRecording = () => {
         setIsRecording(false);
+    };
+
+    const handleCloseEditor = () => {
+        setIsEditorOpen(false);
+        setEditorRecording(null);
     };
 
     // Debounced search effect
@@ -190,9 +209,16 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     </div>
                 </div>
 
-                {/* Content Area - Recorder, Recording Detail, or Empty State */}
+                {/* Content Area - Editor, Recorder, Recording Detail, or Empty State */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
-                    {isRecording ? (
+                    {isEditorOpen && editorRecording ? (
+                        <InlineEditor
+                            recording={editorRecording}
+                            user={user}
+                            onUpdateRecording={onUpdateRecording}
+                            onClose={handleCloseEditor}
+                        />
+                    ) : isRecording ? (
                         <InlineRecorder
                             user={user}
                             onComplete={handleRecordingComplete}
