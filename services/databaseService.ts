@@ -195,6 +195,79 @@ export const databaseService = {
         }));
     },
 
+    async searchRecordings(userId: string, searchQuery: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
+        if (!searchQuery || !searchQuery.trim()) {
+            return this.getRecordings(userId, page, pageSize);
+        }
+
+        const normalizedQuery = searchQuery
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // Remove accents
+
+        const from = (page - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        console.log(`[databaseService] Searching for "${searchQuery}" (normalized: "${normalizedQuery}") for user ${userId}`);
+
+        // For Supabase/PostgreSQL, we'll use the textSearch operator or ilike for partial matching
+        // Since we need to search inside JSONB (segments), we'll fetch full data and do filtering
+        // Note: For production, consider creating a dedicated search_text column with GIN index
+
+        const { data: recordingsData, error } = await supabase
+            .from('recordings')
+            .select('id, title, description, date, duration, duration_seconds, status, tags, participants, folder_id, summary, segments, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .range(from, to);
+
+        if (error) {
+            logger.error('Error searching recordings', { error, userId, searchQuery });
+            return [];
+        }
+
+        // Client-side filtering for now (segments JSONB search)
+        // TODO: Optimize with PostgreSQL full-text search or search_text column
+        const filtered = (recordingsData || []).filter((r: any) => {
+            // Normalize and search in title
+            const titleMatch = r.title &&
+                r.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(normalizedQuery);
+
+            // Normalize and search in summary
+            const summaryMatch = r.summary &&
+                r.summary.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(normalizedQuery);
+
+            // Search in segments
+            const segmentsMatch = r.segments && Array.isArray(r.segments) &&
+                r.segments.some((segment: any) =>
+                    segment.text &&
+                    segment.text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(normalizedQuery)
+                );
+
+            return titleMatch || summaryMatch || segmentsMatch;
+        });
+
+        console.log(`[databaseService] Found ${filtered.length} matching recordings`);
+
+        return filtered.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            description: r.description || '',
+            date: r.date ? new Date(r.date).toLocaleString() : new Date(r.created_at).toLocaleString(),
+            duration: r.duration || '00:00:00',
+            durationSeconds: r.duration_seconds || 0,
+            status: r.status as any,
+            tags: r.tags || [],
+            participants: r.participants || 1,
+            audioUrl: undefined, // Lazy load
+            folderId: r.folder_id || undefined,
+            summary: r.summary || undefined,
+            segments: r.segments || [], // Include segments in search results
+            notes: [],
+            media: []
+        }));
+    },
+
     async getRecordingDetails(id: string): Promise<Recording | null> {
         const { data: r, error } = await supabase
             .from('recordings')
