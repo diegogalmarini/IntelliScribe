@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Recording } from '../../../types';
 import { Download, FileText, Sparkles, Moon, Sun, BarChart3, MessageCircle, Mic, Share2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { ChatModal } from './ChatModal';
+import { AnalysisModal } from './AnalysisModal';
+import { ExportModal } from './ExportModal';
 
 interface RecordingDetailViewProps {
     recording: Recording;
@@ -9,6 +13,9 @@ interface RecordingDetailViewProps {
 
 export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ recording }) => {
     const { theme, setTheme } = useTheme();
+    const [chatOpen, setChatOpen] = useState(false);
+    const [analysisOpen, setAnalysisOpen] = useState(false);
+    const [exportOpen, setExportOpen] = useState(false);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -28,23 +35,39 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
     const hasSummary = recording.summary && recording.summary.trim().length > 0;
 
     const handleAnalyze = () => {
-        // TODO: Implement analyze functionality
-        console.log('Analyze recording:', recording.id);
+        setAnalysisOpen(true);
     };
 
     const handleAskDiktalo = () => {
-        // TODO: Implement ask Diktalo functionality
-        console.log('Ask Diktalo about:', recording.id);
+        setChatOpen(true);
     };
 
     const handleAudio = () => {
-        // TODO: Implement audio actions
+        // Toggle audio panel or show audio options
         console.log('Audio actions for:', recording.id);
     };
 
     const handleExport = () => {
-        // TODO: Implement export functionality
-        console.log('Export recording:', recording.id);
+        setExportOpen(true);
+    };
+
+    const handleDownloadAudio = async () => {
+        if (!recording.audioUrl) return;
+
+        try {
+            const response = await fetch(recording.audioUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${recording.title || 'audio'}.mp3`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading audio:', error);
+        }
     };
 
     const toggleTheme = () => {
@@ -142,14 +165,13 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                                 />
 
                                 {/* Download Button */}
-                                <a
-                                    href={recording.audioUrl}
-                                    download={recording.title || 'audio.mp3'}
+                                <button
+                                    onClick={handleDownloadAudio}
                                     className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
                                 >
                                     <Download size={14} />
                                     Descargar Audio
-                                </a>
+                                </button>
                             </div>
                         ) : (
                             <p className="text-[12px] text-[#8e8e8e]">
@@ -198,9 +220,22 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                                 </h2>
                             </div>
 
-                            <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
-                                {recording.summary}
-                            </p>
+                            <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
+                                <ReactMarkdown
+                                    components={{
+                                        h1: ({ node, ...props }) => <h1 className="text-[16px] font-bold mb-3 mt-4" {...props} />,
+                                        h2: ({ node, ...props }) => <h2 className="text-[15px] font-semibold mb-2 mt-3" {...props} />,
+                                        h3: ({ node, ...props }) => <h3 className="text-[14px] font-semibold mb-2 mt-3" {...props} />,
+                                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                                        ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                                        ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                                        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                                        strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+                                    }}
+                                >
+                                    {recording.summary}
+                                </ReactMarkdown>
+                            </div>
                         </div>
                     )}
 
@@ -226,6 +261,23 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                     )}
                 </div>
             </div>
+
+            {/* Modals */}
+            <ChatModal
+                isOpen={chatOpen}
+                onClose={() => setChatOpen(false)}
+                recording={recording}
+            />
+            <AnalysisModal
+                isOpen={analysisOpen}
+                onClose={() => setAnalysisOpen(false)}
+                recording={recording}
+            />
+            <ExportModal
+                isOpen={exportOpen}
+                onClose={() => setExportOpen(false)}
+                recording={recording}
+            />
         </div>
     );
 };
