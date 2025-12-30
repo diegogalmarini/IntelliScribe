@@ -158,7 +158,7 @@ export const databaseService = {
                 id: r.id,
                 title: r.title,
                 description: '',
-                date: new Date(r.created_at).toLocaleDateString(),
+                date: r.created_at, // Use raw ISO string
                 duration: '00:00:00',
                 durationSeconds: 0,
                 status: r.status,
@@ -179,7 +179,7 @@ export const databaseService = {
             id: r.id,
             title: r.title,
             description: r.description || '',
-            date: r.date ? new Date(r.date).toLocaleString() : new Date(r.created_at).toLocaleString(),
+            date: r.date || r.created_at, // Use raw ISO string
             duration: r.duration || '00:00:00',
             durationSeconds: r.duration_seconds || 0,
             status: r.status as any,
@@ -253,7 +253,7 @@ export const databaseService = {
             id: r.id,
             title: r.title,
             description: r.description || '',
-            date: r.date ? new Date(r.date).toLocaleString() : new Date(r.created_at).toLocaleString(),
+            date: r.date || r.created_at, // Use raw ISO string
             duration: r.duration || '00:00:00',
             durationSeconds: r.duration_seconds || 0,
             status: r.status as any,
@@ -284,7 +284,7 @@ export const databaseService = {
             id: r.id,
             title: r.title,
             description: r.description || '',
-            date: r.date ? new Date(r.date).toLocaleString() : new Date(r.created_at).toLocaleString(),
+            date: r.date || r.created_at, // Use raw ISO string
             duration: r.duration || '00:00:00',
             durationSeconds: r.duration_seconds || 0,
             status: r.status as any,
