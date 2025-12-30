@@ -277,6 +277,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         <RecordingDetailView
                             recording={activeRecording}
                             onGenerateTranscript={handleGenerateTranscript}
+                            onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
                         />
                     ) : (
                         <EmptyStateClean

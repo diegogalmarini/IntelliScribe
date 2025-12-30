@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Recording } from '../../../types';
-import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2 } from 'lucide-react';
+import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { ChatModal } from './ChatModal';
@@ -12,12 +12,15 @@ import { getSignedAudioUrl } from '../../../services/storageService';
 interface RecordingDetailViewProps {
     recording: Recording;
     onGenerateTranscript?: () => Promise<void>;
+    onRename?: (newTitle: string) => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [editedTitle, setEditedTitle] = useState('');
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
@@ -36,17 +39,35 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
     }, [recording.audioUrl]);
 
     const formatDate = (dateString: string) => {
+        if (!dateString) return 'Fecha no disponible';
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
             return 'Fecha no disponible';
         }
-        return date.toLocaleDateString('es-ES', {
+        return date.toLocaleString('es-ES', {
             year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            second: '2-digit'
         });
+    };
+
+    const handleStartEdit = () => {
+        setEditedTitle(recording.title);
+        setIsEditingTitle(true);
+    };
+
+    const handleSaveTitle = () => {
+        if (onRename && editedTitle.trim()) {
+            onRename(editedTitle.trim());
+        }
+        setIsEditingTitle(false);
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditingTitle(false);
     };
 
     const hasTranscript = recording.segments && recording.segments.length > 0;
@@ -105,9 +126,43 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript }: Recordi
             {/* Header */}
             <div className="px-8 py-4 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center justify-between mb-3">
-                    <h1 className="text-2xl font-normal text-[#1f1f1f] dark:text-white">
-                        {recording.title || 'Grabación sin título'}
-                    </h1>
+                    <div className="flex-1 mr-4">
+                        {isEditingTitle ? (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={editedTitle}
+                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                    className="text-2xl font-normal text-[#1f1f1f] dark:text-white bg-transparent border-b border-blue-500 focus:outline-none w-full"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSaveTitle();
+                                        if (e.key === 'Escape') handleCancelEdit();
+                                    }}
+                                />
+                                <button onClick={handleSaveTitle} className="p-1 hover:bg-green-500/10 rounded-md text-green-600">
+                                    <Check size={20} />
+                                </button>
+                                <button onClick={handleCancelEdit} className="p-1 hover:bg-red-500/10 rounded-md text-red-600">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 group">
+                                <h1 className="text-2xl font-normal text-[#1f1f1f] dark:text-white truncate">
+                                    {recording.title || 'Grabación sin título'}
+                                </h1>
+                                {onRename && (
+                                    <button
+                                        onClick={handleStartEdit}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-md text-[#8e8e8e]"
+                                    >
+                                        <Pencil size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
