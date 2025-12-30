@@ -22,6 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { action, payload, language = 'en' } = req.body;
+    console.log(`[AI_API] Request received. Action: ${action}`);
 
     const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -45,14 +46,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // --- Action 1: Meeting Summary ---
         if (action === 'summary') {
-            const { transcript } = payload;
-            const prompt = language === 'es'
-                ? `Eres un asistente ejecutivo experto. Analiza la siguiente transcripción de reunión y proporciona un resumen estructurado que incluya: 1. Resumen Ejecutivo, 2. Decisiones Clave, 3. Tareas (Action Items). Usa formato Markdown y responde en ESPAÑOL.\n\nTranscript:\n${transcript}`
-                : `You are an expert executive assistant. Analyze the following meeting transcript and provide a structured summary including: 1. Executive Summary, 2. Key Decisions, 3. Action Items. Use Markdown formatting.\n\nTranscript:\n${transcript}`;
+            const { transcript, template = 'general' } = payload;
+
+            let systemPrompt = '';
+
+            // Templates Definition
+            const templates: Record<string, { es: string, en: string }> = {
+                'general': {
+                    es: `Eres un asistente ejecutivo experto. Analiza la siguiente transcripción y proporciona un resumen estructurado que incluya: 1. Resumen Ejecutivo, 2. Puntos Clave, 3. Conclusiones. Usa formato Markdown y responde en ESPAÑOL.`,
+                    en: `You are an expert executive assistant. Analyze the following transcript and provide a structured summary including: 1. Executive Summary, 2. Key Points, 3. Conclusions. Use Markdown formatting.`
+                },
+                'meeting': {
+                    es: `Eres un secretario de actas profesional. Analiza esta reunión y genera: 1. Agenda/Temas tratados, 2. Decisiones tomadas, 3. Tareas pendientes (Action Items) con responsables si los hay. Usa formato Markdown claro.`,
+                    en: `You are a professional minute-taker. Analyze this meeting and generate: 1. Agenda/Topics, 2. Decisions Made, 3. Action Items with owners. Use clear Markdown.`
+                },
+                'class': {
+                    es: `Eres un estudiante de honor. Analiza esta clase/conferencia y extrae: 1. Conceptos Principales (Definiciones), 2. Puntos importantes para el examen, 3. Resumen de la lección. Usa bullet points y negritas para conceptos.`,
+                    en: `You are an honors student. Analyze this lecture and extract: 1. Key Concepts (Definitions), 2. Important points for the exam, 3. Lesson Summary. Use bullet points and bold text for concepts.`
+                },
+                'interview': {
+                    es: `Eres un reclutador experto o periodista. Analiza esta entrevista y extrae: 1. Perfil del entrevistado, 2. Preguntas clave y respuestas resumidas, 3. Fortalezas/Debilidades o Puntos de interés.`,
+                    en: `You are an expert recruiter or journalist. Analyze this interview and extract: 1. Interviewee Profile, 2. Key Questions & Summarized Answers, 3. Strengths/Weaknesses or Key Insights.`
+                },
+                'sales': {
+                    es: `Eres un consultor de ventas senior. Analiza esta llamada de ventas y detecta: 1. Necesidades/Dolores del cliente, 2. Objeciones, 3. Próximos pasos acordados, 4. Sentimiento general.`,
+                    en: `You are a senior sales consultant. Analyze this sales call and identify: 1. Client Needs/Pain Points, 2. Objections, 3. Agreed Next Steps, 4. General Sentiment.`
+                }
+            };
+
+            const selectedTemplate = templates[template] || templates['general'];
+            systemPrompt = language === 'es' ? selectedTemplate.es : selectedTemplate.en;
+
+            const finalPrompt = `${systemPrompt}\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.models.generateContent({
                 model: 'gemini-2.0-flash-exp',
-                contents: prompt,
+                contents: finalPrompt,
                 config: { temperature: 0.3 }
             });
             result = response.text || "No summary generated.";

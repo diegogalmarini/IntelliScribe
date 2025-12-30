@@ -153,6 +153,17 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
+    const handleUpdateSummary = (summary: string) => {
+        if (!selectedId) return;
+
+        // Update UI
+        onUpdateRecording(selectedId, { summary });
+
+        // Update DB
+        databaseService.updateRecording(selectedId, { summary })
+            .catch(err => console.error("Failed to update summary", err));
+    };
+
     const handleGenerateTranscript = async () => {
         if (!activeRecording || !onUpdateRecording) return;
 
@@ -301,6 +312,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onGenerateTranscript={handleGenerateTranscript}
                             onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
                             onUpdateSpeaker={(oldS, newS) => handleUpdateSpeaker(activeRecording.id, oldS, newS)}
+                            onUpdateSummary={handleUpdateSummary}
                         />
                     ) : (
                         <EmptyStateClean

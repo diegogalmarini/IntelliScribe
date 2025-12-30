@@ -6,7 +6,9 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { ChatModal } from './ChatModal';
 import { AnalysisModal } from './AnalysisModal';
 import { ExportModal } from './ExportModal';
-import { useLanguage } from '../../../contexts/LanguageContext'; // Added based on instruction
+import { useLanguage } from '../../../contexts/LanguageContext';
+
+import { generateMeetingSummary } from '../../../services/geminiService';
 import { getSignedAudioUrl } from '../../../services/storageService';
 
 interface RecordingDetailViewProps {
@@ -14,9 +16,10 @@ interface RecordingDetailViewProps {
     onGenerateTranscript?: () => Promise<void>;
     onRename?: (newTitle: string) => void;
     onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
+    onUpdateSummary?: (summary: string) => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -36,6 +39,12 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const [exportOpen, setExportOpen] = useState(false);
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
     const audioRef = React.useRef<HTMLAudioElement>(null);
+
+    // Simple markdown cleaner
+    const cleanMarkdown = (text: string | undefined) => {
+        if (!text) return '';
+        return text.replace(/```markdown/g, '').replace(/```/g, '').trim();
+    };
 
     React.useEffect(() => {
         const loadSignedUrl = async () => {
@@ -170,6 +179,30 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         setAnalysisOpen(true);
     };
 
+    const handleGenerateSummary = async (template: string) => {
+        if (!recording.segments) return;
+
+        setIsGenerating(true);
+        try {
+            // Reconstruct full transcript
+            const fullTranscript = recording.segments
+                .map(s => `${s.speaker}: ${s.text}`)
+                .join('\n');
+
+            const summary = await generateMeetingSummary(fullTranscript, 'es', template);
+
+            if (onUpdateSummary) {
+                onUpdateSummary(summary);
+            }
+            setAnalysisOpen(false);
+        } catch (error) {
+            console.error(error);
+            alert("Error generando resumen");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const handleAskDiktalo = () => {
         setChatOpen(true);
     };
@@ -201,18 +234,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
 
 
-    // Clean markdown from code blocks
-    const cleanMarkdown = (text: string) => {
-        if (!text) return '';
 
-        // Remove markdown code block wrappers (```markdown ... ```)
-        let cleaned = text.replace(/```markdown\s*/g, '').replace(/```\s*/g, '');
-
-        // Remove any other code block indicators
-        cleaned = cleaned.replace(/```[\s\S]*?```/g, '');
-
-        return cleaned.trim();
-    };
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-[#1a1a1a]">
@@ -533,14 +555,15 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             </div>
 
             {/* Modals */}
-            <ChatModal
-                isOpen={chatOpen}
-                onClose={() => setChatOpen(false)}
-                recording={recording}
-            />
             <AnalysisModal
                 isOpen={analysisOpen}
                 onClose={() => setAnalysisOpen(false)}
+                onGenerate={handleGenerateSummary}
+                isGenerating={isGenerating}
+            />
+            <ChatModal
+                isOpen={chatOpen}
+                onClose={() => setChatOpen(false)}
                 recording={recording}
             />
             <ExportModal
