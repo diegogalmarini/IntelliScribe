@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Recording } from '../../../types';
 import { X, Download, FileText, FileJson } from 'lucide-react';
+import * as exportUtils from '../../../utils/exportUtils';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -44,6 +45,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recor
 
         const jsonString = JSON.stringify(data, null, 2);
         downloadFile(jsonString, `${recording.title || 'recording'}.json`, 'application/json');
+    };
+
+    const exportAsPDF = async () => {
+        await exportUtils.exportAsPDF(recording, () => setExporting(true), () => { setExporting(false); onClose(); });
+    };
+
+    const exportAsDoc = () => {
+        exportUtils.exportAsDoc(recording, () => setExporting(true), () => { setExporting(false); onClose(); });
     };
 
     const downloadFile = (content: string, filename: string, type: string) => {
@@ -124,22 +133,45 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recor
                         <Download size={18} className="text-[#8e8e8e]" />
                     </button>
 
-                    {/* Coming Soon Options */}
-                    <div className="pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
-                        <p className="text-[11px] text-[#8e8e8e] uppercase tracking-wide mb-2">
-                            Próximamente
-                        </p>
-                        <div className="space-y-2 opacity-50">
-                            <div className="flex items-center gap-3 p-3 bg-[#f7f7f8] dark:bg-[#33343d] rounded-lg">
-                                <FileText size={18} className="text-[#8e8e8e]" />
-                                <span className="text-[13px] text-[#8e8e8e]">PDF</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-3 bg-[#f7f7f8] dark:bg-[#33343d] rounded-lg">
-                                <FileText size={18} className="text-[#8e8e8e]" />
-                                <span className="text-[13px] text-[#8e8e8e]">DOCX (Word)</span>
-                            </div>
+                    {/* PDF Export */}
+                    <button
+                        onClick={exportAsPDF}
+                        disabled={exporting}
+                        className="w-full flex items-center gap-4 p-4 bg-[#f7f7f8] dark:bg-[#33343d] hover:bg-[#ebebeb] dark:hover:bg-[#3a3b44] rounded-xl transition-colors group disabled:opacity-50"
+                    >
+                        <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg group-hover:scale-110 transition-transform">
+                            <FileText size={24} className="text-red-600 dark:text-red-400" />
                         </div>
-                    </div>
+                        <div className="flex-1 text-left">
+                            <h3 className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
+                                PDF
+                            </h3>
+                            <p className="text-[12px] text-[#8e8e8e]">
+                                Documento con formato profesional
+                            </p>
+                        </div>
+                        <Download size={18} className="text-[#8e8e8e]" />
+                    </button>
+
+                    {/* DOCX Export */}
+                    <button
+                        onClick={exportAsDoc}
+                        disabled={exporting}
+                        className="w-full flex items-center gap-4 p-4 bg-[#f7f7f8] dark:bg-[#33343d] hover:bg-[#ebebeb] dark:hover:bg-[#3a3b44] rounded-xl transition-colors group disabled:opacity-50"
+                    >
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:scale-110 transition-transform">
+                            <FileText size={24} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h3 className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
+                                Word (DOC)
+                            </h3>
+                            <p className="text-[12px] text-[#8e8e8e]">
+                                Editable en Microsoft Word
+                            </p>
+                        </div>
+                        <Download size={18} className="text-[#8e8e8e]" />
+                    </button>
                 </div>
 
                 {/* Footer */}

@@ -10,6 +10,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 
 import { generateMeetingSummary } from '../../../services/geminiService';
 import { getSignedAudioUrl } from '../../../services/storageService';
+import * as exportUtils from '../../../utils/exportUtils';
 
 interface RecordingDetailViewProps {
     recording: Recording;
@@ -408,11 +409,27 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                     {/* Transcription Card */}
                     {hasTranscript ? (
                         <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <FileText size={16} className="text-[#8e8e8e]" />
-                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                    Transcripción
-                                </h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <FileText size={16} className="text-[#8e8e8e]" />
+                                    <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                        Transcripción
+                                    </h2>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => exportUtils.exportAsPDF(recording)}
+                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                    >
+                                        PDF
+                                    </button>
+                                    <button
+                                        onClick={() => exportUtils.exportAsDoc(recording)}
+                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                    >
+                                        DOC
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-4">
@@ -505,11 +522,27 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                     {/* Summary Card */}
                     {hasSummary && (
                         <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <Sparkles size={16} className="text-[#8e8e8e]" />
-                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                    Resumen IA
-                                </h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <Sparkles size={16} className="text-[#8e8e8e]" />
+                                    <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                        Resumen IA
+                                    </h2>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => exportUtils.exportAsPDF(recording)}
+                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                    >
+                                        PDF
+                                    </button>
+                                    <button
+                                        onClick={() => exportUtils.exportAsDoc(recording)}
+                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                    >
+                                        DOC
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
