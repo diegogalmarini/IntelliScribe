@@ -78,7 +78,20 @@ export const exportAsPDF = async (recording: Recording, onStart?: () => void, on
             });
         }
 
-        doc.save(`${recording.title || 'document'}.pdf`);
+        // Manual download to ensure filename is correct
+        const pdfBlob = doc.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${recording.title || 'document'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
     } catch (error) {
         console.error("PDF Export failed", error);
         alert("Error exporting PDF");
