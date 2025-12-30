@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Recording, AppRoute, Folder, UserProfile } from '../../types';
+import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
 import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
 import { RecordingDetailView } from './components/RecordingDetailView';
+import { InlineRecorder } from './components/InlineRecorder';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
@@ -19,6 +20,7 @@ interface IntelligenceDashboardProps {
     onLogout: () => void;
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
     onSearch?: (query: string) => Promise<Recording[]>;
+    onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => void;
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -33,10 +35,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     user,
     onLogout,
     onUpdateUser,
-    onSearch
+    onSearch,
+    onRecordingComplete
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -74,12 +78,29 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const handleAction = (type: 'record' | 'upload') => {
         if (type === 'record') {
-            onNavigate(AppRoute.RECORDING);
+            // Open inline recorder instead of navigating
+            setIsRecording(true);
+            setSelectedId(null); // Clear any selected recording
         }
         if (type === 'upload') {
             // Trigger hidden file input click
             fileInputRef.current?.click();
         }
+    };
+
+    const handleRecordingComplete = (audioBlob: Blob, durationSeconds: number, title: string, notes: NoteItem[], media: MediaItem[]) => {
+        // Convert blob to base64
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = () => {
+            const base64Audio = reader.result as string;
+            onRecordingComplete(base64Audio, durationSeconds, title, notes, media, audioBlob);
+            setIsRecording(false);
+        };
+    };
+
+    const handleCancelRecording = () => {
+        setIsRecording(false);
     };
 
     // Debounced search effect
@@ -169,9 +190,15 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     </div>
                 </div>
 
-                {/* Content Area - Chat Interface or Empty State */}
+                {/* Content Area - Recorder, Recording Detail, or Empty State */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
-                    {activeRecording ? (
+                    {isRecording ? (
+                        <InlineRecorder
+                            user={user}
+                            onComplete={handleRecordingComplete}
+                            onCancel={handleCancelRecording}
+                        />
+                    ) : activeRecording ? (
                         <RecordingDetailView recording={activeRecording} />
                     ) : (
                         <EmptyStateClean
