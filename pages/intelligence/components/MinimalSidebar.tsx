@@ -128,10 +128,14 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 {recording.title || 'Sin título'}
                                             </div>
                                             <div className="text-[11px] text-[#8e8e8e] dark:text-[#8e8e8e] mt-0.5">
-                                                {new Date(recording.date).toLocaleDateString('es-ES', {
-                                                    month: 'short',
-                                                    day: 'numeric'
-                                                })}
+                                                {(() => {
+                                                    const date = new Date(recording.date);
+                                                    if (isNaN(date.getTime())) return 'Sin fecha';
+                                                    return date.toLocaleDateString('es-ES', {
+                                                        month: 'short',
+                                                        day: 'numeric'
+                                                    });
+                                                })()}
                                             </div>
                                         </div>
                                         <button
