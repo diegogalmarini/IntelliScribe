@@ -472,6 +472,11 @@ const AppContent: React.FC = () => {
         await databaseService.updateRecording(id, updates);
     };
 
+    const handleSearch = async (query: string): Promise<Recording[]> => {
+        if (!supabaseUser) return [];
+        return await databaseService.searchRecordings(supabaseUser.id, query);
+    };
+
     // Get the actual object for the editor
     const activeRecording = recordings.find(r => r.id === activeRecordingId);
 
@@ -607,6 +612,7 @@ const AppContent: React.FC = () => {
                             selectedFolderId={selectedFolderId}
                             folders={folders}
                             onLogout={handleLogout}
+                            onSearch={handleSearch}
                         />
                     )}
 

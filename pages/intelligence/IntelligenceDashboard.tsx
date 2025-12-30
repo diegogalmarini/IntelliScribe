@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Recording, AppRoute, Folder, UserProfile } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
@@ -18,6 +18,7 @@ interface IntelligenceDashboardProps {
     user: UserProfile;
     onLogout: () => void;
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
+    onSearch?: (query: string) => Promise<Recording[]>;
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -31,12 +32,15 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     folders,
     user,
     onLogout,
-    onUpdateUser
+    onUpdateUser,
+    onSearch
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isDialerOpen, setIsDialerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<Recording[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Format plan name for display
@@ -88,35 +92,43 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    // Filter recordings with accent-insensitive search
-    const normalizeText = (text: string) => {
-        return text
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, ''); // Remove accents
-    };
+    // Debounced search effect
+    useEffect(() => {
+        if (!onSearch) {
+            // Fallback: use recordings if no search callback provided
+            setSearchResults(recordings);
+            return;
+        }
 
-    const filteredRecordings = recordings.filter(r => {
-        if (!searchQuery.trim()) return true;
+        if (!searchQuery.trim()) {
+            setSearchResults([]);
+            setIsSearching(false);
+            return;
+        }
 
-        const normalizedQuery = normalizeText(searchQuery);
+        setIsSearching(true);
+        const timer = setTimeout(async () => {
+            try {
+                const results = await onSearch(searchQuery);
+                setSearchResults(results);
+            } catch (error) {
+                console.error('Search failed:', error);
+                setSearchResults([]);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 300); // 300ms debounce
 
-        // Search in title
-        const titleMatch = r.title && normalizeText(r.title).includes(normalizedQuery);
+        return () => clearTimeout(timer);
+    }, [searchQuery, onSearch]);
 
-        // Search in transcript segments
-        const transcriptMatch = r.segments?.some(segment =>
-            normalizeText(segment.text).includes(normalizedQuery)
-        );
+    // Use search results when searching, otherwise use all recordings
+    const displayedRecordings = searchQuery.trim() ? searchResults : recordings;
 
-        // Search in summary
-        const summaryMatch = r.summary && normalizeText(r.summary).includes(normalizedQuery);
-
-        return titleMatch || transcriptMatch || summaryMatch;
-    });
-
-    // Find active recording
-    const activeRecording = selectedId ? recordings.find(r => r.id === selectedId) : null;
+    // Find active recording - check both search results and full recordings
+    const activeRecording = selectedId
+        ? (searchResults.find(r => r.id === selectedId) || recordings.find(r => r.id === selectedId))
+        : null;
 
     // Check if user has Business+ plan for call button
     const showCallButton = user?.subscription?.planId === 'business_plus';
@@ -132,9 +144,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 className="hidden"
             />
 
-            {/* Minimal Sidebar */}
             <MinimalSidebar
-                recordings={filteredRecordings}
+                recordings={displayedRecordings}
                 selectedId={selectedId}
                 onSelectRecording={handleSelectRecording}
                 onNewRecording={handleNewRecording}
