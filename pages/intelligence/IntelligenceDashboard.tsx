@@ -7,6 +7,9 @@ import { SettingsModal } from './components/SettingsModal';
 import { RecordingDetailView } from './components/RecordingDetailView';
 import { InlineRecorder } from './components/InlineRecorder';
 import { InlineEditor } from './components/InlineEditor';
+import { transcribeAudio } from '../../services/geminiService';
+import { getSignedAudioUrl } from '../../services/storageService';
+import { databaseService } from '../../services/databaseService';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
@@ -128,6 +131,40 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setIsEditorOpen(false);
     };
 
+    const handleGenerateTranscript = async () => {
+        if (!activeRecording || !onUpdateRecording) return;
+
+        try {
+            const urlToUse = await getSignedAudioUrl(activeRecording.audioUrl);
+            if (!urlToUse) throw new Error("No audio URL available");
+
+            const segments = await transcribeAudio(undefined, undefined, 'es', urlToUse);
+
+            // Check if segments are valid
+            if (!segments || segments.length === 0) {
+                console.warn("No segments returned");
+                return;
+            }
+
+            // Cast partial segments to full segments if needed, or rely on TS compatibility
+            // Assuming the service returns standard Segment objects
+
+            // Update DB
+            await databaseService.updateRecording(activeRecording.id, {
+                segments: segments as any, // force cast if types differ slightly
+            });
+
+            // Update UI
+            onUpdateRecording(activeRecording.id, {
+                segments: segments as any
+            });
+
+        } catch (error) {
+            console.error("Transcription error:", error);
+            alert("Error generating transcription: " + (error as any).message);
+        }
+    };
+
     const handleNavigateToEditor = () => {
         if (activeRecording) {
             setIsEditorOpen(true);
@@ -239,7 +276,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     ) : activeRecording ? (
                         <RecordingDetailView
                             recording={activeRecording}
-                            onNavigateToEditor={handleNavigateToEditor}
+                            onGenerateTranscript={handleGenerateTranscript}
                         />
                     ) : (
                         <EmptyStateClean
