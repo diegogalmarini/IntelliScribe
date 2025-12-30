@@ -37,7 +37,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 }) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [isDialerOpen, setIsDialerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -73,22 +72,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    const handleAction = (type: 'record' | 'upload' | 'call') => {
+    const handleAction = (type: 'record' | 'upload') => {
         if (type === 'record') {
             onNavigate(AppRoute.RECORDING);
         }
         if (type === 'upload') {
             // Trigger hidden file input click
             fileInputRef.current?.click();
-        }
-        if (type === 'call') {
-            // Open dialer only for Business+ users
-            if (user?.subscription?.planId === 'business_plus') {
-                setIsDialerOpen(true);
-            } else {
-                // Could show upgrade modal here
-                alert('La función de llamadas está disponible solo para Business+');
-            }
         }
     };
 
@@ -187,7 +177,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         <EmptyStateClean
                             userName={user?.firstName || 'Usuario'}
                             onAction={handleAction}
-                            showCallButton={showCallButton}
                         />
                     )}
                 </div>
@@ -203,23 +192,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 onLogout={onLogout}
             />
 
-            {/* Dialer Modal (TODO: Implement) */}
-            {isDialerOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-                    <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full">
-                        <h2 className="text-xl font-semibold mb-4">Dialer</h2>
-                        <p className="text-slate-600 dark:text-slate-400 mb-4">
-                            Dialer component will be integrated here
-                        </p>
-                        <button
-                            onClick={() => setIsDialerOpen(false)}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-                        >
-                            Cerrar
-                        </button>
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 };
