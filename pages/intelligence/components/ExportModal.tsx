@@ -1,0 +1,157 @@
+import React, { useState } from 'react';
+import { Recording } from '../../../types';
+import { X, Download, FileText, FileJson } from 'lucide-react';
+
+interface ExportModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    recording: Recording;
+}
+
+export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recording }) => {
+    const [exporting, setExporting] = useState(false);
+
+    if (!isOpen) return null;
+
+    const exportAsText = () => {
+        let content = `${recording.title}\n\n`;
+        content += `Fecha: ${new Date(recording.date).toLocaleDateString('es-ES')}\n`;
+        content += `Duración: ${recording.duration || 'N/A'}\n\n`;
+
+        if (recording.summary) {
+            content += `RESUMEN:\n${recording.summary}\n\n`;
+        }
+
+        content += `TRANSCRIPCIÓN:\n`;
+        if (recording.segments) {
+            recording.segments.forEach(seg => {
+                content += `[${seg.timestamp}] ${seg.speaker}: ${seg.text}\n`;
+            });
+        }
+
+        downloadFile(content, `${recording.title || 'transcripcion'}.txt`, 'text/plain');
+    };
+
+    const exportAsJSON = () => {
+        const data = {
+            title: recording.title,
+            date: recording.date,
+            duration: recording.duration,
+            summary: recording.summary,
+            transcript: recording.segments,
+            audioUrl: recording.audioUrl
+        };
+
+        const jsonString = JSON.stringify(data, null, 2);
+        downloadFile(jsonString, `${recording.title || 'recording'}.json`, 'application/json');
+    };
+
+    const downloadFile = (content: string, filename: string, type: string) => {
+        const blob = new Blob([content], { type });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="w-full max-w-lg mx-4 bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-2xl">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-black/[0.05] dark:border-white/[0.05]">
+                    <div>
+                        <h2 className="text-lg font-semibold text-[#0d0d0d] dark:text-white">
+                            Exportar Grabación
+                        </h2>
+                        <p className="text-[12px] text-[#8e8e8e] mt-1">
+                            {recording.title}
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                        <X size={20} className="text-[#8e8e8e]" />
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-3">
+                    <p className="text-[13px] text-[#8e8e8e] mb-4">
+                        Selecciona el formato en el que deseas exportar esta grabación:
+                    </p>
+
+                    {/* TXT Export */}
+                    <button
+                        onClick={exportAsText}
+                        className="w-full flex items-center gap-4 p-4 bg-[#f7f7f8] dark:bg-[#33343d] hover:bg-[#ebebeb] dark:hover:bg-[#3a3b44] rounded-xl transition-colors group"
+                    >
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:scale-110 transition-transform">
+                            <FileText size={24} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h3 className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
+                                Texto Plano (TXT)
+                            </h3>
+                            <p className="text-[12px] text-[#8e8e8e]">
+                                Transcripción con resumen en formato texto
+                            </p>
+                        </div>
+                        <Download size={18} className="text-[#8e8e8e]" />
+                    </button>
+
+                    {/* JSON Export */}
+                    <button
+                        onClick={exportAsJSON}
+                        className="w-full flex items-center gap-4 p-4 bg-[#f7f7f8] dark:bg-[#33343d] hover:bg-[#ebebeb] dark:hover:bg-[#3a3b44] rounded-xl transition-colors group"
+                    >
+                        <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg group-hover:scale-110 transition-transform">
+                            <FileJson size={24} className="text-green-600 dark:text-green-400" />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h3 className="text-[14px] font-semibold text-[#0d0d0d] dark:text-white">
+                                JSON
+                            </h3>
+                            <p className="text-[12px] text-[#8e8e8e]">
+                                Datos estructurados para desarrollo
+                            </p>
+                        </div>
+                        <Download size={18} className="text-[#8e8e8e]" />
+                    </button>
+
+                    {/* Coming Soon Options */}
+                    <div className="pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
+                        <p className="text-[11px] text-[#8e8e8e] uppercase tracking-wide mb-2">
+                            Próximamente
+                        </p>
+                        <div className="space-y-2 opacity-50">
+                            <div className="flex items-center gap-3 p-3 bg-[#f7f7f8] dark:bg-[#33343d] rounded-lg">
+                                <FileText size={18} className="text-[#8e8e8e]" />
+                                <span className="text-[13px] text-[#8e8e8e]">PDF</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-3 bg-[#f7f7f8] dark:bg-[#33343d] rounded-lg">
+                                <FileText size={18} className="text-[#8e8e8e]" />
+                                <span className="text-[13px] text-[#8e8e8e]">DOCX (Word)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t border-black/[0.05] dark:border-white/[0.05]">
+                    <button
+                        onClick={onClose}
+                        className="w-full px-4 py-3 bg-[#f7f7f8] dark:bg-[#33343d] hover:bg-[#ebebeb] dark:hover:bg-[#3a3b44] text-[#0d0d0d] dark:text-white rounded-xl font-medium transition-colors"
+                    >
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
