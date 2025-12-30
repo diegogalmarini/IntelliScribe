@@ -34,7 +34,7 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ 
 const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
 const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default: m.Users })));
 const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
-const AdminPlans = lazy(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor }))); // <--- NUEVO
+const AdminPlans = lazy(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor })));
 
 // --- Wrapper para páginas que necesitan scroll (FIX VISUAL) ---
 const ScrollablePage = ({ children }: { children: React.ReactNode }) => (
@@ -203,6 +203,91 @@ const AppContent: React.FC = () => {
         }
     }, [supabaseUser, t]);
 
+    // --- RECORDING HANDLERS ---
+    const handleRecordingComplete = async (
+        audioDataUrl: string,
+        durationSeconds: number,
+        customTitle: string,
+        notes: NoteItem[],
+        media: MediaItem[],
+        audioBlob?: Blob
+    ): Promise<Recording> => {
+        if (!supabaseUser) throw new Error('No user logged in');
+
+        // Check limits
+        const minutesToAdd = Math.ceil(durationSeconds / 60);
+        const potentialTotal = (user.subscription ? user.subscription.minutesUsed : 0) + minutesToAdd;
+
+        if (user.subscription?.minutesLimit !== -1 && potentialTotal > (user.subscription?.minutesLimit || 0)) {
+            const msg = t('limitReachedMessage') || 'Has alcanzado el límite de minutos.';
+            alert(msg);
+            throw new Error(msg);
+        }
+
+        // Upload audio to storage if we have a blob
+        let audioUrl = audioDataUrl;
+        if (audioBlob) {
+            const uploadedUrl = await uploadAudio(audioBlob, supabaseUser.id);
+            if (uploadedUrl) audioUrl = uploadedUrl;
+        }
+
+        if (audioUrl?.startsWith('data:')) {
+            console.warn('[STORAGE_PROTECTION] Blocking Base64 storage.');
+            audioUrl = undefined;
+        }
+
+        // Create new recording object
+        const h = Math.floor(durationSeconds / 3600).toString().padStart(2, '0');
+        const m = Math.floor((durationSeconds % 3600) / 60).toString().padStart(2, '0');
+        const s = Math.floor(durationSeconds % 60).toString().padStart(2, '0');
+
+        const newRecording: Recording = {
+            id: '',
+            folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+            title: customTitle || 'Nueva Grabación',
+            description: t('liveCaptureSession') || 'Live Capture',
+            date: new Date().toISOString(),
+            duration: `${h}:${m}:${s}`,
+            durationSeconds,
+            status: 'Completed',
+            tags: [t('liveCaptureTag') || 'Live Capture'],
+            participants: 1,
+            audioUrl,
+            summary: null,
+            segments: [],
+            notes,
+            media
+        };
+
+        // Save to database
+        const createdRecording = await databaseService.createRecording(newRecording);
+        if (!createdRecording) throw new Error('Failed to create recording');
+
+        // Update usage
+        if (user.subscription) {
+            setUser(prev => ({
+                ...prev,
+                subscription: { ...prev.subscription!, minutesUsed: potentialTotal }
+            }));
+        }
+
+        // Update recordings
+        setRecordings(prev => [createdRecording, ...prev]);
+        setActiveRecordingId(createdRecording.id);
+
+        fetchData();
+        return createdRecording;
+    };
+
+    const handleUpdateRecording = async (id: string, updates: Partial<Recording>): Promise<void> => {
+        await databaseService.updateRecording(id, updates);
+
+        // Update local state
+        setRecordings(prev =>
+            prev.map(rec => rec.id === id ? { ...rec, ...updates } : rec)
+        );
+    };
+
     // --- DATA LOADING & AUTH EFFECT ---
     useEffect(() => {
         if (authLoading) return;
@@ -350,84 +435,15 @@ const AppContent: React.FC = () => {
         }
     };
 
-    const handleRecordingComplete = async (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => {
-        const minutesToAdd = Math.ceil(durationSeconds / 60);
-        const potentialTotal = user.subscription.minutesUsed + minutesToAdd;
-
-        if (user.subscription.minutesLimit !== -1 && potentialTotal > user.subscription.minutesLimit) {
-            alert(t('limitReachedTitle') + ": " + t('limitReachedMessage'));
-            return;
-        }
-
-        const h = Math.floor(durationSeconds / 3600).toString().padStart(2, '0');
-        const m = Math.floor((durationSeconds % 3600) / 60).toString().padStart(2, '0');
-        const s = Math.floor(durationSeconds % 60).toString().padStart(2, '0');
-        const durationStr = `${h}:${m}:${s}`;
-
-        const newRecPayload: Recording = {
-            id: '', // DB assigned
-            title: customTitle,
-            description: t('liveCaptureSession'),
-            date: new Date().toISOString(),
-            duration: durationStr,
-            durationSeconds: Math.floor(durationSeconds),
-            status: 'Draft',
-            tags: [t('liveCaptureTag')],
-            participants: 1,
-            audioUrl: url,
-            segments: [],
-            folderId: selectedFolderId === 'ALL' ? undefined : selectedFolderId,
-            notes: notes,
-            media: media
-        };
-
-        if (audioBlob && user.email) {
-            const publicUrl = await uploadAudio(audioBlob, user.id);
-            if (publicUrl) {
-                newRecPayload.audioUrl = publicUrl;
-            }
-        }
-
-        // DB Call - Ensure we never save Base64 strings to the database
-        if (newRecPayload.audioUrl?.startsWith('data:')) {
-            console.warn('[STORAGE_PROTECTION] Blocking Base64 storage. Setting audioUrl to null.');
-            newRecPayload.audioUrl = undefined;
-        }
-
-        const createdRec = await databaseService.createRecording(newRecPayload);
-
-        if (createdRec) {
-            setRecordings(prev => [createdRec, ...prev]);
-            setActiveRecordingId(createdRec.id);
-            navigate(AppRoute.EDITOR);
-
-            setUser(prev => ({
-                ...prev,
-                subscription: {
-                    ...prev.subscription,
-                    minutesUsed: prev.subscription.minutesUsed + minutesToAdd
-                }
-            }));
-        } else {
-            alert("Failed to save recording to database.");
-        }
-    };
-
     const handleDeleteRecording = async (id: string) => {
         const recording = recordings.find(r => r.id === id);
         if (!recording || !supabaseUser) return;
-
-        // Note: Confirmation is handled by Dashboard.tsx (custom modal + browser prompt)
-        // This function only executes after user has confirmed twice.
 
         const success = await databaseService.deleteRecording(id);
 
         if (success) {
             setRecordings(prev => prev.filter(r => r.id !== id));
             if (activeRecordingId === id) setActiveRecordingId(null);
-
-            // Note: minutesUsed is NOT decremented here to prevent infinite replay/delete abuse.
-            // Only storage is freed on Supabase (handled by cascade/service).
         } else {
             alert('Failed to delete recording.');
         }
@@ -447,29 +463,19 @@ const AppContent: React.FC = () => {
         setActiveRecordingId(id);
         navigate(AppRoute.EDITOR);
 
-        // Fetch full details (heavy JSONB fields) only when needed
         const full = await databaseService.getRecordingDetails(id);
         if (full) {
             setRecordings(prev => prev.map(r => r.id === id ? full : r));
         }
     };
 
-    // For Intelligence Dashboard - doesn't navigate, just updates active recording
     const handleSelectRecordingIntelligence = async (id: string) => {
         setActiveRecordingId(id);
 
-        // Fetch full details if not already loaded
         const full = await databaseService.getRecordingDetails(id);
         if (full) {
             setRecordings(prev => prev.map(r => r.id === id ? full : r));
         }
-    };
-
-    const handleUpdateRecording = async (id: string, updates: Partial<Recording>) => {
-        setRecordings(prev => prev.map(rec =>
-            rec.id === id ? { ...rec, ...updates } : rec
-        ));
-        await databaseService.updateRecording(id, updates);
     };
 
     const handleSearch = async (query: string): Promise<Recording[]> => {
@@ -614,7 +620,7 @@ const AppContent: React.FC = () => {
                             onLogout={handleLogout}
                             onSearch={handleSearch}
                             onRecordingComplete={handleRecordingComplete}
-                            onUpdateRecording={async (id, updates) => { await databaseService.updateRecording(id, updates); }}
+                            onUpdateRecording={handleUpdateRecording}
                         />
                     )}
 
@@ -688,7 +694,7 @@ const AppContent: React.FC = () => {
                     {(currentRoute === AppRoute.ADMIN_OVERVIEW ||
                         currentRoute === AppRoute.ADMIN_USERS ||
                         currentRoute === AppRoute.ADMIN_FINANCIALS ||
-                        currentRoute === AppRoute.ADMIN_PLANS) && ( // <--- NUEVO: Condición para Plans
+                        currentRoute === AppRoute.ADMIN_PLANS) && (
                             <Suspense fallback={
                                 <div className="flex items-center justify-center h-full bg-slate-900">
                                     <div className="flex flex-col items-center gap-3">
@@ -708,7 +714,7 @@ const AppContent: React.FC = () => {
                                         {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
                                         {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
                                         {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
-                                        {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />} {/* <--- NUEVO: Renderizado */}
+                                        {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
                                     </AdminLayout>
                                 </AdminRoute>
                             </Suspense>

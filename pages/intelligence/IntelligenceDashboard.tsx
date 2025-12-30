@@ -21,7 +21,7 @@ interface IntelligenceDashboardProps {
     onLogout: () => void;
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
     onSearch?: (query: string) => Promise<Recording[]>;
-    onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => void;
+    onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => Promise<Recording | void> | void;
     onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
 }
 
