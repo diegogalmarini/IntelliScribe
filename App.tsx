@@ -613,14 +613,15 @@ const AppContent: React.FC = () => {
                             folders={folders}
                             onLogout={handleLogout}
                             onSearch={handleSearch}
-                            onRecordingComplete={handleRecordingComplete}`r`n                            onUpdateRecording={async (id, updates) => { await databaseService.updateRecording(id, updates); await loadRecordings(); }}
+                            onRecordingComplete={handleRecordingComplete}
+                            onUpdateRecording={async (id, updates) => { await databaseService.updateRecording(id, updates); }}
                         />
                     )}
 
                     {currentRoute === AppRoute.RECORDING && (
                         <LiveRecording
                             onNavigate={navigate}
-                            onRecordingComplete={handleRecordingComplete}`r`n                            onUpdateRecording={async (id, updates) => { await databaseService.updateRecording(id, updates); await loadRecordings(); }}
+                            onRecordingComplete={handleRecordingComplete}
                         />
                     )}
 
