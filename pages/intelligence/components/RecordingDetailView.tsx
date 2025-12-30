@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { Recording } from '../../../types';
-import { Download, FileText, Sparkles, Moon, Sun, BarChart3, MessageCircle, Mic, Share2 } from 'lucide-react';
+import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { ChatModal } from './ChatModal';
 import { AnalysisModal } from './AnalysisModal';
 import { ExportModal } from './ExportModal';
+import { useLanguage } from '../../../contexts/LanguageContext'; // Added based on instruction
 
 interface RecordingDetailViewProps {
     recording: Recording;
-    onNavigateToEditor?: () => void;
+    onGenerateTranscript?: () => Promise<void>;
 }
 
-export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ recording, onNavigateToEditor }) => {
-    const { theme, setTheme } = useTheme();
+export const RecordingDetailView = ({ recording, onGenerateTranscript }: RecordingDetailViewProps) => {
+    const { t } = useLanguage();
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [theme, setTheme] = useState<'light' | 'dark'>('light'); // Mock theme state
+    const [isGenerating, setIsGenerating] = useState(false);
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
@@ -233,13 +237,25 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                             <div className="flex flex-col items-center justify-center py-8">
                                 <Mic size={48} className="text-[#8e8e8e]/30 mb-4" />
                                 <p className="text-[13px] text-[#8e8e8e] mb-6">Transcripción no disponible</p>
-                                {onNavigateToEditor && (
+                                {onGenerateTranscript && (
                                     <button
-                                        onClick={onNavigateToEditor}
-                                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2"
+                                        onClick={async () => {
+                                            setIsGenerating(true);
+                                            try {
+                                                await onGenerateTranscript();
+                                            } finally {
+                                                setIsGenerating(false);
+                                            }
+                                        }}
+                                        disabled={isGenerating}
+                                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/70 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2"
                                     >
-                                        <Sparkles size={16} />
-                                        Generar Transcripción
+                                        {isGenerating ? (
+                                            <Loader2 size={16} className="animate-spin" />
+                                        ) : (
+                                            <Sparkles size={16} />
+                                        )}
+                                        {isGenerating ? 'Generando...' : 'Generar Transcripción'}
                                     </button>
                                 )}
                             </div>
