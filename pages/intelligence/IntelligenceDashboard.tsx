@@ -97,13 +97,21 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         // Convert blob to base64
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
             const base64Audio = reader.result as string;
-            onRecordingComplete(base64Audio, durationSeconds, title, notes, media, audioBlob);
-            setIsRecording(false);
 
-            // Navigate to editor page
-            onNavigate(AppRoute.EDITOR);
+            try {
+                const newRecording = await onRecordingComplete(base64Audio, durationSeconds, title, notes, media, audioBlob);
+                setIsRecording(false);
+
+                if (newRecording && typeof newRecording === 'object') {
+                    setEditorRecording(newRecording as Recording);
+                    setIsEditorOpen(true);
+                }
+            } catch (error) {
+                console.error("Error saving recording:", error);
+                setIsRecording(false);
+            }
         };
     };
 
