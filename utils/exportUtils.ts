@@ -82,21 +82,9 @@ export const exportAsPDF = async (recording: Recording, onStart?: () => void, on
             });
         }
 
-        // Manual download to ensure filename is correct
+        // Use doc.save but with the sanitized filename to avoid browser/OS errors
         const safeTitle = sanitizeFilename(recording.title || 'document');
-        const pdfBlob = doc.output('blob');
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${safeTitle}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-
-        // Cleanup
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
+        doc.save(`${safeTitle}.pdf`);
     } catch (error) {
         console.error("PDF Export failed", error);
         alert("Error exporting PDF");
