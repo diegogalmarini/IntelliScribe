@@ -45,7 +45,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const [editorRecording, setEditorRecording] = useState<Recording | null>(null);
+    // editorRecording removed - using activeRecording source of truth
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -65,6 +65,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleSelectRecording = (id: string) => {
         setSelectedId(id);
         onSelectRecording(id);
+        // CRITICAL: Close editor when switching recordings to show Detail View first
+        setIsEditorOpen(false);
     };
 
     const handleNewRecording = () => {
@@ -105,7 +107,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 setIsRecording(false);
 
                 if (newRecording && typeof newRecording === 'object') {
-                    setEditorRecording(newRecording as Recording);
+                    // Sync internal selection state
+                    setSelectedId(newRecording.id);
+                    onSelectRecording(newRecording.id);
+                    // Open editor with the new recording (which is now activeRecording)
                     setIsEditorOpen(true);
                 }
             } catch (error) {
@@ -121,12 +126,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const handleCloseEditor = () => {
         setIsEditorOpen(false);
-        setEditorRecording(null);
     };
 
     const handleNavigateToEditor = () => {
         if (activeRecording) {
-            setEditorRecording(activeRecording);
             setIsEditorOpen(true);
         }
     };
@@ -220,14 +223,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
                 {/* Content Area - Editor, Recorder, Recording Detail, or Empty State */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
-                    {isEditorOpen && editorRecording ? (
+                    {isEditorOpen && activeRecording ? (
                         <InlineEditor
-                            recording={editorRecording}
+                            recording={activeRecording}
                             user={user}
                             onUpdateRecording={onUpdateRecording}
                             onClose={handleCloseEditor}
                         />
-                    ) : isRecording ? (
+                    ) : isRecording ? ( // Removed isEditorOpen check here as it's separate
                         <InlineRecorder
                             user={user}
                             onComplete={handleRecordingComplete}
