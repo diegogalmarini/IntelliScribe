@@ -85,12 +85,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     // Debounced search effect
     useEffect(() => {
         if (!onSearch) {
-            // Fallback: use recordings if no search callback provided
-            setSearchResults(recordings);
+            // Fallback: no search capability, show all recordings
             return;
         }
 
         if (!searchQuery.trim()) {
+            // No search query, let displayedRecordings show all recordings
             setSearchResults([]);
             setIsSearching(false);
             return;
