@@ -88,11 +88,32 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    // Filter recordings
-    const filteredRecordings = recordings.filter(r =>
-        r.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.transcription_text?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter recordings with accent-insensitive search
+    const normalizeText = (text: string) => {
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // Remove accents
+    };
+
+    const filteredRecordings = recordings.filter(r => {
+        if (!searchQuery.trim()) return true;
+
+        const normalizedQuery = normalizeText(searchQuery);
+
+        // Search in title
+        const titleMatch = r.title && normalizeText(r.title).includes(normalizedQuery);
+
+        // Search in transcript segments
+        const transcriptMatch = r.segments?.some(segment =>
+            normalizeText(segment.text).includes(normalizedQuery)
+        );
+
+        // Search in summary
+        const summaryMatch = r.summary && normalizeText(r.summary).includes(normalizedQuery);
+
+        return titleMatch || transcriptMatch || summaryMatch;
+    });
 
     // Find active recording
     const activeRecording = selectedId ? recordings.find(r => r.id === selectedId) : null;
