@@ -74,6 +74,19 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
 
+    // Clean markdown from code blocks
+    const cleanMarkdown = (text: string) => {
+        if (!text) return '';
+
+        // Remove markdown code block wrappers (```markdown ... ```)
+        let cleaned = text.replace(/```markdown\s*/g, '').replace(/```\s*/g, '');
+
+        // Remove any other code block indicators
+        cleaned = cleaned.replace(/```[\s\S]*?```/g, '');
+
+        return cleaned.trim();
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-[#1a1a1a]">
             {/* Header */}
@@ -233,7 +246,7 @@ export const RecordingDetailView: React.FC<RecordingDetailViewProps> = ({ record
                                         strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
                                     }}
                                 >
-                                    {recording.summary}
+                                    {cleanMarkdown(recording.summary)}
                                 </ReactMarkdown>
                             </div>
                         </div>
