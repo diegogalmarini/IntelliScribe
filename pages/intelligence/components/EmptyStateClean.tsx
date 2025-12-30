@@ -1,17 +1,15 @@
 import React from 'react';
-import { Mic, Upload, Phone } from 'lucide-react';
+import { Mic, Upload } from 'lucide-react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface EmptyStateCleanProps {
     userName: string;
-    onAction: (type: 'record' | 'upload' | 'call') => void;
-    showCallButton: boolean;
+    onAction: (type: 'record' | 'upload') => void;
 }
 
 export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
     userName,
-    onAction,
-    showCallButton
+    onAction
 }) => {
     const { t } = useLanguage();
 
@@ -20,19 +18,11 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
             type: 'record' as const,
             icon: Mic,
             label: t('recordAudio') || 'Grabar Audio',
-            show: true
         },
         {
             type: 'upload' as const,
             icon: Upload,
             label: t('uploadFile') || 'Subir Archivo',
-            show: true
-        },
-        {
-            type: 'call' as const,
-            icon: Phone,
-            label: t('makeCall') || 'Hacer Llamada',
-            show: showCallButton
         },
     ];
 
@@ -48,7 +38,7 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
 
             {/* Action Buttons */}
             <div className="flex gap-6 flex-wrap justify-center">
-                {actions.filter(action => action.show).map(action => (
+                {actions.map(action => (
                     <button
                         key={action.type}
                         onClick={() => onAction(action.type)}
