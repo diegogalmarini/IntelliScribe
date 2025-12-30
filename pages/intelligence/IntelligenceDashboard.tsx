@@ -126,8 +126,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const handleNavigateToEditor = () => {
         if (activeRecording) {
-            onSelectRecording(activeRecording.id);
-            onNavigate(AppRoute.EDITOR);
+            setEditorRecording(activeRecording);
+            setIsEditorOpen(true);
         }
     };
 
