@@ -25,6 +25,7 @@ import CrispWidget from './components/CrispWidget';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
 import { Privacy } from './pages/legal/Privacy';
+import { useIdleTimer } from './hooks/useIdleTimer';
 
 // ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
 // CRITICAL: Admin components are lazy-loaded to ensure they are NEVER
@@ -126,6 +127,28 @@ const AppContent: React.FC = () => {
         { id: 'all', name: 'All Recordings', type: 'system', icon: 'folder_open' },
         { id: 'favorites', name: 'Favorites', type: 'system', icon: 'star' }
     ]);
+
+    // Handle Logout defined early for useIdleTimer
+    const handleLogout = async () => {
+        await signOut();
+        setRecordings([]);
+        setIsInitialized(false);
+        setCurrentRoute(AppRoute.LOGIN);
+    };
+
+    // --- AUTO LOGOUT PROTECTION ---
+    // 30 minutes = 30 * 60 * 1000 = 1,800,000 ms
+    // Only active if user is logged in
+    useIdleTimer({
+        timeout: 1800000,
+        onIdle: () => {
+            if (supabaseUser) {
+                console.warn("User inactive for 30mins. Auto-logging out for security.");
+                handleLogout();
+            }
+        },
+        debounce: 500
+    });
 
     const [selectedFolderId, setSelectedFolderId] = useState<string | 'ALL'>('ALL');
 
@@ -326,7 +349,9 @@ const AppContent: React.FC = () => {
                 AppRoute.DASHBOARD, AppRoute.RECORDING, AppRoute.EDITOR,
                 AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
                 AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS,
-                AppRoute.ADMIN_PLANS
+                AppRoute.ADMIN_PLANS,
+                // FIX: Add Intelligence route to protected list
+                AppRoute.INTELLIGENCE
             ];
 
             if (protectedRoutes.includes(currentRoute)) {
@@ -367,13 +392,6 @@ const AppContent: React.FC = () => {
 
         setCurrentRoute(route);
         setIsSidebarOpen(false); // Close sidebar on navigation on mobile
-    };
-
-    const handleLogout = async () => {
-        await signOut();
-        setRecordings([]);
-        setIsInitialized(false);
-        setCurrentRoute(AppRoute.LOGIN);
     };
 
     const handleSocialLoginSuccess = (provider: 'Google' | 'Microsoft') => {
