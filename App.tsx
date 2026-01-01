@@ -179,6 +179,7 @@ const AppContent: React.FC = () => {
                 lastName: data.last_name || prev.lastName,
                 avatarUrl: data.avatar_url || prev.avatarUrl,
                 phone: data.phone || prev.phone,
+                phoneVerified: data.phone_verified || false,
                 // Fallback to localStorage if DB fields are missing
                 timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
                 notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
