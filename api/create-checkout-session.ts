@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         const session = await stripe.checkout.sessions.create({
             customer_email: email,
             client_reference_id: userId,
-            automatic_payment_methods: { enabled: true },
+            payment_method_types: ['card'], // Explicit payment methods for subscription
             line_items: [
                 {
                     price: priceId,
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
                 userId: userId,
                 planId: planId // Optional tracking
             }
-        } as any);
+        });
 
         return res.status(200).json({ sessionId: session.id });
     } catch (err: any) {
