@@ -578,7 +578,7 @@ const AppContent: React.FC = () => {
             >
                 {/* Sidebar */}
                 {/* Hide Sidebar for Intelligence route - it has its own minimal sidebar */}
-                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && (
+                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && (
                     <Sidebar
                         currentRoute={currentRoute}
                         onNavigate={navigate}
