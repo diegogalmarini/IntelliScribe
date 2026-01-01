@@ -7,6 +7,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { RecordingDetailView } from './components/RecordingDetailView';
 import { InlineRecorder } from './components/InlineRecorder';
 import { InlineEditor } from './components/InlineEditor';
+import { SubscriptionView } from './components/SubscriptionView';   // Added import
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
@@ -26,6 +27,7 @@ interface IntelligenceDashboardProps {
     onSearch?: (query: string) => Promise<Recording[]>;
     onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => Promise<Recording | void> | void;
     onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
+    initialView?: 'recordings' | 'subscription'; // Added prop
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -42,9 +44,16 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onUpdateUser,
     onSearch,
     onRecordingComplete,
-    onUpdateRecording
+    onUpdateRecording,
+    initialView = 'recordings' // Default value
 }) => {
+    const [view, setView] = useState<'recordings' | 'subscription'>(initialView); // View state
     const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    // Sync view with prop changes (e.g. navigation trigger)
+    useEffect(() => {
+        if (initialView) setView(initialView);
+    }, [initialView]);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -66,6 +75,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleSelectRecording = (id: string) => {
+        setView('recordings'); // Switch back to recordings view
         setSelectedId(id);
         onSelectRecording(id);
         // CRITICAL: Close editor when switching recordings to show Detail View first
@@ -291,9 +301,11 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     </div>
                 </div>
 
-                {/* Content Area - Editor, Recorder, Recording Detail, or Empty State */}
+                {/* Content Area - Editor, Recorder, Recording Detail, Empty State, or Subscription View */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
-                    {isEditorOpen && activeRecording ? (
+                    {view === 'subscription' ? (
+                        <SubscriptionView user={user} />
+                    ) : isEditorOpen && activeRecording ? (
                         <InlineEditor
                             recording={activeRecording}
                             user={user}

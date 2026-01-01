@@ -482,5 +482,33 @@ export const databaseService = {
         }
 
         return true;
+    },
+
+    // --- USER PROFILE ---
+
+    async updateUserProfile(userId: string, updates: Partial<import('../types').UserProfile>): Promise<boolean> {
+        const dbUpdates: any = {};
+
+        if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
+        if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName;
+        if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+        if (updates.phoneVerified !== undefined) dbUpdates.phone_verified = updates.phoneVerified;
+        if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
+        if (updates.timezone !== undefined) dbUpdates.timezone = updates.timezone;
+        if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
+        if (updates.subscription?.planId !== undefined) dbUpdates.plan_id = updates.subscription.planId;
+
+        if (Object.keys(dbUpdates).length === 0) return true;
+
+        const { error } = await supabase
+            .from('profiles')
+            .update(dbUpdates)
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error updating user profile:', error);
+            return false;
+        }
+        return true;
     }
 };
