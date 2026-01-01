@@ -130,6 +130,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         timezone: user.timezone || 'Europe/Madrid'
     });
 
+    // Name Editing State
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [editName, setEditName] = useState({ firstName: '', lastName: '' });
+
     // Preferences State
     const [preferences, setPreferences] = useState({
         autoLabelSpeakers: false,
@@ -138,7 +142,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         transcriptionLanguage: 'Español'
     });
 
-    // Notifications State
     // Notifications State - Initialize from user prop
     const [notifications, setNotifications] = useState({
         newRecording: user.notificationSettings?.email.newRecording ?? true,
@@ -147,14 +150,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         browserPush: user.notificationSettings?.browser.push ?? true
     });
 
-    // Effect to auto-save notifications when changed
-    // Note: We avoid an effect loop by guarding; or we can just save on toggle directly.
-    // Let's safe on toggle directly to avoid effect complexity.
-
     const handleUpdateUser = (updates: Partial<UserProfile>) => {
         if (onUpdateUser) {
             onUpdateUser(updates);
         }
+    };
+
+    const handleSaveName = () => {
+        if (!editName.firstName.trim()) return;
+        handleUpdateUser({
+            firstName: editName.firstName.trim(),
+            lastName: editName.lastName.trim()
+        });
+        setIsEditingName(false);
     };
 
     if (!isOpen) return null;
@@ -263,14 +271,54 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     </div>
                                     <div>
                                         <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Name</div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-base text-slate-900 dark:text-white font-medium">
-                                                {user.firstName} {user.lastName}
-                                            </span>
-                                            <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                                <SettingsIcon size={14} />
-                                            </button>
-                                        </div>
+                                        {isEditingName ? (
+                                            <div className="flex items-center gap-2 animate-in fade-in duration-200">
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={editName.firstName}
+                                                        onChange={(e) => setEditName({ ...editName, firstName: e.target.value })}
+                                                        className="w-24 px-2 py-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        placeholder="First"
+                                                        autoFocus
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={editName.lastName}
+                                                        onChange={(e) => setEditName({ ...editName, lastName: e.target.value })}
+                                                        className="w-24 px-2 py-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        placeholder="Last"
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={handleSaveName}
+                                                    className="p-1 hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 rounded"
+                                                >
+                                                    <Check size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsEditingName(false)}
+                                                    className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-base text-slate-900 dark:text-white font-medium">
+                                                    {user.firstName} {user.lastName}
+                                                </span>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditName({ firstName: user.firstName || '', lastName: user.lastName || '' });
+                                                        setIsEditingName(true);
+                                                    }}
+                                                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-1 p-1 hover:bg-slate-100 dark:hover:bg-white/5 rounded transition-colors"
+                                                >
+                                                    <SettingsIcon size={14} />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
