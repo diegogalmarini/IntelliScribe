@@ -284,13 +284,23 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Bar */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                    {/* Empty left side - Back Button for Subscription View */}
-                    <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-slate-200 dark:border-slate-800">
+                    {/* Left side: Logo (mobile) or Back Button (subscription view) */}
+                    <div className="flex items-center gap-3">
+                        {/* Mobile Logo */}
+                        <div className="md:hidden flex items-center gap-2">
+                            <img
+                                src={document.documentElement.classList.contains('dark') ? '/logo-diktalo-b.svg' : '/logo-diktalo.svg'}
+                                alt="Diktalo"
+                                className="h-6 w-auto"
+                            />
+                        </div>
+
+                        {/* Back Button for Subscription View (Desktop) */}
                         {view === 'subscription' && (
                             <button
                                 onClick={() => setView('recordings')}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
+                                className="hidden md:block p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M19 12H5" />
