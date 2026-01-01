@@ -182,11 +182,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         try {
             const publicUrl = await uploadAvatar(file, user.id);
             if (publicUrl) {
+                // Optimistic Update
                 handleUpdateUser({ avatarUrl: publicUrl });
+                // Force reload if needed or trust props update
+                // Consider adding a local state for avatar if props delay is too long
+                // For now, handleUpdateUser should trigger re-render in App.tsx which passes new user prop
             }
         } catch (error) {
             console.error('Failed to upload avatar:', error);
-            // Optionally add toast notification here
         }
     };
 
