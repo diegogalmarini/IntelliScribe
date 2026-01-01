@@ -132,7 +132,7 @@ const AppContent: React.FC = () => {
         await signOut();
         setRecordings([]);
         setIsInitialized(false);
-        setCurrentRoute(AppRoute.LOGIN);
+        setCurrentRoute(AppRoute.LANDING); // Redirect to landing page after logout
     };
 
     // --- AUTO LOGOUT PROTECTION ---
