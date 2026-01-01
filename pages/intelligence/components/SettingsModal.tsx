@@ -131,6 +131,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         timezone: user.timezone || 'Europe/Madrid'
     });
 
+    // EFFECT: Sync local state with User prop updates involves
+    React.useEffect(() => {
+        setPersonalInfo(prev => ({
+            ...prev,
+            phone: user.phone || prev.phone,
+            timezone: user.timezone || prev.timezone
+        }));
+    }, [user.phone, user.timezone]);
+
     // Name Editing State
     const [isEditingName, setIsEditingName] = useState(false);
     const [editName, setEditName] = useState({ firstName: '', lastName: '' });
