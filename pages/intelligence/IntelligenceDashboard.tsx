@@ -266,20 +266,22 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 className="hidden"
             />
 
-            <MinimalSidebar
-                recordings={displayedRecordings}
-                selectedId={selectedId}
-                onSelectRecording={handleSelectRecording}
-                onNewRecording={handleNewRecording}
-                userFirstName={user?.firstName || 'Usuario'}
-                user={user}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onRenameRecording={onRenameRecording}
-                onDeleteRecording={onDeleteRecording}
-                onMoveRecording={onMoveRecording}
-                folders={folders}
-            />
+            {view !== 'subscription' && (
+                <MinimalSidebar
+                    recordings={displayedRecordings}
+                    selectedId={selectedId}
+                    onSelectRecording={handleSelectRecording}
+                    onNewRecording={handleNewRecording}
+                    userFirstName={user?.firstName || 'Usuario'}
+                    user={user}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onRenameRecording={onRenameRecording}
+                    onDeleteRecording={onDeleteRecording}
+                    onMoveRecording={onMoveRecording}
+                    folders={folders}
+                />
+            )}
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
