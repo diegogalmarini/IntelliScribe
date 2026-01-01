@@ -74,7 +74,8 @@ const AppContent: React.FC = () => {
         else if (path === '/dashboard') newRoute = AppRoute.DASHBOARD;
         else if (path === '/intelligence') newRoute = AppRoute.INTELLIGENCE;
         else if (path === '/recording') newRoute = AppRoute.RECORDING;
-        else if (path === '/editor' || path.startsWith('/editor/')) newRoute = AppRoute.EDITOR;
+        // Old editor removed - redirect to dashboard to use InlineEditor
+        else if (path === '/editor' || path.startsWith('/editor/')) newRoute = AppRoute.DASHBOARD;
         else if (path === '/recordings' || path.startsWith('/transcript/')) newRoute = AppRoute.DASHBOARD;
         else if (path === '/integrations') newRoute = AppRoute.INTEGRATIONS;
         else if (path === '/plans') newRoute = AppRoute.SUBSCRIPTION;
@@ -349,7 +350,7 @@ const AppContent: React.FC = () => {
         } else if (!supabaseUser && !authLoading) {
             setIsInitialized(true);
             const protectedRoutes = [
-                AppRoute.DASHBOARD, AppRoute.RECORDING, AppRoute.EDITOR,
+                AppRoute.DASHBOARD, AppRoute.RECORDING,
                 AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
                 AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS,
                 AppRoute.ADMIN_PLANS,
@@ -375,7 +376,6 @@ const AppContent: React.FC = () => {
             [AppRoute.LOGIN]: '/login',
             [AppRoute.DASHBOARD]: '/dashboard',
             [AppRoute.RECORDING]: '/recording',
-            [AppRoute.EDITOR]: '/editor',
             [AppRoute.INTEGRATIONS]: '/integrations',
             [AppRoute.SUBSCRIPTION]: '/plans',
             [AppRoute.SETTINGS]: '/settings',
@@ -479,9 +479,11 @@ const AppContent: React.FC = () => {
         await databaseService.updateRecording(id, { folderId: folderId });
     };
 
+    // Old editor removed - use IntelligenceDashboard's InlineEditor instead
     const handleSelectRecording = async (id: string) => {
         setActiveRecordingId(id);
-        navigate(AppRoute.EDITOR);
+        // Stay in dashboard, IntelligenceDashboard will handle editor view
+        navigate(AppRoute.DASHBOARD);
 
         const full = await databaseService.getRecordingDetails(id);
         if (full) {
@@ -580,7 +582,7 @@ const AppContent: React.FC = () => {
             >
                 {/* Sidebar */}
                 {/* Hide Sidebar for Intelligence route - it has its own minimal sidebar */}
-                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.EDITOR && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && (
+                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && (
                     <Sidebar
                         currentRoute={currentRoute}
                         onNavigate={navigate}
@@ -638,21 +640,7 @@ const AppContent: React.FC = () => {
                         />
                     )}
 
-                    {currentRoute === AppRoute.EDITOR && activeRecording && (
-                        <TranscriptEditor
-                            onNavigate={navigate}
-                            recording={activeRecording}
-                            onUpdateRecording={handleUpdateRecording}
-                            user={user}
-                        />
-                    )}
-
-                    {currentRoute === AppRoute.EDITOR && !activeRecording && (
-                        <div className="flex flex-col items-center justify-center h-full">
-                            <p className="text-text-secondary mb-4">No recording selected.</p>
-                            <button onClick={() => navigate(AppRoute.DASHBOARD)} className="text-primary hover:underline">Go to Dashboard</button>
-                        </div>
-                    )}
+                    {/* Old TranscriptEditor removed - all editing happens in IntelligenceDashboard */}
 
                     {/* WRAPPED IN SCROLLABLE CONTAINER */}
                     {currentRoute === AppRoute.INTEGRATIONS && (
