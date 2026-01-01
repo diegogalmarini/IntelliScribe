@@ -109,7 +109,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     return (
-        <div className="w-64 h-full bg-white dark:bg-[#171717] flex flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
+        <div className="hidden md:flex md:w-64 h-full bg-white dark:bg-[#171717] flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center justify-center px-2">
