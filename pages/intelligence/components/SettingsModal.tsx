@@ -10,6 +10,7 @@ import { UserProfile, AppRoute } from '../../../types';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { databaseService } from '../../../services/databaseService';
+import { uploadAvatar } from '../../../services/storageService';
 import { PhoneVerificationModal } from '../../../components/PhoneVerificationModal';
 
 interface SettingsModalProps {
@@ -133,6 +134,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Name Editing State
     const [isEditingName, setIsEditingName] = useState(false);
     const [editName, setEditName] = useState({ firstName: '', lastName: '' });
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     // Preferences State
     const [preferences, setPreferences] = useState({
@@ -150,6 +152,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         browserPush: user.notificationSettings?.browser.push ?? true
     });
 
+    // Custom Vocabulary State
+    const [customVocab, setCustomVocab] = useState({
+        enabled: false,
+        industry: '',
+        terms: [] as string[]
+    });
+    const [newTerm, setNewTerm] = useState('');
+
     const handleUpdateUser = (updates: Partial<UserProfile>) => {
         if (onUpdateUser) {
             onUpdateUser(updates);
@@ -163,6 +173,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             lastName: editName.lastName.trim()
         });
         setIsEditingName(false);
+    };
+
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !user.id) return;
+
+        try {
+            const publicUrl = await uploadAvatar(file, user.id);
+            if (publicUrl) {
+                handleUpdateUser({ avatarUrl: publicUrl });
+            }
+        } catch (error) {
+            console.error('Failed to upload avatar:', error);
+            // Optionally add toast notification here
+        }
+    };
+
+    const handleAddTerm = () => {
+        if (!newTerm.trim()) return;
+        if (!customVocab.terms.includes(newTerm.trim())) {
+            setCustomVocab(prev => ({
+                ...prev,
+                terms: [...prev.terms, newTerm.trim()]
+            }));
+        }
+        setNewTerm('');
+    };
+
+    const handleRemoveTerm = (termToRemove: string) => {
+        setCustomVocab(prev => ({
+            ...prev,
+            terms: prev.terms.filter(term => term !== termToRemove)
+        }));
     };
 
     if (!isOpen) return null;
@@ -193,6 +236,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     const confirmLogout = () => {
+        onLogout();
+        onClose();
+    };
+
+    const handleDeleteAccount = () => {
+        // TODO: Implement actual API call to delete account
+        console.log('Deleting account for:', user.id);
+        alert('Account deleted successfully (Mock)');
         onLogout();
         onClose();
     };
@@ -253,7 +304,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Profile Header */}
                                 <div className="flex items-center gap-6">
-                                    <div className="relative group cursor-pointer">
+                                    <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
                                         {user.avatarUrl ? (
                                             <img
                                                 src={user.avatarUrl}
@@ -268,6 +319,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <div className="absolute bottom-0 right-0 bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Camera size={14} className="text-slate-600 dark:text-slate-300" />
                                         </div>
+                                        <input
+                                            id="avatar-upload"
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleAvatarUpload}
+                                        />
                                     </div>
                                     <div>
                                         <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Name</div>
@@ -461,7 +519,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </button>
                                         </div>
                                         <div>
-                                            <button className="px-4 py-1.5 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                                            <button
+                                                onClick={() => setShowDeleteConfirm(true)}
+                                                className="px-4 py-1.5 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                                            >
                                                 Delete account
                                             </button>
                                             <p className="text-xs text-slate-400 mt-2">
@@ -660,7 +721,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">Automate workflows by connecting Diktalo to 5,000+ apps.</p>
                                             </div>
                                         </div>
-                                        <button className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity">
+                                        <button
+                                            onClick={() => window.open('https://zapier.com/apps/diktalo', '_blank')}
+                                            className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
+                                        >
                                             Connect
                                         </button>
                                     </div>
@@ -695,8 +759,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-slate-500">Enable custom vocabulary</span>
-                                            <button className="w-10 h-5 bg-slate-200 dark:bg-slate-700 rounded-full relative">
-                                                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white dark:bg-slate-900 rounded-full" />
+                                            <button
+                                                onClick={() => setCustomVocab(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                                className={`w-10 h-5 rounded-full relative transition-colors ${customVocab.enabled ? 'bg-slate-900 dark:bg-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                            >
+                                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white dark:bg-slate-900 rounded-full transition-transform ${customVocab.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                                             </button>
                                         </div>
                                     </div>
@@ -707,31 +774,76 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
 
-                                <div>
+                                <div className={!customVocab.enabled ? 'opacity-50 pointer-events-none' : ''}>
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-sm font-medium text-slate-900 dark:text-white">Industry</h3>
                                         <span className="text-xs text-slate-400">Please select</span>
                                     </div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Select your industry to help AI learn your field's context.</p>
+                                    <CustomSelect
+                                        className="w-full max-w-xs"
+                                        value={customVocab.industry}
+                                        onChange={(val) => setCustomVocab(prev => ({ ...prev, industry: val }))}
+                                        options={[
+                                            { value: 'medical', label: 'Medical / Healthcare' },
+                                            { value: 'legal', label: 'Legal' },
+                                            { value: 'finance', label: 'Finance / Banking' },
+                                            { value: 'tech', label: 'Technology / Engineering' },
+                                            { value: 'general', label: 'General Business' }
+                                        ]}
+                                        placeholder="Select industry..."
+                                    />
                                 </div>
 
-                                <div>
+                                <div className={!customVocab.enabled ? 'opacity-50 pointer-events-none' : ''}>
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-sm font-medium text-slate-900 dark:text-white">Vocabulary</h3>
-                                        <button className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity">
-                                            Add
-                                        </button>
-                                    </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-8">Add names, companies or industry-specific terms you use often.</p>
-
-                                    <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
-                                        <div className="w-12 h-12 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-3">
-                                            <Database size={20} className="text-slate-300 dark:text-slate-600" />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={newTerm}
+                                                onChange={(e) => setNewTerm(e.target.value)}
+                                                placeholder="Enter term..."
+                                                className="px-3 py-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs w-48 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleAddTerm();
+                                                }}
+                                            />
+                                            <button
+                                                onClick={handleAddTerm}
+                                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                                                disabled={!newTerm.trim()}
+                                            >
+                                                Add
+                                            </button>
                                         </div>
-                                        <p className="text-xs text-slate-400 dark:text-slate-500">
-                                            Add custom terms to improve transcription accuracy.
-                                        </p>
                                     </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Add names, companies or industry-specific terms you use often.</p>
+
+                                    {customVocab.terms.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
+                                            <div className="w-12 h-12 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-3">
+                                                <Database size={20} className="text-slate-300 dark:text-slate-600" />
+                                            </div>
+                                            <p className="text-xs text-slate-400 dark:text-slate-500">
+                                                Add custom terms to improve transcription accuracy.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {customVocab.terms.map((term, index) => (
+                                                <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200 dark:border-slate-700 group">
+                                                    <span className="text-xs font-medium text-slate-700 dark:text-slate-200">{term}</span>
+                                                    <button
+                                                        onClick={() => handleRemoveTerm(term)}
+                                                        className="text-slate-400 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -774,6 +886,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 className="flex-1 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-black rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
                             >
                                 Log out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Account Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60]">
+                    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                            Delete account?
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                            This action cannot be undone. All your data and recordings will be permanently removed.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="flex-1 px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-sm font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                            >
+                                Delete
                             </button>
                         </div>
                     </div>
