@@ -1,7 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 import App from './App';
+
+// Initialize Sentry for error tracking
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration(),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: 0.1, // 10% of transactions for performance monitoring
+    // Session Replay
+    replaysSessionSampleRate: 0.1, // 10% of sessions
+    replaysOnErrorSampleRate: 1.0, // 100% when error occurs
+    // Environment
+    environment: import.meta.env.MODE,
+  });
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
