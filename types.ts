@@ -71,6 +71,17 @@ export interface UserProfile {
   email: string;
   phone: string; // New field
   phoneVerified: boolean; // New field
+  timezone?: string; // New field
+  notificationSettings?: {
+    email: {
+      newRecording: boolean;
+      weeklyDigest: boolean;
+      marketing: boolean;
+    };
+    browser: {
+      push: boolean;
+    };
+  };
   avatarUrl: string | null;
   role: string;
   subscription: UserSubscription;

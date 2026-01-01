@@ -2,14 +2,13 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
-import { Dashboard } from './pages/Dashboard';
-import DashboardIntelligence from './pages/DashboardIntelligence';
+
 import IntelligenceDashboard from './pages/intelligence/IntelligenceDashboard';
 import { LiveRecording } from './pages/LiveRecording';
 import { TranscriptEditor } from './pages/TranscriptEditor';
 import { Integrations } from './pages/Integrations';
 import { Settings } from './pages/Settings';
-import { Plans } from './pages/Plans';
+
 import { Login } from './pages/Login';
 import { Manual } from './pages/Manual';
 import { ResetPassword } from './pages/ResetPassword';
@@ -180,7 +179,9 @@ const AppContent: React.FC = () => {
                 lastName: data.last_name || prev.lastName,
                 avatarUrl: data.avatar_url || prev.avatarUrl,
                 phone: data.phone || prev.phone,
-                phoneVerified: data.phone_verified || false,
+                // Fallback to localStorage if DB fields are missing
+                timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
+                notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
                 role: data.role || 'Member',
                 subscription: {
                     ...prev.subscription,
@@ -435,21 +436,20 @@ const AppContent: React.FC = () => {
         ));
     };
 
-    const handleUpdateUser = (updatedUser: Partial<UserProfile>) => {
+    const handleUpdateUser = async (updatedUser: Partial<UserProfile>) => {
         setUser(prev => ({ ...prev, ...updatedUser }));
 
-        const updates: any = {};
-        if (updatedUser.firstName) updates.first_name = updatedUser.firstName;
-        if (updatedUser.lastName) updates.last_name = updatedUser.lastName;
-        if (updatedUser.avatarUrl) updates.avatar_url = updatedUser.avatarUrl;
-        if (updatedUser.phone !== undefined) updates.phone = updatedUser.phone;
-        if (updatedUser.phoneVerified !== undefined) updates.phone_verified = updatedUser.phoneVerified;
-        if (updatedUser.subscription?.planId) updates.plan_id = updatedUser.subscription.planId;
+        // Persist to LocalStorage as fallback
+        if (user.id) {
+            if (updatedUser.timezone) {
+                localStorage.setItem(`diktalo_settings_timezone_${user.id}`, updatedUser.timezone);
+            }
+            if (updatedUser.notificationSettings) {
+                localStorage.setItem(`diktalo_settings_notifications_${user.id}`, JSON.stringify(updatedUser.notificationSettings));
+            }
 
-        if (Object.keys(updates).length > 0) {
-            supabase.from('profiles').update(updates).eq('id', user.id).then(({ error }) => {
-                if (error) console.error("Profile update failed", error);
-            });
+            // Attempt DB update
+            await databaseService.updateUserProfile(user.id, updatedUser);
         }
     };
 
@@ -608,23 +608,7 @@ const AppContent: React.FC = () => {
                             <span className="ml-2 font-bold text-lg text-primary">Diktalo</span>
                         </div>
                     )}
-                    {currentRoute === AppRoute.DASHBOARD && (
-                        <Dashboard
-                            user={user}
-                            recordings={recordings}
-                            onNavigate={navigate}
-                            onSelectRecording={handleSelectRecording}
-                            onDeleteRecording={handleDeleteRecording}
-                            onRenameRecording={handleRenameRecording}
-                            onMoveRecording={handleMoveRecording}
-                            selectedFolderId={selectedFolderId}
-                            folders={folders}
-                            onImportRecording={handleRecordingComplete}
-                            onRefreshProfile={fetchProfile}
-                        />
-                    )}
-
-                    {currentRoute === AppRoute.INTELLIGENCE && (
+                    {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE) && (
                         <IntelligenceDashboard
                             user={user}
                             recordings={recordings}
@@ -639,8 +623,11 @@ const AppContent: React.FC = () => {
                             onSearch={handleSearch}
                             onRecordingComplete={handleRecordingComplete}
                             onUpdateRecording={handleUpdateRecording}
+                            initialView="recordings"
                         />
                     )}
+
+
 
                     {currentRoute === AppRoute.RECORDING && (
                         <LiveRecording
@@ -687,12 +674,22 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.SUBSCRIPTION && (
-                        <ScrollablePage>
-                            <Plans
-                                user={user}
-                            // onUpdateUser={handleUpdateUser} // Comentado si el componente Plans no lo usa en la nueva versión
-                            />
-                        </ScrollablePage>
+                        <IntelligenceDashboard
+                            user={user}
+                            recordings={recordings}
+                            onNavigate={navigate}
+                            onSelectRecording={handleSelectRecordingIntelligence}
+                            onDeleteRecording={handleDeleteRecording}
+                            onRenameRecording={handleRenameRecording}
+                            onMoveRecording={handleMoveRecording}
+                            selectedFolderId={selectedFolderId}
+                            folders={folders}
+                            onLogout={handleLogout}
+                            onSearch={handleSearch}
+                            onRecordingComplete={handleRecordingComplete}
+                            onUpdateRecording={handleUpdateRecording}
+                            initialView="subscription"
+                        />
                     )}
 
                     {currentRoute === AppRoute.MANUAL && (
