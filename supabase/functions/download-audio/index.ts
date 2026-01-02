@@ -67,7 +67,7 @@ serve(async (req) => {
         // Fetch recording using service role (bypasses RLS)
         const { data: recording, error: recordingError } = await supabaseAdmin
             .from('recordings')
-            .select('audioUrl, userId')
+            .select('audio_url, userId')
             .eq('id', recordingId)
             .single()
 
@@ -88,12 +88,12 @@ serve(async (req) => {
             )
         }
 
-        console.log('Recording verified, downloading from storage:', recording.audioUrl)
+        console.log('Recording verified, downloading from storage:', recording.audio_url)
 
         // Download file from storage
         const { data: fileData, error: downloadError } = await supabaseAdmin.storage
             .from('recordings')
-            .download(recording.audioUrl)
+            .download(recording.audio_url)
 
         if (downloadError || !fileData) {
             console.error('Download error:', downloadError)
