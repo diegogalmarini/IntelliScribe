@@ -244,6 +244,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         return () => clearTimeout(timer);
     }, [searchQuery, onSearch]);
 
+    // Use search results when searching, otherwise use all recordings
+    const displayedRecordings = searchQuery.trim() ? searchResults : recordings;
+
+    // Find active recording - check both search results and full recordings
+    const activeRecording = selectedId
+        ? (searchResults.find(r => r.id === selectedId) || recordings.find(r => r.id === selectedId))
+        : null;
+
     // Auto-open InlineEditor when activeRecording changes (e.g., from LiveRecording page)
     // This ensures the new editor shows instead of RecordingDetailView (old editor)
     useEffect(() => {
@@ -257,14 +265,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             // They can manually open editor by clicking transcript button which calls handleNavigateToEditor
         }
     }, [activeRecording, isEditorOpen, isRecording]);
-
-    // Use search results when searching, otherwise use all recordings
-    const displayedRecordings = searchQuery.trim() ? searchResults : recordings;
-
-    // Find active recording - check both search results and full recordings
-    const activeRecording = selectedId
-        ? (searchResults.find(r => r.id === selectedId) || recordings.find(r => r.id === selectedId))
-        : null;
 
     // Check if user has Business+ plan for call button
     const showCallButton = user?.subscription?.planId === 'business_plus';
