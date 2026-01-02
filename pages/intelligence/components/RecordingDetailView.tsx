@@ -242,43 +242,47 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         setExportOpen(true);
     };
 
-    const handleDownloadAudio = async () => {
+
+    const handleDownloadAudio = () => {
         console.log('[RecordingDetailView] Starting audio download:', recording.title);
         if (!signedAudioUrl) {
             alert('Audio no disponible para descargar. Espera unos segundos y vuelve a intentar.');
             return;
         }
 
-        try {
-            // Extract file extension from the original audio URL
-            const urlParts = (recording.audioUrl || '').split('.');
-            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1].split('?')[0] : 'wav';
-            const fileName = `${recording.title || 'audio'}.${fileExtension}`;
-            console.log('[RecordingDetailView] Download filename:', fileName);
+        // Extract file extension from the original audio URL
+        const urlParts = (recording.audioUrl || '').split('.');
+        const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1].split('?')[0] : 'wav';
+        const fileName = `${recording.title || 'audio'}.${fileExtension}`;
+        console.log('[RecordingDetailView] Download filename:', fileName);
 
-            // Use a simpler approach: direct link with download attribute
-            // This works better with browser security policies
-            const link = document.createElement('a');
-            link.href = signedAudioUrl;
-            link.download = fileName;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
+        // Use fetch with .then() to maintain user gesture
+        fetch(signedAudioUrl)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.blob();
+            })
+            .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName;
 
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-
-            // Cleanup
-            setTimeout(() => {
+                document.body.appendChild(link);
+                link.click();
                 document.body.removeChild(link);
-            }, 100);
 
-            console.log('[RecordingDetailView] Download initiated successfully');
-        } catch (error) {
-            console.error('[RecordingDetailView] Error downloading audio:', error);
-            alert('Error al descargar el audio. Por favor intenta de nuevo.');
-        }
+                // Revoke after delay
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+                console.log('[RecordingDetailView] Download initiated successfully');
+            })
+            .catch(error => {
+                console.error('[RecordingDetailView] Error downloading audio:', error);
+                alert('Error al descargar el audio. Por favor intenta de nuevo.');
+            });
     };
+
 
 
 
