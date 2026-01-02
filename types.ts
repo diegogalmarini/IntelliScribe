@@ -11,6 +11,24 @@ export interface MediaItem {
   name: string;
 }
 
+export interface TemporalSegmentMetadata {
+  originalFile: string;
+  recordedAt: string; // ISO timestamp of when this specific audio was recorded
+  speaker: string;
+  segmentStartIndex: number; // Index where this audio's segments start
+  segmentEndIndex: number; // Index where this audio's segments end
+}
+
+export interface RecordingMetadata {
+  type?: 'single' | 'multi-audio' | 'continuous';
+  segments?: TemporalSegmentMetadata[]; // For multi-audio recordings
+  pauses?: Array<{ // For future Phase 2
+    pausedAt: string;
+    resumedAt: string;
+    durationSeconds: number;
+  }>;
+}
+
 export interface TranscriptSegment {
   id: string;
   timestamp: string;
@@ -36,6 +54,7 @@ export interface Recording {
   folderId?: string; // New field for filtering
   notes?: NoteItem[];
   media?: MediaItem[];
+  metadata?: RecordingMetadata; // Temporal metadata for multi-audio and pauses
 }
 
 export interface ChatMessage {

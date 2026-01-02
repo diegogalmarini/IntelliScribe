@@ -793,54 +793,109 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {segments.map((segment) => (
-                                    <div key={segment.id} className="flex gap-6 group hover:bg-black/[0.02] dark:hover:bg-white/[0.02] p-4 -mx-4 rounded-xl transition-all duration-200">
-                                        <div className="flex-shrink-0 w-12 pt-1">
-                                            <button
-                                                onClick={() => {
-                                                    if (audioRef.current) {
-                                                        const time = timeToSeconds(segment.timestamp);
-                                                        audioRef.current.currentTime = time;
-                                                        setCurrentTime(time);
-                                                        audioRef.current.play();
-                                                        setIsPlaying(true);
-                                                    }
-                                                }}
-                                                className="text-[11px] font-mono font-medium text-[#8e8e8e] hover:text-blue-600 transition-colors"
-                                            >
-                                                {segment.timestamp}
-                                            </button>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-0.5">
-                                                {renamingSpeakerId === segment.id ? (
-                                                    <input
-                                                        type="text"
-                                                        value={newSpeakerName}
-                                                        onChange={(e) => setNewSpeakerName(e.target.value)}
-                                                        onBlur={() => handleRenameSpeaker(segment.speaker)}
-                                                        onKeyDown={(e) => e.key === 'Enter' && handleRenameSpeaker(segment.speaker)}
-                                                        autoFocus
-                                                        className="bg-primary/20 border border-primary/40 text-[10px] font-black uppercase tracking-wider text-primary px-1.5 py-0.5 rounded outline-none w-24"
-                                                    />
-                                                ) : (
-                                                    <span
+                                {segments.map((segment, index) => {
+                                    // Check for temporal metadata matches
+                                    const temporalMeta = recording.metadata?.segments?.find(
+                                        meta => meta.segmentStartIndex === index
+                                    );
+
+                                    // Calculate significant time gap (> 5 hours) from previous segment
+                                    let timeGapDisplay = null;
+                                    if (temporalMeta && index > 0 && recording.metadata?.segments) {
+                                        const prevMeta = recording.metadata.segments.find(m => m.segmentEndIndex === index);
+                                        if (prevMeta) {
+                                            const prevDate = new Date(prevMeta.recordedAt);
+                                            const currDate = new Date(temporalMeta.recordedAt);
+                                            const diffHours = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60);
+
+                                            if (diffHours > 24) {
+                                                const diffDays = Math.floor(diffHours / 24);
+                                                timeGapDisplay = `${diffDays} día${diffDays > 1 ? 's' : ''} después`;
+                                            } else if (diffHours > 1) {
+                                                timeGapDisplay = `${Math.floor(diffHours)} horas después`;
+                                            }
+                                        }
+                                    }
+
+                                    return (
+                                        <React.Fragment key={segment.id}>
+                                            {/* Date Separator */}
+                                            {temporalMeta && (
+                                                <div className="relative py-6 flex items-center justify-center">
+                                                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                        <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
+                                                    </div>
+                                                    <div className="relative flex flex-col items-center gap-1 bg-slate-50 dark:bg-[#1a1a1a] px-4">
+                                                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-1.5 shadow-sm">
+                                                            <span className="material-symbols-outlined text-sm">calendar_today</span>
+                                                            {new Date(temporalMeta.recordedAt).toLocaleDateString('es-ES', {
+                                                                weekday: 'long',
+                                                                year: 'numeric',
+                                                                month: 'long',
+                                                                day: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit'
+                                                            })}
+                                                        </span>
+                                                        {timeGapDisplay && (
+                                                            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-500 flex items-center gap-1">
+                                                                <span className="material-symbols-outlined text-[12px]">schedule</span>
+                                                                {timeGapDisplay}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="flex gap-6 group hover:bg-black/[0.02] dark:hover:bg-white/[0.02] p-4 -mx-4 rounded-xl transition-all duration-200">
+                                                <div className="flex-shrink-0 w-12 pt-1">
+                                                    <button
                                                         onClick={() => {
-                                                            setRenamingSpeakerId(segment.id);
-                                                            setNewSpeakerName(segment.speaker);
+                                                            if (audioRef.current) {
+                                                                const time = timeToSeconds(segment.timestamp);
+                                                                audioRef.current.currentTime = time;
+                                                                setCurrentTime(time);
+                                                                audioRef.current.play();
+                                                                setIsPlaying(true);
+                                                            }
                                                         }}
-                                                        className={`text-[10px] font-black uppercase tracking-[0.15em] cursor-pointer hover:underline px-0.5 transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}
+                                                        className="text-[11px] font-mono font-medium text-[#8e8e8e] hover:text-blue-600 transition-colors"
                                                     >
-                                                        {formatSpeakerName(segment.speaker)}
-                                                    </span>
-                                                )}
+                                                        {segment.timestamp}
+                                                    </button>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                        {renamingSpeakerId === segment.id ? (
+                                                            <input
+                                                                type="text"
+                                                                value={newSpeakerName}
+                                                                onChange={(e) => setNewSpeakerName(e.target.value)}
+                                                                onBlur={() => handleRenameSpeaker(segment.speaker)}
+                                                                onKeyDown={(e) => e.key === 'Enter' && handleRenameSpeaker(segment.speaker)}
+                                                                autoFocus
+                                                                className="bg-primary/20 border border-primary/40 text-[10px] font-black uppercase tracking-wider text-primary px-1.5 py-0.5 rounded outline-none w-24"
+                                                            />
+                                                        ) : (
+                                                            <span
+                                                                onClick={() => {
+                                                                    setRenamingSpeakerId(segment.id);
+                                                                    setNewSpeakerName(segment.speaker);
+                                                                }}
+                                                                className={`text-[10px] font-black uppercase tracking-[0.15em] cursor-pointer hover:underline px-0.5 transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}
+                                                            >
+                                                                {formatSpeakerName(segment.speaker)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-slate-700 dark:text-slate-300 leading-normal text-sm lg:text-[15px] font-medium tracking-tight whitespace-pre-wrap">
+                                                        {segment.text}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <p className="text-slate-700 dark:text-slate-300 leading-normal text-sm lg:text-[15px] font-medium tracking-tight whitespace-pre-wrap">
-                                                {segment.text}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
+                                        </React.Fragment>
+                                    );
+                                })}
                             </div>
                         )}
 
