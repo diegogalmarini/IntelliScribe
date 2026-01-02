@@ -246,29 +246,28 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
 
 
-    const handleDownloadAudio = async () => {
+    const handleDownloadAudio = () => {
         console.log('[RecordingDetailView] Starting audio download:', recording.title);
         if (!recording.audioUrl) {
             alert('Audio no disponible para descargar');
             return;
         }
 
-        try {
-            // Extract file extension from the original audio URL
-            const urlParts = recording.audioUrl.split('.');
-            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
-            const fileName = `${recording.title || 'audio'}.${fileExtension}`;
-            console.log('[RecordingDetailView] Download filename:', fileName);
+        // Extract file extension from the original audio URL
+        const urlParts = recording.audioUrl.split('.');
+        const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
+        const fileName = `${recording.title || 'audio'}.${fileExtension}`;
+        console.log('[RecordingDetailView] Download filename:', fileName);
 
-            // Get user session for authentication
-            const { data: { session } } = await supabase.auth.getSession();
+        // Get user session for authentication using .then() to preserve user gesture
+        supabase.auth.getSession().then(({ data: { session } }) => {
             if (!session) {
                 alert('Por favor inicia sesión para descargar audio');
                 return;
             }
 
             // Call Edge Function with authentication
-            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/download-audio`, {
+            fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/download-audio`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${session.access_token}`,
@@ -278,35 +277,38 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                     recordingId: recording.id,
                     fileName: fileName,
                 }),
-            });
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(error => {
+                            throw new Error(error.error || 'Download failed');
+                        });
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link and trigger it
+                    // This remains in the user gesture context because it's part of the promise chain
+                    // initiated by the button click
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = fileName;
+                    link.style.display = 'none';
 
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Download failed');
-            }
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
 
-            // Get blob from response
-            const blob = await response.blob();
-
-            // Create download link
-            const blobUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = fileName;
-            link.style.display = 'none';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Cleanup
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-
-            console.log('[RecordingDetailView] Download initiated successfully');
-        } catch (error) {
-            console.error('[RecordingDetailView] Error downloading audio:', error);
-            alert('Error al descargar el audio: ' + (error as Error).message);
-        }
+                    // Cleanup
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                    console.log('[RecordingDetailView] Download initiated successfully');
+                })
+                .catch(error => {
+                    console.error('[RecordingDetailView] Error downloading audio:', error);
+                    alert('Error al descargar el audio: ' + error.message);
+                });
+        });
     };
 
 
