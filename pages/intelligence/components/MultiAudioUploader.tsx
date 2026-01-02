@@ -178,10 +178,17 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
     };
 
     const handleProcessFinal = () => {
+        console.log('[MultiAudioUploader] handleProcessFinal called');
+        console.log('[MultiAudioUploader] audioFiles:', audioFiles.length);
+        console.log('[MultiAudioUploader] speakerMapping:', speakerMapping);
+
+        // Apply speaker mapping
         const mappedFiles = audioFiles.map(file => ({
             ...file,
             assignedSpeaker: speakerMapping[file.assignedSpeaker] || file.assignedSpeaker
         }));
+
+        console.log('[MultiAudioUploader] Calling onProcess with:', mappedFiles);
         onProcess(mappedFiles);
     };
 

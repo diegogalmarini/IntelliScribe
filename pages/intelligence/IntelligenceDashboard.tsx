@@ -146,9 +146,11 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleProcessMultiAudio = async (files: any[]) => {
+        console.log('[Dashboard] handleProcessMultiAudio called with files:', files);
         try {
             setIsProcessingMultiAudio(true);
 
+            console.log('[Dashboard] Starting audio concatenation...');
             // 1. Concatenate audios into single MP3
             const audioFiles = files.map(f => f.file);
             const { blob, segmentOffsets, totalDuration } = await concatenateAudios(audioFiles);
