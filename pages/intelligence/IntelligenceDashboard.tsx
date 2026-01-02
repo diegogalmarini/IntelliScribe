@@ -412,20 +412,16 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             ? (searchResults.find(r => r.id === selectedId) || recordings.find(r => r.id === selectedId))
             : null;
 
-    // Auto-open InlineEditor when activeRecording changes (e.g., from LiveRecording page)
-    // This ensures the new editor shows instead of RecordingDetailView (old editor)
-    useEffect(() => {
-        if (activeRecording && !isEditorOpen && !isRecording) {
-            // Only auto-open if we have a recording, editor is closed, and we're not currently recording
-            // Check if this recording has a transcript - if yes, open editor directly
-            if (activeRecording.segments && activeRecording.segments.length > 0) {
-                console.log('[Dashboard] Auto-opening editor for', activeRecording.id);
-                setIsEditorOpen(true);
-            }
-            // If no transcript yet, user will see RecordingDetailView with "Generate Transcript" button
-            // They can manually open editor by clicking transcript button which calls handleNavigateToEditor
-        }
-    }, [activeRecording, isEditorOpen, isRecording]);
+
+    // DISABLED: Auto-open InlineEditor - User wants RecordingDetailView as default
+    // useEffect(() => {
+    //     if (activeRecording && !isEditorOpen && !isRecording) {
+    //         if (activeRecording.segments && activeRecording.segments.length > 0) {
+    //             console.log('[Dashboard] Auto-opening editor for', activeRecording.id);
+    //             setIsEditorOpen(true);
+    //         }
+    //     }
+    // }, [activeRecording, isEditorOpen, isRecording]);
 
     // Check if user has Business+ plan for call button
     const showCallButton = user?.subscription?.planId === 'business_plus';
