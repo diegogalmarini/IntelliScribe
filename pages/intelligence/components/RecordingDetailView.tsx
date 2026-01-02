@@ -288,21 +288,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                     return response.blob();
                 })
                 .then(blob => {
-                    // Create download link and trigger it
-                    // This remains in the user gesture context because it's part of the promise chain
-                    // initiated by the button click
-                    const blobUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.download = fileName;
-                    link.style.display = 'none';
-
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    // Cleanup
-                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                    // Use file-saver's saveAs for reliable cross-browser downloads
+                    saveAs(blob, fileName);
                     console.log('[RecordingDetailView] Download initiated successfully');
                 })
                 .catch(error => {
