@@ -1,7 +1,7 @@
 interface ConcatenationResult {
     blob: Blob;
-    segment Offsets: number[];
-totalDuration: number;
+    segmentOffsets: number[];
+    totalDuration: number;
 }
 
 export const concatenateAudios = async (
@@ -52,44 +52,67 @@ export const concatenateAudios = async (
         offset += buffer.length;
     }
 
-    console.log('[audioConcat] Encoding...');
+    console.log('[audioConcat] Encoding to WAV...');
 
-    const audioBlob = await encodeWithMediaRecorder(concatenatedBuffer, sampleRate);
+    const audioBlob = audioBufferToWav(concatenatedBuffer);
+
+    console.log('[audioConcat] Encoding complete, blob size:', audioBlob.size, 'bytes');
 
     segmentOffsets.pop();
 
     return { blob: audioBlob, segmentOffsets, totalDuration };
 };
 
-const encodeWithMediaRecorder = async (audioBuffer: AudioBuffer, sampleRate: number): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-        const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, sampleRate);
-        const source = offlineContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(offlineContext.destination);
-        source.start(0);
+function audioBufferToWav(buffer: AudioBuffer): Blob {
+    const numberOfChannels = buffer.numberOfChannels;
+    const length = buffer.length * numberOfChannels * 2 + 44;
+    const arrayBuffer = new ArrayBuffer(length);
+    const view = new DataView(arrayBuffer);
+    const channels = [];
+    let offset = 0;
+    let pos = 0;
 
-        offlineContext.startRendering().then(renderedBuffer => {
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const source2 = audioContext.createBufferSource();
-            source2.buffer = renderedBuffer;
-            const dest = audioContext.createMediaStreamDestination();
-            source2.connect(dest);
+    function setUint16(data: number) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
 
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-            const mediaRecorder = new MediaRecorder(dest.stream, { mimeType, audioBitsPerSecond: 128000 });
-            const chunks: Blob[] = [];
+    function setUint32(data: number) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
 
-            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-            mediaRecorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
-            mediaRecorder.onerror = reject;
+    setUint32(0x46464952);
+    setUint32(length - 8);
+    setUint32(0x45564157);
 
-            mediaRecorder.start();
-            source2.start(0);
-            setTimeout(() => { mediaRecorder.stop(); source2.stop(); }, renderedBuffer.duration * 1000 + 100);
-        }).catch(reject);
-    });
-};
+    setUint32(0x20746d66);
+    setUint32(16);
+    setUint16(1);
+    setUint16(numberOfChannels);
+    setUint32(buffer.sampleRate);
+    setUint32(buffer.sampleRate * numberOfChannels * 2);
+    setUint16(numberOfChannels * 2);
+    setUint16(16);
+
+    setUint32(0x61746164);
+    setUint32(length - pos - 4);
+
+    for (let i = 0; i < numberOfChannels; i++) {
+        channels.push(buffer.getChannelData(i));
+    }
+
+    while (pos < length) {
+        for (let i = 0; i < numberOfChannels; i++) {
+            const sample = Math.max(-1, Math.min(1, channels[i][offset]));
+            view.setInt16(pos, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+            pos += 2;
+        }
+        offset++;
+    }
+
+    return new Blob([arrayBuffer], { type: 'audio/wav' });
+}
 
 export const formatTimeFromSeconds = (seconds: number): string => {
     const h = Math.floor(seconds / 3600);
