@@ -194,7 +194,29 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 });
             });
 
-            // 6. Create recording
+            // 6. Build temporal metadata
+            const temporalSegments: any[] = [];
+            let currentSegmentStart = 0;
+
+            files.forEach((file: any, idx: number) => {
+                const segmentEnd = idx < files.length - 1 ?
+                    allSegments.findIndex(s => files[idx + 1] && timeToSeconds(s.timestamp) >= segmentOffsets[idx + 1]) :
+                    allSegments.length;
+
+                temporalSegments.push({
+                    originalFile: file.filename,
+                    recordedAt: file.extractedDate ? new Date(file.extractedDate).toISOString() : new Date().toISOString(),
+                    speaker: file.assignedSpeaker,
+                    segmentStartIndex: currentSegmentStart,
+                    segmentEndIndex: segmentEnd
+                });
+
+                currentSegmentStart = segmentEnd;
+            });
+
+            console.log('[Dashboard] Temporal metadata:', temporalSegments);
+
+            // 7. Create recording
             const h = Math.floor(totalDuration / 3600).toString().padStart(2, '0');
             const m = Math.floor((totalDuration % 3600) / 60).toString().padStart(2, '0');
             const s = Math.floor(totalDuration % 60).toString().padStart(2, '0');
@@ -214,14 +236,20 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 summary: null,
                 segments: allSegments,
                 notes: [],
-                media: []
+                media: [],
+                metadata: {
+                    type: 'multi-audio',
+                    segments: temporalSegments
+                }
             };
 
-            // 7. Save to database
+            console.log('[Dashboard] Recording with metadata:', recording);
+
+            // 8. Save to database
             const createdRecording = await databaseService.createRecording(recording);
             if (!createdRecording) throw new Error('Failed to create recording');
 
-            // 8. Update state and navigate
+            // 9. Update state and navigate
             console.log('[Dashboard] Recording created:', createdRecording.id);
             console.log('[Dashboard] Opening InlineEditor...');
             setShowMultiAudioUploader(false);
