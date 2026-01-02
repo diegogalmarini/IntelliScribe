@@ -1,10 +1,10 @@
 import React from 'react';
-import { Mic, Upload, MessageSquare } from 'lucide-react';
+import { Mic, Upload, MessageSquare, MessageCircle } from 'lucide-react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface EmptyStateCleanProps {
     userName: string;
-    onAction: (type: 'record' | 'upload' | 'whatsapp') => void;
+    onAction: (type: 'record' | 'upload' | 'multiaudio') => void;
 }
 
 export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
@@ -25,9 +25,9 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
             label: t('uploadFile') || 'Subir Archivo',
         },
         {
-            type: 'whatsapp' as const,
-            icon: MessageSquare,
-            label: 'Conversación WhatsApp',
+            type: 'multiaudio' as const,
+            icon: MessageCircle,
+            label: 'Multi-Audio',
         },
     ];
 
