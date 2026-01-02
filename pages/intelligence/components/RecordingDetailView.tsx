@@ -258,19 +258,6 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
-            // Determine MIME type based on extension
-            const mimeTypes: Record<string, string> = {
-                'mp3': 'audio/mpeg',
-                'webm': 'audio/webm',
-                'wav': 'audio/wav',
-                'm4a': 'audio/mp4',
-                'aac': 'audio/aac',
-                'ogg': 'audio/ogg',
-                'opus': 'audio/opus',
-                'flac': 'audio/flac'
-            };
-            const mimeType = mimeTypes[fileExtension.toLowerCase()] || 'audio/mpeg';
-
             // Download file directly from Supabase Storage
             const { data, error } = await supabase.storage
                 .from('recordings')
@@ -279,9 +266,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             if (error) throw error;
 
             if (data) {
-                // Create a properly typed blob
-                const typedBlob = new Blob([data], { type: mimeType });
-                const blobUrl = URL.createObjectURL(typedBlob);
+                // Use the blob as-is from Storage (preserves original Content-Type)
+                const blobUrl = URL.createObjectURL(data);
 
                 const link = document.createElement('a');
                 link.style.display = 'none';
