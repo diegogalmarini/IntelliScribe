@@ -843,6 +843,109 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                 ))}
                             </div>
                         )}
+
+                        {/* Notes and Media Section */}
+                        {(recording.notes && recording.notes.length > 0) || (recording.media && recording.media.length > 0) ? (
+                            <div className="mt-12 pt-8 border-t border-slate-200 dark:border-white/5">
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">note</span>
+                                    {t('notesAndAttachments') || 'Notas y Adjuntos'}
+                                </h3>
+
+                                {/* Notes */}
+                                {recording.notes && recording.notes.length > 0 && (
+                                    <div className="mb-8 space-y-3">
+                                        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                            {t('notes') || 'Notas'}
+                                        </h4>
+                                        {recording.notes.map((note) => (
+                                            <div key={note.id} className="flex gap-4 items-start p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-200 dark:border-amber-800/30">
+                                                <div className="flex-shrink-0">
+                                                    <button
+                                                        onClick={() => {
+                                                            const timestamp = note.timestamp;
+                                                            const parts = timestamp.split(':');
+                                                            let seconds = 0;
+                                                            if (parts.length === 2) {
+                                                                seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                                                            }
+                                                            if (audioRef.current) {
+                                                                audioRef.current.currentTime = seconds;
+                                                                setCurrentTime(seconds);
+                                                                audioRef.current.play();
+                                                                setIsPlaying(true);
+                                                            }
+                                                        }}
+                                                        className="text-xs font-mono font-bold text-amber-700 dark:text-amber-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                    >
+                                                        {note.timestamp}
+                                                    </button>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                        {note.text}
+                                                    </p>
+                                                </div>
+                                                <div className="flex-shrink-0">
+                                                    <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 text-lg">edit_note</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Media Attachments */}
+                                {recording.media && recording.media.length > 0 && (
+                                    <div className="space-y-3">
+                                        <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                            {t('mediaAttachments') || 'Archivos Adjuntos'}
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {recording.media.map((media) => (
+                                                <div key={media.id} className="flex flex-col gap-3 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-800/30">
+                                                    <div className="flex items-center justify-between">
+                                                        <button
+                                                            onClick={() => {
+                                                                const timestamp = media.timestamp;
+                                                                const parts = timestamp.split(':');
+                                                                let seconds = 0;
+                                                                if (parts.length === 2) {
+                                                                    seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                                                                }
+                                                                if (audioRef.current) {
+                                                                    audioRef.current.currentTime = seconds;
+                                                                    setCurrentTime(seconds);
+                                                                    audioRef.current.play();
+                                                                    setIsPlaying(true);
+                                                                }
+                                                            }}
+                                                            className="text-xs font-mono font-bold text-blue-700 dark:text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                        >
+                                                            {media.timestamp}
+                                                        </button>
+                                                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-500 text-lg">image</span>
+                                                    </div>
+
+                                                    {/* Image Preview */}
+                                                    <div className="relative rounded-lg overflow-hidden bg-white dark:bg-slate-800">
+                                                        <img
+                                                            src={media.url}
+                                                            alt={media.name}
+                                                            className="w-full h-auto max-h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                            onClick={() => window.open(media.url, '_blank')}
+                                                        />
+                                                    </div>
+
+                                                    <p className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">
+                                                        {media.name}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
                     </div>
                 </main>
             </div>
