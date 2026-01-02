@@ -72,6 +72,33 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     };
 
+    // Convert timestamp string (MM:SS or HH:MM:SS) to seconds
+    const timestampToSeconds = (timestamp: string): number => {
+        const parts = timestamp.split(':').map(p => parseInt(p, 10));
+        if (parts.length === 2) {
+            // MM:SS
+            return parts[0] * 60 + parts[1];
+        } else if (parts.length === 3) {
+            // HH:MM:SS
+            return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        }
+        return 0;
+    };
+
+    // Handle timestamp click to seek audio
+    const handleTimestampClick = (timestamp: string) => {
+        if (audioRef.current) {
+            const seconds = timestampToSeconds(timestamp);
+            audioRef.current.currentTime = seconds;
+            setCurrentTime(seconds);
+            // Optionally start playing
+            if (!isPlaying) {
+                audioRef.current.play();
+                setIsPlaying(true);
+            }
+        }
+    };
+
     const togglePlay = () => {
         if (audioRef.current) {
             if (isPlaying) {
@@ -489,9 +516,13 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                                             {/* Segment Content */}
                                             <div className="flex gap-4">
-                                                <span className="text-[11px] text-[#8e8e8e] font-mono shrink-0 w-16">
+                                                <button
+                                                    onClick={() => handleTimestampClick(segment.timestamp)}
+                                                    className="text-[11px] text-[#8e8e8e] hover:text-blue-600 dark:hover:text-blue-400 font-mono shrink-0 w-16 text-left cursor-pointer hover:underline transition-colors"
+                                                    title="Click para saltar a este momento"
+                                                >
                                                     {segment.timestamp}
-                                                </span>
+                                                </button>
                                                 <div className="flex-1">
                                                     <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
                                                         {editingSpeaker === segment.speaker ? (
