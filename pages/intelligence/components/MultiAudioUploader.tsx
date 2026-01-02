@@ -27,6 +27,20 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
     const [playingId, setPlayingId] = useState<string | null>(null);
     const audioRefs = useRef<Record<string, HTMLAudioElement>>({});
 
+    // Predefined speaker options
+    const speakerOptions = [
+        'Hablante 1',
+        'Hablante 2',
+        'Hablante 3',
+        'Hablante 4',
+        'Hablante 5',
+        'Hablante 6',
+        'Hablante 7',
+        'Hablante 8',
+        'Hablante 9',
+        'Hablante 10'
+    ];
+
     const parseWhatsAppFilename = (filename: string): Date | null => {
         const match = filename.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
         if (!match) return null;
@@ -227,11 +241,8 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
                                 <div className="space-y-3">
                                     {audioFiles.map((audio, index) => (
                                         <div key={audio.id} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800">
-                                            <button onClick={() => togglePlayAudio(audio.id)} className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold hover:bg-blue-600 transition-all relative group" title="Click para escuchar">
-                                                {playingId === audio.id ? <Pause size={16} /> : <>{index + 1}</>}
-                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                                    {playingId === audio.id ? 'Pausar' : 'Escuchar'}
-                                                </div>
+                                            <button onClick={() => togglePlayAudio(audio.id)} className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-blue-600 transition-all" title="Click para escuchar">
+                                                {playingId === audio.id ? <Pause size={20} /> : <Play size={20} className="ml-0.5" />}
                                             </button>
 
                                             <div className="flex-1 min-w-0 space-y-2">
@@ -244,7 +255,16 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
 
                                                 <div className="flex items-center gap-2">
                                                     <User size={16} className="text-slate-400 flex-shrink-0" />
-                                                    <input type="text" value={audio.assignedSpeaker} onChange={(e) => updateSpeaker(audio.id, e.target.value)} placeholder="Escribe el nombre (ej: Diego, Gonzalo, Speaker 1...)" className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                                                    <select
+                                                        value={audio.assignedSpeaker}
+                                                        onChange={(e) => updateSpeaker(audio.id, e.target.value)}
+                                                        className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                                    >
+                                                        <option value="">Seleccionar hablante...</option>
+                                                        {speakerOptions.map(speaker => (
+                                                            <option key={speaker} value={speaker}>{speaker}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
 
