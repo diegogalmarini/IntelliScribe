@@ -121,8 +121,8 @@ export const databaseService = {
 
     async getRecordings(userId: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
         // FULL QUERY - Índices confirmados en Supabase ✅
-        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields AND audio_url (Lazy Load)
-        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at'; // Removed audio_url
+        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields AND audio_url (Lazy Load) - Added metadata for temporal features
+        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, metadata'; // Removed audio_url
 
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
@@ -170,7 +170,8 @@ export const databaseService = {
                 notes: [],
                 media: [],
                 summary: undefined,
-                created_at: r.created_at
+                created_at: r.created_at,
+                metadata: undefined // Fallback has no metadata
             }));
         }
 
@@ -191,7 +192,8 @@ export const databaseService = {
             segments: [],
             notes: [],
             media: [],
-            summary: undefined
+            summary: undefined,
+            metadata: r.metadata // Pass through metadata
         }));
     },
 
@@ -271,7 +273,7 @@ export const databaseService = {
     async getRecordingDetails(id: string): Promise<Recording | null> {
         const { data: r, error } = await supabase
             .from('recordings')
-            .select('id, title, description, date, duration, duration_seconds, status, tags, participants, audio_url, summary, segments, folder_id, notes, media, created_at')
+            .select('id, title, description, date, duration, duration_seconds, status, tags, participants, audio_url, summary, segments, folder_id, notes, media, created_at, metadata')
             .eq('id', id)
             .single();
 
@@ -295,7 +297,8 @@ export const databaseService = {
             segments: r.segments || [],
             folderId: r.folder_id || undefined,
             notes: r.notes || [],
-            media: r.media || []
+            media: r.media || [],
+            metadata: r.metadata // Pass through metadata
         };
     },
 
