@@ -8,6 +8,7 @@ import { RecordingDetailView } from './components/RecordingDetailView';
 import { InlineRecorder } from './components/InlineRecorder';
 import { InlineEditor } from './components/InlineEditor';
 import { SubscriptionView } from './components/SubscriptionView';   // Added import
+import { MultiAudioUploader } from './components/MultiAudioUploader';  // NEW
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
