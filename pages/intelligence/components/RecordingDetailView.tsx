@@ -11,6 +11,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { generateMeetingSummary } from '../../../services/geminiService';
 import { getSignedAudioUrl } from '../../../services/storageService';
 import * as exportUtils from '../../../utils/exportUtils';
+import { supabase } from '../../../lib/supabase';
 
 interface RecordingDetailViewProps {
     recording: Recording;
@@ -242,27 +243,57 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     };
 
     const handleDownloadAudio = async () => {
-        if (!signedAudioUrl) {
+        if (!recording.audioUrl) {
             alert('Audio no disponible para descargar');
             return;
         }
 
         try {
-            // Extract extension from the original URL
-            const urlParts = recording.audioUrl?.split('.') || [];
-            const extension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
+            // Extract file extension from the original audio URL
+            const urlParts = recording.audioUrl.split('.');
+            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
+            const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
-            // Use signed URL to fetch
-            const response = await fetch(signedAudioUrl);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${recording.title || 'audio'}.${extension}`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            // Determine MIME type based on extension
+            const mimeTypes: Record<string, string> = {
+                'mp3': 'audio/mpeg',
+                'webm': 'audio/webm',
+                'wav': 'audio/wav',
+                'm4a': 'audio/mp4',
+                'aac': 'audio/aac',
+                'ogg': 'audio/ogg',
+                'opus': 'audio/opus',
+                'flac': 'audio/flac'
+            };
+            const mimeType = mimeTypes[fileExtension.toLowerCase()] || 'audio/mpeg';
+
+            // Download file directly from Supabase Storage using SDK
+            const { data, error } = await supabase.storage
+                .from('recordings')
+                .download(recording.audioUrl);
+
+            if (error) throw error;
+
+            if (data) {
+                // Create a properly typed blob
+                const typedBlob = new Blob([data], { type: mimeType });
+                const blobUrl = URL.createObjectURL(typedBlob);
+
+                const link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = blobUrl;
+                link.download = fileName;
+                link.setAttribute('download', fileName);
+
+                document.body.appendChild(link);
+                link.click();
+
+                // Cleanup after a short delay
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
+            }
         } catch (error) {
             console.error('Error downloading audio:', error);
             alert('Error al descargar el audio');
