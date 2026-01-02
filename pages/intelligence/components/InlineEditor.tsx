@@ -766,26 +766,30 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             {/* SCROLLABLE AREA: Transcript */}
             <div className="flex-1 overflow-y-auto relative bg-white dark:bg-[#1a1a1a]">
                 <main className="max-w-4xl mx-auto w-full px-6 py-8 mb-20">
-                    {/* DEBUG: Show warning if metadata is missing */}
-                    {recording.segments && recording.segments.length > 5 && !recording.metadata && (
-                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded-lg">
-                            <div className="flex items-start gap-3">
-                                <span className="text-2xl">⚠️</span>
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-red-900 dark:text-red-100 mb-1">
-                                        Falta ejecutar migración de base de datos
-                                    </h4>
-                                    <p className="text-sm text-red-800 dark:text-red-200 mb-2">
-                                        Esta grabación no tiene metadatos temporales porque falta agregar la columna 'metadata' en Supabase.
+                    {/* DEBUG: Always show metadata status */}
+                    <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-500 rounded-lg">
+                        <div className="flex items-start gap-3">
+                            <span className="text-2xl">🔍</span>
+                            <div className="flex-1 text-sm space-y-1 text-yellow-900 dark:text-yellow-100">
+                                <h4 className="font-bold mb-2">DEBUG: Estado de Metadata</h4>
+                                <p><strong>Recording ID:</strong> <code className="bg-yellow-100 dark:bg-yellow-900/40 px-1 rounded">{recording.id}</code></p>
+                                <p><strong>Metadata exists:</strong> {recording.metadata ? '✅ SÍ' : '❌ NO (ESTE ES EL PROBLEMA)'}</p>
+                                {recording.metadata && (
+                                    <>
+                                        <p><strong>Metadata.type:</strong> {recording.metadata.type || 'undefined'}</p>
+                                        <p><strong>Metadata.segments:</strong> {recording.metadata.segments ? `${recording.metadata.segments.length} items` : 'undefined'}</p>
+                                    </>
+                                )}
+                                {!recording.metadata && (
+                                    <p className="mt-2 p-2 bg-yellow-100 dark:bg-yellow-900/40 rounded text-xs">
+                                        ⚠️ Ejecuta en Supabase SQL Editor:<br />
+                                        <code>ALTER TABLE recordings ADD COLUMN metadata JSONB DEFAULT '{ }'::jsonb;</code>
                                     </p>
-                                    <p className="text-xs text-red-700 dark:text-red-300 font-mono bg-red-100 dark:bg-red-900/40 p-2 rounded">
-                                        Ejecuta en Supabase SQL Editor:<br />
-                                        ALTER TABLE recordings ADD COLUMN metadata JSONB DEFAULT '{ }'::jsonb;
-                                    </p>
-                                </div>
+                                )}
                             </div>
                         </div>
-                    )}
+                    </div>
+
 
                     <div className="min-h-[500px]">
                         {segments.length === 0 ? (
