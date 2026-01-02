@@ -431,6 +431,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     // Check if user has Business+ plan for call button
     const showCallButton = user?.subscription?.planId === 'business_plus';
 
+    console.log('[Dashboard Render] ActiveRec:', activeRecording?.id, 'IsEditorOpen:', isEditorOpen, 'TempRec:', tempRecording?.id, 'View:', view);
+
     return (
         <div className="flex h-screen bg-white dark:bg-[#1a1a1a] overflow-hidden">
             {/* Hidden file input for upload */}
