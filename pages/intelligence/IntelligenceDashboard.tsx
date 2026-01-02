@@ -155,16 +155,22 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const audioFiles = files.map(f => f.file);
             const { blob, segmentOffsets, totalDuration } = await concatenateAudios(audioFiles);
 
-            // 2. Upload concatenated MP3 to Supabase  
+            console.log('[Dashboard] Uploading WAV to Supabase...');
+            // 2. Upload concatenated WAV to Supabase  
             const audioUrl = await uploadAudio(blob, user.id!);
             if (!audioUrl) throw new Error('Failed to upload audio');
+            console.log('[Dashboard] Upload complete, URL:', audioUrl);
 
             // 3. Get signed URL for transcription
+            console.log('[Dashboard] Getting signed URL...');
             const signedUrl = await getSignedAudioUrl(audioUrl);
             if (!signedUrl) throw new Error('Failed to get signed URL');
+            console.log('[Dashboard] Signed URL obtained');
 
             // 4. Transcribe the full concatenated audio
-            const fullTranscription = await transcribeAudio(undefined, 'audio/mp3', 'es', signedUrl);
+            console.log('[Dashboard] Starting transcription...');
+            const fullTranscription = await transcribeAudio(undefined, 'audio/wav', 'es', signedUrl);
+            console.log('[Dashboard] Transcription complete, segments:', fullTranscription.length);
 
             // 5. Distribute segments to speakers based on time offsets
             const allSegments: any[] = [];
@@ -216,11 +222,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             if (!createdRecording) throw new Error('Failed to create recording');
 
             // 8. Update state and navigate
-            setView('recordings');
+            console.log('[Dashboard] Recording created:', createdRecording.id);
+            console.log('[Dashboard] Opening InlineEditor...');
             setShowMultiAudioUploader(false);
+            setView('recordings');
             setSelectedId(createdRecording.id);
             onSelectRecording(createdRecording.id);
             setIsEditorOpen(true); // Open InlineEditor
+            console.log('[Dashboard] Multi-audio process complete!');
 
         } catch (error: any) {
             console.error('[Multi-Audio] Processing failed:', error);
