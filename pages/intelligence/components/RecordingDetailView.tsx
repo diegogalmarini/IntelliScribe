@@ -12,6 +12,7 @@ import { generateMeetingSummary } from '../../../services/geminiService';
 import { getSignedAudioUrl } from '../../../services/storageService';
 import * as exportUtils from '../../../utils/exportUtils';
 import { supabase } from '../../../lib/supabase';
+import { saveAs } from 'file-saver';
 
 interface RecordingDetailViewProps {
     recording: Recording;
@@ -243,6 +244,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     };
 
 
+
     const handleDownloadAudio = () => {
         console.log('[RecordingDetailView] Starting audio download:', recording.title);
         if (!signedAudioUrl) {
@@ -256,25 +258,14 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         const fileName = `${recording.title || 'audio'}.${fileExtension}`;
         console.log('[RecordingDetailView] Download filename:', fileName);
 
-        // Use fetch with .then() to maintain user gesture
+        // Use FileSaver.js for reliable cross-browser downloads with correct filenames
         fetch(signedAudioUrl)
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.blob();
             })
             .then(blob => {
-                const blobUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = fileName;
-
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // Revoke after delay
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-
+                saveAs(blob, fileName);
                 console.log('[RecordingDetailView] Download initiated successfully');
             })
             .catch(error => {
@@ -282,6 +273,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                 alert('Error al descargar el audio. Por favor intenta de nuevo.');
             });
     };
+
 
 
 
