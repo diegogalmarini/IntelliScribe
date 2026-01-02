@@ -249,13 +249,17 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const createdRecording = await databaseService.createRecording(recording);
             if (!createdRecording) throw new Error('Failed to create recording');
 
-            // 9. Update state and navigate
+            // 8. Update state and navigate
             console.log('[Dashboard] Recording created:', createdRecording.id);
             console.log('[Dashboard] Opening InlineEditor...');
+
+            // Set temp recording to ensure immediate availability with fresh metadata
+            setTempRecording(createdRecording);
+
             setShowMultiAudioUploader(false);
             setView('recordings');
             setSelectedId(createdRecording.id);
-            onSelectRecording(createdRecording.id);
+            // onSelectRecording(createdRecording.id); // Removed to avoid overriding with stale parent data
             setIsEditorOpen(true); // Open InlineEditor
             console.log('[Dashboard] Multi-audio process complete!');
 
@@ -396,13 +400,18 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         return () => clearTimeout(timer);
     }, [searchQuery, onSearch]);
 
+    // Temporary recording state to show immediately after creation/update while waiting for backend sync
+    const [tempRecording, setTempRecording] = useState<Recording | null>(null);
+
     // Use search results when searching, otherwise use all recordings
     const displayedRecordings = searchQuery.trim() ? searchResults : recordings;
 
-    // Find active recording - check both search results and full recordings
-    const activeRecording = selectedId
-        ? (searchResults.find(r => r.id === selectedId) || recordings.find(r => r.id === selectedId))
-        : null;
+    // Find active recording - check temp, then search results, then full recordings
+    const activeRecording = (selectedId && tempRecording && tempRecording.id === selectedId)
+        ? tempRecording
+        : selectedId
+            ? (searchResults.find(r => r.id === selectedId) || recordings.find(r => r.id === selectedId))
+            : null;
 
     // Auto-open InlineEditor when activeRecording changes (e.g., from LiveRecording page)
     // This ensures the new editor shows instead of RecordingDetailView (old editor)
@@ -411,6 +420,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             // Only auto-open if we have a recording, editor is closed, and we're not currently recording
             // Check if this recording has a transcript - if yes, open editor directly
             if (activeRecording.segments && activeRecording.segments.length > 0) {
+                console.log('[Dashboard] Auto-opening editor for', activeRecording.id);
                 setIsEditorOpen(true);
             }
             // If no transcript yet, user will see RecordingDetailView with "Generate Transcript" button
