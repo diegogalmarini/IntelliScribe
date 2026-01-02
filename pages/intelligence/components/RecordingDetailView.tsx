@@ -256,54 +256,56 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         try {
             // Extract file extension from the original audio URL
             const urlParts = recording.audioUrl.split('.');
-            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
+            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
             console.log('[RecordingDetailView] Download filename:', fileName);
 
-            // Determine MIME type based on extension
-            const mimeTypes: Record<string, string> = {
-                'mp3': 'audio/mpeg',
-                'webm': 'audio/webm',
-                'wav': 'audio/wav',
-                'm4a': 'audio/mp4',
-                'aac': 'audio/aac',
-                'ogg': 'audio/ogg',
-                'opus': 'audio/opus',
-                'flac': 'audio/flac'
-            };
-            const mimeType = mimeTypes[fileExtension.toLowerCase()] || 'audio/mpeg';
-
-            // Download file directly from Supabase Storage (same as InlineEditor)
-            const { data, error } = await supabase.storage
-                .from('recordings')
-                .download(recording.audioUrl);
-
-            if (error) throw error;
-
-            if (data) {
-                // Create a properly typed blob
-                const typedBlob = new Blob([data], { type: mimeType });
-                const blobUrl = URL.createObjectURL(typedBlob);
-
-                const link = document.createElement('a');
-                link.style.display = 'none';
-                link.href = blobUrl;
-                link.download = fileName;
-                link.setAttribute('download', fileName);
-
-                document.body.appendChild(link);
-                link.click();
-
-                // Cleanup after a short delay
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(blobUrl);
-                }, 100);
-                console.log('[RecordingDetailView] Download initiated successfully');
+            // Get user session for authentication
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                alert('Por favor inicia sesión para descargar audio');
+                return;
             }
+
+            // Call Edge Function with authentication
+            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/download-audio`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    recordingId: recording.id,
+                    fileName: fileName,
+                }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Download failed');
+            }
+
+            // Get blob from response
+            const blob = await response.blob();
+
+            // Create download link
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            link.style.display = 'none';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Cleanup
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+
+            console.log('[RecordingDetailView] Download initiated successfully');
         } catch (error) {
             console.error('[RecordingDetailView] Error downloading audio:', error);
-            alert('Error al descargar el audio');
+            alert('Error al descargar el audio: ' + (error as Error).message);
         }
     };
 
