@@ -766,6 +766,27 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             {/* SCROLLABLE AREA: Transcript */}
             <div className="flex-1 overflow-y-auto relative bg-white dark:bg-[#1a1a1a]">
                 <main className="max-w-4xl mx-auto w-full px-6 py-8 mb-20">
+                    {/* DEBUG: Show warning if metadata is missing */}
+                    {recording.segments && recording.segments.length > 5 && !recording.metadata && (
+                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded-lg">
+                            <div className="flex items-start gap-3">
+                                <span className="text-2xl">⚠️</span>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-red-900 dark:text-red-100 mb-1">
+                                        Falta ejecutar migración de base de datos
+                                    </h4>
+                                    <p className="text-sm text-red-800 dark:text-red-200 mb-2">
+                                        Esta grabación no tiene metadatos temporales porque falta agregar la columna 'metadata' en Supabase.
+                                    </p>
+                                    <p className="text-xs text-red-700 dark:text-red-300 font-mono bg-red-100 dark:bg-red-900/40 p-2 rounded">
+                                        Ejecuta en Supabase SQL Editor:<br />
+                                        ALTER TABLE recordings ADD COLUMN metadata JSONB DEFAULT '{ }'::jsonb;
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="min-h-[500px]">
                         {segments.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-[50vh] text-center">
