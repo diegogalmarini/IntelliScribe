@@ -433,54 +433,110 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                             </div>
 
                             <div className="space-y-4">
-                                {recording.segments.map((segment, idx) => (
-                                    <div key={idx} className="flex gap-4">
-                                        <span className="text-[11px] text-[#8e8e8e] font-mono shrink-0 w-16">
-                                            {segment.timestamp}
-                                        </span>
-                                        <div className="flex-1">
-                                            <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
-                                                {editingSpeaker === segment.speaker ? (
-                                                    <span className="inline-flex items-center gap-1 mr-2">
-                                                        <input
-                                                            type="text"
-                                                            value={editedSpeakerName}
-                                                            onChange={(e) => setEditedSpeakerName(e.target.value)}
-                                                            className="text-blue-600 dark:text-blue-400 font-semibold bg-transparent border-b border-blue-500 focus:outline-none w-32"
-                                                            autoFocus
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === 'Enter') handleSaveSpeaker(segment.speaker!);
-                                                                if (e.key === 'Escape') handleCancelEditSpeaker();
-                                                            }}
-                                                        />
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); handleSaveSpeaker(segment.speaker!); }}
-                                                            className="p-0.5 hover:bg-green-500/10 rounded text-green-600"
-                                                        >
-                                                            <Check size={14} />
-                                                        </button>
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); handleCancelEditSpeaker(); }}
-                                                            className="p-0.5 hover:bg-red-500/10 rounded text-red-600"
-                                                        >
-                                                            <X size={14} />
-                                                        </button>
-                                                    </span>
-                                                ) : (
-                                                    <span
-                                                        className="font-semibold text-blue-600 dark:text-blue-400 mr-1 cursor-pointer hover:underline decoration-blue-400/50"
-                                                        onClick={() => onUpdateSpeaker && handleStartEditSpeaker(segment.speaker!)}
-                                                        title="Clic para cambiar nombre"
-                                                    >
-                                                        {segment.speaker}:
-                                                    </span>
-                                                )}
-                                                {segment.text}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
+                                {recording.segments.map((segment, idx) => {
+                                    // Check for temporal metadata matches
+                                    const temporalMeta = recording.metadata?.segments?.find(
+                                        meta => meta.segmentStartIndex === idx
+                                    );
+
+                                    // Calculate time gap from previous segment
+                                    let timeGapDisplay = null;
+                                    if (temporalMeta && idx > 0 && recording.metadata?.segments) {
+                                        const prevMeta = recording.metadata.segments.find(m => m.segmentEndIndex === idx);
+                                        if (prevMeta) {
+                                            const prevDate = new Date(prevMeta.recordedAt);
+                                            const currDate = new Date(temporalMeta.recordedAt);
+                                            const diffHours = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60);
+
+                                            if (diffHours > 24) {
+                                                const diffDays = Math.floor(diffHours / 24);
+                                                timeGapDisplay = `${diffDays} día${diffDays > 1 ? 's' : ''} después`;
+                                            } else if (diffHours > 1) {
+                                                timeGapDisplay = `${Math.floor(diffHours)} horas después`;
+                                            }
+                                        }
+                                    }
+
+                                    return (
+                                        <React.Fragment key={idx}>
+                                            {/* Date Separator */}
+                                            {temporalMeta && (
+                                                <div className="relative py-6 flex items-center justify-center">
+                                                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                        <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
+                                                    </div>
+                                                    <div className="relative flex flex-col items-center gap-1 bg-white dark:bg-[#2a2a2a] px-4">
+                                                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-1.5 shadow-sm">
+                                                            <Calendar size={14} />
+                                                            {new Date(temporalMeta.recordedAt).toLocaleDateString('es-ES', {
+                                                                weekday: 'long',
+                                                                year: 'numeric',
+                                                                month: 'long',
+                                                                day: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit'
+                                                            })}
+                                                        </span>
+                                                        {timeGapDisplay && (
+                                                            <span className="text-[10px] text-orange-600 dark:text-orange-400 italic flex items-center gap-1">
+                                                                <Clock size={12} />
+                                                                {timeGapDisplay}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Segment Content */}
+                                            <div className="flex gap-4">
+                                                <span className="text-[11px] text-[#8e8e8e] font-mono shrink-0 w-16">
+                                                    {segment.timestamp}
+                                                </span>
+                                                <div className="flex-1">
+                                                    <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
+                                                        {editingSpeaker === segment.speaker ? (
+                                                            <span className="inline-flex items-center gap-1 mr-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={editedSpeakerName}
+                                                                    onChange={(e) => setEditedSpeakerName(e.target.value)}
+                                                                    className="text-blue-600 dark:text-blue-400 font-semibold bg-transparent border-b border-blue-500 focus:outline-none w-32"
+                                                                    autoFocus
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter') handleSaveSpeaker(segment.speaker!);
+                                                                        if (e.key === 'Escape') handleCancelEditSpeaker();
+                                                                    }}
+                                                                />
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); handleSaveSpeaker(segment.speaker!); }}
+                                                                    className="p-0.5 hover:bg-green-500/10 rounded text-green-600"
+                                                                >
+                                                                    <Check size={14} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); handleCancelEditSpeaker(); }}
+                                                                    className="p-0.5 hover:bg-red-500/10 rounded text-red-600"
+                                                                >
+                                                                    <X size={14} />
+                                                                </button>
+                                                            </span>
+                                                        ) : (
+                                                            <span
+                                                                className="font-semibold text-blue-600 dark:text-blue-400 mr-1 cursor-pointer hover:underline decoration-blue-400/50"
+                                                                onClick={() => onUpdateSpeaker && handleStartEditSpeaker(segment.speaker!)}
+                                                                title="Clic para cambiar nombre"
+                                                            >
+                                                                {segment.speaker}:
+                                                            </span>
+                                                        )}
+                                                        {segment.text}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                })}
                             </div>
                         </div>
                     ) : (
