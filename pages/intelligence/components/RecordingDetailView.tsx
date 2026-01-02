@@ -256,26 +256,21 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
             console.log('[RecordingDetailView] Download filename:', fileName);
 
-            // Fetch the audio using the signed URL
-            const response = await fetch(signedAudioUrl);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-            const blob = await response.blob();
-
-            // Create blob URL and trigger download
-            const blobUrl = URL.createObjectURL(blob);
+            // Use a simpler approach: direct link with download attribute
+            // This works better with browser security policies
             const link = document.createElement('a');
-            link.href = blobUrl;
+            link.href = signedAudioUrl;
             link.download = fileName;
-            link.style.display = 'none';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
 
+            // Trigger download
             document.body.appendChild(link);
             link.click();
 
             // Cleanup
             setTimeout(() => {
                 document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
             }, 100);
 
             console.log('[RecordingDetailView] Download initiated successfully');
