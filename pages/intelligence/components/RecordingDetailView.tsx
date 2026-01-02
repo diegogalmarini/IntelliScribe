@@ -244,62 +244,44 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
     const handleDownloadAudio = async () => {
         console.log('[RecordingDetailView] Starting audio download:', recording.title);
-        if (!recording.audioUrl) {
-            alert('Audio no disponible para descargar');
+        if (!signedAudioUrl) {
+            alert('Audio no disponible para descargar. Espera unos segundos y vuelve a intentar.');
             return;
         }
 
         try {
             // Extract file extension from the original audio URL
-            const urlParts = recording.audioUrl.split('.');
-            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
+            const urlParts = (recording.audioUrl || '').split('.');
+            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1].split('?')[0] : 'wav';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
             console.log('[RecordingDetailView] Download filename:', fileName);
 
-            // Determine MIME type based on extension
-            const mimeTypes: Record<string, string> = {
-                'mp3': 'audio/mpeg',
-                'webm': 'audio/webm',
-                'wav': 'audio/wav',
-                'm4a': 'audio/mp4',
-                'aac': 'audio/aac',
-                'ogg': 'audio/ogg',
-                'opus': 'audio/opus',
-                'flac': 'audio/flac'
-            };
-            const mimeType = mimeTypes[fileExtension.toLowerCase()] || 'audio/mpeg';
+            // Fetch the audio using the signed URL
+            const response = await fetch(signedAudioUrl);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-            // Download file directly from Supabase Storage using SDK
-            const { data, error } = await supabase.storage
-                .from('recordings')
-                .download(recording.audioUrl);
+            const blob = await response.blob();
 
-            if (error) throw error;
+            // Create blob URL and trigger download
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            link.style.display = 'none';
 
-            if (data) {
-                // Create a properly typed blob
-                const typedBlob = new Blob([data], { type: mimeType });
-                const blobUrl = URL.createObjectURL(typedBlob);
+            document.body.appendChild(link);
+            link.click();
 
-                const link = document.createElement('a');
-                link.style.display = 'none';
-                link.href = blobUrl;
-                link.download = fileName;
-                link.setAttribute('download', fileName);
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            }, 100);
 
-                document.body.appendChild(link);
-                link.click();
-
-                // Cleanup after a short delay
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(blobUrl);
-                }, 100);
-                console.log('[RecordingDetailView] Download initiated successfully');
-            }
+            console.log('[RecordingDetailView] Download initiated successfully');
         } catch (error) {
             console.error('[RecordingDetailView] Error downloading audio:', error);
-            alert('Error al descargar el audio');
+            alert('Error al descargar el audio. Por favor intenta de nuevo.');
         }
     };
 
