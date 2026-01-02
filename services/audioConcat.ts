@@ -1,4 +1,4 @@
-import lamejs from 'lamejs';
+import * as lamejs from 'lamejs';
 
 interface ConcatenationResult {
     blob: Blob;
@@ -85,7 +85,7 @@ const encodeToMP3 = async (
     audioBuffer: AudioBuffer,
     sampleRate: number
 ): Promise<Blob> => {
-    const mp3encoder = new lamejs.Mp3Encoder(1, sampleRate, 128); // Mono, 128kbps
+    const mp3encoder = new (lamejs as any).Mp3Encoder(1, sampleRate, 128); // Mono, 128kbps
     const samples = audioBuffer.getChannelData(0);
 
     // Convert float32 to int16
