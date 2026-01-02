@@ -302,6 +302,9 @@ const AppContent: React.FC = () => {
         setRecordings(prev => [createdRecording, ...prev]);
         setActiveRecordingId(createdRecording.id);
 
+        // Navigate to dashboard to show the new recording in InlineEditor
+        navigate(AppRoute.DASHBOARD);
+
         fetchData();
         return createdRecording;
     };
