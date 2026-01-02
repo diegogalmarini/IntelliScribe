@@ -67,7 +67,7 @@ serve(async (req) => {
         // Fetch recording using service role (bypasses RLS)
         const { data: recording, error: recordingError } = await supabaseAdmin
             .from('recordings')
-            .select('audio_url, userId')
+            .select('audio_url, user_id')
             .eq('id', recordingId)
             .single()
 
@@ -80,8 +80,8 @@ serve(async (req) => {
         }
 
         // Verify ownership
-        if (recording.userId !== user.id) {
-            console.error('Ownership mismatch. Recording userId:', recording.userId, 'Auth userId:', user.id)
+        if (recording.user_id !== user.id) {
+            console.error('Ownership mismatch. Recording user_id:', recording.user_id, 'Auth userId:', user.id)
             return new Response(
                 JSON.stringify({ error: 'Unauthorized access to this recording' }),
                 { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
