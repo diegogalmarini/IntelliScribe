@@ -10,8 +10,9 @@ import { InlineEditor } from './components/InlineEditor';
 import { SubscriptionView } from './components/SubscriptionView';   // Added import
 import { MultiAudioUploader } from './components/MultiAudioUploader';  // NEW
 import { transcribeAudio } from '../../services/geminiService';
-import { getSignedAudioUrl } from '../../services/storageService';
+import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
+import { concatenateAudios, timeToSeconds } from '../../services/audioConcat';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
@@ -64,6 +65,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [isSearching, setIsSearching] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Multi-audio upload state
+    const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
+    const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false);
+
     // Format plan name for display
     const formatPlanName = (planId: string) => {
         const names: Record<string, string> = {
@@ -99,7 +104,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    const handleAction = (type: 'record' | 'upload') => {
+    const handleAction = (type: 'record' | 'upload' | 'whatsapp') => {
         if (type === 'record') {
             // Open inline recorder instead of navigating
             setIsRecording(true);
@@ -108,6 +113,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (type === 'upload') {
             // Trigger hidden file input click
             fileInputRef.current?.click();
+        }
+        if (type === 'whatsapp') {
+            // Open multi-audio uploader for WhatsApp conversations
+            setShowMultiAudioUploader(true);
         }
     };
 
@@ -134,6 +143,107 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 setIsRecording(false);
             }
         };
+    };
+
+    const handleProcessMultiAudio = async (files: any[]) => {
+        try {
+            setIsProcessingMultiAudio(true);
+
+            // 1. Concatenate audios into single MP3
+            const audioFiles = files.map(f => f.file);
+            const { blob, segmentOffsets, totalDuration } = await concatenateAudios(audioFiles);
+
+            // 2. Upload concatenated MP3 to Supabase  
+            const audioUrl = await uploadAudio(blob, user.id!);
+            if (!audioUrl) throw new Error('Failed to upload audio');
+
+            // 3. Get signed URL for transcription
+            const signedUrl = await getSignedAudioUrl(audioUrl);
+            if (!signedUrl) throw new Error('Failed to get signed URL');
+
+            // 4. Transcribe the full concatenated audio
+            const fullTranscription = await transcribeAudio(undefined, 'audio/mp3', 'es', signedUrl);
+
+            // 5. Distribute segments to speakers based on time offsets
+            const allSegments: any[] = [];
+            fullTranscription.forEach((seg, idx) => {
+                const segTime = timeToSeconds(seg.timestamp || '0:00');
+
+                // Find which audio file this segment belongs to
+                let speakerIndex = 0;
+                for (let j = 0; j < segmentOffsets.length; j++) {
+                    if (segTime >= segmentOffsets[j]) {
+                        speakerIndex = j;
+                    }
+                }
+
+                allSegments.push({
+                    id: `seg-${idx}`,
+                    timestamp: seg.timestamp || '00:00',
+                    speaker: files[speakerIndex].assignedSpeaker,
+                    text: seg.text || '',
+                    speakerColor: getSpeakerColor(files[speakerIndex].assignedSpeaker),
+                });
+            });
+
+            // 6. Create recording
+            const h = Math.floor(totalDuration / 3600).toString().padStart(2, '0');
+            const m = Math.floor((totalDuration % 3600) / 60).toString().padStart(2, '0');
+            const s = Math.floor(totalDuration % 60).toString().padStart(2, '0');
+
+            const recording: Recording = {
+                id: '',
+                folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+                title: `WhatsApp - ${new Date(files[0].extractedDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`,
+                description: `${files.length} audios de WhatsApp`,
+                date: new Date().toISOString(),
+                duration: `${h}:${m}:${s}`,
+                durationSeconds: Math.floor(totalDuration),
+                status: 'Completed',
+                tags: ['whatsapp', 'multi-audio'],
+                participants: new Set(files.map((f: any) => f.assignedSpeaker)).size,
+                audioUrl,
+                summary: null,
+                segments: allSegments,
+                notes: [],
+                media: []
+            };
+
+            // 7. Save to database
+            const createdRecording = await databaseService.createRecording(recording);
+            if (!createdRecording) throw new Error('Failed to create recording');
+
+            // 8. Update state and navigate
+            setView('recordings');
+            setShowMultiAudioUploader(false);
+            setSelectedId(createdRecording.id);
+            onSelectRecording(createdRecording.id);
+            setIsEditorOpen(true); // Open InlineEditor
+
+        } catch (error: any) {
+            console.error('[Multi-Audio] Processing failed:', error);
+            alert(`Error al procesar audios: ${error.message}`);
+        } finally {
+            setIsProcessingMultiAudio(false);
+        }
+    };
+
+    // Helper to assign colors to speakers
+    const getSpeakerColor = (speaker: string): string => {
+        const colors = [
+            'from-blue-400 to-purple-500',
+            'from-green-400 to-emerald-500',
+            'from-orange-400 to-red-500',
+            'from-pink-400 to-rose-500',
+            'from-cyan-400 to-teal-500'
+        ];
+
+        // Hash speaker name to consistent color
+        let hash = 0;
+        for (let i = 0; i < speaker.length; i++) {
+            hash = speaker.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
     };
 
     const handleCancelRecording = () => {
@@ -344,7 +454,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
                 {/* Content Area - Editor, Recorder, Recording Detail, Empty State, or Subscription View */}
                 <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
-                    {view === 'subscription' ? (
+                    {showMultiAudioUploader ? (
+                        <MultiAudioUploader
+                            user={user}
+                            onProcess={handleProcessMultiAudio}
+                            onCancel={() => setShowMultiAudioUploader(false)}
+                        />
+                    ) : view === 'subscription' ? (
                         <SubscriptionView user={user} />
                     ) : isEditorOpen && activeRecording ? (
                         <InlineEditor
