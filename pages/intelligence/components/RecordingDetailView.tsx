@@ -245,34 +245,68 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
 
 
-    const handleDownloadAudio = () => {
+
+    const handleDownloadAudio = async () => {
         console.log('[RecordingDetailView] Starting audio download:', recording.title);
-        if (!signedAudioUrl) {
-            alert('Audio no disponible para descargar. Espera unos segundos y vuelve a intentar.');
+        if (!recording.audioUrl) {
+            alert('Audio no disponible para descargar');
             return;
         }
 
-        // Extract file extension from the original audio URL
-        const urlParts = (recording.audioUrl || '').split('.');
-        const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1].split('?')[0] : 'wav';
-        const fileName = `${recording.title || 'audio'}.${fileExtension}`;
-        console.log('[RecordingDetailView] Download filename:', fileName);
+        try {
+            // Extract file extension from the original audio URL
+            const urlParts = recording.audioUrl.split('.');
+            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
+            const fileName = `${recording.title || 'audio'}.${fileExtension}`;
+            console.log('[RecordingDetailView] Download filename:', fileName);
 
-        // Use FileSaver.js for reliable cross-browser downloads with correct filenames
-        fetch(signedAudioUrl)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.blob();
-            })
-            .then(blob => {
-                saveAs(blob, fileName);
+            // Determine MIME type based on extension
+            const mimeTypes: Record<string, string> = {
+                'mp3': 'audio/mpeg',
+                'webm': 'audio/webm',
+                'wav': 'audio/wav',
+                'm4a': 'audio/mp4',
+                'aac': 'audio/aac',
+                'ogg': 'audio/ogg',
+                'opus': 'audio/opus',
+                'flac': 'audio/flac'
+            };
+            const mimeType = mimeTypes[fileExtension.toLowerCase()] || 'audio/mpeg';
+
+            // Download file directly from Supabase Storage (same as InlineEditor)
+            const { data, error } = await supabase.storage
+                .from('recordings')
+                .download(recording.audioUrl);
+
+            if (error) throw error;
+
+            if (data) {
+                // Create a properly typed blob
+                const typedBlob = new Blob([data], { type: mimeType });
+                const blobUrl = URL.createObjectURL(typedBlob);
+
+                const link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = blobUrl;
+                link.download = fileName;
+                link.setAttribute('download', fileName);
+
+                document.body.appendChild(link);
+                link.click();
+
+                // Cleanup after a short delay
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
                 console.log('[RecordingDetailView] Download initiated successfully');
-            })
-            .catch(error => {
-                console.error('[RecordingDetailView] Error downloading audio:', error);
-                alert('Error al descargar el audio. Por favor intenta de nuevo.');
-            });
+            }
+        } catch (error) {
+            console.error('[RecordingDetailView] Error downloading audio:', error);
+            alert('Error al descargar el audio');
+        }
     };
+
 
 
 
