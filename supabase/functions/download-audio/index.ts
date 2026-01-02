@@ -33,7 +33,7 @@ serve(async (req) => {
             )
         }
 
-        // Create Supabase client with user's auth
+        // Create Supabase client to get authenticated user
         const supabaseClient = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -44,25 +44,51 @@ serve(async (req) => {
             }
         )
 
-        // Verify user is authenticated and get recording
-        const { data: recording, error: recordingError } = await supabaseClient
+        // Get authenticated user
+        const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+
+        if (userError || !user) {
+            console.error('Auth error:', userError)
+            return new Response(
+                JSON.stringify({ error: 'Invalid or expired token' }),
+                { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+        }
+
+        console.log('Authenticated user:', user.id)
+        console.log('Fetching recording:', recordingId)
+
+        // Create service role client to bypass RLS
+        const supabaseAdmin = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        )
+
+        // Fetch recording using service role (bypasses RLS)
+        const { data: recording, error: recordingError } = await supabaseAdmin
             .from('recordings')
             .select('audioUrl, userId')
             .eq('id', recordingId)
             .single()
 
         if (recordingError || !recording) {
+            console.error('Recording fetch error:', recordingError)
             return new Response(
                 JSON.stringify({ error: 'Recording not found' }),
                 { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             )
         }
 
-        // Create service role client to download file (bypasses RLS)
-        const supabaseAdmin = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        )
+        // Verify ownership
+        if (recording.userId !== user.id) {
+            console.error('Ownership mismatch. Recording userId:', recording.userId, 'Auth userId:', user.id)
+            return new Response(
+                JSON.stringify({ error: 'Unauthorized access to this recording' }),
+                { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+        }
+
+        console.log('Recording verified, downloading from storage:', recording.audioUrl)
 
         // Download file from storage
         const { data: fileData, error: downloadError } = await supabaseAdmin.storage
