@@ -324,7 +324,8 @@ export const databaseService = {
                 summary: rec.summary,
                 segments: rec.segments,
                 notes: rec.notes || [],
-                media: rec.media || []
+                media: rec.media || [],
+                metadata: rec.metadata || {} // Store metadata
             })
             .select()
             .single();
@@ -358,6 +359,7 @@ export const databaseService = {
         if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
         if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
         if (updates.durationSeconds !== undefined) dbUpdates.duration_seconds = updates.durationSeconds;
+        if (updates.metadata !== undefined) dbUpdates.metadata = updates.metadata;
 
         // Note: Updating notes/media is more complex (diffing), usually handled separately.
         // For simple renames/moves, this is enough. 
