@@ -243,6 +243,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     };
 
     const handleDownloadAudio = async () => {
+        console.log('[RecordingDetailView] Starting audio download:', recording.title);
         if (!recording.audioUrl) {
             alert('Audio no disponible para descargar');
             return;
@@ -253,6 +254,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             const urlParts = recording.audioUrl.split('.');
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
+            console.log('[RecordingDetailView] Download filename:', fileName);
 
             // Determine MIME type based on extension
             const mimeTypes: Record<string, string> = {
@@ -293,9 +295,10 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                     document.body.removeChild(link);
                     URL.revokeObjectURL(blobUrl);
                 }, 100);
+                console.log('[RecordingDetailView] Download initiated successfully');
             }
         } catch (error) {
-            console.error('Error downloading audio:', error);
+            console.error('[RecordingDetailView] Error downloading audio:', error);
             alert('Error al descargar el audio');
         }
     };
