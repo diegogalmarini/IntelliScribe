@@ -799,6 +799,16 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                         meta => meta.segmentStartIndex === index
                                     );
 
+                                    // DEBUG: Check why metadata might be missing
+                                    if (index === 0) {
+                                        console.log('[InlineEditor Debug] Recording:', recording.id);
+                                        console.log('[InlineEditor Debug] Metadata:', recording.metadata);
+                                        console.log('[InlineEditor Debug] Segments Length:', segments.length);
+                                    }
+                                    if (temporalMeta) {
+                                        console.log('[InlineEditor Debug] Found Temporal Meta for index', index, temporalMeta);
+                                    }
+
                                     // Calculate significant time gap (> 5 hours) from previous segment
                                     let timeGapDisplay = null;
                                     if (temporalMeta && index > 0 && recording.metadata?.segments) {
