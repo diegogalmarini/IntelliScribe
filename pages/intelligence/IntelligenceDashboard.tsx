@@ -84,8 +84,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setView('recordings'); // Switch back to recordings view
         setSelectedId(id);
         onSelectRecording(id);
-        // CRITICAL: Close editor when switching recordings to show Detail View first
-        setIsEditorOpen(false);
+        // FORCE OPEN NEW EDITOR ALWAYS - User Request to destroy old view
+        setIsEditorOpen(true);
     };
 
     const handleNewRecording = () => {
@@ -527,12 +527,11 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onCancel={handleCancelRecording}
                         />
                     ) : activeRecording ? (
-                        <RecordingDetailView
+                        <InlineEditor
                             recording={activeRecording}
-                            onGenerateTranscript={handleGenerateTranscript}
-                            onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
-                            onUpdateSpeaker={(oldS, newS) => handleUpdateSpeaker(activeRecording.id, oldS, newS)}
-                            onUpdateSummary={handleUpdateSummary}
+                            user={user}
+                            onUpdateRecording={onUpdateRecording}
+                            onClose={handleCloseEditor}
                         />
                     ) : (
                         <EmptyStateClean
