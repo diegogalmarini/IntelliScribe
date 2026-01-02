@@ -242,21 +242,30 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     };
 
     const handleDownloadAudio = async () => {
-        if (!recording.audioUrl) return;
+        if (!signedAudioUrl) {
+            alert('Audio no disponible para descargar');
+            return;
+        }
 
         try {
-            const response = await fetch(recording.audioUrl);
+            // Extract extension from the original URL
+            const urlParts = recording.audioUrl?.split('.') || [];
+            const extension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'wav';
+
+            // Use signed URL to fetch
+            const response = await fetch(signedAudioUrl);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${recording.title || 'audio'}.mp3`;
+            a.download = `${recording.title || 'audio'}.${extension}`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } catch (error) {
             console.error('Error downloading audio:', error);
+            alert('Error al descargar el audio');
         }
     };
 
