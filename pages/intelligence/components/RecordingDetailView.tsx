@@ -266,23 +266,9 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             if (error) throw error;
 
             if (data) {
-                // Use the blob as-is from Storage (preserves original Content-Type)
-                const blobUrl = URL.createObjectURL(data);
-
-                const link = document.createElement('a');
-                link.style.display = 'none';
-                link.href = blobUrl;
-                link.download = fileName;
-                link.setAttribute('download', fileName); // Redundant but ensures compatibility
-
-                document.body.appendChild(link);
-                link.click();
-
-                // Cleanup after a short delay
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(blobUrl);
-                }, 100);
+                // Use file-saver for reliable download with correct filename
+                saveAs(data, fileName);
+                console.log('[RecordingDetailView] Download initiated successfully');
             }
         } catch (err) {
             console.error('Failed to download audio:', err);
