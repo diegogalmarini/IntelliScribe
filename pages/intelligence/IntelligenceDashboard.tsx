@@ -244,6 +244,20 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         return () => clearTimeout(timer);
     }, [searchQuery, onSearch]);
 
+    // Auto-open InlineEditor when activeRecording changes (e.g., from LiveRecording page)
+    // This ensures the new editor shows instead of RecordingDetailView (old editor)
+    useEffect(() => {
+        if (activeRecording && !isEditorOpen && !isRecording) {
+            // Only auto-open if we have a recording, editor is closed, and we're not currently recording
+            // Check if this recording has a transcript - if yes, open editor directly
+            if (activeRecording.segments && activeRecording.segments.length > 0) {
+                setIsEditorOpen(true);
+            }
+            // If no transcript yet, user will see RecordingDetailView with "Generate Transcript" button
+            // They can manually open editor by clicking transcript button which calls handleNavigateToEditor
+        }
+    }, [activeRecording, isEditorOpen, isRecording]);
+
     // Use search results when searching, otherwise use all recordings
     const displayedRecordings = searchQuery.trim() ? searchResults : recordings;
 
