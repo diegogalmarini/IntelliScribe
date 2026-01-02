@@ -103,7 +103,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    const handleAction = (type: 'record' | 'upload' | 'whatsapp') => {
+    const handleAction = (type: 'record' | 'upload' | 'multiaudio') => {
         if (type === 'record') {
             // Open inline recorder instead of navigating
             setIsRecording(true);
@@ -113,8 +113,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             // Trigger hidden file input click
             fileInputRef.current?.click();
         }
-        if (type === 'whatsapp') {
-            // Open multi-audio uploader for WhatsApp conversations
+        if (type === 'multiaudio') {
+            // Open multi-audio uploader for conversations
             setShowMultiAudioUploader(true);
         }
     };
@@ -223,13 +223,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const recording: Recording = {
                 id: '',
                 folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
-                title: `WhatsApp - ${new Date(files[0].extractedDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`,
-                description: `${files.length} audios de WhatsApp`,
+                title: `Multi-Audio - ${new Date(files[0].extractedDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`,
+                description: `${files.length} audios de conversación`,
                 date: new Date().toISOString(),
                 duration: `${h}:${m}:${s}`,
                 durationSeconds: Math.floor(totalDuration),
                 status: 'Completed',
-                tags: ['whatsapp', 'multi-audio'],
+                tags: ['multi-audio', 'conversation'],
                 participants: new Set(files.map((f: any) => f.assignedSpeaker)).size,
                 audioUrl,
                 summary: null,

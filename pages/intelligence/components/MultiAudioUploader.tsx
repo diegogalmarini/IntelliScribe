@@ -41,7 +41,7 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
         'Hablante 10'
     ];
 
-    const parseWhatsAppFilename = (filename: string): Date | null => {
+    const parseAudioFilename = (filename: string): Date | null => {
         const match = filename.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
         if (!match) return null;
         const [_, year, month, day, hour, min, sec] = match;
@@ -62,7 +62,7 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
         const processedFiles = await Promise.all(
             files.map(async (file, index) => {
                 const duration = await getAudioDuration(file);
-                const extractedDate = parseWhatsAppFilename(file.name);
+                const extractedDate = parseAudioFilename(file.name);
                 const audioUrl = URL.createObjectURL(file);
                 return {
                     id: `${Date.now()}-${index}`,
@@ -207,7 +207,7 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                            {step === 'upload' ? 'Conversación desde Audios de WhatsApp' : 'Identificar Hablantes'}
+                            {step === 'upload' ? 'Conversación Multi-Audio' : 'Identificar Hablantes'}
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                             {step === 'upload' ? 'Sube los audios y asígnalos a hablantes. Click en el número para escuchar.' : 'Confirma o edita el nombre de cada hablante'}
@@ -225,7 +225,7 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
                         {audioFiles.length === 0 ? (
                             <label className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary dark:hover:border-primary transition-colors">
                                 <Upload size={48} className="text-slate-400 dark:text-slate-500 mb-4" />
-                                <p className="text-lg font-medium text-slate-900 dark:text-white mb-2">Selecciona audios de WhatsApp</p>
+                                <p className="text-lg font-medium text-slate-900 dark:text-white mb-2">Selecciona audios de conversación</p>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Soporta .ogg, .mp3, .m4a, .wav</p>
                                 <input type="file" multiple accept="audio/*" onChange={handleFileSelect} className="hidden" />
                                 <div className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">Explorar archivos</div>
