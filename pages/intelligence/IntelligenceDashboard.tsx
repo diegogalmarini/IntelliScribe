@@ -83,7 +83,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleNewRecording = () => {
-        onNavigate(AppRoute.RECORDING);
+        // Open inline recorder instead of navigating to old LiveRecording page
+        setIsRecording(true);
+        setSelectedId(null); // Clear any selected recording
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
