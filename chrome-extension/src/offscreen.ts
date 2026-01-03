@@ -1,135 +1,120 @@
-// Offscreen Document for MediaRecorder
-// This runs in a hidden page context where we CAN use MediaRecorder
-// (Service Workers don't support MediaRecorder in Manifest V3)
+// Offscreen script for Diktalo Chrome Extension
+// Handles the actual MediaRecorder in a background document context
 
-let mediaRecorder: MediaRecorder | null = null;
+let recorder: MediaRecorder | null = null;
 let audioChunks: Blob[] = [];
-let recordingStartTime: number = 0;
+let audioStream: MediaStream | null = null;
 
-// Listen for messages from background script
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    console.log('[Offscreen] Received message:', message);
+    console.log('[Offscreen] Received message:', message.action);
 
     if (message.action === 'START_OFFSCREEN_RECORDING') {
         startRecording(message.streamId, sendResponse);
-        return true; // Async
+        return true;
     }
 
     if (message.action === 'STOP_OFFSCREEN_RECORDING') {
         stopRecording(sendResponse);
-        return true; // Async
+        return true;
     }
 
-    return false;
+    if (message.action === 'PAUSE_OFFSCREEN_RECORDING') {
+        if (recorder && recorder.state === 'recording') {
+            recorder.pause();
+            console.log('[Offscreen] Recording paused');
+            sendResponse({ success: true });
+        } else {
+            sendResponse({ success: false, error: 'Not recording' });
+        }
+    }
+
+    if (message.action === 'RESUME_OFFSCREEN_RECORDING') {
+        if (recorder && recorder.state === 'paused') {
+            recorder.resume();
+            console.log('[Offscreen] Recording resumed');
+            sendResponse({ success: true });
+        } else {
+            sendResponse({ success: false, error: 'Not paused' });
+        }
+    }
 });
 
 async function startRecording(streamId: string, sendResponse: (response: any) => void) {
     try {
-        console.log('[Offscreen] Starting recording with stream ID:', streamId);
+        console.log('[Offscreen] Starting recording with streamId:', streamId);
 
-        // Get the MediaStream using the stream ID
-        const stream = await navigator.mediaDevices.getUserMedia({
+        audioChunks = [];
+
+        // Capture the tab audio stream
+        audioStream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 mandatory: {
                     chromeMediaSource: 'tab',
                     chromeMediaSourceId: streamId
                 }
-            } as any
+            },
+            video: false
+        } as any);
+
+        // --- NEW: Audio Monitoring ---
+        // Create an audio element to play the stream so the user can hear it
+        const audioMonitor = document.createElement('audio');
+        audioMonitor.srcObject = audioStream;
+        audioMonitor.play().catch(e => console.error('[Offscreen] Audio monitor play failed:', e));
+        (window as any).audioMonitor = audioMonitor; // Keep reference
+
+        recorder = new MediaRecorder(audioStream, {
+            mimeType: 'audio/webm;codecs=opus'
         });
 
-        console.log('[Offscreen] Got MediaStream:', stream);
-
-        // --- CRITICAL: Restoration of sound for the user ---
-        // When capturing a tab, Chrome mutes it. We must play it back in this page.
-        const audio = new Audio();
-        audio.srcObject = stream;
-        audio.play();
-        console.log('[Offscreen] Audio playback started for monitoring');
-
-        // Create MediaRecorder
-        mediaRecorder = new MediaRecorder(stream, {
-            mimeType: 'audio/webm;codecs=opus',
-            audioBitsPerSecond: 128000
-        });
-
-        audioChunks = [];
-        recordingStartTime = Date.now();
-
-        mediaRecorder.ondataavailable = (event) => {
+        recorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
                 audioChunks.push(event.data);
-                console.log('[Offscreen] Audio chunk received:', event.data.size, 'bytes');
             }
         };
 
-        mediaRecorder.onstop = () => {
-            console.log('[Offscreen] Recording stopped, chunks collected:', audioChunks.length);
+        recorder.onstop = async () => {
+            console.log('[Offscreen] Recorder stopped');
         };
 
-        mediaRecorder.onerror = (event: any) => {
-            console.error('[Offscreen] MediaRecorder error:', event);
-        };
-
-        // Start recording (collect chunks every second)
-        mediaRecorder.start(1000);
-
-        console.log('[Offscreen] MediaRecorder started');
-
+        recorder.start(1000); // Collect data every 1s
         sendResponse({ success: true });
 
     } catch (error: any) {
-        console.error('[Offscreen] Error starting recording:', error);
+        console.error('[Offscreen] Start error:', error);
         sendResponse({ success: false, error: error.message });
     }
 }
 
-function stopRecording(sendResponse: (response: any) => void) {
-    try {
-        if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-            sendResponse({ success: false, error: 'No active recording' });
-            return;
-        }
+async function stopRecording(sendResponse: (response: any) => void) {
+    if (!recorder) {
+        sendResponse({ success: false, error: 'No active recorder' });
+        return;
+    }
 
-        console.log('[Offscreen] Stopping MediaRecorder');
+    recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
 
-        mediaRecorder.onstop = () => {
-            console.log('[Offscreen] Creating final blob from', audioChunks.length, 'chunks');
+        // Convert to base64 to send back to background
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = () => {
+            const base64Data = reader.result as string;
 
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+            // --- Cleanup ---
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            if ((window as any).audioMonitor) {
+                (window as any).audioMonitor.srcObject = null;
+            }
+            recorder = null;
+            audioChunks = [];
 
-            console.log('[Offscreen] Blob created:', audioBlob.size, 'bytes,', duration, 'seconds');
-
-            // Convert Blob to Base64 string for message passing
-            // ArrayBuffer doesn't work in sendResponse on all Chrome versions
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64 = reader.result as string;
-                console.log('[Offscreen] Data ready as Base64 string, length:', base64.length);
-                sendResponse({
-                    success: true,
-                    audioData: base64, // Use audioData instead of audioBuffer
-                    size: audioBlob.size,
-                    duration: duration
-                });
-            };
-            reader.onerror = (e) => {
-                console.error('[Offscreen] FileReader error:', e);
-                sendResponse({ success: false, error: 'Failed to read audio blob' });
-            };
-            reader.readAsDataURL(audioBlob);
+            sendResponse({ success: true, audioData: base64Data });
         };
+    };
 
-        mediaRecorder.stop();
-
-        // Stop all tracks
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
-
-    } catch (error: any) {
-        console.error('[Offscreen] Error stopping recording:', error);
-        sendResponse({ success: false, error: error.message });
-    }
+    recorder.stop();
 }
-
-// Export for TypeScript
-export { };

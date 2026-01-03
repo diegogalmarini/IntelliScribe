@@ -1,107 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import './Popup.css';
 
-type RecordingStatus = 'idle' | 'recording' | 'processing' | 'uploading' | 'success' | 'error';
+// Lucide-like icons (simple SVG components for the extension)
+const PlayIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z" /></svg>;
+const StopIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>;
+const PauseIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6V4zm8 0h4v16h4V4z" /></svg>;
+const MicIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>;
 
-export const Popup: React.FC = () => {
-    console.log('[Diktalo Popup] Component initialization');
-    const [status, setStatus] = useState<RecordingStatus>('idle');
-    const [duration, setDuration] = useState(0);
+const Popup: React.FC = () => {
+    const [isRecording, setIsRecording] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+    const [status, setStatus] = useState<'idle' | 'recording' | 'processing' | 'success' | 'error'>('idle');
+    const [recordingTime, setRecordingTime] = useState(0);
     const [error, setError] = useState<string | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [apiToken, setApiToken] = useState('');
+    const [authToken, setAuthToken] = useState<string>('');
+    const [isUploading, setIsUploading] = useState(false);
+    const [showStopConfirm, setShowStopConfirm] = useState(false);
 
+    const timerRef = useRef<number | null>(null);
+
+    // Poll current status on mount
     useEffect(() => {
-        // Check if user has API token saved
-        chrome.storage.local.get('authToken', (result) => {
+        chrome.runtime.sendMessage({ action: 'GET_STATUS' }, (response) => {
+            if (response && response.isRecording) {
+                setIsRecording(true);
+                setIsPaused(response.isPaused || false);
+                setStatus('recording');
+                // Calculate time elapsed if start time was stored
+                if (response.startTime) {
+                    const elapsed = Math.floor((Date.now() - response.startTime) / 1000);
+                    setRecordingTime(elapsed);
+                }
+            }
+        });
+
+        chrome.storage.local.get(['authToken'], (result) => {
             if (result.authToken) {
-                setIsAuthenticated(true);
+                setAuthToken(result.authToken);
             }
         });
     }, []);
 
+    // Timer logic
     useEffect(() => {
-        let interval: number | null = null;
-
-        if (status === 'recording') {
-            const startTime = Date.now();
-            interval = window.setInterval(() => {
-                setDuration(Math.floor((Date.now() - startTime) / 1000));
-            }, 100);
+        if (isRecording && !isPaused) {
+            timerRef.current = window.setInterval(() => {
+                setRecordingTime(prev => prev + 1);
+            }, 1000);
         } else {
-            setDuration(0);
+            if (timerRef.current) clearInterval(timerRef.current);
         }
-
         return () => {
-            if (interval) clearInterval(interval);
+            if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [status]);
-
-    const handleStartRecording = async () => {
-        try {
-            setStatus('processing');
-            setError(null);
-
-            // Get current tab
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-            if (!tab.id) {
-                throw new Error('No active tab found');
-            }
-
-            // Send message to background to start recording
-            chrome.runtime.sendMessage({
-                action: 'START_RECORDING',
-                tabId: tab.id
-            }, (response) => {
-                if (response?.success) {
-                    setStatus('recording');
-                } else {
-                    setStatus('error');
-                    setError(response?.error || 'Failed to start recording');
-                }
-            });
-
-        } catch (err: any) {
-            setStatus('error');
-            setError(err.message);
-        }
-    };
-
-    const handleStopRecording = async () => {
-        try {
-            setStatus('uploading');
-
-            // Send message to background to stop
-            chrome.runtime.sendMessage({
-                action: 'STOP_RECORDING'
-            }, (response) => {
-                if (response?.success) {
-                    setStatus('success');
-                    // Optionally open the recording in Diktalo
-                    setTimeout(() => {
-                        chrome.tabs.create({
-                            url: `https://www.diktalo.com/intelligence/recordings/${response.recordingId}`
-                        });
-                    }, 1500);
-                } else {
-                    setStatus('error');
-                    setError(response?.error || 'Failed to stop recording');
-                }
-            });
-
-        } catch (err: any) {
-            setStatus('error');
-            setError(err.message);
-        }
-    };
-
-    const handleSaveToken = () => {
-        chrome.storage.local.set({ authToken: apiToken }, () => {
-            setIsAuthenticated(true);
-        });
-    };
+    }, [isRecording, isPaused]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -109,27 +62,106 @@ export const Popup: React.FC = () => {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    if (!isAuthenticated) {
+    const handleStartRecording = async () => {
+        if (!authToken) {
+            setError('Please set your API token in settings first.');
+            return;
+        }
+
+        setError(null);
+        setStatus('idle');
+
+        // Get the current active tab
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab?.id) {
+            setError('Could not find active tab');
+            return;
+        }
+
+        chrome.runtime.sendMessage({
+            action: 'START_RECORDING',
+            tabId: tab.id
+        }, (response) => {
+            if (response?.success) {
+                setIsRecording(true);
+                setIsPaused(false);
+                setRecordingTime(0);
+                setStatus('recording');
+            } else {
+                setError(response?.error || 'Failed to start recording');
+                setStatus('error');
+            }
+        });
+    };
+
+    const handleStopRecording = () => {
+        if (!showStopConfirm && recordingTime > 5) {
+            setShowStopConfirm(true);
+            return;
+        }
+
+        setShowStopConfirm(false);
+        setIsUploading(true);
+        setStatus('processing');
+
+        chrome.runtime.sendMessage({ action: 'STOP_RECORDING' }, (response) => {
+            setIsUploading(false);
+            if (response?.success) {
+                setIsRecording(false);
+                setIsPaused(false);
+                setStatus('success');
+                setTimeout(() => setStatus('idle'), 3000);
+            } else {
+                setError(response?.error || 'Upload failed');
+                setStatus('error');
+            }
+        });
+    };
+
+    const handlePauseResume = () => {
+        const action = isPaused ? 'RESUME_RECORDING' : 'PAUSE_RECORDING';
+        chrome.runtime.sendMessage({ action }, (response) => {
+            if (response?.success) {
+                setIsPaused(!isPaused);
+            } else {
+                setError(response?.error || 'Failed to change recording state');
+            }
+        });
+    };
+
+    const handleSaveToken = () => {
+        chrome.storage.local.set({ authToken }, () => {
+            setError(null);
+            setStatus('success');
+            setTimeout(() => setStatus('idle'), 2000);
+        });
+    };
+
+    if (!authToken && status !== 'success') {
         return (
             <div className="popup">
-                <div className="popup-header">
-                    <h1>🎙️ Diktalo</h1>
-                </div>
+                <header className="popup-header">
+                    <div className="header-glow" />
+                    <h1><MicIcon /> Diktalo</h1>
+                    <div className="status-badge">Configuración</div>
+                </header>
                 <div className="popup-body">
-                    <p className="auth-message">Necesitas configurar tu token de API</p>
-                    <input
-                        type="password"
-                        placeholder="Pega tu API token"
-                        value={apiToken}
-                        onChange={(e) => setApiToken(e.target.value)}
-                        className="token-input"
-                    />
-                    <button onClick={handleSaveToken} className="btn-primary">
-                        Guardar Token
-                    </button>
-                    <p className="help-text">
-                        Obtén tu token en: <a href="https://www.diktalo.com/settings" target="_blank">diktalo.com/settings</a>
-                    </p>
+                    <div className="token-container">
+                        <p className="message info">Inserta tu API Token para empezar a grabar.</p>
+                        <input
+                            type="password"
+                            className="input-glow"
+                            placeholder="Supabase API Token..."
+                            value={authToken}
+                            onChange={(e) => setAuthToken(e.target.value)}
+                        />
+                        <button className="btn-main btn-start" onClick={handleSaveToken}>
+                            Guardar Token
+                        </button>
+                    </div>
+                    <a href="https://www.diktalo.com/settings" target="_blank" className="help-link">
+                        ¿Dónde encuentro mi token?
+                    </a>
                 </div>
             </div>
         );
@@ -137,57 +169,64 @@ export const Popup: React.FC = () => {
 
     return (
         <div className="popup">
-            <div className="popup-header">
-                <h1>🎙️ Diktalo</h1>
-                <div className={`status-indicator status-${status}`}>
-                    {status === 'idle' && '✅ Listo'}
-                    {status === 'recording' && '🔴 Grabando'}
-                    {status === 'processing' && '⏳ Procesando'}
-                    {status === 'uploading' && '📤 Subiendo'}
-                    {status === 'success' && '✅ Completado'}
-                    {status === 'error' && '❌ Error'}
+            <header className="popup-header">
+                <div className="header-glow" />
+                <h1><MicIcon /> Diktalo</h1>
+                <div className={`status-badge ${isRecording ? 'status-recording' : ''}`}>
+                    {isRecording ? (isPaused ? 'Pausado' : 'Grabando') : 'Listo'}
                 </div>
-            </div>
+            </header>
 
             <div className="popup-body">
-                {status === 'recording' && (
-                    <div className="timer">{formatTime(duration)}</div>
+                <div className="timer">{formatTime(recordingTime)}</div>
+
+                {error && <div className="message error">{error}</div>}
+
+                {status === 'success' && !error && (
+                    <div className="message success">¡Grabación subida con éxito!</div>
                 )}
 
-                {error && (
-                    <div className="error-message">{error}</div>
-                )}
+                <div className="controls-group">
+                    {!isRecording ? (
+                        <button
+                            className="btn-main btn-start"
+                            onClick={handleStartRecording}
+                            disabled={status === 'processing'}
+                        >
+                            {status === 'processing' ? <div className="spinner-clean" /> : <PlayIcon />}
+                            Grabar Pestaña
+                        </button>
+                    ) : (
+                        <>
+                            <div className="secondary-actions">
+                                <button
+                                    className={`btn-secondary ${isPaused ? 'btn-resume' : 'btn-pause'}`}
+                                    onClick={handlePauseResume}
+                                >
+                                    {isPaused ? <PlayIcon /> : <PauseIcon />}
+                                    {isPaused ? 'Resumir' : 'Pausar'}
+                                </button>
+                            </div>
 
-                {status === 'success' && (
-                    <div className="success-message">
-                        ¡Grabación guardada! Abriendo en Diktalo...
-                    </div>
-                )}
+                            <button
+                                className="btn-main btn-stop"
+                                onClick={handleStopRecording}
+                                disabled={isUploading}
+                            >
+                                {isUploading ? <div className="spinner-clean" /> : <StopIcon />}
+                                {showStopConfirm ? '¿Confirmar Parada?' : 'Detener Grabación'}
+                            </button>
+                        </>
+                    )}
+                </div>
 
-                {(status === 'idle' || status === 'error') && (
+                {!isRecording && (
                     <button
-                        onClick={handleStartRecording}
-                        className="btn-record btn-start"
-                        disabled={status !== 'idle' && status !== 'error'}
+                        className="btn-dashboard"
+                        onClick={() => window.open('https://www.diktalo.com/intelligence', '_blank')}
                     >
-                        🔴 Grabar Pestaña
+                        Abrir Dashboard
                     </button>
-                )}
-
-                {status === 'recording' && (
-                    <button
-                        onClick={handleStopRecording}
-                        className="btn-record btn-stop"
-                    >
-                        ⏹️ Detener Grabación
-                    </button>
-                )}
-
-                {(status === 'processing' || status === 'uploading') && (
-                    <div className="loading">
-                        <div className="spinner"></div>
-                        <p>{status === 'processing' ? 'Iniciando...' : 'Subiendo a Diktalo...'}</p>
-                    </div>
                 )}
             </div>
         </div>
@@ -197,9 +236,7 @@ export const Popup: React.FC = () => {
 const container = document.getElementById('root');
 if (container) {
     const root = createRoot(container);
-    root.render(
-        <React.StrictMode>
-            <Popup />
-        </React.StrictMode>
-    );
+    root.render(<Popup />);
 }
+
+export default Popup;
