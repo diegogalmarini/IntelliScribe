@@ -21,9 +21,10 @@ interface RecordingDetailViewProps {
     onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
     onUpdateSummary?: (summary: string) => void;
     onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>) => void;
+    onUpdateRecording?: (recordingId: string, updates: Partial<{ durationSeconds: number }>) => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -127,7 +128,14 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
     const handleLoadedMetadata = () => {
         if (audioRef.current && audioRef.current.duration && isFinite(audioRef.current.duration)) {
-            setDuration(audioRef.current.duration);
+            const audioDuration = audioRef.current.duration;
+            setDuration(audioDuration);
+
+            // If DB doesn't have duration, save it automatically
+            if ((!recording.durationSeconds || recording.durationSeconds === 0) && onUpdateRecording) {
+                console.log('[RecordingDetailView] Saving audio duration to DB:', audioDuration);
+                onUpdateRecording(recording.id, { durationSeconds: audioDuration });
+            }
         }
     };
 
