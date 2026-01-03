@@ -5,7 +5,7 @@ import { supabase } from '../../../lib/supabase';
 import { PlanConfig, UserProfile } from '../../../types';
 import { Check, ChevronDown, Plus, ExternalLink } from 'lucide-react';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 interface SubscriptionViewProps {
     user: UserProfile;
