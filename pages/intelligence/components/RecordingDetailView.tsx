@@ -72,6 +72,10 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     }, [recording.durationSeconds]);
 
     const formatTime = (time: number) => {
+        // Validate input to prevent Infinity or NaN from breaking the UI
+        if (!isFinite(time) || isNaN(time) || time < 0) {
+            return '0:00';
+        }
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -120,14 +124,22 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             setCurrentTime(audioRef.current.currentTime);
             // In case duration didn't load from metadata yet or is 0
             if (duration === 0 && audioRef.current.duration) {
-                setDuration(audioRef.current.duration);
+                const dur = audioRef.current.duration;
+                // Only set duration if it's valid
+                if (isFinite(dur) && !isNaN(dur) && dur > 0) {
+                    setDuration(dur);
+                }
             }
         }
     };
 
     const handleLoadedMetadata = () => {
         if (audioRef.current && audioRef.current.duration) {
-            setDuration(audioRef.current.duration);
+            const dur = audioRef.current.duration;
+            // Only set duration if it's a valid, finite number
+            if (isFinite(dur) && !isNaN(dur) && dur > 0) {
+                setDuration(dur);
+            }
         }
     };
 
