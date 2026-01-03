@@ -41,7 +41,8 @@ export default async function handler(req, res) {
             }
         });
 
-        return res.status(200).json({ sessionId: session.id });
+        // Return the URL instead of sessionId (redirectToCheckout is deprecated)
+        return res.status(200).json({ url: session.url });
     } catch (err: any) {
         console.error('Stripe Checkout Error:', err);
         return res.status(500).json({ error: err.message });
