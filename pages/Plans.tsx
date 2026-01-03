@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase';
 import { PlanConfig, AppSetting, UserProfile } from '../types';
 
 // Inicializar Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 interface PlansProps {
     user: UserProfile;
