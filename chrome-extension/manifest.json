@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Diktalo - AI Meeting Recorder",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Graba y transcribe reuniones de Google Meet, Zoom y más",
     "permissions": [
         "tabCapture",
@@ -11,7 +11,8 @@
         "offscreen"
     ],
     "host_permissions": [
-        "<all_urls>"
+        "https://www.diktalo.com/*",
+        "https://diktalo.com/*"
     ],
     "action": {
         "default_popup": "popup.html",
