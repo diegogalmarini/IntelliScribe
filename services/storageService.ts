@@ -28,17 +28,12 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
             }
         }
 
-        // Generate Signed URL (valid for 1 hour)
-        const { data, error } = await supabase.storage
+        // Generate Public URL (bucket is public without RLS)
+        const { data } = supabase.storage
             .from('recordings')
-            .createSignedUrl(relativePath, 3600);
+            .getPublicUrl(relativePath);
 
-        if (error) {
-            console.error('Error signing URL:', error);
-            return null;
-        }
-
-        return data.signedUrl;
+        return data.publicUrl;
     } catch (err) {
         console.error('Unexpected error in getSignedAudioUrl:', err);
         return null;
