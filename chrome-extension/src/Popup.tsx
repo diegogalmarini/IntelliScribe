@@ -95,23 +95,29 @@ const Popup: React.FC = () => {
     };
 
     const handleStopRecording = () => {
+        console.log('[Popup] Stop recording requested, showStopConfirm:', showStopConfirm, 'recordingTime:', recordingTime);
+
         if (!showStopConfirm && recordingTime > 5) {
             setShowStopConfirm(true);
             return;
         }
 
+        console.log('[Popup] Stopping recording...');
         setShowStopConfirm(false);
         setIsUploading(true);
         setStatus('processing');
 
         chrome.runtime.sendMessage({ action: 'STOP_RECORDING' }, (response) => {
+            console.log('[Popup] Stop recording response:', response);
             setIsUploading(false);
             if (response?.success) {
+                console.log('[Popup] Recording stopped successfully');
                 setIsRecording(false);
                 setIsPaused(false);
                 setStatus('success');
                 setTimeout(() => setStatus('idle'), 3000);
             } else {
+                console.error('[Popup] Failed to stop recording:', response?.error);
                 setError(response?.error || 'Upload failed');
                 setStatus('error');
             }
@@ -130,9 +136,24 @@ const Popup: React.FC = () => {
     };
 
     const handleSaveToken = () => {
+        console.log('[Popup] Saving token...');
         chrome.storage.local.set({ authToken }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('[Popup] Error saving token:', chrome.runtime.lastError);
+                setError('Failed to save token: ' + chrome.runtime.lastError.message);
+                setStatus('error');
+                return;
+            }
+
+            console.log('[Popup] Token saved successfully');
             setError(null);
             setStatus('success');
+
+            // Verify it was saved
+            chrome.storage.local.get(['authToken'], (result) => {
+                console.log('[Popup] Verified saved token:', result.authToken ? 'exists' : 'missing');
+            });
+
             setTimeout(() => setStatus('idle'), 2000);
         });
     };

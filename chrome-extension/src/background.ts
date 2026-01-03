@@ -144,9 +144,13 @@ async function resumeRecording(sendResponse: (response: any) => void) {
 }
 
 async function stopRecording(sendResponse: (response: any) => void) {
+    console.log('[Background] stopRecording called');
     try {
         chrome.runtime.sendMessage({ action: 'STOP_OFFSCREEN_RECORDING' }, async (response) => {
+            console.log('[Background] STOP_OFFSCREEN_RECORDING response:', response);
+
             if (chrome.runtime.lastError) {
+                console.error('[Background] Error from offscreen:', chrome.runtime.lastError);
                 sendResponse({ success: false, error: chrome.runtime.lastError.message });
                 await closeOffscreenDocument();
                 resetState();
@@ -154,24 +158,31 @@ async function stopRecording(sendResponse: (response: any) => void) {
             }
 
             if (response?.success && response.audioData) {
+                console.log('[Background] Received audio data, size:', response.audioData.length, 'bytes');
                 try {
                     const audioBlob = base64ToBlob(response.audioData, 'audio/webm');
+                    console.log('[Background] Created blob, size:', audioBlob.size, 'bytes');
+                    console.log('[Background] Starting upload...');
                     const uploadResult = await uploadAudioToDiktalo(audioBlob);
+                    console.log('[Background] Upload successful:', uploadResult);
                     resetState();
                     sendResponse({ success: true, recordingId: uploadResult.recordingId });
                     await closeOffscreenDocument();
                 } catch (uploadError: any) {
+                    console.error('[Background] Upload failed:', uploadError);
                     sendResponse({ success: false, error: uploadError.message });
                     await closeOffscreenDocument();
                     resetState();
                 }
             } else {
+                console.error('[Background] No audio data in response');
                 sendResponse({ success: false, error: response?.error || 'No audio data received' });
                 await closeOffscreenDocument();
                 resetState();
             }
         });
     } catch (error: any) {
+        console.error('[Background] stopRecording error:', error);
         sendResponse({ success: false, error: error.message });
         await closeOffscreenDocument();
         resetState();
@@ -226,9 +237,14 @@ async function closeOffscreenDocument() {
 }
 
 async function uploadAudioToDiktalo(audioBlob: Blob): Promise<{ recordingId: string }> {
+    console.log('[Background] uploadAudioToDiktalo called, blob size:', audioBlob.size);
     try {
         const { authToken } = await chrome.storage.local.get('authToken');
-        if (!authToken) throw new Error('Not authenticated.');
+        console.log('[Background] Auth token retrieved:', authToken ? 'exists' : 'missing');
+
+        if (!authToken) {
+            throw new Error('Not authenticated. Please set your API token in settings.');
+        }
 
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.webm');
@@ -236,20 +252,27 @@ async function uploadAudioToDiktalo(audioBlob: Blob): Promise<{ recordingId: str
         formData.append('title', `Tab Recording - ${new Date().toLocaleString()}`);
 
         const endpoint = 'https://www.diktalo.com/api/upload-audio';
+        console.log('[Background] Uploading to:', endpoint);
+
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${authToken}` },
             body: formData
         });
 
+        console.log('[Background] Upload response status:', response.status);
+
         if (!response.ok) {
             const responseText = await response.text();
+            console.error('[Background] Upload failed:', response.status, responseText);
             throw new Error(`Upload failed (${response.status}): ${responseText}`);
         }
 
         const result = await response.json();
+        console.log('[Background] Upload result:', result);
         return { recordingId: result.recordingId || 'unknown' };
     } catch (error: any) {
+        console.error('[Background] uploadAudioToDiktalo error:', error);
         throw error;
     }
 }
