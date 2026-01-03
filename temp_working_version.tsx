@@ -20,10 +20,9 @@ interface RecordingDetailViewProps {
     onRename?: (newTitle: string) => void;
     onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
     onUpdateSummary?: (summary: string) => void;
-    onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>) => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -34,11 +33,9 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState('');
 
-    // Speaker/Segment Editing State
-    const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
+    // Speaker Editing State
+    const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null); // Stores the speaker ID/Name currently being edited
     const [editedSpeakerName, setEditedSpeakerName] = useState('');
-    const [editingSegmentIndex, setEditingSegmentIndex] = useState<number | null>(null);
-    const [editedSegmentText, setEditedSegmentText] = useState('');
 
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
@@ -203,23 +200,6 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
     const handleCancelEditSpeaker = () => {
         setEditingSpeaker(null);
-    };
-
-    // Segment Text Edit Handlers
-    const handleStartEditSegment = (index: number, currentText: string) => {
-        setEditingSegmentIndex(index);
-        setEditedSegmentText(currentText);
-    };
-
-    const handleSaveSegment = (index: number) => {
-        if (onUpdateSegment && editedSegmentText.trim() !== recording.segments![index].text) {
-            onUpdateSegment(index, { text: editedSegmentText.trim() });
-        }
-        setEditingSegmentIndex(null);
-    };
-
-    const handleCancelEditSegment = () => {
-        setEditingSegmentIndex(null);
     };
 
     const hasTranscript = recording.segments && recording.segments.length > 0;
@@ -602,38 +582,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                                                 {segment.speaker}:
                                                             </span>
                                                         )}
-                                                        {editingSegmentIndex === idx ? (
-                                                            <span className="inline-flex flex-col gap-2 w-full mt-1">
-                                                                <textarea
-                                                                    value={editedSegmentText}
-                                                                    onChange={(e) => setEditedSegmentText(e.target.value)}
-                                                                    className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed bg-black/5 dark:bg-white/5 border border-blue-500 rounded p-2 focus:outline-none w-full min-h-[60px]"
-                                                                    autoFocus
-                                                                />
-                                                                <div className="flex justify-end gap-2">
-                                                                    <button
-                                                                        onClick={() => handleSaveSegment(idx)}
-                                                                        className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white rounded text-[11px] hover:bg-green-700"
-                                                                    >
-                                                                        <Check size={12} /> Guardar
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={handleCancelEditSegment}
-                                                                        className="flex items-center gap-1 px-2 py-1 bg-red-600 text-white rounded text-[11px] hover:bg-red-700"
-                                                                    >
-                                                                        <X size={12} /> Cancelar
-                                                                    </button>
-                                                                </div>
-                                                            </span>
-                                                        ) : (
-                                                            <span
-                                                                className="cursor-pointer hover:bg-blue-500/5 transition-colors rounded px-1 -mx-1"
-                                                                onClick={() => handleStartEditSegment(idx, segment.text)}
-                                                                title="Clic para editar texto"
-                                                            >
-                                                                {segment.text}
-                                                            </span>
-                                                        )}
+                                                        {segment.text}
                                                     </p>
                                                 </div>
                                             </div>
