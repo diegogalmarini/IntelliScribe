@@ -118,6 +118,16 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const handleTimeUpdate = () => {
         if (audioRef.current) {
             setCurrentTime(audioRef.current.currentTime);
+            // Fallback: if duration is still 0, try to get it from audio element
+            if (duration === 0 && audioRef.current.duration && isFinite(audioRef.current.duration)) {
+                setDuration(audioRef.current.duration);
+            }
+        }
+    };
+
+    const handleLoadedMetadata = () => {
+        if (audioRef.current && audioRef.current.duration && isFinite(audioRef.current.duration)) {
+            setDuration(audioRef.current.duration);
         }
     };
 
@@ -454,6 +464,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                     ref={audioRef}
                                     src={signedAudioUrl || undefined}
                                     onTimeUpdate={handleTimeUpdate}
+                                    onLoadedMetadata={handleLoadedMetadata}
                                     onEnded={handleEnded}
                                     className="hidden"
                                 />
