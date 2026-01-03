@@ -20,9 +20,10 @@ interface RecordingDetailViewProps {
     onRename?: (newTitle: string) => void;
     onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
     onUpdateSummary?: (summary: string) => void;
+    onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>) => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -33,9 +34,11 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState('');
 
-    // Speaker Editing State
-    const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null); // Stores the speaker ID/Name currently being edited
+    // Speaker/Segment Editing State
+    const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
     const [editedSpeakerName, setEditedSpeakerName] = useState('');
+    const [editingSegmentIndex, setEditingSegmentIndex] = useState<number | null>(null);
+    const [editedSegmentText, setEditedSegmentText] = useState('');
 
     const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
@@ -115,6 +118,16 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const handleTimeUpdate = () => {
         if (audioRef.current) {
             setCurrentTime(audioRef.current.currentTime);
+            // In case duration didn't load from metadata yet or is 0
+            if (duration === 0 && audioRef.current.duration) {
+                setDuration(audioRef.current.duration);
+            }
+        }
+    };
+
+    const handleLoadedMetadata = () => {
+        if (audioRef.current && audioRef.current.duration) {
+            setDuration(audioRef.current.duration);
         }
     };
 
@@ -200,6 +213,23 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
     const handleCancelEditSpeaker = () => {
         setEditingSpeaker(null);
+    };
+
+    // Segment Text Edit Handlers
+    const handleStartEditSegment = (index: number, currentText: string) => {
+        setEditingSegmentIndex(index);
+        setEditedSegmentText(currentText);
+    };
+
+    const handleSaveSegment = (index: number) => {
+        if (onUpdateSegment && editedSegmentText.trim() !== recording.segments![index].text) {
+            onUpdateSegment(index, { text: editedSegmentText.trim() });
+        }
+        setEditingSegmentIndex(null);
+    };
+
+    const handleCancelEditSegment = () => {
+        setEditingSegmentIndex(null);
     };
 
     const hasTranscript = recording.segments && recording.segments.length > 0;
@@ -392,7 +422,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                             <span>{formatTime(currentTime)}</span>
                                             <span>{formatTime(duration || 0)}</span>
                                         </div>
-                                        <div className="relative h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer group">
+                                        <div className="relative h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer group overflow-hidden">
                                             <input
                                                 type="range"
                                                 min="0"
@@ -403,13 +433,15 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                             />
                                             <div
                                                 className="absolute top-0 left-0 h-full bg-blue-600 rounded-full pointer-events-none transition-all duration-100"
-                                                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                                                style={{ width: `${Math.min(100, (currentTime / Math.max(1, duration)) * 100)}%` }}
                                             />
-                                            {/* Thumb handle visual */}
-                                            <div
-                                                className="absolute top-1/2 -mt-1.5 h-3 w-3 bg-white border-2 border-blue-600 rounded-full shadow-sm pointer-events-none transition-all duration-100 opacity-0 group-hover:opacity-100"
-                                                style={{ left: `calc(${(currentTime / (duration || 1)) * 100}% - 6px)` }}
-                                            />
+                                            {/* Thumb handle visual - only show if duration > 0 */}
+                                            {duration > 0 && (
+                                                <div
+                                                    className="absolute top-1/2 -mt-1.5 h-3 w-3 bg-white border-2 border-blue-600 rounded-full shadow-sm pointer-events-none transition-all duration-100 opacity-0 group-hover:opacity-100"
+                                                    style={{ left: `calc(${Math.min(100, (currentTime / duration) * 100)}% - 6px)` }}
+                                                />
+                                            )}
                                         </div>
                                     </div>
 
@@ -434,6 +466,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                     ref={audioRef}
                                     src={signedAudioUrl || undefined}
                                     onTimeUpdate={handleTimeUpdate}
+                                    onLoadedMetadata={handleLoadedMetadata}
                                     onEnded={handleEnded}
                                     className="hidden"
                                 />
@@ -582,7 +615,38 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                                                 {segment.speaker}:
                                                             </span>
                                                         )}
-                                                        {segment.text}
+                                                        {editingSegmentIndex === idx ? (
+                                                            <span className="inline-flex flex-col gap-2 w-full mt-1">
+                                                                <textarea
+                                                                    value={editedSegmentText}
+                                                                    onChange={(e) => setEditedSegmentText(e.target.value)}
+                                                                    className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed bg-black/5 dark:bg-white/5 border border-blue-500 rounded p-2 focus:outline-none w-full min-h-[60px]"
+                                                                    autoFocus
+                                                                />
+                                                                <div className="flex justify-end gap-2">
+                                                                    <button
+                                                                        onClick={() => handleSaveSegment(idx)}
+                                                                        className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white rounded text-[11px] hover:bg-green-700"
+                                                                    >
+                                                                        <Check size={12} /> Guardar
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={handleCancelEditSegment}
+                                                                        className="flex items-center gap-1 px-2 py-1 bg-red-600 text-white rounded text-[11px] hover:bg-red-700"
+                                                                    >
+                                                                        <X size={12} /> Cancelar
+                                                                    </button>
+                                                                </div>
+                                                            </span>
+                                                        ) : (
+                                                            <span
+                                                                className="cursor-pointer hover:bg-blue-500/5 transition-colors rounded px-1 -mx-1"
+                                                                onClick={() => handleStartEditSegment(idx, segment.text)}
+                                                                title="Clic para editar texto"
+                                                            >
+                                                                {segment.text}
+                                                            </span>
+                                                        )}
                                                     </p>
                                                 </div>
                                             </div>

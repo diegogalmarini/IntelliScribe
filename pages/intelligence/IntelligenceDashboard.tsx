@@ -296,25 +296,36 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setIsEditorOpen(false);
     };
 
-    // --- RENAME SPEAKER Logic ---
-    const handleUpdateSpeaker = async (recordingId: string, oldSpeaker: string, newSpeaker: string) => {
-        const recording = recordings.find(r => r.id === recordingId);
-        if (!recording || !recording.segments) return;
+    // --- RENAME SPEAKER Logic --- (Specific helper)
+    const handleUpdateSpeaker = async (oldSpeaker: string, newSpeaker: string) => {
+        if (!activeRecording || !activeRecording.segments) return;
 
-        // Optimistic update
-        const updatedSegments = recording.segments.map(s =>
+        const updatedSegments = activeRecording.segments.map(s =>
             s.speaker === oldSpeaker ? { ...s, speaker: newSpeaker } : s
         );
 
-        // Notify parent to update state
+        handleUpdateSegmentBatch(activeRecording.id, updatedSegments);
+    };
+
+    // --- UPDATE SEGMENT Utility ---
+    const handleUpdateSegment = async (index: number, updates: Partial<{ speaker: string; text: string }>) => {
+        if (!activeRecording || !activeRecording.segments) return;
+
+        const updatedSegments = [...activeRecording.segments];
+        updatedSegments[index] = { ...updatedSegments[index], ...updates };
+
+        handleUpdateSegmentBatch(activeRecording.id, updatedSegments);
+    };
+
+    const handleUpdateSegmentBatch = async (recordingId: string, updatedSegments: any[]) => {
+        // Optimistic update
         onUpdateRecording(recordingId, { segments: updatedSegments });
 
         // DB Update
         try {
             await databaseService.updateRecording(recordingId, { segments: updatedSegments });
         } catch (error) {
-            console.error("Failed to update speaker", error);
-            // Revert on error (optional implementation)
+            console.error("Failed to update segments", error);
         }
     };
 
@@ -528,6 +539,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onRename={(newTitle) => onRenameRecording(activeRecording?.id, newTitle)}
                             onUpdateSpeaker={handleUpdateSpeaker}
                             onUpdateSummary={handleUpdateSummary}
+                            onUpdateSegment={handleUpdateSegment}
                         />
                     ) : (
                         <EmptyStateClean
