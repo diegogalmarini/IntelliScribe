@@ -5,8 +5,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { uploadAvatar, checkStorageLimit } from '../services/storageService';
+import { supabase } from '../lib/supabase';
 
-type SettingsTab = 'profile' | 'security' | 'notifications';
+type SettingsTab = 'profile' | 'security' | 'notifications' | 'developer';
 
 interface SettingsProps {
     user: UserProfile;
@@ -52,6 +53,11 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
     const [storageLimit, setStorageLimit] = useState<number>(0);
     const [isLoadingStorage, setIsLoadingStorage] = useState(true);
 
+    // API Token State (for Developer tab)
+    const [apiToken, setApiToken] = useState<string>('');
+    const [tokenCopied, setTokenCopied] = useState(false);
+    const [loadingToken, setLoadingToken] = useState(false);
+
     // Fetch storage usage on mount
     useEffect(() => {
         const fetchStorageUsage = async () => {
@@ -73,6 +79,25 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
         fetchStorageUsage();
     }, [user.id, user.subscription?.planId]);
+
+    // Load API token for Developer tab
+    useEffect(() => {
+        const loadApiToken = async () => {
+            setLoadingToken(true);
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.access_token) {
+                    setApiToken(session.access_token);
+                }
+            } catch (error) {
+                console.error('Failed to load API token:', error);
+            } finally {
+                setLoadingToken(false);
+            }
+        };
+
+        loadApiToken();
+    }, []);
 
     // Sync local state if user prop changes (e.g. initial load or external update)
     useEffect(() => {
@@ -153,6 +178,12 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
         setFeedback({ message: "Changes discarded.", type: 'success' });
         setTimeout(() => setFeedback(null), 3000);
+    };
+
+    const handleCopyToken = () => {
+        navigator.clipboard.writeText(apiToken);
+        setTokenCopied(true);
+        setTimeout(() => setTokenCopied(false), 2000);
     };
 
     const renderContent = () => {
@@ -401,6 +432,75 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                         </section>
                     </div>
                 );
+            case 'developer':
+                return (
+                    <div className="flex flex-col gap-8 animate-in fade-in duration-300">
+                        <section>
+                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-6">🔑 API Token</h4>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+                                Usa este token para autenticar la extensión de Chrome de Diktalo. Copia el token y pégalo en la extensión.
+                            </p>
+
+                            {loadingToken ? (
+                                <div className="flex items-center justify-center p-8">
+                                    <span className="material-symbols-outlined animate-spin text-primary text-2xl">progress_activity</span>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-4">
+                                    <div className="p-4 bg-slate-50 dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl font-mono text-xs break-all">
+                                        {apiToken || 'No token available'}
+                                    </div>
+
+                                    <button
+                                        onClick={handleCopyToken}
+                                        className="self-start flex items-center gap-2 px-4 py-2 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-lg font-medium transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">
+                                            {tokenCopied ? 'check_circle' : 'content_copy'}
+                                        </span>
+                                        {tokenCopied ? 'Copiado!' : 'Copiar Token'}
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl">
+                                <h5 className="text-blue-900 dark:text-blue-200 text-sm font-bold mb-2 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">info</span>
+                                    Cómo usar
+                                </h5>
+                                <ol className="text-blue-700 dark:text-blue-300 text-xs space-y-1 ml-4 list-decimal">
+                                    <li>Copia el token de arriba</li>
+                                    <li>Abre la extensión de Chrome de Diktalo</li>
+                                    <li>Pega el token en el campo de configuración</li>
+                                    <li>Haz clic en "Guardar Token"</li>
+                                </ol>
+                            </div>
+
+                            <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl">
+                                <p className="text-red-700 dark:text-red-300 text-xs flex items-start gap-2">
+                                    <span className="material-symbols-outlined text-[16px] mt-0.5">warning</span>
+                                    <span><strong>Importante:</strong> No compartas este token con nadie. Da acceso completo a tu cuenta de Diktalo.</span>
+                                </p>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-6">🧩 Chrome Extension</h4>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                                Graba audio de pestañas del navegador (Google Meet, Zoom, YouTube) directamente desde Chrome.
+                            </p>
+                            <a
+                                href="https://github.com/diegogalmarini/IntelliScribe/tree/main/chrome-extension"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#2f3e5c] border border-slate-300 dark:border-border-dark rounded-lg text-slate-700 dark:text-white text-sm font-medium transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">download</span>
+                                Instrucciones de Instalación
+                            </a>
+                        </section>
+                    </div>
+                );
         }
         return null;
     };
@@ -465,6 +565,14 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                 >
                                     <span className={`material-symbols-outlined text-[20px] ${activeTab === 'notifications' ? 'material-symbols-filled' : ''}`}>notifications</span>
                                     {t('notifications')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('developer')}
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors font-medium text-sm w-full text-left ${activeTab === 'developer' ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20 font-bold' : 'text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 border-transparent'}`}
+                                >
+                                    <span className={`material-symbols-outlined text-[20px] ${activeTab === 'developer' ? 'material-symbols-filled' : ''}`}>code</span>
+                                    Developer
                                 </button>
                             </div>
                         </aside>

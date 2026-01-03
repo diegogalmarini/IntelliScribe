@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     X, User, Shield, Bell, Puzzle, Settings as SettingsIcon,
     Database, HelpCircle, LogOut, ChevronRight, ExternalLink,
     Camera, Mail, Phone, Globe, Lock, Key, Smartphone,
     Monitor, Download, Trash2, Save, Mic, Cloud, Info, Check,
-    Moon, Sun, Laptop, ChevronDown, Zap // Added icons for theme selector
+    Moon, Sun, Laptop, ChevronDown, Zap, Code // Added Code icon
 } from 'lucide-react';
 import { UserProfile, AppRoute } from '../../../types';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -12,6 +12,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { databaseService } from '../../../services/databaseService';
 import { uploadAvatar } from '../../../services/storageService';
 import { PhoneVerificationModal } from '../../../components/PhoneVerificationModal';
+import { supabase } from '../../../lib/supabase'; // Import Supabase client
 
 interface SettingsModalProps {
     user: UserProfile;
@@ -22,7 +23,7 @@ interface SettingsModalProps {
     onLogout: () => void;
 }
 
-type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'help' | 'about';
+type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'developer' | 'help' | 'about';
 
 const TIMEZONES = [
     { value: 'America/New_York', label: '(GMT-5) Eastern Time (US & Canada)' },
@@ -32,7 +33,6 @@ const TIMEZONES = [
     { value: 'Europe/London', label: '(GMT+0) London' },
     { value: 'Europe/Madrid', label: '(GMT+1) Madrid, Paris, Berlin' },
     { value: 'Asia/Tokyo', label: '(GMT+9) Tokyo' },
-    // Add more as needed or use a library
 ];
 
 interface SelectOption {
@@ -47,7 +47,7 @@ const CustomSelect: React.FC<{
     options: SelectOption[];
     placeholder?: string;
     icon?: React.ReactNode;
-    className?: string; // Add className prop for flexibility
+    className?: string;
 }> = ({ value, onChange, options, placeholder, icon, className }) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -125,6 +125,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Features State
     const [showPhoneVerify, setShowPhoneVerify] = useState(false);
 
+    // Developer API Token State
+    const [apiToken, setApiToken] = useState<string>('');
+    const [isLoadingToken, setIsLoadingToken] = useState(false);
+
     // Initial State loading from User Profile or Defaults
     const [personalInfo, setPersonalInfo] = useState({
         phone: user.phone || '',
@@ -132,13 +136,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
 
     // EFFECT: Sync local state with User prop updates involves
-    React.useEffect(() => {
+    useEffect(() => {
         setPersonalInfo(prev => ({
             ...prev,
             phone: user.phone || prev.phone,
             timezone: user.timezone || prev.timezone
         }));
     }, [user.phone, user.timezone]);
+
+    // EFFECT: Fetch API Token when Developer section is selected
+    useEffect(() => {
+        if (selectedSection === 'developer') {
+            const fetchToken = async () => {
+                setIsLoadingToken(true);
+                const { data } = await supabase.auth.getSession();
+                if (data.session) {
+                    setApiToken(data.session.access_token);
+                }
+                setIsLoadingToken(false);
+            };
+            fetchToken();
+        }
+    }, [selectedSection]);
 
     // Name Editing State
     const [isEditingName, setIsEditingName] = useState(false);
@@ -193,9 +212,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             if (publicUrl) {
                 // Optimistic Update
                 handleUpdateUser({ avatarUrl: publicUrl });
-                // Force reload if needed or trust props update
-                // Consider adding a local state for avatar if props delay is too long
-                // For now, handleUpdateUser should trigger re-render in App.tsx which passes new user prop
             }
         } catch (error) {
             console.error('Failed to upload avatar:', error);
@@ -235,16 +251,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const menuItems = [
         { id: 'account' as Section, icon: User, label: 'Account' },
         { id: 'preferences' as Section, icon: SettingsIcon, label: 'Preferences' },
-        { id: 'notifications' as Section, icon: Bell, label: 'Notifications' }, // Added Notifications
+        { id: 'notifications' as Section, icon: Bell, label: 'Notifications' },
         { id: 'integrations' as Section, icon: Zap, label: 'Integrations' },
         { id: 'custom_vocabulary' as Section, icon: Database, label: 'Custom vocabulary' },
         { id: 'private_cloud' as Section, icon: Cloud, label: 'Private Cloud Sync' },
+        { id: 'developer' as Section, icon: Code, label: 'Developer' },
         { id: 'help' as Section, icon: HelpCircle, label: 'Help Center' },
         { id: 'about' as Section, icon: Info, label: 'About Diktalo' },
     ];
 
     const handleHelpClick = () => {
-        window.open('https://support.diktalo.com', '_blank'); // Placeholder URL
+        window.open('https://support.diktalo.com', '_blank');
     };
 
     const confirmLogout = () => {
@@ -253,7 +270,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     const handleDeleteAccount = () => {
-        // TODO: Implement actual API call to delete account
         console.log('Deleting account for:', user.id);
         alert('Account deleted successfully (Mock)');
         onLogout();
@@ -394,11 +410,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
 
-                                {/* Personal Information (Phone & Timezone) */}
+                                {/* Personal Information */}
                                 <div>
                                     <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Personal Information</h2>
                                     <div className="space-y-6">
-                                        {/* Phone Number */}
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <div className="flex items-center gap-2">
@@ -436,7 +451,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </div>
                                         </div>
 
-                                        {/* Time Zone */}
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white">Time zone</p>
@@ -474,9 +488,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             Manage
                                         </button>
                                     </div>
-                                    <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                                        Manage subscription in Membership Center
-                                    </p>
                                 </div>
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
@@ -485,7 +496,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 <div>
                                     <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Login methods</h2>
                                     <div className="space-y-4">
-                                        {/* Google */}
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
@@ -501,7 +511,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </button>
                                         </div>
 
-                                        {/* Apple */}
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-5 h-5 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black">
@@ -537,9 +546,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             >
                                                 Delete account
                                             </button>
-                                            <p className="text-xs text-slate-400 mt-2">
-                                                Warning: This action will permanently delete your account and data.
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -557,7 +563,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             <p className="text-sm font-medium text-slate-900 dark:text-white">Theme</p>
                                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Choose how Diktalo looks to you.</p>
                                         </div>
-                                        {/* Theme Segmented Control */}
                                         <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
                                             <button
                                                 onClick={() => setTheme('light')}
@@ -625,14 +630,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
                                     </div>
                                 </div>
-                                {/* ... rest of preferences ... */}
                             </div>
                         )}
 
                         {/* --- NOTIFICATIONS SECTION --- */}
                         {selectedSection === 'notifications' && (
                             <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">
-                                {/* Email Notifications */}
                                 <div>
                                     <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Email notifications</h2>
                                     <div className="space-y-6">
@@ -676,7 +679,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
 
-                                {/* Browser Notifications */}
                                 <div>
                                     <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Browser notifications</h2>
                                     <div className="flex items-center justify-between">
@@ -741,7 +743,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </button>
                                     </div>
 
-                                    {/* Placeholder for future integrations */}
                                     <div className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl opacity-60 grayscale cursor-not-allowed">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
@@ -756,6 +757,57 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             Soon
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* --- DEVELOPER SECTION (Fase 3: Ghostwire) --- */}
+                        {selectedSection === 'developer' && (
+                            <div className="max-w-2xl space-y-8 animate-in fade-in duration-300">
+                                <div>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-2">Developer Settings</h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Manage your API keys and access tokens for external tools like the Chrome Extension.
+                                    </p>
+                                </div>
+                                <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
+
+                                <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-white/5">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
+                                                <Key size={20} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Extension API Token</h3>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">Use this JWT Bearer token to connect the Ghostwire extension.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={isLoadingToken ? 'Fetching secure token...' : apiToken}
+                                            className="w-full bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg py-2 pl-3 pr-24 text-xs font-mono text-slate-600 dark:text-slate-300"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                if (apiToken) {
+                                                    navigator.clipboard.writeText(apiToken);
+                                                    alert('Secure Access Token copied to clipboard!');
+                                                }
+                                            }}
+                                            disabled={isLoadingToken || !apiToken}
+                                            className="absolute right-1 top-1 bottom-1 px-3 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
+                                    <p className="mt-2 text-[10px] text-slate-400">
+                                        ⚠️ This token is valid for your current session. If it expires, simply refresh this page and copy a new one.
+                                    </p>
                                 </div>
                             </div>
                         )}
@@ -945,4 +997,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             )}
         </div>
     );
-}
+};
