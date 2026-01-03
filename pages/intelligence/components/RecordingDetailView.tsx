@@ -258,18 +258,20 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
-            // Download file directly from Supabase Storage
-            const { data, error } = await supabase.storage
+            // Get public URL from Supabase Storage
+            const { data } = supabase.storage
                 .from('recordings')
-                .download(recording.audioUrl);
+                .getPublicUrl(recording.audioUrl);
 
-            if (error) throw error;
+            // Fetch the file from the public URL
+            const response = await fetch(data.publicUrl);
+            if (!response.ok) throw new Error('Failed to fetch audio file');
 
-            if (data) {
-                // Use file-saver for reliable download with correct filename
-                saveAs(data, fileName);
-                console.log('[RecordingDetailView] Download initiated successfully');
-            }
+            const blob = await response.blob();
+
+            // Use file-saver for reliable download with correct filename
+            saveAs(blob, fileName);
+            console.log('[RecordingDetailView] Download initiated successfully');
         } catch (err) {
             console.error('Failed to download audio:', err);
             alert('Error al descargar el audio');
