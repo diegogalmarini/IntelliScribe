@@ -1,0 +1,203 @@
+.popup {
+    width: 350px;
+    min-height: 200px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.popup-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px;
+    text-align: center;
+}
+
+.popup-header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.status-indicator {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.status-idle {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.status-recording {
+    background: #ef4444;
+    animation: pulse 1.5s infinite;
+}
+
+.status-processing,
+.status-uploading {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.status-success {
+    background: #10b981;
+}
+
+.status-error {
+    background: #ef4444;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.popup-body {
+    padding: 20px;
+}
+
+.timer {
+    text-align: center;
+    font-size: 48px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 20px 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.btn-record {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-record:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-record:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-start {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-stop {
+    background: #1f2937;
+    color: white;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.error-message {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.success-message {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.auth-message {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.token-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.token-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.help-text {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #6b7280;
+    text-align: center;
+}
+
+.help-text a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading p {
+    color: #6b7280;
+    font-size: 14px;
+}
