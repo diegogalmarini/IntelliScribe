@@ -61,12 +61,15 @@ async function startRecording(tabId: number, sendResponse: (response: any) => vo
                 }
 
                 await createOffscreenDocument();
+                // Wait for offscreen document to initialize
+                await new Promise(resolve => setTimeout(resolve, 200));
 
                 chrome.runtime.sendMessage({
                     action: 'START_OFFSCREEN_RECORDING',
                     streamId: streamId
                 }, (response) => {
                     if (chrome.runtime.lastError) {
+                        console.error('[Background] Error communicating with offscreen:', chrome.runtime.lastError);
                         sendResponse({ success: false, error: chrome.runtime.lastError.message });
                         return;
                     }
@@ -92,7 +95,18 @@ async function startRecording(tabId: number, sendResponse: (response: any) => vo
 }
 
 async function pauseRecording(sendResponse: (response: any) => void) {
+    if (!recordingTabId) {
+        sendResponse({ success: false, error: 'No active recording' });
+        return;
+    }
+
     chrome.runtime.sendMessage({ action: 'PAUSE_OFFSCREEN_RECORDING' }, (response) => {
+        if (chrome.runtime.lastError) {
+            console.error('[Background] Pause error:', chrome.runtime.lastError);
+            sendResponse({ success: false, error: chrome.runtime.lastError.message });
+            return;
+        }
+
         if (response?.success) {
             isPaused = true;
             pauseStartTime = Date.now();
@@ -104,7 +118,18 @@ async function pauseRecording(sendResponse: (response: any) => void) {
 }
 
 async function resumeRecording(sendResponse: (response: any) => void) {
+    if (!recordingTabId) {
+        sendResponse({ success: false, error: 'No active recording' });
+        return;
+    }
+
     chrome.runtime.sendMessage({ action: 'RESUME_OFFSCREEN_RECORDING' }, (response) => {
+        if (chrome.runtime.lastError) {
+            console.error('[Background] Resume error:', chrome.runtime.lastError);
+            sendResponse({ success: false, error: chrome.runtime.lastError.message });
+            return;
+        }
+
         if (response?.success) {
             isPaused = false;
             if (pauseStartTime) {
