@@ -158,36 +158,6 @@ const Popup: React.FC = () => {
         });
     };
 
-    if (!authToken && status !== 'success') {
-        return (
-            <div className="popup">
-                <header className="popup-header">
-                    <div className="header-glow" />
-                    <h1><MicIcon /> Diktalo</h1>
-                    <div className="status-badge">Configuración</div>
-                </header>
-                <div className="popup-body">
-                    <div className="token-container">
-                        <p className="message info">Inserta tu API Token para empezar a grabar.</p>
-                        <input
-                            type="password"
-                            className="input-glow"
-                            placeholder="Supabase API Token..."
-                            value={authToken}
-                            onChange={(e) => setAuthToken(e.target.value)}
-                        />
-                        <button className="btn-main btn-start" onClick={handleSaveToken}>
-                            Guardar Token
-                        </button>
-                    </div>
-                    <a href="https://www.diktalo.com/settings" target="_blank" className="help-link">
-                        ¿Dónde encuentro mi token?
-                    </a>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="popup">
             <header className="popup-header">
@@ -240,14 +210,32 @@ const Popup: React.FC = () => {
                         </>
                     )}
                 </div>
-
                 {!isRecording && (
-                    <button
-                        className="btn-dashboard"
-                        onClick={() => window.open('https://www.diktalo.com/intelligence', '_blank')}
-                    >
-                        Abrir Dashboard
-                    </button>
+                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                        <div className="token-container">
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                                API Token {authToken && '(configurado)'}
+                            </label>
+                            <input
+                                type="password"
+                                className="input-glow"
+                                placeholder="Pega tu token aquí..."
+                                value={authToken}
+                                onChange={(e) => setAuthToken(e.target.value)}
+                                style={{ fontSize: '12px' }}
+                            />
+                            <button
+                                className="btn-main btn-start"
+                                onClick={handleSaveToken}
+                                style={{ marginTop: '8px' }}
+                            >
+                                Guardar Token
+                            </button>
+                            <a href="https://www.diktalo.com/intelligence" target="_blank" className="help-link" style={{ marginTop: '8px', display: 'block' }}>
+                                Obtener token del dashboard →
+                            </a>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>
