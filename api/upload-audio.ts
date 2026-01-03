@@ -1,6 +1,5 @@
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import { getAudioDurationInSeconds } from 'get-audio-duration';
 
 // Helper to validate UUID format
 function isValidUUID(uuid: string): boolean {
@@ -124,17 +123,6 @@ export default async function handler(req, res) {
         const publicAudioUrl = fileName; // We store the relative path in the DB
 
         // --- Step 5: Create Recording Entry via REST API ---
-        // --- Step 5: Calculate Audio Duration ---
-        let durationSeconds = 0;
-        try {
-            durationSeconds = await getAudioDurationInSeconds(audioFile.filepath);
-            console.log('[upload-audio] Audio duration calculated:', durationSeconds, 'seconds');
-        } catch (durationErr) {
-            console.warn('[upload-audio] Failed to calculate duration:', durationErr);
-            // Continue anyway, duration can be updated later
-        }
-
-        // --- Step 6: Create Recording Entry via REST API ---
         console.log('[upload-audio] Creating database entry...');
 
         const recordingData = {
@@ -142,7 +130,7 @@ export default async function handler(req, res) {
             title: title,
             description: tabUrl ? `Captured from: ${tabUrl}` : 'Captured via Chrome Extension',
             date: new Date().toISOString(),
-            duration_seconds: durationSeconds > 0 ? durationSeconds : null,
+            duration_seconds: null, // Will be set by frontend when audio loads
             status: 'Processing',
             audio_url: publicAudioUrl,
             participants: 1,

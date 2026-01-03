@@ -540,6 +540,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onUpdateSpeaker={handleUpdateSpeaker}
                             onUpdateSummary={handleUpdateSummary}
                             onUpdateSegment={handleUpdateSegment}
+                            onUpdateRecording={onUpdateRecording}
                         />
                     ) : (
                         <EmptyStateClean
