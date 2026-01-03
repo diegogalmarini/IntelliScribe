@@ -76,12 +76,11 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                 })
             });
 
-            const { sessionId, error } = await response.json();
+            const { url, error } = await response.json();
             if (error) throw new Error(error);
 
-            const stripe = await stripePromise;
-            // @ts-ignore
-            if (stripe) await stripe.redirectToCheckout({ sessionId });
+            // Use direct redirect instead of deprecated redirectToCheckout
+            if (url) window.location.href = url;
         } catch (error: any) {
             console.error('Error:', error);
             alert('Error initiating payment: ' + (error.message || 'Check connection.'));

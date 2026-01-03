@@ -124,11 +124,11 @@ export function Plans({ user }: PlansProps) {
                 })
             });
 
-            const { sessionId, error } = await response.json();
+            const { url, error } = await response.json();
             if (error) throw new Error(error);
 
-            const stripe = await stripePromise;
-            if (stripe) await stripe.redirectToCheckout({ sessionId });
+            // Use direct redirect instead of deprecated redirectToCheckout
+            if (url) window.location.href = url;
         } catch (error: any) {
             console.error('Error:', error);
             alert('Error al iniciar pago: ' + (error.message || 'Verifica tu conexión.'));
