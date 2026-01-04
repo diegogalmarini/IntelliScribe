@@ -521,13 +521,13 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => exportUtils.exportAsPDF(recording)}
+                                        onClick={() => exportUtils.exportAsPDF(recording, { includeTranscript: true, includeSummary: false })}
                                         className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
                                     >
                                         PDF
                                     </button>
                                     <button
-                                        onClick={() => exportUtils.exportAsDoc(recording)}
+                                        onClick={() => exportUtils.exportAsDoc(recording, { includeTranscript: true, includeSummary: false })}
                                         className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
                                     >
                                         DOC
@@ -725,13 +725,13 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => exportUtils.exportAsPDF(recording)}
+                                        onClick={() => exportUtils.exportAsPDF(recording, { includeSummary: true, includeTranscript: false })}
                                         className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
                                     >
                                         PDF
                                     </button>
                                     <button
-                                        onClick={() => exportUtils.exportAsDoc(recording)}
+                                        onClick={() => exportUtils.exportAsDoc(recording, { includeSummary: true, includeTranscript: false })}
                                         className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
                                     >
                                         DOC
