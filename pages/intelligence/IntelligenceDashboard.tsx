@@ -134,8 +134,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     // Sync internal selection state
                     setSelectedId(newRecording.id);
                     onSelectRecording(newRecording.id);
-                    // Open editor with the new recording (which is now activeRecording)
-                    setIsEditorOpen(true);
+
+                    // Show RecordingDetailView (default) instead of InlineEditor
+                    setIsEditorOpen(false);
                 }
             } catch (error) {
                 console.error("Error saving recording:", error);
@@ -259,7 +260,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             setView('recordings');
             setSelectedId(createdRecording.id);
             // onSelectRecording(createdRecording.id); // Removed to avoid overriding with stale parent data
-            setIsEditorOpen(true); // Open InlineEditor
+            setIsEditorOpen(false); // Show RecordingDetailView
             console.log('[Dashboard] Multi-audio process complete!');
 
         } catch (error: any) {

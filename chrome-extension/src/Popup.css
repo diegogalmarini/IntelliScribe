@@ -23,9 +23,10 @@ body {
     padding: 0;
 }
 
+/* Main Popup Container - Reduced Size */
 .popup {
-    width: 280px;
-    min-height: 380px;
+    width: 250px;
+    min-height: 320px;
     background-color: var(--background);
     color: var(--foreground);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -37,7 +38,6 @@ body {
 .popup-header {
     padding: 12px 16px;
     background: var(--background);
-    /* border-bottom: 1px solid var(--border); */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -54,15 +54,39 @@ body {
 }
 
 .status-badge {
-    font-size: 9px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 9999px;
+    font-size: 10px;
+    /* Slightly larger for readability */
+    font-weight: 800;
+    /* Extra Bold as requested */
+    padding: 2px 8px;
+    border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background: var(--secondary);
     color: var(--secondary-foreground);
     border: 1px solid transparent;
+}
+
+/* ... existing styles ... */
+
+.btn-save-compact {
+    width: 100%;
+    background: #2563eb;
+    /* Blue-600 (SaaS Blue) */
+    color: white;
+    border: none;
+    padding: 8px;
+    /* Slightly more padding */
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-save-compact:hover {
+    background: #1d4ed8;
+    /* Blue-700 */
 }
 
 .status-recording {
@@ -87,30 +111,29 @@ body {
 }
 
 .popup-body {
-    padding: 16px;
+    padding: 12px;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 16px;
 }
 
-/* Timer */
+/* Timer - Font Fix (Inter) */
 .timer-container {
     text-align: center;
 }
 
 .timer {
     font-size: 42px;
-    font-weight: 700;
+    font-weight: 600;
     color: #ef4444;
-    /* Red color like in the screenshot */
-    font-family: 'Courier New', Courier, monospace;
-    /* Monospaced for timer look */
-    letter-spacing: 2px;
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
     line-height: 1;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 /* Controls */
@@ -118,11 +141,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 20px;
     width: 100%;
 }
 
-/* Initial Start Button (pill shape) */
+/* Initial Start Button (pill shape - fallback) */
 .btn-start-pill {
     width: 100%;
     height: 44px;
@@ -144,16 +167,14 @@ body {
     opacity: 0.9;
 }
 
-/* Main Record Button (Red Mic) */
+/* Main Record Button (Red Mic) - The one currently used */
 .btn-mic-start {
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     background: #ef4444;
-    /* Red-500 */
     color: white;
     border: 4px solid #fee2e2;
-    /* Red-100 ring effect */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,85 +197,18 @@ body {
 }
 
 .btn-mic-start svg {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     stroke-width: 2px;
-}
-
-/* Circular Buttons */
-.btn-circle {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
-    position: relative;
-}
-
-.btn-circle:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Stop Button: Black circle with white square */
-.btn-stop-circle {
-    background: var(--primary);
-    /* Black/Dark */
-    color: white;
-    width: 64px;
-    /* Slightly larger */
-    height: 64px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-stop-circle:hover:not(:disabled) {
-    transform: scale(1.05);
-}
-
-.btn-stop-circle svg {
-    width: 20px;
-    height: 20px;
-    fill: white;
-}
-
-/* Pause Button: Grey outline/light bg */
-.btn-pause-circle {
-    background: white;
-    border: 2px solid var(--border);
-    color: var(--foreground);
-    width: 48px;
-    height: 48px;
-}
-
-.btn-pause-circle:hover:not(:disabled) {
-    background: var(--secondary);
-    border-color: var(--muted-foreground);
-}
-
-.btn-pause-circle.active {
-    background: #ef4444;
-}
-
-/* Cancel Link */
-.cancel-text {
-    position: absolute;
-    right: 40px;
-    font-size: 14px;
-    color: var(--muted-foreground);
-    cursor: pointer;
 }
 
 /* Stop Button: Black Circle */
 .btn-stop-black {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: #1f2937;
-    border: 4px solid #e5e7eb;
+    border: 3px solid #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -264,28 +218,22 @@ body {
     padding: 0;
 }
 
-.btn-stop-black::after {
-    content: '';
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    bottom: -4px;
-    left: -4px;
-    border-radius: 50%;
-    border: 2px solid #e5e7eb;
-}
-
 .btn-stop-black:hover:not(:disabled) {
     transform: scale(1.05);
 }
 
+.btn-stop-black::after {
+    /* Clean up any old psuedo elements if present in memory, but this overwrites */
+    content: none;
+}
+
 /* Pause Button: Grey Circle */
 .btn-pause-grey {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: #9ca3af;
-    border: 4px solid #e5e7eb;
+    border: 3px solid #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -301,10 +249,10 @@ body {
 
 /* Labels below buttons */
 .btn-label {
-    margin-top: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #9ca3af;
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     text-align: center;
@@ -317,10 +265,10 @@ body {
 }
 
 .btn-icon-square {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border: 2px solid white;
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .btn-icon-pause {
@@ -329,17 +277,16 @@ body {
 }
 
 .pause-bar {
-    width: 6px;
-    height: 24px;
+    width: 5px;
+    height: 20px;
     background: white;
     border-radius: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Footer Links */
+/* Footer Links - Fixed Color (Grey) */
 .footer {
     margin-top: auto;
-    padding-top: 20px;
+    padding: 12px 0;
     width: 100%;
     text-align: center;
 }
@@ -349,41 +296,42 @@ body {
     justify-content: center;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
-    color: #ef4444;
+    font-size: 10px;
+    color: #64748b;
 }
 
 .footer-link {
-    color: #ef4444;
+    color: #64748b;
     text-decoration: none;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: color 0.2s;
 }
 
 .footer-link:hover {
-    text-decoration: underline;
+    color: #0f172a;
+    text-decoration: none;
 }
 
 .divider {
-    color: #e2e8f0;
+    color: #cbd5e1;
 }
 
 /* Token Input Area (Compact) */
 .token-area {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background: #f8fafc;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-radius: 6px;
+    margin-bottom: 16px;
 }
 
 .input-compact {
     width: 100%;
     border: 1px solid #e2e8f0;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 6px;
     box-sizing: border-box;
     font-family: inherit;
 }
@@ -393,17 +341,17 @@ body {
     background: #0f172a;
     color: white;
     border: none;
-    padding: 8px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 11px;
     cursor: pointer;
     font-weight: 500;
 }
 
 /* Spinner */
 .spinner-clean {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top: 2px solid currentColor;
     border-radius: 50%;
@@ -417,17 +365,16 @@ body {
 }
 
 .message {
-    padding: 12px;
-    font-size: 13px;
-    line-height: 1.5;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.4;
     text-align: center;
     border-radius: 4px;
-    border-radius: 6px;
     background: #f1f5f9;
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 16px;
-    color: #ef4444;
+    margin-bottom: 12px;
+    color: #64748b;
 }
 
 .message.error {
