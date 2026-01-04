@@ -72,6 +72,12 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         }
     }, [recording.durationSeconds]);
 
+    // Debug: Check if onUpdateRecording is defined
+    React.useEffect(() => {
+        console.log('[RecordingDetailView] Component mounted. onUpdateRecording defined:', !!onUpdateRecording);
+        console.log('[RecordingDetailView] Recording duration:', recording.durationSeconds);
+    }, []);
+
     const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
