@@ -129,6 +129,24 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
     // Rotating Hero Text Logic REMOVED
 
+    // Feature Pills Logic
+    const ALL_FEATURES = [
+        { key: 'feature_dialer', icon: 'call', color: 'text-blue-600 dark:text-blue-400' },
+        { key: 'feature_ghostwire', icon: 'graphic_eq', color: 'text-purple-600 dark:text-purple-400' },
+        { key: 'feature_insights', icon: 'auto_awesome', color: 'text-amber-500 dark:text-amber-400' },
+        { key: 'feature_security', icon: 'shield', color: 'text-green-600 dark:text-green-400' },
+        { key: 'feature_sync', icon: 'cloud_sync', color: 'text-cyan-500 dark:text-cyan-400' },
+        { key: 'feature_teams', icon: 'group', color: 'text-indigo-500 dark:text-indigo-400' },
+    ];
+
+    const [features, setFeatures] = useState<{ key: string, icon: string, color: string }[]>([]);
+
+    useEffect(() => {
+        // Randomly select 3 unique features on mount
+        const shuffled = [...ALL_FEATURES].sort(() => 0.5 - Math.random());
+        setFeatures(shuffled.slice(0, 3));
+    }, []);
+
     return (
         <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative font-sans">
 
@@ -178,7 +196,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             </div>
 
             {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
-            <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20 
+            <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20
                           bg-white/40 dark:bg-black/40 backdrop-blur-3xl border-r border-white/40 dark:border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.05)]">
 
                 {/* Header (Logo + Language + Theme) */}
@@ -218,11 +236,11 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         </button>
 
                         {/* Apple Button Placeholders - Disabled/Hidden as per user request */}
-                        {/* 
+                        {/*
                         <button disabled className="flex items-center justify-center gap-3 h-12 ... opacity-50 cursor-not-allowed">
                              <img src="..." />
                              <span>Continue with Apple</span>
-                        </button> 
+                        </button>
                         */}
                     </div>
 
@@ -236,11 +254,11 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     </div>
 
                     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                        {/* Registration Fields - First/Last Name (Hidden in 'Simply' aesthetics? 
-                           User screenshot shows ONLY Email/Pass. 
-                           However, Diktalo logic uses First/Last. 
-                           I will KEEP First/Last for Signup but maybe style them less intrusively or group them if needed. 
-                           Actually, "Continue with Email" implies Email is standard. 
+                        {/* Registration Fields - First/Last Name (Hidden in 'Simply' aesthetics?
+                           User screenshot shows ONLY Email/Pass.
+                           However, Diktalo logic uses First/Last.
+                           I will KEEP First/Last for Signup but maybe style them less intrusively or group them if needed.
+                           Actually, "Continue with Email" implies Email is standard.
                            Let's keep them but use the new clean input style.
                         */}
                         {isSignUp && (
@@ -308,7 +326,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 <button
                                     type="button"
                                     onClick={handleForgotPassword}
-                                    className="text-xs font-medium text-gray-600 hover:text-black dark:text-white transition-colors focus:outline-none"
+                                    className="text-xs font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors focus:outline-none"
                                 >
                                     {t('forgotPass')}
                                 </button>
@@ -377,36 +395,24 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Right Side - Transparent to show Global BG */}
             <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
                 <div className="relative z-10 max-w-4xl text-center">
-                    <h2 className="text-4xl lg:text-6xl font-extrabold text-[#0f172a] dark:text-white mb-8 tracking-tighter leading-[1] drop-shadow-sm text-balance">
+                    <h2 className="text-4xl lg:text-7xl font-extrabold text-[#0f172a] dark:text-white mb-8 tracking-tighter leading-[1] drop-shadow-sm">
                         {t('loginHeroTitle')}
                     </h2>
                     <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
                         {t('loginHeroDesc')}
                     </p>
 
-                    {/* Feature Pills (Escarapelas) */}
+                    {/* Feature Pills (Random 3) */}
                     <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                        {/* Pill 1: Dialer */}
-                        <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
-                            <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">call</span>
-                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('feature_dialer')}</span>
-                        </div>
-
-                        {/* Pill 2: Ghostwire */}
-                        <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
-                            <span className="material-symbols-outlined text-[18px] text-purple-600 dark:text-purple-400">graphic_eq</span>
-                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('feature_ghostwire')}</span>
-                        </div>
-
-                        {/* Pill 3: Insights */}
-                        <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
-                            <span className="material-symbols-outlined text-[18px] text-amber-500 dark:text-amber-400">auto_awesome</span>
-                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('feature_insights')}</span>
-                        </div>
+                        {features.map((feature) => (
+                            <div key={feature.key} className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
+                                <span className={`material-symbols-outlined text-[18px] ${feature.color}`}>{feature.icon}</span>
+                                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t(feature.key as any)}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
         </div>
     );
 };
-```

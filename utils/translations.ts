@@ -439,6 +439,9 @@ export const translations = {
     feature_dialer: "Dialer Inteligente",
     feature_ghostwire: "Ghostwire AI",
     feature_insights: "Análisis Profundo",
+    feature_security: "Encriptación Militar",
+    feature_sync: "Sincronización Cloud",
+    feature_teams: "Colaboración",
 
     // Auth
     alreadyHaveAccount: "¿Ya tienes una cuenta?",
