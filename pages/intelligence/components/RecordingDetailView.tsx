@@ -127,21 +127,40 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             setCurrentTime(audioRef.current.currentTime);
             // Fallback: if duration is still 0, try to get it from audio element
             if (duration === 0 && audioRef.current.duration && isFinite(audioRef.current.duration)) {
+                console.log('[RecordingDetailView] Duration detected in handleTimeUpdate:', audioRef.current.duration);
                 setDuration(audioRef.current.duration);
+
+                // Also save to DB if needed
+                const audioDuration = audioRef.current.duration;
+                if ((!recording.durationSeconds || recording.durationSeconds === 0) && onUpdateRecording) {
+                    console.log('[RecordingDetailView] Saving audio duration to DB (from timeUpdate):', audioDuration);
+                    onUpdateRecording(recording.id, { durationSeconds: audioDuration });
+                }
             }
         }
     };
 
     const handleLoadedMetadata = () => {
+        console.log('[RecordingDetailView] handleLoadedMetadata called');
+        console.log('[RecordingDetailView] audioRef.current:', !!audioRef.current);
+        console.log('[RecordingDetailView] audioRef.current.duration:', audioRef.current?.duration);
+        console.log('[RecordingDetailView] onUpdateRecording defined:', !!onUpdateRecording);
+
         if (audioRef.current && audioRef.current.duration && isFinite(audioRef.current.duration)) {
             const audioDuration = audioRef.current.duration;
+            console.log('[RecordingDetailView] Valid duration detected:', audioDuration);
             setDuration(audioDuration);
 
             // If DB doesn't have duration, save it automatically
             if ((!recording.durationSeconds || recording.durationSeconds === 0) && onUpdateRecording) {
                 console.log('[RecordingDetailView] Saving audio duration to DB:', audioDuration);
                 onUpdateRecording(recording.id, { durationSeconds: audioDuration });
+            } else {
+                console.log('[RecordingDetailView] Not saving - either duration exists or onUpdateRecording undefined');
+                console.log('[RecordingDetailView] recording.durationSeconds:', recording.durationSeconds);
             }
+        } else {
+            console.log('[RecordingDetailView] Invalid audio state - cannot get duration');
         }
     };
 
