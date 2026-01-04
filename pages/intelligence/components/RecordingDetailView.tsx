@@ -456,12 +456,12 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                             />
                                             <div
                                                 className="absolute top-0 left-0 h-full bg-blue-600 rounded-full pointer-events-none transition-all duration-100"
-                                                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                                                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
                                             />
                                             {/* Thumb handle visual */}
                                             <div
                                                 className="absolute top-1/2 -mt-1.5 h-3 w-3 bg-white border-2 border-blue-600 rounded-full shadow-sm pointer-events-none transition-all duration-100 opacity-0 group-hover:opacity-100"
-                                                style={{ left: `calc(${(currentTime / (duration || 1)) * 100}% - 6px)` }}
+                                                style={{ left: `calc(${duration > 0 ? (currentTime / duration) * 100 : 0}% - 6px)` }}
                                             />
                                         </div>
                                     </div>
