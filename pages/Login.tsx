@@ -360,19 +360,19 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Right Side - Transparent to show Global BG */}
             <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
                 <div className="relative z-10 max-w-4xl text-center">
-                    <h2 className="text-4xl lg:text-[3.5rem] font-extrabold text-[#020617] dark:text-white mb-6 tracking-tighter leading-[1] drop-shadow-sm">
+                    <h2 className="text-4xl lg:text-6xl font-bold text-[#0B0F19] dark:text-white mb-6 tracking-tight leading-tight drop-shadow-sm">
                         {t('loginHeroTitle')}
                     </h2>
-                    <p className="text-base leading-relaxed text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-medium">
+                    <p className="text-lg lg:text-xl leading-relaxed text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-normal">
                         {t('loginHeroDesc')}
                     </p>
 
-                    {/* Feature Pills (Clean Corporate Monochrome) */}
-                    <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+                    {/* Feature Pills (Random 3 - Minimal/Transparent) */}
+                    <div className="flex flex-wrap justify-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                         {features.map((feature) => (
-                            <div key={feature.key} className="flex items-center gap-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-2.5 rounded-full shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-default">
-                                <span className={`material-symbols-outlined text-[20px] ${feature.color}`}>{feature.icon}</span>
-                                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 tracking-wide">{t(feature.key as any)}</span>
+                            <div key={feature.key} className="flex items-center gap-2 px-2 py-1 transition-opacity opacity-80 hover:opacity-100 cursor-default">
+                                <span className={`material-symbols-outlined text-[20px] text-slate-500 dark:text-slate-400`}>{feature.icon}</span>
+                                <span className="text-[14px] font-medium text-slate-600 dark:text-slate-300">{t(feature.key as any)}</span>
                             </div>
                         ))}
                     </div>
