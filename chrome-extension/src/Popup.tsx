@@ -14,6 +14,7 @@ const Popup: React.FC = () => {
     const [recordingTime, setRecordingTime] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [authToken, setAuthToken] = useState<string>('');
+    const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [showStopConfirm, setShowStopConfirm] = useState(false);
 
@@ -37,6 +38,7 @@ const Popup: React.FC = () => {
         chrome.storage.local.get(['authToken'], (result) => {
             if (result.authToken) {
                 setAuthToken(result.authToken);
+                setIsConfigExpanded(false);
             }
         });
     }, []);
@@ -180,7 +182,11 @@ const Popup: React.FC = () => {
         setStatus('success');
 
         // Update local state is uploading false
-        setTimeout(() => setStatus('idle'), 2000);
+        // Update local state is uploading false
+        setTimeout(() => {
+            setStatus('idle');
+            setIsConfigExpanded(false);
+        }, 2000);
     };
 
     return (
@@ -240,29 +246,52 @@ const Popup: React.FC = () => {
                 </div>
                 {!isRecording && (
                     <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                        <div className="token-container">
-                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                Configuración {authToken && '(Lista)'}
-                            </label>
-                            <input
-                                type="password"
-                                className="input-glow"
-                                placeholder="Pega el JSON de configuración..."
-                                value={authToken}
-                                onChange={(e) => setAuthToken(e.target.value)}
-                                style={{ fontSize: '12px' }}
-                            />
-                            <button
-                                className="btn-main btn-start"
-                                onClick={handleSaveToken}
-                                style={{ marginTop: '8px' }}
-                            >
-                                Guardar Configuración
-                            </button>
-                            <a href="https://www.diktalo.com/intelligence" target="_blank" className="help-link" style={{ marginTop: '8px', display: 'block' }}>
-                                Obtener configuración del dashboard →
-                            </a>
-                        </div>
+                        {isConfigExpanded ? (
+                            <div className="token-container">
+                                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                                    Configuración {authToken && '(Lista)'}
+                                </label>
+                                <input
+                                    type="password"
+                                    className="input-glow"
+                                    placeholder="Pega el JSON de configuración..."
+                                    value={authToken}
+                                    onChange={(e) => setAuthToken(e.target.value)}
+                                    style={{ fontSize: '12px' }}
+                                />
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                    <button
+                                        className="btn-main btn-start"
+                                        onClick={handleSaveToken}
+                                        style={{ flex: 1 }}
+                                    >
+                                        Guardar
+                                    </button>
+                                    {authToken && (
+                                        <button
+                                            className="btn-secondary"
+                                            onClick={() => setIsConfigExpanded(false)}
+                                            style={{ width: 'auto', padding: '0 12px' }}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                                <a href="https://www.diktalo.com/intelligence" target="_blank" className="help-link" style={{ marginTop: '12px', display: 'block' }}>
+                                    Obtener configuración del dashboard →
+                                </a>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <button
+                                    className="help-link"
+                                    onClick={() => setIsConfigExpanded(true)}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: 'var(--muted-foreground)' }}
+                                >
+                                    ⚙️ Configuración Guardada
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
