@@ -437,6 +437,28 @@ export const translations = {
     signUpBtn: "Crear Cuenta", // NEW
     noAccount: "¿No tienes una cuenta?",
     alreadyHaveAccount: "¿Ya tienes una cuenta?",
+
+    // Login Carousel
+    carousel1_title: "Tu segundo cerebro para audio",
+    carousel1_desc: "Captura, extrae y convierte palabras habladas en acciones concretas.",
+    carousel2_title: "Reuniones que generan valor",
+    carousel2_desc: "Olvída la toma de notas. Obtén resúmenes precisos y tareas detectadas automáticamente.",
+    carousel3_title: "Transcripción de precisión humana",
+    carousel3_desc: "Convierte horas de audio en texto perfectamente puntuado y organizado en segundos.",
+    carousel4_title: "Rompe las barreras del idioma",
+    carousel4_desc: "Traduce tus reuniones y audios a más de 50 idiomas al instante.",
+    carousel5_title: "De voz a acción",
+    carousel5_desc: "Identifica compromisos, fechas y responsables sin levantar un dedo.",
+    carousel6_title: "Privacidad por diseño",
+    carousel6_desc: "Tus datos son tuyos. Procesamiento seguro y encriptado de extremo a extremo.",
+    carousel7_title: "Inteligencia que aprende",
+    carousel7_desc: "Detecta hablantes, temas clave y sentimientos en cada conversación.",
+    carousel8_title: "Exportación flexible",
+    carousel8_desc: "Lleva tus insights a PDF, Word, Notion o tu CRM favorito con un clic.",
+    carousel9_title: "Búsqueda profunda",
+    carousel9_desc: "¿Qué dijo el cliente el mes pasado? Encuentra cualquier frase en segundos.",
+    carousel10_title: "Organización sin esfuerzo",
+    carousel10_desc: "Carpetas inteligentes y etiquetas automáticas para mantener tu caos ordenado.",
     signUp: "Regístrate",
     // Auth
     heroTitle1: "Captura cada",
