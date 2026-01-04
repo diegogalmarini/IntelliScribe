@@ -28,6 +28,10 @@ export const translations = {
     resetPassword: "Reset Password",
     enterNewPassword: "Enter your new password below.",
     newPasswordLabel: "New Password",
+    loginBtn: "Login",
+    signUpBtn: "Sign Up", // NEW
+    noAccount: "Don't have an account?", // NEW
+    alreadyHaveAccount: "Already have an account?", // NEW
     newPasswordLabel: "New Password",
     confirmPasswordLabel: "Confirm Password",
     enterEmailFirst: "Please enter your email address first", // FIX: Added missing key
@@ -430,6 +434,7 @@ export const translations = {
     passwordLabel: "Contraseña",
     forgotPass: "¿Olvidaste tu contraseña?",
     loginBtn: "Iniciar Sesión",
+    signUpBtn: "Crear Cuenta", // NEW
     noAccount: "¿No tienes una cuenta?",
     alreadyHaveAccount: "¿Ya tienes una cuenta?",
     signUp: "Regístrate",
