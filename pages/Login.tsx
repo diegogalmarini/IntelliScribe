@@ -127,87 +127,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         }
     };
 
-    // Rotating Hero Text Logic
-    const [heroIndex, setHeroIndex] = useState(0);
-    const [subIndex, setSubIndex] = useState(0);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [pause, setPause] = useState(false);
-
-    // Memoize the carousel keys to avoid dependency loop, or just access by index
-    // We assume keys carousel1_title ... carousel10_title exist.
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const heroMessages = [
-        { title: t('carousel1_title' as any), desc: t('carousel1_desc' as any) },
-        { title: t('carousel2_title' as any), desc: t('carousel2_desc' as any) },
-        { title: t('carousel3_title' as any), desc: t('carousel3_desc' as any) },
-        { title: t('carousel4_title' as any), desc: t('carousel4_desc' as any) },
-        { title: t('carousel5_title' as any), desc: t('carousel5_desc' as any) },
-        { title: t('carousel6_title' as any), desc: t('carousel6_desc' as any) },
-        { title: t('carousel7_title' as any), desc: t('carousel7_desc' as any) },
-        { title: t('carousel8_title' as any), desc: t('carousel8_desc' as any) },
-        { title: t('carousel9_title' as any), desc: t('carousel9_desc' as any) },
-        { title: t('carousel10_title' as any), desc: t('carousel10_desc' as any) },
-    ].filter(m => m.title !== 'carousel1_title' && m.title); // Safety filter if translation missing returns key
-
-    useEffect(() => {
-        if (heroMessages.length === 0) return;
-
-        const currentMsg = heroMessages[heroIndex];
-        const fullTitle = currentMsg.title || "";
-        const fullDesc = currentMsg.desc || "";
-
-        // Combined string for length calc (we type title then desc? or both parallax? simpler to type title then desc)
-        // Let's type Title first, then Desc.
-
-        let timer: any;
-
-        if (pause) {
-            timer = setTimeout(() => {
-                setPause(false);
-                setIsDeleting(true);
-            }, 5000); // Wait 5s before deleting
-            return () => clearTimeout(timer);
-        }
-
-        if (isDeleting) {
-            // DELETING
-            if (subIndex > 0) {
-                timer = setTimeout(() => {
-                    setSubIndex(prev => prev - 1);
-                }, 20); // Fast delete (20ms)
-            } else {
-                setIsDeleting(false);
-                setHeroIndex(prev => (prev + 1) % heroMessages.length);
-            }
-        } else {
-            // TYPING
-            // Used Math.max to handle length of both title+desc? 
-            // Let's just use a single subIndex that spans both.
-            // Title Length = T, Desc Length = D. 
-            // If subIndex < T, type title. If subIndex >= T, type desc.
-
-            const totalChars = fullTitle.length + fullDesc.length;
-
-            if (subIndex < totalChars) {
-                timer = setTimeout(() => {
-                    setSubIndex(prev => prev + 1);
-                }, 40); // Normal typing (40ms)
-            } else {
-                setPause(true); // Finished typing both
-            }
-        }
-
-        return () => clearTimeout(timer);
-    }, [subIndex, isDeleting, pause, heroIndex, heroMessages]);
-
-    // Derive displayed text
-    const currentMsg = heroMessages[heroIndex] || { title: "", desc: "" };
-    const fullTitle = currentMsg.title || "";
-    // If subIndex <= fullTitle.length, we show partial title and empty desc
-    // If subIndex > fullTitle.length, we show full title and partial desc
-    const displayedTitle = fullTitle.substring(0, subIndex);
-    const displayedDesc = subIndex > fullTitle.length ? currentMsg.desc?.substring(0, subIndex - fullTitle.length) : "";
+    // Rotating Hero Text Logic REMOVED
 
     return (
         <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative font-sans">
@@ -228,14 +148,6 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     0% { background-position: 0% 50%; }
                     50% { background-position: 100% 50%; }
                     100% { background-position: 0% 50%; }
-                }
-                .blink-cursor:after {
-                    content: '|';
-                    animation: blink 1s step-start infinite;
-                    color: inherit;
-                }
-                @keyframes blink {
-                    50% { opacity: 0; }
                 }
             `}</style>
 
@@ -395,7 +307,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 <button
                                     type="button"
                                     onClick={handleForgotPassword}
-                                    className="text-xs font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors focus:outline-none"
+                                    className="text-xs font-medium text-gray-600 hover:text-black dark:text-white transition-colors focus:outline-none"
                                 >
                                     {t('forgotPass')}
                                 </button>
@@ -463,16 +375,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
             {/* Right Side - Transparent to show Global BG */}
             <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
-                <div className="relative z-10 max-w-xl text-center">
-                    {/* Glass Card for Better Visibility */}
-                    <div className="bg-white/30 dark:bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-white/20 dark:border-white/10 shadow-xl min-h-[220px] flex flex-col justify-center transition-all duration-300">
-                        <h2 className="text-2xl font-medium text-[#1f1f1f] dark:text-white mb-3 tracking-tight min-h-[32px]">
-                            {displayedTitle}<span className="blink-cursor font-light text-blue-500"></span>
-                        </h2>
-                        <p className="text-sm text-gray-700 dark:text-gray-200 mb-0 max-w-md mx-auto leading-relaxed">
-                            {displayedDesc}
-                        </p>
-                    </div>
+                <div className="relative z-10 max-w-2xl text-center">
+                    <h2 className="text-3xl lg:text-5xl font-medium text-[#1f1f1f] dark:text-white mb-6 tracking-tight">
+                        {t('loginHeroTitle')}
+                    </h2>
 
                     {/* Image Container with Floating Effect */}
                     <div className="relative group mt-8">
