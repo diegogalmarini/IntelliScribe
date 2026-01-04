@@ -383,8 +383,30 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
                         {t('loginHeroDesc')}
                     </p>
+
+                    {/* Feature Pills (Escarapelas) */}
+                    <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+                        {/* Pill 1: Dialer */}
+                        <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
+                            <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">call</span>
+                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('feature_dialer')}</span>
+                        </div>
+
+                        {/* Pill 2: Ghostwire */}
+                        <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
+                            <span className="material-symbols-outlined text-[18px] text-purple-600 dark:text-purple-400">graphic_eq</span>
+                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('feature_ghostwire')}</span>
+                        </div>
+
+                        {/* Pill 3: Insights */}
+                        <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
+                            <span className="material-symbols-outlined text-[18px] text-amber-500 dark:text-amber-400">auto_awesome</span>
+                            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t('feature_insights')}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
+```
