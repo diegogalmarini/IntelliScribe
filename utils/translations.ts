@@ -430,15 +430,15 @@ export const translations = {
     passwordLabel: "Contraseña",
     forgotPass: "¿Olvidaste tu contraseña?",
     loginBtn: "Iniciar Sesión",
-```
-    alreadyHaveAccount: "¿Ya tienes una cuenta?", // NEW
-    signUp: "Regístrate",    // Auth
-    heroTitle1: "Capture every",
-    heroTitle2: "conversation",
-    heroTitle3: "with perfection",
-    heroDesc: "Diktalo transforms your meetings, voice notes, and conversations into structured knowledge. Never miss a detail again.",
-    loginHeroTitle: "Your Second Brain for Audio Intelligence", // NEW
-    loginHeroDesc: "Capture, extract, and convert spoken words into actionable insights. Join thousands of professionals working smarter with Diktalo.", // NEW
+    alreadyHaveAccount: "¿Ya tienes una cuenta?",
+    signUp: "Regístrate",
+    // Auth
+    heroTitle1: "Captura cada",
+    heroTitle2: "conversación",
+    heroTitle3: "a la perfección",
+    heroDesc: "Diktalo transforma tus reuniones, notas de voz y conversaciones en conocimiento estructurado. No vuelvas a perder un detalle.",
+    loginHeroTitle: "Tu Segundo Cerebro para Inteligencia de Audio",
+    loginHeroDesc: "Captura, extrae y convierte palabras habladas en acciones concretas. Únete a miles de profesionales que trabajan de forma más inteligente con Diktalo.",
     passwordResetSent: "¡Enlace enviado! Revisa tu correo.",
     resetPassword: "Restablecer Contraseña",
     enterNewPassword: "Introduce tu nueva contraseña abajo.",
