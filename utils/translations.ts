@@ -28,7 +28,18 @@ export const translations = {
     resetPassword: "Reset Password",
     enterNewPassword: "Enter your new password below.",
     newPasswordLabel: "New Password",
+    newPasswordLabel: "New Password",
     confirmPasswordLabel: "Confirm Password",
+    enterEmailFirst: "Please enter your email address first", // FIX: Added missing key
+    letsGetStarted: "Let's Get Started", // NEW
+    signUpForDiktalo: "Sign Up For Diktalo", // NEW
+    agreeTerms: "I agree to register my account in {country} and accept the", // NEW
+    userAgreement: "User Agreement", // NEW
+    privacyPolicy: "Privacy Policy", // NEW
+    keepUpdated: "Keep me updated with Diktalo's latest news and offers", // NEW
+    continueWithGoogle: "Continue with Google", // NEW
+    emailAddressPlaceholder: "Email address", // NEW
+    passwordPlaceholder: "Password", // NEW
 
     // Sidebar
     dashboard: "Dashboard",
@@ -433,7 +444,18 @@ export const translations = {
     resetPassword: "Restablecer Contraseña",
     enterNewPassword: "Introduce tu nueva contraseña abajo.",
     newPasswordLabel: "Nueva Contraseña",
+    newPasswordLabel: "Nueva Contraseña",
     confirmPasswordLabel: "Confirmar Contraseña",
+    enterEmailFirst: "Por favor introduce tu dirección de correo primero", // FIX: Added missing key
+    letsGetStarted: "Empecemos", // NEW
+    signUpForDiktalo: "Regístrate en Diktalo", // NEW
+    agreeTerms: "Acepto registrar mi cuenta en {country} y acepto el", // NEW
+    userAgreement: "Acuerdo de Usuario", // NEW
+    privacyPolicy: "Política de Privacidad", // NEW
+    keepUpdated: "Mantenme actualizado con las últimas noticias y ofertas de Diktalo", // NEW
+    continueWithGoogle: "Continuar con Google", // NEW
+    emailAddressPlaceholder: "Dirección de correo", // NEW
+    passwordPlaceholder: "Contraseña", // NEW
 
     // Sidebar
     dashboard: "Inicio", // Changed from Panel de Control
