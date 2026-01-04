@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppRoute } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -139,16 +138,16 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const heroMessages = [
-        { title: t('carousel1_title'), desc: t('carousel1_desc') },
-        { title: t('carousel2_title'), desc: t('carousel2_desc') },
-        { title: t('carousel3_title'), desc: t('carousel3_desc') },
-        { title: t('carousel4_title'), desc: t('carousel4_desc') },
-        { title: t('carousel5_title'), desc: t('carousel5_desc') },
-        { title: t('carousel6_title'), desc: t('carousel6_desc') },
-        { title: t('carousel7_title'), desc: t('carousel7_desc') },
-        { title: t('carousel8_title'), desc: t('carousel8_desc') },
-        { title: t('carousel9_title'), desc: t('carousel9_desc') },
-        { title: t('carousel10_title'), desc: t('carousel10_desc') },
+        { title: t('carousel1_title' as any), desc: t('carousel1_desc' as any) },
+        { title: t('carousel2_title' as any), desc: t('carousel2_desc' as any) },
+        { title: t('carousel3_title' as any), desc: t('carousel3_desc' as any) },
+        { title: t('carousel4_title' as any), desc: t('carousel4_desc' as any) },
+        { title: t('carousel5_title' as any), desc: t('carousel5_desc' as any) },
+        { title: t('carousel6_title' as any), desc: t('carousel6_desc' as any) },
+        { title: t('carousel7_title' as any), desc: t('carousel7_desc' as any) },
+        { title: t('carousel8_title' as any), desc: t('carousel8_desc' as any) },
+        { title: t('carousel9_title' as any), desc: t('carousel9_desc' as any) },
+        { title: t('carousel10_title' as any), desc: t('carousel10_desc' as any) },
     ].filter(m => m.title !== 'carousel1_title' && m.title); // Safety filter if translation missing returns key
 
     useEffect(() => {
@@ -414,7 +413,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <button
                             type="submit"
                             disabled={isLoggingIn || (!email || !password)}
-                            className="mt-2 w-full h-10 bg-[#1f1f1f]/90 hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed text-white dark:bg-white/90 dark:text-black dark:hover:bg-white font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/10 backdrop-blur-md"
+                            className="mt-2 w-full h-10 bg-[#1A73E8] hover:bg-[#1557B0] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/30 backdrop-blur-md"
                         >
                             {isLoggingIn ? (
                                 <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
