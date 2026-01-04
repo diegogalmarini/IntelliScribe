@@ -78,6 +78,14 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         console.log('[RecordingDetailView] Recording duration:', recording.durationSeconds);
     }, []);
 
+    // Reset duration state when recording changes to prevent sticky duration
+    React.useEffect(() => {
+        console.log('[RecordingDetailView] Recording changed, resetting duration state');
+        setDuration(0);
+        setCurrentTime(0);
+        setIsPlaying(false);
+    }, [recording.id]);
+
     const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
@@ -133,8 +141,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                 // Also save to DB if needed
                 const audioDuration = audioRef.current.duration;
                 if ((!recording.durationSeconds || recording.durationSeconds === 0) && onUpdateRecording) {
-                    console.log('[RecordingDetailView] Saving audio duration to DB (from timeUpdate):', audioDuration);
-                    onUpdateRecording(recording.id, { durationSeconds: audioDuration });
+                    console.log('[RecordingDetailView] Saving audio duration to DB (from timeUpdate):', Math.round(audioDuration));
+                    onUpdateRecording(recording.id, { durationSeconds: Math.round(audioDuration) });
                 }
             }
         }
@@ -153,8 +161,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
             // If DB doesn't have duration, save it automatically
             if ((!recording.durationSeconds || recording.durationSeconds === 0) && onUpdateRecording) {
-                console.log('[RecordingDetailView] Saving audio duration to DB:', audioDuration);
-                onUpdateRecording(recording.id, { durationSeconds: audioDuration });
+                console.log('[RecordingDetailView] Saving audio duration to DB:', Math.round(audioDuration));
+                onUpdateRecording(recording.id, { durationSeconds: Math.round(audioDuration) });
             } else {
                 console.log('[RecordingDetailView] Not saving - either duration exists or onUpdateRecording undefined');
                 console.log('[RecordingDetailView] recording.durationSeconds:', recording.durationSeconds);
