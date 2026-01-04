@@ -131,12 +131,16 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     return (
         <div className="flex flex-1 w-full min-h-screen bg-white dark:bg-[#1a1a1a] transition-colors duration-200">
             {/* Left Side: Auth Form */}
-            <div className="flex flex-col flex-1 w-full lg:max-w-[50%] xl:max-w-[45%] bg-white dark:bg-[#1a1a1a] relative overflow-y-auto lg:px-20 px-8 py-8 justify-center">
+            <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] bg-white dark:bg-[#1a1a1a] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20">
 
                 {/* Header (Logo + Language/Theme) */}
-                <div className="absolute top-6 left-8 right-8 flex justify-between items-center">
+                <div className="absolute top-8 left-8 right-8 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold tracking-tight text-[#1f1f1f] dark:text-white uppercase font-display">Diktalo</span>
+                        <img
+                            src="/logo-diktalo.svg"
+                            alt="Diktalo"
+                            className="h-8 w-auto dark:invert"
+                        />
                     </div>
                     <div className="flex items-center gap-2 scale-90">
                         <ThemeToggle />
@@ -144,9 +148,9 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     </div>
                 </div>
 
-                <div className="max-w-[420px] w-full mx-auto mt-16 lg:mt-0">
+                <div className="max-w-[400px] w-full mx-auto mt-20 lg:mt-0">
                     <div className="mb-8 text-center">
-                        <h1 className="text-2xl lg:text-3xl font-medium text-[#1f1f1f] dark:text-white mb-2">
+                        <h1 className="text-2xl lg:text-3xl font-medium text-[#1f1f1f] dark:text-white mb-2 tracking-tight">
                             {isSignUp ? t('signUpForDiktalo') : t('letsGetStarted')}
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -322,20 +326,29 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 </div>
             </div>
 
-            {/* Right Side - Keeping the Promo/Image side but cleaner */}
-            <div className="hidden lg:flex flex-1 relative bg-[#f9fafb] dark:bg-[#111] overflow-hidden flex-col justify-center items-center p-12">
+            {/* Right Side - Enhanced Aesthetics */}
+            <div className="hidden lg:flex flex-1 relative bg-gradient-to-br from-[#f8f9fa] to-[#e2e8f0] dark:from-[#0a0a0a] dark:to-[#1a1a1a] overflow-hidden flex-col justify-center items-center p-12">
+
+                {/* Decorative Background Blob */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+
                 <div className="relative z-10 max-w-xl text-center">
-                    <h2 className="text-2xl font-medium text-[#1f1f1f] dark:text-white mb-3">
-                        Diktalo, the world's No.1 AI note taker
+                    <h2 className="text-3xl font-semibold text-[#1f1f1f] dark:text-white mb-4 tracking-tight leading-tight">
+                        {t('loginHeroTitle')}
                     </h2>
-                    <p className="text-sm text-[#64748b] dark:text-[#888] mb-8 max-w-md mx-auto">
-                        Diktalo capture, extract, and utilize intelligence from what you say, hear, see, and think.
+                    <p className="text-base text-[#64748b] dark:text-[#888] mb-10 max-w-md mx-auto leading-relaxed">
+                        {t('loginHeroDesc')}
                     </p>
-                    <img
-                        src="/images/hero-executive.png"
-                        alt="Diktalo App Interface"
-                        className="rounded-lg shadow-xl border border-black/5 dark:border-white/10 w-full object-cover max-h-[500px]"
-                    />
+
+                    {/* Image Container with Floating Effect */}
+                    <div className="relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                        <img
+                            src="/images/hero-executive.png"
+                            alt="Diktalo Interface"
+                            className="relative rounded-lg shadow-2xl border border-white/50 dark:border-white/10 w-full object-cover max-h-[550px] transform transition duration-500 hover:scale-[1.01]"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
