@@ -135,45 +135,46 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Custom Animations for Smooth Waves */}
             <style>{`
                 @keyframes drift-1 {
-                    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.8; }
-                    50% { transform: translate(10%, 15%) scale(1.1) rotate(10deg); opacity: 0.6; }
-                    100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.8; }
+                    0% { transform: translate(0, 0) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+                    33% { transform: translate(30px, -50px) scale(1.1); border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
+                    66% { transform: translate(-20px, 20px) scale(0.9); border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%; }
+                    100% { transform: translate(0, 0) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
                 }
                 @keyframes drift-2 {
-                    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.7; }
-                    50% { transform: translate(-10%, -5%) scale(1.2) rotate(-5deg); opacity: 0.9; }
-                    100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.7; }
+                    0% { transform: translate(0, 0) scale(1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+                    50% { transform: translate(-30px, 40px) scale(1.2); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+                    100% { transform: translate(0, 0) scale(1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
                 }
-                @keyframes aurora {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
+                @keyframes drift-3 {
+                    0% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(50px, 50px) scale(1.1); }
+                    100% { transform: translate(0, 0) scale(1); }
                 }
             `}</style>
 
             {/* Global Ethereal Wave Background */}
-            <div className="absolute inset-0 z-0 bg-[#F8FAFC] dark:bg-[#02040a]">
+            <div className="absolute inset-0 z-0 bg-[#F8FAFC] dark:bg-[#02040a] overflow-hidden">
 
-                {/* Wave 1: Fresh Teal/Cyan (Top Right drift) */}
+                {/* Wave 1: Cyan/Blue - Dynamic Morphing */}
                 <div
-                    className="absolute top-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-[drift-1_25s_infinite_ease-in-out] dark:mix-blend-screen dark:opacity-30"
-                    style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(56, 189, 248, 0) 70%)' }} // Sky Blue
+                    className="absolute top-[-10%] right-[-5%] w-[60vw] h-[60vw] opacity-60 mix-blend-multiply filter blur-[80px] animate-[drift-1_20s_infinite_ease-in-out] dark:mix-blend-screen dark:opacity-30"
+                    style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(56, 189, 248, 0) 70%)' }}
                 />
 
-                {/* Wave 2: Soft Green/Mint (Bottom Left drift) */}
+                {/* Wave 2: Green/Mint - Dynamic Morphing */}
                 <div
-                    className="absolute bottom-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-[drift-2_30s_infinite_ease-in-out] animation-delay-2000 dark:mix-blend-screen dark:opacity-20"
-                    style={{ background: 'radial-gradient(circle, rgba(74, 222, 128, 0.6) 0%, rgba(74, 222, 128, 0) 70%)' }} // Green-400
+                    className="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] opacity-60 mix-blend-multiply filter blur-[80px] animate-[drift-2_15s_infinite_linear] animation-delay-2000 dark:mix-blend-screen dark:opacity-20"
+                    style={{ background: 'radial-gradient(circle, rgba(74, 222, 128, 0.6) 0%, rgba(74, 222, 128, 0) 70%)' }}
                 />
 
-                {/* Wave 3: Deep Indigo/Purple (Center Floating) */}
+                {/* Wave 3: Indigo/Purple - Center Floating */}
                 <div
-                    className="absolute top-[20%] left-[30%] w-[50vw] h-[50vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-60 animate-[drift-1_35s_infinite_ease-in-out_reverse] dark:mix-blend-screen dark:opacity-30"
-                    style={{ background: 'radial-gradient(circle, rgba(129, 140, 248, 0.8) 0%, rgba(129, 140, 248, 0) 70%)' }} // Indigo-400
+                    className="absolute top-[30%] left-[20%] w-[50vw] h-[50vw] opacity-50 mix-blend-multiply filter blur-[90px] animate-[drift-3_18s_infinite_ease-in-out_reverse] dark:mix-blend-screen dark:opacity-30"
+                    style={{ background: 'radial-gradient(circle, rgba(129, 140, 248, 0.8) 0%, rgba(129, 140, 248, 0) 70%)' }}
                 />
 
-                {/* Noise Texture for Texture/Realism */}
-                <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+                {/* Noise Texture */}
+                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
             </div>
 
             {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
