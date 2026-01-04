@@ -1,62 +1,89 @@
 // Background Service Worker for Diktalo Chrome Extension
 // Handles tab audio capture and communication with popup
 
-let recordingTabId: number | null = null;
-let recordingStartTime: number | null = null;
-let isPaused: boolean = false;
-let pauseStartTime: number | null = null;
-let totalPausedTime: number = 0;
+// --- State Management Helpers ---
+async function saveState(state: any) {
+    await chrome.storage.session.set(state);
+}
+
+async function getState() {
+    return await chrome.storage.session.get([
+        'recordingTabId',
+        'recordingStartTime',
+        'isPaused',
+        'pauseStartTime',
+        'totalPausedTime'
+    ]);
+}
+
+async function clearState() {
+    await chrome.storage.session.remove([
+        'recordingTabId',
+        'recordingStartTime',
+        'isPaused',
+        'pauseStartTime',
+        'totalPausedTime'
+    ]);
+}
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     console.log('[Background] Received message:', message);
 
-    if (message.action === 'START_RECORDING') {
-        startRecording(message.tabId, sendResponse);
-        return true; // Async response
-    }
+    const handleMessage = async () => {
+        if (message.action === 'START_RECORDING') {
+            await startRecording(message.tabId);
+            return { success: true };
+        }
 
-    if (message.action === 'STOP_RECORDING') {
-        stopRecording(sendResponse);
-        return true; // Async response
-    }
+        if (message.action === 'STOP_RECORDING') {
+            return await stopRecording();
+        }
 
-    if (message.action === 'PAUSE_RECORDING') {
-        pauseRecording(sendResponse);
-        return true;
-    }
+        if (message.action === 'PAUSE_RECORDING') {
+            return await pauseRecording();
+        }
 
-    if (message.action === 'RESUME_RECORDING') {
-        resumeRecording(sendResponse);
-        return true;
-    }
+        if (message.action === 'RESUME_RECORDING') {
+            return await resumeRecording();
+        }
 
-    if (message.action === 'GET_STATUS') {
-        sendResponse({
-            isRecording: recordingTabId !== null,
-            isPaused: isPaused,
-            tabId: recordingTabId,
-            startTime: recordingStartTime,
-            totalPausedTime: totalPausedTime
-        });
-    }
+        if (message.action === 'GET_STATUS') {
+            const state = await getState();
+            return {
+                isRecording: !!state.recordingTabId,
+                isPaused: state.isPaused || false,
+                tabId: state.recordingTabId || null,
+                startTime: state.recordingStartTime || null,
+                totalPausedTime: state.totalPausedTime || 0
+            };
+        }
+        return { success: false, error: 'Unknown action' };
+    };
+
+    // Async handling for connect/sendResponse
+    handleMessage()
+        .then(response => sendResponse(response))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+
+    return true; // Keep channel open
 });
 
-async function startRecording(tabId: number, sendResponse: (response: any) => void) {
-    try {
-        console.log('[Background] Starting recording for tab:', tabId);
+async function startRecording(tabId: number) {
+    console.log('[Background] Starting recording for tab:', tabId);
 
-        // --- STEP 1: FORCE CLEANUP ---
-        await closeOffscreenDocument();
-        await new Promise(resolve => setTimeout(resolve, 500));
+    // --- STEP 1: FORCE CLEANUP ---
+    await closeOffscreenDocument();
+    await new Promise(resolve => setTimeout(resolve, 500));
 
+    return new Promise<void>((resolve, reject) => {
         chrome.tabCapture.getMediaStreamId({
             targetTabId: tabId
         }, async (streamId) => {
             try {
                 if (!streamId) {
                     const error = chrome.runtime.lastError?.message || 'Failed to get stream ID';
-                    sendResponse({ success: false, error: error });
+                    reject(new Error(error));
                     return;
                 }
 
@@ -67,134 +94,115 @@ async function startRecording(tabId: number, sendResponse: (response: any) => vo
                 chrome.runtime.sendMessage({
                     action: 'START_OFFSCREEN_RECORDING',
                     streamId: streamId
-                }, (response) => {
+                }, async (response) => {
                     if (chrome.runtime.lastError) {
                         console.error('[Background] Error communicating with offscreen:', chrome.runtime.lastError);
-                        sendResponse({ success: false, error: chrome.runtime.lastError.message });
+                        reject(new Error(chrome.runtime.lastError.message));
                         return;
                     }
 
                     if (response?.success) {
-                        recordingTabId = tabId;
-                        recordingStartTime = Date.now();
-                        isPaused = false;
-                        totalPausedTime = 0;
-                        sendResponse({ success: true });
+                        // SAVE STATE
+                        await saveState({
+                            recordingTabId: tabId,
+                            recordingStartTime: Date.now(),
+                            isPaused: false,
+                            totalPausedTime: 0
+                        });
+                        resolve();
                     } else {
-                        sendResponse({ success: false, error: response?.error || 'Failed to start offscreen recording' });
+                        reject(new Error(response?.error || 'Failed to start offscreen recording'));
                     }
                 });
             } catch (innerError: any) {
-                sendResponse({ success: false, error: innerError.message });
+                reject(innerError);
             }
         });
-
-    } catch (error: any) {
-        sendResponse({ success: false, error: error.message });
-    }
-}
-
-async function pauseRecording(sendResponse: (response: any) => void) {
-    if (!recordingTabId) {
-        sendResponse({ success: false, error: 'No active recording' });
-        return;
-    }
-
-    chrome.runtime.sendMessage({ action: 'PAUSE_OFFSCREEN_RECORDING' }, (response) => {
-        if (chrome.runtime.lastError) {
-            console.error('[Background] Pause error:', chrome.runtime.lastError);
-            sendResponse({ success: false, error: chrome.runtime.lastError.message });
-            return;
-        }
-
-        if (response?.success) {
-            isPaused = true;
-            pauseStartTime = Date.now();
-            sendResponse({ success: true });
-        } else {
-            sendResponse({ success: false, error: response?.error || 'Failed to pause' });
-        }
     });
 }
 
-async function resumeRecording(sendResponse: (response: any) => void) {
-    if (!recordingTabId) {
-        sendResponse({ success: false, error: 'No active recording' });
-        return;
+async function pauseRecording() {
+    const state = await getState();
+    if (!state.recordingTabId) {
+        throw new Error('No active recording');
     }
 
-    chrome.runtime.sendMessage({ action: 'RESUME_OFFSCREEN_RECORDING' }, (response) => {
-        if (chrome.runtime.lastError) {
-            console.error('[Background] Resume error:', chrome.runtime.lastError);
-            sendResponse({ success: false, error: chrome.runtime.lastError.message });
-            return;
-        }
-
-        if (response?.success) {
-            isPaused = false;
-            if (pauseStartTime) {
-                totalPausedTime += (Date.now() - pauseStartTime);
-                pauseStartTime = null;
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ action: 'PAUSE_OFFSCREEN_RECORDING' }, async (response) => {
+            if (response?.success) {
+                await saveState({
+                    isPaused: true,
+                    pauseStartTime: Date.now()
+                });
+                resolve({ success: true });
+            } else {
+                reject(new Error(response?.error || 'Failed to pause'));
             }
-            sendResponse({ success: true });
-        } else {
-            sendResponse({ success: false, error: response?.error || 'Failed to resume' });
-        }
+        });
     });
 }
 
-async function stopRecording(sendResponse: (response: any) => void) {
+async function resumeRecording() {
+    const state = await getState();
+    if (!state.recordingTabId) {
+        throw new Error('No active recording');
+    }
+
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ action: 'RESUME_OFFSCREEN_RECORDING' }, async (response) => {
+            if (response?.success) {
+                let newTotalPaused = state.totalPausedTime || 0;
+                if (state.pauseStartTime) {
+                    newTotalPaused += (Date.now() - state.pauseStartTime);
+                }
+
+                await saveState({
+                    isPaused: false,
+                    pauseStartTime: null,
+                    totalPausedTime: newTotalPaused
+                });
+                resolve({ success: true });
+            } else {
+                reject(new Error(response?.error || 'Failed to resume'));
+            }
+        });
+    });
+}
+
+async function stopRecording() {
     console.log('[Background] stopRecording called');
-    try {
+    const state = await getState();
+
+    // Calculate duration from state logic
+    let durationSeconds = 0;
+    if (state.recordingStartTime) {
+        durationSeconds = Math.floor((Date.now() - state.recordingStartTime - (state.totalPausedTime || 0)) / 1000);
+    }
+
+    return new Promise((resolve) => {
         chrome.runtime.sendMessage({ action: 'STOP_OFFSCREEN_RECORDING' }, async (response) => {
-            console.log('[Background] STOP_OFFSCREEN_RECORDING response:', response);
-
-            if (chrome.runtime.lastError) {
-                console.error('[Background] Error from offscreen:', chrome.runtime.lastError);
-                sendResponse({ success: false, error: chrome.runtime.lastError.message });
-                await closeOffscreenDocument();
-                resetState();
-                return;
-            }
-
             if (response?.success && response.audioData) {
-                console.log('[Background] Received audio data, size:', response.audioData.length, 'bytes');
                 try {
                     const audioBlob = base64ToBlob(response.audioData, 'audio/webm');
-                    console.log('[Background] Created blob, size:', audioBlob.size, 'bytes');
-                    console.log('[Background] Starting upload...');
-                    const uploadResult = await uploadAudioToDiktalo(audioBlob);
-                    console.log('[Background] Upload successful:', uploadResult);
-                    resetState();
-                    sendResponse({ success: true, recordingId: uploadResult.recordingId });
+
+                    // Pass calculated duration to upload function
+                    const uploadResult = await uploadAudioToDiktalo(audioBlob, durationSeconds);
+
+                    await clearState();
                     await closeOffscreenDocument();
-                } catch (uploadError: any) {
-                    console.error('[Background] Upload failed:', uploadError);
-                    sendResponse({ success: false, error: uploadError.message });
+                    resolve({ success: true, recordingId: uploadResult.recordingId });
+                } catch (error: any) {
+                    await clearState();
                     await closeOffscreenDocument();
-                    resetState();
+                    resolve({ success: false, error: error.message });
                 }
             } else {
-                console.error('[Background] No audio data in response');
-                sendResponse({ success: false, error: response?.error || 'No audio data received' });
+                await clearState();
                 await closeOffscreenDocument();
-                resetState();
+                resolve({ success: false, error: response?.error || 'No audio data' });
             }
         });
-    } catch (error: any) {
-        console.error('[Background] stopRecording error:', error);
-        sendResponse({ success: false, error: error.message });
-        await closeOffscreenDocument();
-        resetState();
-    }
-}
-
-function resetState() {
-    recordingTabId = null;
-    recordingStartTime = null;
-    isPaused = false;
-    pauseStartTime = null;
-    totalPausedTime = 0;
+    });
 }
 
 // Helper function to convert base64 to Blob
@@ -280,68 +288,132 @@ async function refreshSession(): Promise<string> {
     }
 }
 
-async function uploadAudioToDiktalo(audioBlob: Blob): Promise<{ recordingId: string }> {
-    console.log('[Background] uploadAudioToDiktalo called, blob size:', audioBlob.size);
-    /* 
-       Retry Logic Strategy:
-       1. Attempt upload with current token.
-       2. If 401 (Unauthorized), try to refresh token.
-       3. If refresh success, retry upload with new token.
-       4. If anything else fails, throw error.
-    */
+async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number): Promise<{ recordingId: string }> {
+    console.log('[Background] uploadAudioToDiktalo called (Direct-to-Cloud), blob size:', audioBlob.size);
 
-    let { authToken } = await chrome.storage.local.get('authToken');
+    let { authToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseUrl', 'supabaseKey']);
 
-    if (!authToken) {
+    if (!authToken || !supabaseUrl || !supabaseKey) {
         throw new Error('Not authenticated. Please set your API token in settings.');
     }
 
-    const performUpload = async (token: string) => {
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.webm');
-        formData.append('source', 'chrome-extension');
-        formData.append('title', `Tab Recording - ${new Date().toLocaleString()}`);
+    // Helper to perform the full upload flow
+    const performFullUpload = async (token: string): Promise<{ recordingId: string }> => {
+        // 1. Get User ID (needed for storage path)
+        console.log('[Background] Step 1: Getting User Details...');
+        const user = await getUserDetails(token, supabaseUrl, supabaseKey);
+        const userId = user.id;
 
-        const endpoint = 'https://www.diktalo.com/api/upload-audio';
+        // 2. Upload to Storage
+        console.log('[Background] Step 2: Uploading to Supabase Storage...');
+        const filePath = await uploadToSupabaseStorage(token, supabaseUrl, supabaseKey, userId, audioBlob);
+        console.log('[Background] Storage upload complete. Path:', filePath);
 
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
+        // 3. Register Recording in DB via API
+        console.log('[Background] Step 3: Registering with API...');
+
+        const recording = await registerRecording(token, filePath, durationSeconds, {
+            source: 'chrome-extension', // Hardcoded for now, could be dynamic
+            original_filename: `recording-${Date.now()}.webm`
         });
 
-        return response;
+        return { recordingId: recording.recordingId };
     };
 
     try {
-        console.log('[Background] Starting initial upload...');
-        let response = await performUpload(authToken);
+        return await performFullUpload(authToken);
+    } catch (error: any) {
+        console.warn('[Background] Upload flow failed, checking if 401/Refresh needed:', error);
 
-        if (response.status === 401) {
-            console.warn('[Background] Upload returned 401. Attempting token refresh...');
+        // If error suggests auth failure (401), try refresh
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+            console.log('[Background] Attempting token refresh...');
             try {
                 const newToken = await refreshSession();
-                console.log('[Background] Token refreshed. Retrying upload...');
-                response = await performUpload(newToken);
+                console.log('[Background] Token refreshed. Retrying flow...');
+                return await performFullUpload(newToken);
             } catch (refreshError) {
-                console.error('[Background] Silent refresh failed:', refreshError);
-                throw new Error('Session expired and auto-refresh failed. Please update your configuration.');
+                console.error('[Background] Refresh failed:', refreshError);
+                throw new Error('Session expired and auto-refresh failed.');
             }
         }
 
-        if (!response.ok) {
-            const responseText = await response.text();
-            throw new Error(`Upload failed (${response.status}): ${responseText}`);
-        }
-
-        const result = await response.json();
-        console.log('[Background] Upload successful:', result);
-        return { recordingId: result.recordingId || 'unknown' };
-
-    } catch (error: any) {
-        console.error('[Background] uploadAudioToDiktalo error:', error);
         throw error;
     }
+}
+
+// --- Direct Cloud Helpers ---
+
+async function getUserDetails(token: string, supabaseUrl: string, supabaseKey: string) {
+    const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey': supabaseKey
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Get User failed: ${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+}
+
+async function uploadToSupabaseStorage(token: string, supabaseUrl: string, supabaseKey: string, userId: string, blob: Blob): Promise<string> {
+    const timestamp = Date.now();
+    const filename = `${timestamp}.webm`;
+    const path = `${userId}/${filename}`; // RLS requires {userId}/* prefix
+
+    const endpoint = `${supabaseUrl}/storage/v1/object/recordings/${path}`;
+
+    console.log('[Background] Uploading to:', endpoint);
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey': supabaseKey,
+            'Content-Type': 'audio/webm',
+            // 'x-upsert': 'false' // Optional
+        },
+        body: blob
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Storage Upload failed (${response.status}): ${text}`);
+    }
+
+    return path;
+}
+
+async function registerRecording(token: string, filePath: string, duration: number, metadata: any) {
+    const endpoint = 'https://www.diktalo.com/api/upload-audio'; // We keep the same endpoint name but change payload
+
+    const payload = {
+        filePath: filePath,
+        duration: duration,
+        metadata: {
+            ...metadata,
+            title: `Tab Recording - ${new Date().toLocaleString()}`,
+            tabUrl: 'Confirmed Direct Upload' // We can't easily access tab URL here without passing it down, simplifying for now
+        }
+    };
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json' // Instructs API to treat as registration
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Registration failed (${response.status}): ${text}`);
+    }
+
+    return await response.json();
 }
 
 export { };
