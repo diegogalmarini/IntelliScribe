@@ -6,7 +6,6 @@ import './Popup.css';
 const PlayIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z" /></svg>;
 const StopIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>;
 const PauseIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6V4zm8 0h4v16h4V4z" /></svg>;
-const MicIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>;
 
 const Popup: React.FC = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -188,7 +187,10 @@ const Popup: React.FC = () => {
         <div className="popup">
             <header className="popup-header">
                 <div className="header-glow" />
-                <h1><MicIcon /> Diktalo</h1>
+                <h1>
+                    <img src="icons/diktalo.png" alt="Diktalo" style={{ height: '28px', width: 'auto', marginRight: '8px' }} />
+                    Diktalo
+                </h1>
                 <div className={`status-badge ${isRecording ? 'status-recording' : ''}`}>
                     {isRecording ? (isPaused ? 'Pausado' : 'Grabando') : 'Listo'}
                 </div>
