@@ -131,20 +131,21 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     return (
         <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative">
 
-            {/* Global Background Image */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src="/images/login-bg.jpg"
-                    alt="Background"
-                    className="w-full h-full object-cover"
-                />
-                {/* Overlay to ensure text readability on the right if image is too bright */}
-                <div className="absolute inset-0 bg-white/10 dark:bg-black/20" />
+            {/* Global Abstract Background (Subtle & Colorful) */}
+            <div className="absolute inset-0 z-0 bg-[#f8faff] dark:bg-[#050505]">
+                {/* Gradient Blobs */}
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-200/40 dark:bg-purple-900/20 rounded-full blur-[120px] animate-pulse-slow" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-200/40 dark:bg-blue-900/20 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-pink-200/40 dark:bg-pink-900/20 rounded-full blur-[100px] animate-pulse-slow delay-2000" />
+                <div className="absolute bottom-[20%] left-[10%] w-[30%] h-[30%] bg-indigo-200/40 dark:bg-indigo-900/20 rounded-full blur-[100px] animate-pulse-slow delay-3000" />
+
+                {/* Noise Texture Overlay for "Liquid" feel */}
+                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
             </div>
 
-            {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
+            {/* Left Side: Auth Form - REAL LIQUID GLASS */}
             <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20 
-                          bg-white/75 dark:bg-black/70 backdrop-blur-2xl border-r border-white/20 shadow-[20px_0_50px_rgba(0,0,0,0.05)]">
+                          bg-white/40 dark:bg-black/40 backdrop-blur-3xl border-r border-white/40 dark:border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.05)]">
 
                 {/* Header (Logo + Language + Theme) */}
                 <div className="absolute top-8 left-8 right-8 flex justify-between items-center">
@@ -171,12 +172,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         </p>
                     </div>
 
-                    {/* Social Login Buttons - COMPACT */}
+                    {/* Social Login Buttons */}
                     <div className="grid grid-cols-1 gap-3 mb-6">
                         <button
                             onClick={() => handleSocialClick('google')}
                             disabled={isLoggingIn}
-                            className="flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all active:scale-[0.99] backdrop-blur-sm"
+                            className="flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all active:scale-[0.99] backdrop-blur-md shadow-sm"
                         >
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
                             <span className="text-sm font-medium text-[#1f1f1f] dark:text-white">{t('continueWithGoogle')}</span>
@@ -193,10 +194,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                     <div className="relative mb-6">
                         <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200 dark:border-white/10"></div>
+                            <div className="w-full border-t border-gray-300/50 dark:border-white/10"></div>
                         </div>
                         <div className="relative flex justify-center">
-                            <span className="bg-transparent px-3 text-[11px] text-[#8e8e8e] dark:text-[#888] uppercase tracking-wide font-medium">Or</span>
+                            <span className="bg-transparent px-3 text-[11px] text-gray-500 dark:text-[#888] uppercase tracking-wide font-medium">Or</span>
                         </div>
                     </div>
 
@@ -212,7 +213,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             <div className="flex flex-col md:flex-row gap-3">
                                 <div className="flex-1">
                                     <input
-                                        className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
+                                        className="w-full rounded-md border border-white/40 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-white/80 dark:focus:bg-black/40 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
                                         placeholder={t('firstName')}
                                         type="text"
                                         value={firstName}
@@ -222,7 +223,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 </div>
                                 <div className="flex-1">
                                     <input
-                                        className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
+                                        className="w-full rounded-md border border-white/40 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-white/80 dark:focus:bg-black/40 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
                                         placeholder={t('lastName')}
                                         type="text"
                                         value={lastName}
@@ -235,7 +236,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         <div>
                             <input
-                                className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
+                                className="w-full rounded-md border border-white/40 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-white/80 dark:focus:bg-black/40 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
                                 placeholder={t('emailAddressPlaceholder')}
                                 type="email"
                                 value={email}
@@ -246,7 +247,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         <div className="relative">
                             <input
-                                className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm pr-10 backdrop-blur-sm"
+                                className="w-full rounded-md border border-white/40 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-white/80 dark:focus:bg-black/40 focus:ring-0 outline-none transition-all text-sm pr-10 backdrop-blur-sm"
                                 placeholder={t('passwordPlaceholder')}
                                 type={showPassword ? "text" : "password"}
                                 value={password}
@@ -254,7 +255,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 disabled={isLoggingIn}
                             />
                             <button
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors focus:outline-none"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:hover:text-white transition-colors focus:outline-none"
                                 type="button"
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -273,7 +274,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 <button
                                     type="button"
                                     onClick={handleForgotPassword}
-                                    className="text-xs font-medium text-gray-500 hover:text-black dark:hover:text-white transition-colors focus:outline-none"
+                                    className="text-xs font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors focus:outline-none"
                                 >
                                     {t('forgotPass')}
                                 </button>
@@ -291,7 +292,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <button
                             type="submit"
                             disabled={isLoggingIn || (!email || !password)}
-                            className="mt-2 w-full h-10 bg-[#1f1f1f] hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-black/5"
+                            className="mt-2 w-full h-10 bg-[#1f1f1f]/90 hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed text-white dark:bg-white/90 dark:text-black dark:hover:bg-white font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/10 backdrop-blur-md"
                         >
                             {isLoggingIn ? (
                                 <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
@@ -300,7 +301,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             )}
                         </button>
 
-                        <div className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                        <div className="mt-4 text-center text-xs text-gray-600 dark:text-gray-400">
                             {isSignUp ? t('alreadyHaveAccount') : t('noAccount')}
                             <button
                                 type="button"
@@ -313,23 +314,23 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         {/* LEGAL CHECKBOXES - SIGNUP ONLY */}
                         {isSignUp && (
-                            <div className="mt-2 space-y-2 pt-2 border-t border-gray-100 dark:border-white/10">
+                            <div className="mt-2 space-y-2 pt-2 border-t border-gray-200/50 dark:border-white/10">
                                 <label className="flex items-start gap-2 cursor-pointer group">
                                     <div className="relative flex items-center pt-0.5">
-                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-300 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
+                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-400 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
                                         <span className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[8px] material-symbols-outlined font-bold">check</span>
                                     </div>
-                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
-                                        {t('agreeTerms')?.replace('{country}', 'España')} <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-700">{t('userAgreement')}</a> & <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-700">{t('privacyPolicy')}</a>.
+                                    <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug">
+                                        {t('agreeTerms')?.replace('{country}', 'España')} <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-800">{t('userAgreement')}</a> & <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-800">{t('privacyPolicy')}</a>.
                                     </span>
                                 </label>
 
                                 <label className="flex items-start gap-2 cursor-pointer group hidden md:flex">
                                     <div className="relative flex items-center pt-0.5">
-                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-300 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
+                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-400 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
                                         <span className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[8px] material-symbols-outlined font-bold">check</span>
                                     </div>
-                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
+                                    <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug">
                                         {t('keepUpdated')}
                                     </span>
                                 </label>
@@ -351,13 +352,13 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                     {/* Image Container with Floating Effect */}
                     <div className="relative group">
-                        {/* Soft glow behind image */}
-                        <div className="absolute -inset-4 bg-white/20 dark:bg-white/10 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition duration-1000"></div>
+                        {/* Soft light glow behind image */}
+                        <div className="absolute -inset-4 bg-white/40 dark:bg-purple-900/20 rounded-full blur-3xl opacity-60 group-hover:opacity-80 transition duration-1000"></div>
 
                         <img
                             src="/images/hero-executive.png"
                             alt="Diktalo Interface"
-                            className="relative rounded-lg shadow-2xl border border-white/20 dark:border-white/10 w-full object-contain max-h-[350px] backdrop-blur-sm bg-white/5"
+                            className="relative rounded-lg shadow-2xl border border-white/30 dark:border-white/10 w-full object-contain max-h-[350px] backdrop-blur-sm bg-white/10"
                         />
                     </div>
                 </div>
@@ -365,3 +366,4 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         </div>
     );
 };
+```
