@@ -129,11 +129,11 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     };
 
     return (
-        <div className="flex flex-1 w-full min-h-screen bg-white dark:bg-[#1a1a1a] transition-colors duration-200">
+        <div className="flex flex-1 w-full min-h-screen bg-white dark:bg-[#1a1a1a] transition-colors duration-200 overflow-hidden">
             {/* Left Side: Auth Form */}
             <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] bg-white dark:bg-[#1a1a1a] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20">
 
-                {/* Header (Logo + Language/Theme) */}
+                {/* Header (Logo + Language + Theme) */}
                 <div className="absolute top-8 left-8 right-8 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <img
@@ -326,27 +326,34 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 </div>
             </div>
 
-            {/* Right Side - Enhanced Aesthetics */}
-            <div className="hidden lg:flex flex-1 relative bg-gradient-to-br from-[#f8f9fa] to-[#e2e8f0] dark:from-[#0a0a0a] dark:to-[#1a1a1a] overflow-hidden flex-col justify-center items-center p-12">
+            {/* Right Side - Tech/Optical Fiber Aesthetic */}
+            <div className="hidden lg:flex flex-1 relative bg-black overflow-hidden flex-col justify-center items-center p-12">
+                {/* Abstract Tech Background - CSS Only */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,#1e1b4b, #000)]" /> {/* Deep blue glowing from bottom */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,#000_70%,transparent_100%)]" /> {/* Subtle Grid */}
 
-                {/* Decorative Background Blob */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+                {/* Glowing vertical lines (Fiber strands) */}
+                <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-500/20 to-transparent opacity-50 blur-[1px]" />
+                <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-purple-500/20 to-transparent opacity-50 blur-[1px]" />
+                <div className="absolute top-0 left-1/3 w-[2px] h-full bg-gradient-to-b from-transparent via-cyan-500/10 to-transparent opacity-30" />
 
                 <div className="relative z-10 max-w-xl text-center">
-                    <h2 className="text-3xl font-semibold text-[#1f1f1f] dark:text-white mb-4 tracking-tight leading-tight">
+                    <h2 className="text-2xl font-medium text-white mb-3 tracking-tight">
                         {t('loginHeroTitle')}
                     </h2>
-                    <p className="text-base text-[#64748b] dark:text-[#888] mb-10 max-w-md mx-auto leading-relaxed">
+                    <p className="text-sm text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
                         {t('loginHeroDesc')}
                     </p>
 
-                    {/* Image Container with Floating Effect */}
+                    {/* Image Container */}
                     <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                        {/* Ambient Light behind image */}
+                        <div className="absolute -inset-4 bg-blue-500/20 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition duration-1000"></div>
+
                         <img
                             src="/images/hero-executive.png"
                             alt="Diktalo Interface"
-                            className="relative rounded-lg shadow-2xl border border-white/50 dark:border-white/10 w-full object-cover max-h-[550px] transform transition duration-500 hover:scale-[1.01]"
+                            className="relative rounded-lg shadow-2xl border border-white/5 w-full object-contain max-h-[350px]"
                         />
                     </div>
                 </div>
@@ -354,3 +361,4 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         </div>
     );
 };
+```
