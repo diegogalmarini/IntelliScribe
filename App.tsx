@@ -516,66 +516,68 @@ const AppContent: React.FC = () => {
 
     if (authLoading && (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN)) {
         return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-background-dark">
-                <div className="flex items-center gap-3 mb-4">
+            <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] transition-colors duration-200">
+                <div className="flex flex-col items-center gap-6 mb-8">
                     <img
                         src="/logo-diktalo.svg"
                         alt="Diktalo"
-                        className="h-12 w-auto animate-pulse"
+                        className="h-20 w-auto animate-pulse dark:brightness-0 dark:invert"
                     />
-                    <span className="text-4xl font-display font-black text-white tracking-tight">Diktalo</span>
+                    {/* Text Removed per request */}
                 </div>
-                <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+
+                {/* Minimalist Loader */}
+                <div className="w-32 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                     <motion.div
-                        className="h-full bg-primary"
+                        className="h-full bg-black dark:bg-white"
                         initial={{ width: 0 }}
                         animate={{ width: "100%" }}
                         transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
                     />
                 </div>
-                <p className="text-slate-500 text-xs mt-8 animate-pulse">Initializing Interface...</p>
+                <p className="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-wider mt-4 font-medium animate-pulse">Initializing...</p>
             </div>
         );
     }
 
     if (currentRoute === AppRoute.LANDING) {
         return (
-            <ThemeProvider>
+            <>
                 <CrispWidget />
                 <Landing />
-            </ThemeProvider>
+            </>
         );
     }
 
     if (currentRoute === AppRoute.TERMS) {
         return (
-            <ThemeProvider>
+            <>
                 <CrispWidget />
                 <Terms />
-            </ThemeProvider>
+            </>
         );
     }
 
     if (currentRoute === AppRoute.PRIVACY) {
         return (
-            <ThemeProvider>
+            <>
                 <CrispWidget />
                 <Privacy />
-            </ThemeProvider>
+            </>
         );
     }
 
     if (currentRoute === AppRoute.LOGIN) {
         return (
-            <ThemeProvider>
+            <>
                 <CrispWidget />
                 <Login onNavigate={navigate} />
-            </ThemeProvider>
+            </>
         );
     }
 
     return (
-        <ThemeProvider>
+        <>
             <CrispWidget />
             <motion.div
                 className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200"
@@ -753,7 +755,7 @@ const AppContent: React.FC = () => {
                     }}
                 />
             )}
-        </ThemeProvider>
+        </>
     );
 };
 
@@ -761,7 +763,9 @@ const App: React.FC = () => {
     return (
         <AuthProvider>
             <LanguageProvider>
-                <AppContent />
+                <ThemeProvider>
+                    <AppContent />
+                </ThemeProvider>
             </LanguageProvider>
         </AuthProvider>
     );
