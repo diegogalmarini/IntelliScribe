@@ -151,7 +151,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 setIsLoadingToken(true);
                 const { data } = await supabase.auth.getSession();
                 if (data.session) {
-                    setApiToken(data.session.access_token);
+                    const sessionConfig = {
+                        access_token: data.session.access_token,
+                        refresh_token: data.session.refresh_token,
+                        url: import.meta.env.VITE_SUPABASE_URL,
+                        key: import.meta.env.VITE_SUPABASE_ANON_KEY
+                    };
+                    setApiToken(JSON.stringify(sessionConfig, null, 2));
                 }
                 setIsLoadingToken(false);
             };
@@ -779,28 +785,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <Key size={20} />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Extension API Token</h3>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Use this JWT Bearer token to connect the Ghostwire extension.</p>
+                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Extension Configuration</h3>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">Copy this JSON configuration to the Chrome Extension to enable persistent authentication.</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="relative">
-                                        <input
-                                            type="text"
+                                        <textarea
                                             readOnly
-                                            value={isLoadingToken ? 'Fetching secure token...' : apiToken}
-                                            className="w-full bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg py-2 pl-3 pr-24 text-xs font-mono text-slate-600 dark:text-slate-300"
+                                            value={isLoadingToken ? 'Fetching configuration...' : apiToken}
+                                            className="w-full h-32 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg py-2 pl-3 pr-24 text-xs font-mono text-slate-600 dark:text-slate-300 resize-none"
                                         />
                                         <button
                                             onClick={() => {
                                                 if (apiToken) {
                                                     navigator.clipboard.writeText(apiToken);
-                                                    alert('Secure Access Token copied to clipboard!');
+                                                    alert('Configuration JSON copied to clipboard!');
                                                 }
                                             }}
                                             disabled={isLoadingToken || !apiToken}
-                                            className="absolute right-1 top-1 bottom-1 px-3 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+                                            className="absolute top-2 right-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                                         >
                                             Copy
                                         </button>
