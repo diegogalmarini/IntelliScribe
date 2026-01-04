@@ -57,13 +57,13 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
             doc.text("Diktalo", margin, y);
         }
 
-        // Date aligned right
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100);
-        const dateStr = new Date(recording.date).toLocaleDateString();
-        const dateWidth = doc.getTextWidth(dateStr);
-        doc.text(dateStr, pageWidth - margin - dateWidth, y);
+        // Date aligned right - REMOVED based on feedback (redundant/unwanted)
+        // doc.setFontSize(8);
+        // doc.setFont("helvetica", "normal");
+        // doc.setTextColor(100);
+        // const dateStr = new Date(recording.date).toLocaleDateString();
+        // const dateWidth = doc.getTextWidth(dateStr);
+        // doc.text(dateStr, pageWidth - margin - dateWidth, y);
 
         y += 15;
 
@@ -75,12 +75,14 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
         doc.text(titleLines, margin, y);
         y += (titleLines.length * 7) + 5;
 
-        // Duration line
-        doc.setFontSize(headerFontSize);
-        doc.setTextColor(80);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Duración: ${recording.duration || 'N/A'}`, margin, y);
-        y += 10;
+        // Duration line - Only show if valid
+        if (recording.duration && recording.duration !== '00:00:00' && recording.duration !== '0') {
+            doc.setFontSize(headerFontSize);
+            doc.setTextColor(80);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Duración: ${recording.duration}`, margin, y);
+            y += 10;
+        }
 
         // Divider
         doc.setDrawColor(200);
@@ -177,7 +179,15 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
             renderFooter(i, totalPages);
         }
 
-        const safeTitle = sanitizeFilename(recording.title || 'document');
+        // Determine filename suffix based on content
+        let suffix = '';
+        if (options.includeSummary && !options.includeTranscript) {
+            suffix = '_Resumen';
+        } else if (!options.includeSummary && options.includeTranscript) {
+            suffix = '_Transcripcion';
+        }
+
+        const safeTitle = sanitizeFilename(`${recording.title || 'document'}${suffix}`);
         doc.save(`${safeTitle}.pdf`);
     } catch (error) {
         console.error("PDF Export failed", error);
@@ -213,13 +223,16 @@ export const exportAsDoc = (recording: Recording, options: ExportOptions = { inc
                 </div>
                 
                 <h1>${recording.title || 'Grabación'}</h1>
-                <div class="metadata">
-                    <p>
-                        Fecha: ${new Date(recording.date).toLocaleDateString()}<br/>
-                        Duración: ${recording.duration || 'N/A'}
-                    </p>
-                </div>
         `;
+
+        // Metadata section - conditional duration
+        htmlContent += `<div class="metadata"><p>Fecha: ${new Date(recording.date).toLocaleDateString()}<br/>`;
+
+        if (recording.duration && recording.duration !== '00:00:00' && recording.duration !== '0') {
+            htmlContent += `Duración: ${recording.duration}</p></div>`;
+        } else {
+            htmlContent += `</p></div>`;
+        }
 
         if (options.includeSummary && recording.summary) {
             // Clean markdown for Word
@@ -276,7 +289,15 @@ export const exportAsDoc = (recording: Recording, options: ExportOptions = { inc
 
         const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(htmlContent);
 
-        const safeTitle = sanitizeFilename(recording.title || 'document');
+        // Determine filename suffix based on content
+        let suffix = '';
+        if (options.includeSummary && !options.includeTranscript) {
+            suffix = '_Resumen';
+        } else if (!options.includeSummary && options.includeTranscript) {
+            suffix = '_Transcripcion';
+        }
+
+        const safeTitle = sanitizeFilename(`${recording.title || 'document'}${suffix}`);
         const link = document.createElement('a');
         link.href = url;
         link.download = `${safeTitle}.doc`;
