@@ -1,11 +1,10 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import './Popup.css';
 
 // Lucide-like icons (simple SVG components for the extension)
-const PlayIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z" /></svg>;
-// StopIcon removed - replaced by simple div in UI
-const PauseIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6V4zm8 0h4v16h4V4z" /></svg>;
+const MicIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>;
 
 const Popup: React.FC = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -60,12 +59,12 @@ const Popup: React.FC = () => {
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} `;
     };
 
     const handleStartRecording = async () => {
         if (!authToken) {
-            setError('Please set your API token in settings first.');
+            setError('Por favor configura tu TOKEN primeramente.');
             return;
         }
 
@@ -75,7 +74,7 @@ const Popup: React.FC = () => {
         // Get the current active tab
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (!tab?.id) {
-            setError('Could not find active tab');
+            setError('No se pudo encontrar la pestaña activa');
             return;
         }
 
@@ -89,7 +88,7 @@ const Popup: React.FC = () => {
                 setRecordingTime(0);
                 setStatus('recording');
             } else {
-                setError(response?.error || 'Failed to start recording');
+                setError(response?.error || 'Falló al iniciar grabación');
                 setStatus('error');
             }
         });
@@ -119,7 +118,7 @@ const Popup: React.FC = () => {
                 setTimeout(() => setStatus('idle'), 3000);
             } else {
                 console.error('[Popup] Failed to stop recording:', response?.error);
-                setError(response?.error || 'Upload failed');
+                setError(response?.error || 'Falló la subida');
                 setStatus('error');
             }
         });
@@ -131,7 +130,7 @@ const Popup: React.FC = () => {
             if (response?.success) {
                 setIsPaused(!isPaused);
             } else {
-                setError(response?.error || 'Failed to change recording state');
+                setError(response?.error || 'Falló al cambiar estado');
             }
         });
     };
@@ -151,20 +150,20 @@ const Popup: React.FC = () => {
                         supabaseUrl: config.url,
                         supabaseKey: config.key
                     }, () => {
-                        handleSaveSuccess('Configuration saved! Auto-refresh enabled.');
+                        handleSaveSuccess('¡Token guardado! Auto-refresh activado.');
                     });
                 } else {
-                    throw new Error('Invalid configuration JSON. Missing required fields.');
+                    throw new Error('Configuración JSON inválida.');
                 }
             } else {
                 // Handle Legacy Token (String)
                 chrome.storage.local.set({ authToken: trimmedInput }, () => {
-                    handleSaveSuccess('Token saved successfully');
+                    handleSaveSuccess('Token guardado correctamente');
                 });
             }
         } catch (e: any) {
             console.error('[Popup] Parse error:', e);
-            setError('Invalid format: ' + e.message);
+            setError('Formato inválido: ' + e.message);
             setStatus('error');
         }
     };
@@ -172,7 +171,7 @@ const Popup: React.FC = () => {
     const handleSaveSuccess = (message: string) => {
         if (chrome.runtime.lastError) {
             console.error('[Popup] Error saving to storage:', chrome.runtime.lastError);
-            setError('Storage error: ' + chrome.runtime.lastError.message);
+            setError('Error de almacenamiento: ' + chrome.runtime.lastError.message);
             setStatus('error');
             return;
         }
@@ -181,7 +180,6 @@ const Popup: React.FC = () => {
         setError(null);
         setStatus('success');
 
-        // Update local state is uploading false
         // Update local state is uploading false
         setTimeout(() => {
             setStatus('idle');
@@ -196,8 +194,8 @@ const Popup: React.FC = () => {
                     <img src="icons/diktalo.png" alt="Diktalo" style={{ height: '20px', width: 'auto' }} />
                     Diktalo
                 </h1>
-                <div className={`status-badge ${isRecording ? 'status-recording' : ''}`}>
-                    {isRecording ? (isPaused ? 'Pausado' : 'Grabando') : 'Listo'}
+                <div className={`status - badge ${isRecording ? 'status-recording' : ''} `}>
+                    {isRecording ? (isPaused ? 'PAUSADO' : 'GRABANDO') : 'LISTO'}
                 </div>
             </header>
 
@@ -221,12 +219,12 @@ const Popup: React.FC = () => {
                         <input
                             type="password"
                             className="input-compact"
-                            placeholder="Pegar JSON de configuración..."
+                            placeholder="Pegar JSON de TOKEN..."
                             value={authToken}
                             onChange={(e) => setAuthToken(e.target.value)}
                         />
                         <button className="btn-save-compact" onClick={handleSaveToken}>
-                            Guardar Configuración
+                            Guardar Token
                         </button>
 
                         {/* Helper Link */}
@@ -242,48 +240,52 @@ const Popup: React.FC = () => {
                     </div>
                 )}
 
-                {/* Main Controls */}
+                {/* Main Controls - Redesigned */}
                 <div className="controls-group">
                     {!isRecording ? (
-                        <button
-                            className="btn-start-pill"
-                            onClick={handleStartRecording}
-                            disabled={status === 'processing'}
-                        >
-                            {status === 'processing' ? <div className="spinner-clean" /> : <PlayIcon />}
-                            Grabar Pestaña
-                        </button>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <button
+                                className="btn-mic-start"
+                                onClick={handleStartRecording}
+                                disabled={status === 'processing'}
+                            >
+                                {status === 'processing' ? <div className="spinner-clean" /> : <MicIcon />}
+                            </button>
+                            {/* <div className="cancel-text">Cancelar</div> */}
+                        </div>
                     ) : (
                         <>
-                            {/* Pause Button */}
-                            <div className="control-item">
-                                <button
-                                    className={`btn-circle btn-pause-circle ${isPaused ? 'active' : ''}`}
-                                    onClick={handlePauseResume}
-                                    title={isPaused ? "Reanudar" : "Pausar"}
-                                >
-                                    {isPaused ? <PlayIcon /> : <PauseIcon />}
-                                </button>
-                                <span className="btn-label">
-                                    {isPaused ? 'REANUDAR' : 'PAUSAR'}
-                                </span>
-                            </div>
-
                             {/* Stop Button */}
                             <div className="control-item">
                                 <button
-                                    className="btn-circle btn-stop-circle"
+                                    className="btn-stop-black"
                                     onClick={handleStopRecording}
                                     disabled={isUploading}
                                     title="Detener"
                                 >
                                     {isUploading ? <div className="spinner-clean" /> : (
-                                        // Simple square for stop
-                                        <div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '2px' }} />
+                                        <div className="btn-icon-square" />
                                     )}
                                 </button>
                                 <span className="btn-label">
-                                    {showStopConfirm ? '¿CONFIRMAR?' : 'DETENER'}
+                                    {showStopConfirm ? 'CONFIRMAR' : 'MANTÉN 3S'}
+                                </span>
+                            </div>
+
+                            {/* Pause Button */}
+                            <div className="control-item">
+                                <button
+                                    className={`btn - pause - grey ${isPaused ? 'active' : ''} `}
+                                    onClick={handlePauseResume}
+                                    title={isPaused ? "Reanudar" : "Pausar"}
+                                >
+                                    <div className="btn-icon-pause">
+                                        <div className="pause-bar"></div>
+                                        <div className="pause-bar"></div>
+                                    </div>
+                                </button>
+                                <span className="btn-label">
+                                    {isPaused ? 'REANUDAR' : 'MANTÉN 2S'}
                                 </span>
                             </div>
                         </>

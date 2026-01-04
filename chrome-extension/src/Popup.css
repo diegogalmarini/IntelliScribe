@@ -199,122 +199,197 @@ body {
 }
 
 .btn-pause-circle.active {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #ef4444;
-}
 
-/* Labels below buttons */
-.btn-label {
-    margin-top: 8px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--muted-foreground);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    text-align: center;
-}
-
-.control-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Footer Links */
-.footer {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    width: 100%;
-    text-align: center;
-}
-
-.footer-links {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    font-size: 10px;
-    color: #ef4444;
-    /* Red color as requested/implied by "delicate" or matching timer? Or just stick to muted? User screenshot had red text. */
-}
-
-/* Actually user screenshot had red text "Configura Token | Politica de Privacidad" */
-.footer-link {
-    color: #ef4444;
-    text-decoration: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.footer-link:hover {
-    opacity: 0.8;
-    text-decoration: underline;
-}
-
-.divider {
-    color: #e2e8f0;
-}
-
-/* Token Input Area (Compact) */
-.token-area {
-    width: 100%;
-    padding: 12px;
-    background: var(--secondary);
-    border-radius: var(--radius);
-    margin-bottom: 12px;
-}
-
-.input-compact {
-    width: 100%;
-    border: 1px solid var(--border);
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    margin-bottom: 8px;
-    box-sizing: border-box;
-    /* Fix width issue */
-}
-
-.btn-save-compact {
-    width: 100%;
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    cursor: pointer;
-}
-
-/* Spinner */
-.spinner-clean {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid currentColor;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+    /* Cancel Link (next to start button in screenshot) */
+    .cancel-text {
+        position: absolute;
+        right: 40px;
+        /* Position it roughly where it is in screenshot if needed, or just center start */
+        font-size: 14px;
+        color: var(--muted-foreground);
+        cursor: pointer;
     }
-}
 
-.message {
-    padding: 8px;
-    font-size: 11px;
-    text-align: center;
-    border-radius: 4px;
-    background: var(--secondary);
-    width: 100%;
-    box-sizing: border-box;
-}
+    /* Stop Button: Black Circle */
+    .btn-stop-black {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #1f2937;
+        /* Gray-900 / Blackish */
+        border: 4px solid #e5e7eb;
+        /* Light gray border rings */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        padding: 0;
+    }
 
-.message.error {
-    background: #fef2f2;
-    color: #b91c1c;
-}
+    .btn-stop-black::after {
+        /* The white ring effect from screenshot? Or just border? Using border on main element. */
+        content: '';
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        bottom: -4px;
+        left: -4px;
+        border-radius: 50%;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-stop-black:hover:not(:disabled) {
+        transform: scale(1.05);
+    }
+
+    /* Pause Button: Grey Circle */
+    .btn-pause-grey {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #9ca3af;
+        /* Gray-400 */
+        border: 4px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        padding: 0;
+    }
+
+    .btn-pause-grey.active {
+        background: #ef4444;
+        /* Red when paused? Or just stay grey? User said "como este", implies grey. */
+    }
+
+    /* Labels below buttons */
+    .btn-label {
+        margin-top: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #9ca3af;
+        /* Muted grey text */
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-align: center;
+    }
+
+    .control-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-icon-square {
+        width: 24px;
+        height: 24px;
+        border: 2px solid white;
+        border-radius: 4px;
+    }
+
+    .btn-icon-pause {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pause-bar {
+        width: 6px;
+        height: 24px;
+        background: white;
+        border-radius: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Footer Links */
+    .footer {
+        margin-top: auto;
+        padding-top: 20px;
+        /* border-top: 1px solid var(--border); */
+        /* Removed border for cleaner look? Keeping simple */
+        width: 100%;
+        text-align: center;
+    }
+
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        color: #ef4444;
+    }
+
+    .footer-link {
+        color: #ef4444;
+        text-decoration: none;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .footer-link:hover {
+        text-decoration: underline;
+    }
+
+    .divider {
+        color: #e2e8f0;
+    }
+
+    /* Token Input Area (Compact) */
+    .token-area {
+        width: 100%;
+        padding: 12px;
+        background: #f8fafc;
+        /* Very light slate */
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .input-compact {
+        width: 100%;
+        border: 1px solid #e2e8f0;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .btn-save-compact {
+        width: 100%;
+        background: #0f172a;
+        /* Dark */
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    /* Spinner */
+    .spinner-clean {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        border-radius: 4px;
+        background: var(--secondary);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .message.error {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
