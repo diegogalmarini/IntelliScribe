@@ -4,7 +4,7 @@ import './Popup.css';
 
 // Lucide-like icons (simple SVG components for the extension)
 const PlayIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z" /></svg>;
-const StopIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>;
+// StopIcon removed - replaced by simple div in UI
 const PauseIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6V4zm8 0h4v16h4V4z" /></svg>;
 
 const Popup: React.FC = () => {
@@ -228,6 +228,17 @@ const Popup: React.FC = () => {
                         <button className="btn-save-compact" onClick={handleSaveToken}>
                             Guardar Configuración
                         </button>
+
+                        {/* Helper Link */}
+                        <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                            <a
+                                href="https://www.diktalo.com/intelligence"
+                                target="_blank"
+                                style={{ fontSize: '10px', color: '#ef4444', textDecoration: 'none' }}
+                            >
+                                ¿Cómo obtener mi token? Ver guía →
+                            </a>
+                        </div>
                     </div>
                 )}
 
