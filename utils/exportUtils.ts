@@ -119,15 +119,42 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
                 .replace(/\*\*/g, '') // remove bold markers
                 .replace(/###/g, '') // remove header markers
                 .replace(/^\s*-\s/gm, '• ') // replace "- " with bullet at start of line
-                .replace(/^\s*\*\s/gm, '• '); // replace "* " with bullet at start of line
+                .replace(/^\s*\*\s/gm, '• ') // replace "* " with bullet at start of line
+                .replace(/\n\n/g, '\n'); // Remove excessive gaps
 
-            // Handle double newlines as paragraph breaks by splitting, cleaning, then re-joining or just letting splitTextToSize handle it?
-            // splitTextToSize preserves newlines if they are in the string.
-            // Let's ensure standardized spacing.
-            summaryText = summaryText.replace(/\n\n/g, '\n'); // Remove excessive gaps if any
+            // Split into paragraphs to handle indentation per logical block
+            const paragraphs = summaryText.split('\n');
 
-            const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
-            printTextWithPagination(splitSummary);
+            paragraphs.forEach(para => {
+                let currentIndent = margin;
+                let currentWidth = contentWidth;
+
+                // Logic for indentation
+                if (/^\d+\./.test(para)) {
+                    // Numbered list (e.g. "1.")
+                    currentIndent += 5;
+                    currentWidth -= 5;
+                } else if (para.trim().startsWith('•')) {
+                    // Bullet point
+                    currentIndent += 10;
+                    currentWidth -= 10;
+                }
+
+                const lines = doc.splitTextToSize(para, currentWidth);
+
+                doc.setFontSize(bodyFontSize);
+                lines.forEach((line: string) => {
+                    if (y > pageHeight - margin - 10) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                    doc.text(line, currentIndent, y);
+                    y += lineHeight;
+                });
+
+                // Extra space after logical segments? Maybe just standard line height is fine.
+                // y += 1; 
+            });
 
             y += 10;
         }
