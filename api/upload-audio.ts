@@ -131,7 +131,7 @@ export default async function handler(req, res) {
             description: tabUrl ? `Captured from: ${tabUrl}` : 'Captured via Chrome Extension',
             date: new Date().toISOString(),
             duration_seconds: null, // Will be set by frontend when audio loads
-            status: 'Processing',
+            status: null, // No processing happening yet
             audio_url: publicAudioUrl,
             participants: 1,
             folder_id: null,
