@@ -131,12 +131,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
     // Feature Pills Logic
     const ALL_FEATURES = [
-        { key: 'feature_dialer', icon: 'call', color: 'text-blue-600 dark:text-blue-400' },
-        { key: 'feature_ghostwire', icon: 'graphic_eq', color: 'text-purple-600 dark:text-purple-400' },
-        { key: 'feature_insights', icon: 'auto_awesome', color: 'text-amber-500 dark:text-amber-400' },
-        { key: 'feature_security', icon: 'shield', color: 'text-green-600 dark:text-green-400' },
-        { key: 'feature_sync', icon: 'cloud_sync', color: 'text-cyan-500 dark:text-cyan-400' },
-        { key: 'feature_teams', icon: 'group', color: 'text-indigo-500 dark:text-indigo-400' },
+        { key: 'feature_dialer', icon: 'call', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_ghostwire', icon: 'graphic_eq', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_insights', icon: 'auto_awesome', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_security', icon: 'shield', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_sync', icon: 'cloud_sync', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_teams', icon: 'group', color: 'text-slate-500 dark:text-slate-400' },
     ];
 
     const [features, setFeatures] = useState<{ key: string, icon: string, color: string }[]>([]);
@@ -360,19 +360,19 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Right Side - Transparent to show Global BG */}
             <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
                 <div className="relative z-10 max-w-4xl text-center">
-                    <h2 className="text-4xl lg:text-[3.5rem] font-extrabold text-[#0f172a] dark:text-white mb-8 tracking-tighter leading-[1.1] drop-shadow-sm text-balance">
+                    <h2 className="text-4xl lg:text-[3.5rem] font-extrabold text-[#020617] dark:text-white mb-6 tracking-tighter leading-[1] drop-shadow-sm">
                         {t('loginHeroTitle')}
                     </h2>
-                    <p className="text-base leading-6 text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto font-medium">
+                    <p className="text-base leading-relaxed text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-medium">
                         {t('loginHeroDesc')}
                     </p>
 
-                    {/* Feature Pills (Random 3) */}
+                    {/* Feature Pills (Clean Corporate Monochrome) */}
                     <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                         {features.map((feature) => (
-                            <div key={feature.key} className="flex items-center gap-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-5 py-2.5 rounded-full shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition-colors cursor-default group">
-                                <span className={`material-symbols-outlined text-[18px] ${feature.color} group-hover:scale-110 transition-transform`}>{feature.icon}</span>
-                                <span className="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{t(feature.key as any)}</span>
+                            <div key={feature.key} className="flex items-center gap-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-2.5 rounded-full shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-default">
+                                <span className={`material-symbols-outlined text-[20px] ${feature.color}`}>{feature.icon}</span>
+                                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 tracking-wide">{t(feature.key as any)}</span>
                             </div>
                         ))}
                     </div>
