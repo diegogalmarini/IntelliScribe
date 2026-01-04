@@ -35,10 +35,11 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
         const logoBase64 = await getBase64ImageFromUrl('/logo-diktalo.png'); // Assuming public path
 
         // Fonts
-        const titleFontSize = 16;
-        const headerFontSize = 10;
-        const bodyFontSize = 10;
+        const titleFontSize = 14;
+        const headerFontSize = 9;
+        const bodyFontSize = 9;
         const footerFontSize = 8;
+        const lineHeight = 5;
 
         const margin = 20;
         const pageWidth = doc.internal.pageSize.getWidth();
@@ -49,21 +50,12 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
 
         // --- HEADER (Logo + Title) ---
         if (logoBase64) {
-            // Aspect ratio of logo? Let's assume generic rectangle
-            doc.addImage(logoBase64, 'PNG', margin, y - 5, 25, 8); // x, y, w, h
+            doc.addImage(logoBase64, 'PNG', margin, y - 5, 25, 8);
         } else {
             doc.setFontSize(14);
             doc.setFont("helvetica", "bold");
             doc.text("Diktalo", margin, y);
         }
-
-        // Date aligned right - REMOVED based on feedback (redundant/unwanted)
-        // doc.setFontSize(8);
-        // doc.setFont("helvetica", "normal");
-        // doc.setTextColor(100);
-        // const dateStr = new Date(recording.date).toLocaleDateString();
-        // const dateWidth = doc.getTextWidth(dateStr);
-        // doc.text(dateStr, pageWidth - margin - dateWidth, y);
 
         y += 15;
 
@@ -73,7 +65,7 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
         doc.setFont("helvetica", "bold");
         const titleLines = doc.splitTextToSize(recording.title || 'Grabación Sin Título', contentWidth);
         doc.text(titleLines, margin, y);
-        y += (titleLines.length * 7) + 5;
+        y += (titleLines.length * 6) + 5;
 
         // Duration line - Only show if valid
         if (recording.duration && recording.duration !== '00:00:00' && recording.duration !== '0') {
@@ -81,7 +73,7 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
             doc.setTextColor(80);
             doc.setFont("helvetica", "normal");
             doc.text(`Duración: ${recording.duration}`, margin, y);
-            y += 10;
+            y += 8;
         }
 
         // Divider
@@ -98,9 +90,21 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
             doc.text("Generado por Diktalo", margin, pageHeight - 10);
         };
 
+        const printTextWithPagination = (lines: string[]) => {
+            doc.setFontSize(bodyFontSize);
+            lines.forEach(line => {
+                if (y > pageHeight - margin - 10) {
+                    doc.addPage();
+                    y = margin;
+                }
+                doc.text(line, margin, y);
+                y += lineHeight;
+            });
+        };
+
         // --- SUMMARY SECTION ---
         if (options.includeSummary && recording.summary) {
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setTextColor(0);
             doc.setFont("helvetica", "bold");
             doc.text("Resumen IA", margin, y);
@@ -117,25 +121,24 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
                 .replace(/^\s*-\s/gm, '• ') // replace "- " with bullet at start of line
                 .replace(/^\s*\*\s/gm, '• '); // replace "* " with bullet at start of line
 
+            // Handle double newlines as paragraph breaks by splitting, cleaning, then re-joining or just letting splitTextToSize handle it?
+            // splitTextToSize preserves newlines if they are in the string.
+            // Let's ensure standardized spacing.
+            summaryText = summaryText.replace(/\n\n/g, '\n'); // Remove excessive gaps if any
+
             const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
+            printTextWithPagination(splitSummary);
 
-            // Check page overflow
-            if (y + (splitSummary.length * 5) > pageHeight - 20) {
-                doc.addPage();
-                y = 20;
-            }
-
-            doc.text(splitSummary, margin, y);
-            y += (splitSummary.length * 5) + 15;
+            y += 10;
         }
 
         // --- TRANSCRIPT SECTION ---
         if (options.includeTranscript && recording.segments && recording.segments.length > 0) {
 
-            // Page break if needed or if summary took up space
-            if (y > pageHeight - 50) {
+            // Check vertical space for the header "Transcripción"
+            if (y > pageHeight - 40) {
                 doc.addPage();
-                y = 20;
+                y = margin;
             } else if (options.includeSummary) {
                 // Formatting spacer
                 doc.setDrawColor(230);
@@ -143,7 +146,7 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
                 y += 5;
             }
 
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setTextColor(0);
             doc.setFont("helvetica", "bold");
             doc.text("Transcripción", margin, y);
@@ -152,23 +155,27 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
             doc.setFontSize(bodyFontSize);
 
             recording.segments.forEach(seg => {
-                // Check page break
-                if (y > pageHeight - 30) {
+                const speakerLine = `${seg.speaker} [${seg.timestamp}]`;
+                const textLines = doc.splitTextToSize(seg.text, contentWidth);
+
+                // Calculate space needed for this block (speaker + text)
+                // Actually, let's just paginate naturally.
+                // Ensure at least space for speaker name
+                if (y > pageHeight - margin - 10) {
                     doc.addPage();
-                    y = 20;
+                    y = margin;
                 }
 
                 doc.setFont("helvetica", "bold");
                 doc.setTextColor(0);
-                const speakerLine = `${seg.speaker} [${seg.timestamp}]`;
                 doc.text(speakerLine, margin, y);
-                y += 5;
+                y += lineHeight;
 
                 doc.setFont("helvetica", "normal");
                 doc.setTextColor(60);
-                const splitText = doc.splitTextToSize(seg.text, contentWidth);
-                doc.text(splitText, margin, y);
-                y += (splitText.length * 5) + 6;
+
+                printTextWithPagination(textLines);
+                y += 3; // Small gap between segments
             });
         }
 
