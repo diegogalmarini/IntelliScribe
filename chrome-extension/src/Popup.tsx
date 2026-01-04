@@ -136,26 +136,52 @@ const Popup: React.FC = () => {
     };
 
     const handleSaveToken = () => {
-        console.log('[Popup] Saving token...');
-        chrome.storage.local.set({ authToken }, () => {
-            if (chrome.runtime.lastError) {
-                console.error('[Popup] Error saving token:', chrome.runtime.lastError);
-                setError('Failed to save token: ' + chrome.runtime.lastError.message);
-                setStatus('error');
-                return;
+        console.log('[Popup] Saving configuration...');
+        const trimmedInput = authToken.trim();
+
+        try {
+            if (trimmedInput.startsWith('{')) {
+                // Handle JSON Configuration (Set & Forget)
+                const config = JSON.parse(trimmedInput);
+                if (config.access_token && config.refresh_token && config.url && config.key) {
+                    chrome.storage.local.set({
+                        authToken: config.access_token,
+                        refreshToken: config.refresh_token,
+                        supabaseUrl: config.url,
+                        supabaseKey: config.key
+                    }, () => {
+                        handleSaveSuccess('Configuration saved! Auto-refresh enabled.');
+                    });
+                } else {
+                    throw new Error('Invalid configuration JSON. Missing required fields.');
+                }
+            } else {
+                // Handle Legacy Token (String)
+                chrome.storage.local.set({ authToken: trimmedInput }, () => {
+                    handleSaveSuccess('Token saved successfully');
+                });
             }
+        } catch (e: any) {
+            console.error('[Popup] Parse error:', e);
+            setError('Invalid format: ' + e.message);
+            setStatus('error');
+        }
+    };
 
-            console.log('[Popup] Token saved successfully');
-            setError(null);
-            setStatus('success');
+    const handleSaveSuccess = (message: string) => {
+        if (chrome.runtime.lastError) {
+            console.error('[Popup] Error saving to storage:', chrome.runtime.lastError);
+            setError('Storage error: ' + chrome.runtime.lastError.message);
+            setStatus('error');
+            return;
+        }
 
-            // Verify it was saved
-            chrome.storage.local.get(['authToken'], (result) => {
-                console.log('[Popup] Verified saved token:', result.authToken ? 'exists' : 'missing');
-            });
+        console.log('[Popup]', message);
+        setError(null);
+        setStatus('success');
 
-            setTimeout(() => setStatus('idle'), 2000);
-        });
+        // Update local state is uploading false
+        setTimeout(() => setStatus('idle'), 2000);
     };
 
     return (
@@ -174,7 +200,7 @@ const Popup: React.FC = () => {
                 {error && <div className="message error">{error}</div>}
 
                 {status === 'success' && !error && (
-                    <div className="message success">¡Grabación subida con éxito!</div>
+                    <div className="message success">¡Configuración guardada!</div>
                 )}
 
                 <div className="controls-group">
@@ -214,12 +240,12 @@ const Popup: React.FC = () => {
                     <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
                         <div className="token-container">
                             <label style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                API Token {authToken && '(configurado)'}
+                                Configuración {authToken && '(Lista)'}
                             </label>
                             <input
                                 type="password"
                                 className="input-glow"
-                                placeholder="Pega tu token aquí..."
+                                placeholder="Pega el JSON de configuración..."
                                 value={authToken}
                                 onChange={(e) => setAuthToken(e.target.value)}
                                 style={{ fontSize: '12px' }}
@@ -229,10 +255,10 @@ const Popup: React.FC = () => {
                                 onClick={handleSaveToken}
                                 style={{ marginTop: '8px' }}
                             >
-                                Guardar Token
+                                Guardar Configuración
                             </button>
                             <a href="https://www.diktalo.com/intelligence" target="_blank" className="help-link" style={{ marginTop: '8px', display: 'block' }}>
-                                Obtener token del dashboard →
+                                Obtener configuración del dashboard →
                             </a>
                         </div>
                     </div>
