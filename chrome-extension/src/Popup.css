@@ -319,15 +319,6 @@ body {
     color: #b91c1c;
 }
 
---foreground: #020817;
-/* slate-950 */
---card: #ffffff;
---card-foreground: #020817;
---popover: #ffffff;
---popover-foreground: #020817;
---primary: #0f172a;
-/* slate-900 */
---primary-foreground: #f8fafc;
 /* slate-50 */
 --secondary: #f1f5f9;
 /* slate-100 */
