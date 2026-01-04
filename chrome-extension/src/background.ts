@@ -236,41 +236,108 @@ async function closeOffscreenDocument() {
     }
 }
 
-async function uploadAudioToDiktalo(audioBlob: Blob): Promise<{ recordingId: string }> {
-    console.log('[Background] uploadAudioToDiktalo called, blob size:', audioBlob.size);
-    try {
-        const { authToken } = await chrome.storage.local.get('authToken');
-        console.log('[Background] Auth token retrieved:', authToken ? 'exists' : 'missing');
+async function refreshSession(): Promise<string> {
+    console.log('[Background] Attempting to refresh session...');
+    const { refreshToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['refreshToken', 'supabaseUrl', 'supabaseKey']);
 
-        if (!authToken) {
-            throw new Error('Not authenticated. Please set your API token in settings.');
+    if (!refreshToken || !supabaseUrl || !supabaseKey) {
+        throw new Error('Missing refresh token or Supabase configuration.');
+    }
+
+    try {
+        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey
+            },
+            body: JSON.stringify({ refresh_token: refreshToken })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Refresh failed: ${response.status} - ${errorText}`);
         }
 
+        const data = await response.json();
+
+        if (!data.access_token || !data.refresh_token) {
+            throw new Error('Invalid refresh response');
+        }
+
+        console.log('[Background] Session refreshed successfully.');
+
+        // Update storage with new tokens
+        await chrome.storage.local.set({
+            authToken: data.access_token,
+            refreshToken: data.refresh_token
+        });
+
+        return data.access_token;
+    } catch (error: any) {
+        console.error('[Background] Refresh session error:', error);
+        throw error;
+    }
+}
+
+async function uploadAudioToDiktalo(audioBlob: Blob): Promise<{ recordingId: string }> {
+    console.log('[Background] uploadAudioToDiktalo called, blob size:', audioBlob.size);
+    /* 
+       Retry Logic Strategy:
+       1. Attempt upload with current token.
+       2. If 401 (Unauthorized), try to refresh token.
+       3. If refresh success, retry upload with new token.
+       4. If anything else fails, throw error.
+    */
+
+    let { authToken } = await chrome.storage.local.get('authToken');
+
+    if (!authToken) {
+        throw new Error('Not authenticated. Please set your API token in settings.');
+    }
+
+    const performUpload = async (token: string) => {
         const formData = new FormData();
         formData.append('audio', audioBlob, 'recording.webm');
         formData.append('source', 'chrome-extension');
         formData.append('title', `Tab Recording - ${new Date().toLocaleString()}`);
 
         const endpoint = 'https://www.diktalo.com/api/upload-audio';
-        console.log('[Background] Uploading to:', endpoint);
 
         const response = await fetch(endpoint, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${authToken}` },
+            headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
 
-        console.log('[Background] Upload response status:', response.status);
+        return response;
+    };
+
+    try {
+        console.log('[Background] Starting initial upload...');
+        let response = await performUpload(authToken);
+
+        if (response.status === 401) {
+            console.warn('[Background] Upload returned 401. Attempting token refresh...');
+            try {
+                const newToken = await refreshSession();
+                console.log('[Background] Token refreshed. Retrying upload...');
+                response = await performUpload(newToken);
+            } catch (refreshError) {
+                console.error('[Background] Silent refresh failed:', refreshError);
+                throw new Error('Session expired and auto-refresh failed. Please update your configuration.');
+            }
+        }
 
         if (!response.ok) {
             const responseText = await response.text();
-            console.error('[Background] Upload failed:', response.status, responseText);
             throw new Error(`Upload failed (${response.status}): ${responseText}`);
         }
 
         const result = await response.json();
-        console.log('[Background] Upload result:', result);
+        console.log('[Background] Upload successful:', result);
         return { recordingId: result.recordingId || 'unknown' };
+
     } catch (error: any) {
         console.error('[Background] uploadAudioToDiktalo error:', error);
         throw error;
