@@ -129,9 +129,22 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     };
 
     return (
-        <div className="flex flex-1 w-full min-h-screen bg-white dark:bg-[#1a1a1a] transition-colors duration-200 overflow-hidden">
-            {/* Left Side: Auth Form */}
-            <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] bg-white dark:bg-[#1a1a1a] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20">
+        <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative">
+
+            {/* Global Background Image */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="/images/login-bg.jpg"
+                    alt="Background"
+                    className="w-full h-full object-cover"
+                />
+                {/* Overlay to ensure text readability on the right if image is too bright */}
+                <div className="absolute inset-0 bg-white/10 dark:bg-black/20" />
+            </div>
+
+            {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
+            <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20 
+                          bg-white/75 dark:bg-black/70 backdrop-blur-2xl border-r border-white/20 shadow-[20px_0_50px_rgba(0,0,0,0.05)]">
 
                 {/* Header (Logo + Language + Theme) */}
                 <div className="absolute top-8 left-8 right-8 flex justify-between items-center">
@@ -139,10 +152,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <img
                             src="/logo-diktalo.svg"
                             alt="Diktalo"
-                            className="h-8 w-auto dark:invert"
+                            className="h-8 w-auto dark:invert opacity-90"
                         />
                     </div>
-                    <div className="flex items-center gap-2 scale-90">
+                    <div className="flex items-center gap-2 scale-90 opacity-80 hover:opacity-100 transition-opacity">
                         <ThemeToggle />
                         <LanguageSelector />
                     </div>
@@ -153,7 +166,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <h1 className="text-2xl lg:text-3xl font-medium text-[#1f1f1f] dark:text-white mb-2 tracking-tight">
                             {isSignUp ? t('signUpForDiktalo') : t('letsGetStarted')}
                         </h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                             {isSignUp ? t('startJourney') : t('welcomeBack')}
                         </p>
                     </div>
@@ -163,7 +176,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <button
                             onClick={() => handleSocialClick('google')}
                             disabled={isLoggingIn}
-                            className="flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#2a2a2a] hover:bg-gray-50 dark:hover:bg-[#333]/80 transition-all active:scale-[0.99]"
+                            className="flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all active:scale-[0.99] backdrop-blur-sm"
                         >
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
                             <span className="text-sm font-medium text-[#1f1f1f] dark:text-white">{t('continueWithGoogle')}</span>
@@ -180,10 +193,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                     <div className="relative mb-6">
                         <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200 dark:border-[#333]"></div>
+                            <div className="w-full border-t border-gray-200 dark:border-white/10"></div>
                         </div>
                         <div className="relative flex justify-center">
-                            <span className="bg-white dark:bg-[#1a1a1a] px-3 text-[11px] text-[#8e8e8e] dark:text-[#888] uppercase tracking-wide">Or</span>
+                            <span className="bg-transparent px-3 text-[11px] text-[#8e8e8e] dark:text-[#888] uppercase tracking-wide font-medium">Or</span>
                         </div>
                     </div>
 
@@ -199,7 +212,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             <div className="flex flex-col md:flex-row gap-3">
                                 <div className="flex-1">
                                     <input
-                                        className="w-full rounded-md border border-gray-200 dark:border-[#333] bg-transparent px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-400 focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-all text-sm"
+                                        className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
                                         placeholder={t('firstName')}
                                         type="text"
                                         value={firstName}
@@ -209,7 +222,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                 </div>
                                 <div className="flex-1">
                                     <input
-                                        className="w-full rounded-md border border-gray-200 dark:border-[#333] bg-transparent px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-400 focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-all text-sm"
+                                        className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
                                         placeholder={t('lastName')}
                                         type="text"
                                         value={lastName}
@@ -222,7 +235,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         <div>
                             <input
-                                className="w-full rounded-md border border-gray-200 dark:border-[#333] bg-transparent px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-400 focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-all text-sm"
+                                className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm backdrop-blur-sm"
                                 placeholder={t('emailAddressPlaceholder')}
                                 type="email"
                                 value={email}
@@ -233,7 +246,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         <div className="relative">
                             <input
-                                className="w-full rounded-md border border-gray-200 dark:border-[#333] bg-transparent px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-400 focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-all text-sm pr-10"
+                                className="w-full rounded-md border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 px-3 h-10 text-[#1f1f1f] dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-black dark:focus:border-white focus:bg-white dark:focus:bg-black/20 focus:ring-0 outline-none transition-all text-sm pr-10 backdrop-blur-sm"
                                 placeholder={t('passwordPlaceholder')}
                                 type={showPassword ? "text" : "password"}
                                 value={password}
@@ -268,7 +281,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         )}
 
                         {successMessage && (
-                            <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-2 rounded text-xs relative animate-in fade-in slide-in-from-top-1" role="alert">
+                            <div className="bg-green-50/80 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-3 py-2 rounded text-xs relative animate-in fade-in slide-in-from-top-1 backdrop-blur-sm" role="alert">
                                 {successMessage}
                             </div>
                         )}
@@ -278,7 +291,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <button
                             type="submit"
                             disabled={isLoggingIn || (!email || !password)}
-                            className="mt-2 w-full h-10 bg-[#1f1f1f] hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
+                            className="mt-2 w-full h-10 bg-[#1f1f1f] hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-black/5"
                         >
                             {isLoggingIn ? (
                                 <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
@@ -287,7 +300,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             )}
                         </button>
 
-                        <div className="mt-4 text-center text-xs text-gray-500">
+                        <div className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
                             {isSignUp ? t('alreadyHaveAccount') : t('noAccount')}
                             <button
                                 type="button"
@@ -300,10 +313,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         {/* LEGAL CHECKBOXES - SIGNUP ONLY */}
                         {isSignUp && (
-                            <div className="mt-2 space-y-2 pt-2 border-t border-gray-100 dark:border-[#333]">
+                            <div className="mt-2 space-y-2 pt-2 border-t border-gray-100 dark:border-white/10">
                                 <label className="flex items-start gap-2 cursor-pointer group">
                                     <div className="relative flex items-center pt-0.5">
-                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-300 dark:border-gray-600 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
+                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-300 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
                                         <span className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[8px] material-symbols-outlined font-bold">check</span>
                                     </div>
                                     <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
@@ -311,9 +324,9 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                     </span>
                                 </label>
 
-                                <label className="flex items-start gap-2 cursor-pointer group hidden md:flex"> {/* Keep updated optional/hidden on mobile if tight? No keep it */}
+                                <label className="flex items-start gap-2 cursor-pointer group hidden md:flex">
                                     <div className="relative flex items-center pt-0.5">
-                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-300 dark:border-gray-600 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
+                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-300 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
                                         <span className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[8px] material-symbols-outlined font-bold">check</span>
                                     </div>
                                     <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
@@ -326,34 +339,25 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 </div>
             </div>
 
-            {/* Right Side - Tech/Optical Fiber Aesthetic */}
-            <div className="hidden lg:flex flex-1 relative bg-black overflow-hidden flex-col justify-center items-center p-12">
-                {/* Abstract Tech Background - CSS Only */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,#1e1b4b, #000)]" /> {/* Deep blue glowing from bottom */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,#000_70%,transparent_100%)]" /> {/* Subtle Grid */}
-
-                {/* Glowing vertical lines (Fiber strands) */}
-                <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-500/20 to-transparent opacity-50 blur-[1px]" />
-                <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-purple-500/20 to-transparent opacity-50 blur-[1px]" />
-                <div className="absolute top-0 left-1/3 w-[2px] h-full bg-gradient-to-b from-transparent via-cyan-500/10 to-transparent opacity-30" />
-
+            {/* Right Side - Transparent to show Global BG */}
+            <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
                 <div className="relative z-10 max-w-xl text-center">
-                    <h2 className="text-2xl font-medium text-white mb-3 tracking-tight">
+                    <h2 className="text-2xl font-medium text-[#1f1f1f] dark:text-white mb-3 tracking-tight">
                         {t('loginHeroTitle')}
                     </h2>
-                    <p className="text-sm text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto leading-relaxed">
                         {t('loginHeroDesc')}
                     </p>
 
-                    {/* Image Container */}
+                    {/* Image Container with Floating Effect */}
                     <div className="relative group">
-                        {/* Ambient Light behind image */}
-                        <div className="absolute -inset-4 bg-blue-500/20 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition duration-1000"></div>
+                        {/* Soft glow behind image */}
+                        <div className="absolute -inset-4 bg-white/20 dark:bg-white/10 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition duration-1000"></div>
 
                         <img
                             src="/images/hero-executive.png"
                             alt="Diktalo Interface"
-                            className="relative rounded-lg shadow-2xl border border-white/5 w-full object-contain max-h-[350px]"
+                            className="relative rounded-lg shadow-2xl border border-white/20 dark:border-white/10 w-full object-contain max-h-[350px] backdrop-blur-sm bg-white/5"
                         />
                     </div>
                 </div>
@@ -361,3 +365,4 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         </div>
     );
 };
+```
