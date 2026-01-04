@@ -375,24 +375,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
             {/* Right Side - Transparent to show Global BG */}
             <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
-                <div className="relative z-10 max-w-2xl text-center">
-                    <h2 className="text-3xl lg:text-5xl font-medium text-[#1f1f1f] dark:text-white mb-6 tracking-tight">
-                        {t('loginHeroTitle')}
-                    </h2>
-
-                    {/* Image Container with Floating Effect */}
-                    <div className="relative group mt-8">
-                        {/* Soft light glow behind image */}
-                        <div className="absolute -inset-4 bg-white/40 dark:bg-purple-900/20 rounded-full blur-3xl opacity-60 group-hover:opacity-80 transition duration-1000"></div>
-
-                        <img
-                            src="/images/hero-executive.png"
-                            alt="Diktalo Interface"
-                            className="relative rounded-lg shadow-2xl border border-white/30 dark:border-white/10 w-full object-contain max-h-[350px] backdrop-blur-sm bg-white/10"
                         />
-                    </div>
-                </div>
             </div>
         </div>
+            </div >
+        </div >
     );
 };
