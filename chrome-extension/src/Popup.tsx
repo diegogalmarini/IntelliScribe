@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import './Popup.css';
 
 // Lucide-like icons (simple SVG components for the extension)
-const MicIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>;
+const MicIcon = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /><line x1="8" x2="16" y1="22" y2="22" /></svg>;
 
 const Popup: React.FC = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -232,7 +232,7 @@ const Popup: React.FC = () => {
                             <a
                                 href="https://www.diktalo.com/intelligence"
                                 target="_blank"
-                                style={{ fontSize: '10px', color: '#ef4444', textDecoration: 'none' }}
+                                style={{ fontSize: '10px', color: '#64748b', textDecoration: 'none' }}
                             >
                                 ¿Cómo obtener mi token? Ver guía →
                             </a>
@@ -268,14 +268,14 @@ const Popup: React.FC = () => {
                                     )}
                                 </button>
                                 <span className="btn-label">
-                                    {showStopConfirm ? 'CONFIRMAR' : 'MANTÉN 3S'}
+                                    {showStopConfirm ? 'CONFIRMAR' : ''}
                                 </span>
                             </div>
 
                             {/* Pause Button */}
                             <div className="control-item">
                                 <button
-                                    className={`btn - pause - grey ${isPaused ? 'active' : ''} `}
+                                    className={`btn-pause-grey ${isPaused ? 'active' : ''}`}
                                     onClick={handlePauseResume}
                                     title={isPaused ? "Reanudar" : "Pausar"}
                                 >
@@ -285,7 +285,7 @@ const Popup: React.FC = () => {
                                     </div>
                                 </button>
                                 <span className="btn-label">
-                                    {isPaused ? 'REANUDAR' : 'MANTÉN 2S'}
+                                    {isPaused ? 'REANUDAR' : ''}
                                 </span>
                             </div>
                         </>
