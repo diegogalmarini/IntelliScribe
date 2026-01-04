@@ -120,7 +120,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const [selectedSection, setSelectedSection] = useState<Section>('account');
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const { theme, setTheme } = useTheme();
-    const { language, setLanguage } = useLanguage();
+    const { language, setLanguage, t } = useLanguage();
 
     // Features State
     const [showPhoneVerify, setShowPhoneVerify] = useState(false);
@@ -128,6 +128,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Developer API Token State
     const [apiToken, setApiToken] = useState<string>('');
     const [isLoadingToken, setIsLoadingToken] = useState(false);
+    const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
 
     // Initial State loading from User Profile or Defaults
     const [personalInfo, setPersonalInfo] = useState({
@@ -801,13 +802,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             onClick={() => {
                                                 if (apiToken) {
                                                     navigator.clipboard.writeText(apiToken);
-                                                    alert('Configuration JSON copied to clipboard!');
+                                                    setCopyStatus('copied');
+                                                    setTimeout(() => setCopyStatus('idle'), 2000);
                                                 }
                                             }}
                                             disabled={isLoadingToken || !apiToken}
-                                            className="absolute top-2 right-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                                            className={`absolute top-2 right-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${copyStatus === 'copied'
+                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                    : 'bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90'
+                                                } disabled:opacity-50`}
                                         >
-                                            Copy
+                                            {copyStatus === 'copied' ? t('copied') : t('copy')}
                                         </button>
                                     </div>
                                     <p className="mt-2 text-[10px] text-slate-400">

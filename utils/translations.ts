@@ -198,6 +198,9 @@ export const translations = {
     connectAccount: "Connect Account",
     activeIntegrations: "Active Integrations",
     flowsExecuted: "Flows Executed",
+    copy: "Copy",
+    copied: "Copied!",
+    configurationCopied: "Configuration copied to clipboard!",
 
     // Settings
     accountSettings: "Account Settings",
@@ -600,6 +603,9 @@ export const translations = {
     connectAccount: "Conectar Cuenta",
     activeIntegrations: "Integraciones Activas",
     flowsExecuted: "Flujos Ejecutados",
+    copy: "Copiar",
+    copied: "¡Copiado!",
+    configurationCopied: "¡Configuración copiada al portapapeles!",
 
     // Settings
     accountSettings: "Configuración de Cuenta",
