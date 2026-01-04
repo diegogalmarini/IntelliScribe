@@ -2,31 +2,349 @@
     /* Shadcn/Tailwind Variables (Approximated) */
     --background: #ffffff;
     --foreground: #020817;
-    /* slate-950 */
     --card: #ffffff;
     --card-foreground: #020817;
-    --popover: #ffffff;
-    --popover-foreground: #020817;
     --primary: #0f172a;
-    /* slate-900 */
     --primary-foreground: #f8fafc;
-    /* slate-50 */
     --secondary: #f1f5f9;
-    /* slate-100 */
     --secondary-foreground: #0f172a;
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
-    /* slate-500 */
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
     --destructive: #ef4444;
     --destructive-foreground: #f8fafc;
     --border: #e2e8f0;
-    /* slate-200 */
     --input: #e2e8f0;
     --ring: #0f172a;
-    /* slate-900 ring */
     --radius: 0.5rem;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.popup {
+    width: 280px;
+    min-height: 380px;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.popup-header {
+    padding: 12px 16px;
+    background: var(--background);
+    /* border-bottom: 1px solid var(--border); */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.popup-header h1 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    border: 1px solid transparent;
+}
+
+.status-recording {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.popup-body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Timer */
+.timer-container {
+    text-align: center;
+}
+
+.timer {
+    font-size: 42px;
+    font-weight: 700;
+    color: #ef4444;
+    /* Red color like in the screenshot */
+    font-family: 'Courier New', Courier, monospace;
+    /* Monospaced for timer look */
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 30px;
+}
+
+/* Controls */
+.controls-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+}
+
+/* Initial Start Button (pill shape) */
+.btn-start-pill {
+    width: 100%;
+    height: 44px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: 22px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-start-pill:hover {
+    opacity: 0.9;
+}
+
+/* Circular Buttons */
+.btn-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    position: relative;
+}
+
+.btn-circle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Stop Button: Black circle with white square */
+.btn-stop-circle {
+    background: var(--primary);
+    /* Black/Dark */
+    color: white;
+    width: 64px;
+    /* Slightly larger */
+    height: 64px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-stop-circle:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.btn-stop-circle svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+}
+
+/* Pause Button: Grey outline/light bg */
+.btn-pause-circle {
+    background: white;
+    border: 2px solid var(--border);
+    color: var(--foreground);
+    width: 48px;
+    height: 48px;
+}
+
+.btn-pause-circle:hover:not(:disabled) {
+    background: var(--secondary);
+    border-color: var(--muted-foreground);
+}
+
+.btn-pause-circle.active {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #ef4444;
+}
+
+/* Labels below buttons */
+.btn-label {
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+}
+
+.control-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Footer Links */
+.footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: #ef4444;
+    /* Red color as requested/implied by "delicate" or matching timer? Or just stick to muted? User screenshot had red text. */
+}
+
+/* Actually user screenshot had red text "Configura Token | Politica de Privacidad" */
+.footer-link {
+    color: #ef4444;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.footer-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.divider {
+    color: #e2e8f0;
+}
+
+/* Token Input Area (Compact) */
+.token-area {
+    width: 100%;
+    padding: 12px;
+    background: var(--secondary);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+}
+
+.input-compact {
+    width: 100%;
+    border: 1px solid var(--border);
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+    /* Fix width issue */
+}
+
+.btn-save-compact {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+/* Spinner */
+.spinner-clean {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.message {
+    padding: 8px;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 4px;
+    background: var(--secondary);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.message.error {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+--foreground: #020817;
+/* slate-950 */
+--card: #ffffff;
+--card-foreground: #020817;
+--popover: #ffffff;
+--popover-foreground: #020817;
+--primary: #0f172a;
+/* slate-900 */
+--primary-foreground: #f8fafc;
+/* slate-50 */
+--secondary: #f1f5f9;
+/* slate-100 */
+--secondary-foreground: #0f172a;
+--muted: #f1f5f9;
+--muted-foreground: #64748b;
+/* slate-500 */
+--accent: #f1f5f9;
+--accent-foreground: #0f172a;
+--destructive: #ef4444;
+--destructive-foreground: #f8fafc;
+--border: #e2e8f0;
+/* slate-200 */
+--input: #e2e8f0;
+--ring: #0f172a;
+/* slate-900 ring */
+--radius: 0.5rem;
 }
 
 body {

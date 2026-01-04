@@ -192,9 +192,8 @@ const Popup: React.FC = () => {
     return (
         <div className="popup">
             <header className="popup-header">
-                <div className="header-glow" />
                 <h1>
-                    <img src="icons/diktalo.png" alt="Diktalo" style={{ height: '28px', width: 'auto', marginRight: '8px' }} />
+                    <img src="icons/diktalo.png" alt="Diktalo" style={{ height: '20px', width: 'auto' }} />
                     Diktalo
                 </h1>
                 <div className={`status-badge ${isRecording ? 'status-recording' : ''}`}>
@@ -203,18 +202,40 @@ const Popup: React.FC = () => {
             </header>
 
             <div className="popup-body">
-                <div className="timer">{formatTime(recordingTime)}</div>
+                {/* Timer Display */}
+                <div className="timer-container">
+                    <div className="timer">
+                        {formatTime(recordingTime)}
+                    </div>
+                </div>
 
                 {error && <div className="message error">{error}</div>}
 
                 {status === 'success' && !error && (
-                    <div className="message success">¡Configuración guardada!</div>
+                    <div className="message" style={{ color: 'green' }}>¡Guardado!</div>
                 )}
 
+                {/* Token Config Expanded Area */}
+                {isConfigExpanded && !isRecording && (
+                    <div className="token-area">
+                        <input
+                            type="password"
+                            className="input-compact"
+                            placeholder="Pegar JSON de configuración..."
+                            value={authToken}
+                            onChange={(e) => setAuthToken(e.target.value)}
+                        />
+                        <button className="btn-save-compact" onClick={handleSaveToken}>
+                            Guardar Configuración
+                        </button>
+                    </div>
+                )}
+
+                {/* Main Controls */}
                 <div className="controls-group">
                     {!isRecording ? (
                         <button
-                            className="btn-main btn-start"
+                            className="btn-start-pill"
                             onClick={handleStartRecording}
                             disabled={status === 'processing'}
                         >
@@ -223,77 +244,55 @@ const Popup: React.FC = () => {
                         </button>
                     ) : (
                         <>
-                            <div className="secondary-actions">
+                            {/* Pause Button */}
+                            <div className="control-item">
                                 <button
-                                    className={`btn-secondary ${isPaused ? 'btn-resume' : 'btn-pause'}`}
+                                    className={`btn-circle btn-pause-circle ${isPaused ? 'active' : ''}`}
                                     onClick={handlePauseResume}
+                                    title={isPaused ? "Reanudar" : "Pausar"}
                                 >
                                     {isPaused ? <PlayIcon /> : <PauseIcon />}
-                                    {isPaused ? 'Resumir' : 'Pausar'}
                                 </button>
+                                <span className="btn-label">
+                                    {isPaused ? 'REANUDAR' : 'PAUSAR'}
+                                </span>
                             </div>
 
-                            <button
-                                className="btn-main btn-stop"
-                                onClick={handleStopRecording}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? <div className="spinner-clean" /> : <StopIcon />}
-                                {showStopConfirm ? '¿Confirmar Parada?' : 'Detener Grabación'}
-                            </button>
+                            {/* Stop Button */}
+                            <div className="control-item">
+                                <button
+                                    className="btn-circle btn-stop-circle"
+                                    onClick={handleStopRecording}
+                                    disabled={isUploading}
+                                    title="Detener"
+                                >
+                                    {isUploading ? <div className="spinner-clean" /> : (
+                                        // Simple square for stop
+                                        <div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '2px' }} />
+                                    )}
+                                </button>
+                                <span className="btn-label">
+                                    {showStopConfirm ? '¿CONFIRMAR?' : 'DETENER'}
+                                </span>
+                            </div>
                         </>
                     )}
                 </div>
-                {!isRecording && (
-                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                        {isConfigExpanded ? (
-                            <div className="token-container">
-                                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                                    Configuración {authToken && '(Lista)'}
-                                </label>
-                                <input
-                                    type="password"
-                                    className="input-glow"
-                                    placeholder="Pega el JSON de configuración..."
-                                    value={authToken}
-                                    onChange={(e) => setAuthToken(e.target.value)}
-                                    style={{ fontSize: '12px' }}
-                                />
-                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                                    <button
-                                        className="btn-main btn-start"
-                                        onClick={handleSaveToken}
-                                        style={{ flex: 1 }}
-                                    >
-                                        Guardar
-                                    </button>
-                                    {authToken && (
-                                        <button
-                                            className="btn-secondary"
-                                            onClick={() => setIsConfigExpanded(false)}
-                                            style={{ width: 'auto', padding: '0 12px' }}
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-                                <a href="https://www.diktalo.com/intelligence" target="_blank" className="help-link" style={{ marginTop: '12px', display: 'block' }}>
-                                    Obtener configuración del dashboard →
-                                </a>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                <button
-                                    className="help-link"
-                                    onClick={() => setIsConfigExpanded(true)}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: 'var(--muted-foreground)' }}
-                                >
-                                    ⚙️ Configuración Guardada
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+            </div>
+
+            {/* Delicate Footer */}
+            <div className="footer">
+                <div className="footer-links">
+                    <span
+                        className="footer-link"
+                        onClick={() => !isRecording && setIsConfigExpanded(!isConfigExpanded)}
+                        style={{ cursor: isRecording ? 'default' : 'pointer', opacity: isRecording ? 0.5 : 1 }}
+                    >
+                        Configura Token
+                    </span>
+                    <span className="divider">|</span>
+                    <a href="#" className="footer-link">Politica de Privacidad</a>
+                </div>
             </div>
         </div>
     );
