@@ -443,7 +443,7 @@ export const translations = {
     resetPassword: "Restablecer Contraseña",
     enterNewPassword: "Introduce tu nueva contraseña abajo.",
     newPasswordLabel: "Nueva Contraseña",
-    newPasswordLabel: "Nueva Contraseña",
+
     confirmPasswordLabel: "Confirmar Contraseña",
     enterEmailFirst: "Por favor introduce tu dirección de correo primero", // FIX: Added missing key
     letsGetStarted: "Empecemos", // NEW
