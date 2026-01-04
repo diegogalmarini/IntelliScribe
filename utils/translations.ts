@@ -436,6 +436,11 @@ export const translations = {
     loginBtn: "Iniciar Sesión",
     signUpBtn: "Crear Cuenta", // NEW
     noAccount: "¿No tienes una cuenta?",
+    feature_dialer: "Dialer Inteligente",
+    feature_ghostwire: "Ghostwire AI",
+    feature_insights: "Análisis Profundo",
+
+    // Auth
     alreadyHaveAccount: "¿Ya tienes una cuenta?",
 
     // Login Carousel
