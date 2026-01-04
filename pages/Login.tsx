@@ -150,49 +150,14 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     return (
         <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative font-sans">
 
-            {/* Custom Animations for Smooth Waves */}
-            <style>{`
-                @keyframes drift-1 {
-                    0% { transform: translate(0, 0) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-                    33% { transform: translate(30px, -50px) scale(1.1); border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
-                    66% { transform: translate(-20px, 20px) scale(0.9); border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%; }
-                    100% { transform: translate(0, 0) scale(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-                }
-                @keyframes drift-2 {
-                    0% { transform: translate(0, 0) scale(1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-                    50% { transform: translate(-30px, 40px) scale(1.2); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-                    100% { transform: translate(0, 0) scale(1); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-                }
-                @keyframes drift-3 {
-                    0% { transform: translate(0, 0) scale(1); }
-                    50% { transform: translate(50px, 50px) scale(1.1); }
-                    100% { transform: translate(0, 0) scale(1); }
-                }
-            `}</style>
+            {/* Global Background: Diktalo Brand (Clean Grid) */}
+            <div className="absolute inset-0 z-0 bg-white dark:bg-[#02040a]">
+                {/* Grid Pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
 
-            {/* Global Ethereal Wave Background */}
-            <div className="absolute inset-0 z-0 bg-[#F8FAFC] dark:bg-[#02040a] overflow-hidden">
-
-                {/* Wave 1: Cyan/Blue - Dynamic Morphing */}
-                <div
-                    className="absolute top-[-10%] right-[-5%] w-[60vw] h-[60vw] opacity-60 mix-blend-multiply filter blur-[80px] animate-[drift-1_20s_infinite_ease-in-out] dark:mix-blend-screen dark:opacity-30"
-                    style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(56, 189, 248, 0) 70%)' }}
-                />
-
-                {/* Wave 2: Green/Mint - Dynamic Morphing */}
-                <div
-                    className="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] opacity-60 mix-blend-multiply filter blur-[80px] animate-[drift-2_15s_infinite_linear] animation-delay-2000 dark:mix-blend-screen dark:opacity-20"
-                    style={{ background: 'radial-gradient(circle, rgba(74, 222, 128, 0.6) 0%, rgba(74, 222, 128, 0) 70%)' }}
-                />
-
-                {/* Wave 3: Indigo/Purple - Center Floating */}
-                <div
-                    className="absolute top-[30%] left-[20%] w-[50vw] h-[50vw] opacity-50 mix-blend-multiply filter blur-[90px] animate-[drift-3_18s_infinite_ease-in-out_reverse] dark:mix-blend-screen dark:opacity-30"
-                    style={{ background: 'radial-gradient(circle, rgba(129, 140, 248, 0.8) 0%, rgba(129, 140, 248, 0) 70%)' }}
-                />
-
-                {/* Noise Texture */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+                {/* Subtle Brand Glows */}
+                <div className="absolute left-0 top-0 h-[500px] w-[500px] bg-blue-500/10 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen dark:opacity-20 pointer-events-none" />
+                <div className="absolute right-0 bottom-0 h-[500px] w-[500px] bg-purple-500/10 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen dark:opacity-20 pointer-events-none" />
             </div>
 
             {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
