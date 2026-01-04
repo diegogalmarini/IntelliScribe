@@ -171,11 +171,9 @@ export default async function handler(req, res) {
         const title = fileMetadata.title || `Recording - ${new Date().toLocaleString()}`;
         const source = fileMetadata.source || 'chrome-extension';
 
+        console.log('[upload-audio] Uploading to storage path confirmed:', filePath);
 
-        console.log('[upload-audio] Uploading to storage:', fileName);
-
-
-        // --- Step 5: Create Recording Entry via REST API ---
+        // --- Step 3: Create Recording Entry via REST API ---
         console.log('[upload-audio] Creating database entry...');
 
         const recordingData = {
@@ -185,7 +183,7 @@ export default async function handler(req, res) {
             date: new Date().toISOString(),
             duration_seconds: fileDuration || null,
             status: null, // No processing happening yet
-            audio_url: filePath,
+            audio_url: filePath, // Using the correct path variable
             participants: 1,
             folder_id: null,
             metadata: {
@@ -214,8 +212,6 @@ export default async function handler(req, res) {
 
         const insertedRows = await dbResponse.json();
         const recording = insertedRows[0];
-
-        console.log('[upload-audio] Record created successfully:', recording.id);
 
         console.log('[upload-audio] Record created successfully:', recording.id);
 
