@@ -405,9 +405,9 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     {/* Feature Pills (Random 3) */}
                     <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                         {features.map((feature) => (
-                            <div key={feature.key} className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white/40 dark:border-white/5 px-5 py-2.5 rounded-full shadow-sm hover:scale-105 transition-transform cursor-default">
-                                <span className={`material-symbols-outlined text-[18px] ${feature.color}`}>{feature.icon}</span>
-                                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{t(feature.key as any)}</span>
+                            <div key={feature.key} className="flex items-center gap-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-5 py-2.5 rounded-full shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition-colors cursor-default group">
+                                <span className={`material-symbols-outlined text-[18px] ${feature.color} group-hover:scale-110 transition-transform`}>{feature.icon}</span>
+                                <span className="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{t(feature.key as any)}</span>
                             </div>
                         ))}
                     </div>
