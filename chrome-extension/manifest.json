@@ -17,9 +17,9 @@
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
-            "16": "icons/icon16.png",
-            "48": "icons/icon48.png",
-            "128": "icons/icon128.png"
+            "16": "icons/diktalo.png",
+            "48": "icons/diktalo.png",
+            "128": "icons/diktalo.png"
         }
     },
     "background": {
@@ -27,9 +27,9 @@
         "type": "module"
     },
     "icons": {
-        "16": "icons/icon16.png",
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png"
+        "16": "icons/diktalo.png",
+        "48": "icons/diktalo.png",
+        "128": "icons/diktalo.png"
     },
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
