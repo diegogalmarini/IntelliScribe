@@ -376,7 +376,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Right Side - Transparent to show Global BG */}
             <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
                 <div className="relative z-10 max-w-4xl text-center">
-                    <h2 className="text-4xl lg:text-7xl font-extrabold text-[#0f172a] dark:text-white mb-8 tracking-tighter leading-[1] drop-shadow-sm">
+                    <h2 className="text-4xl lg:text-6xl font-extrabold text-[#0f172a] dark:text-white mb-8 tracking-tighter leading-[1] drop-shadow-sm text-balance">
                         {t('loginHeroTitle')}
                     </h2>
                     <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
