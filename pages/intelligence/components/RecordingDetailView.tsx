@@ -506,6 +506,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                     src={signedAudioUrl || undefined}
                                     onTimeUpdate={handleTimeUpdate}
                                     onLoadedMetadata={handleLoadedMetadata}
+                                    onDurationChange={handleLoadedMetadata}
                                     onEnded={handleEnded}
                                     className="hidden"
                                 />
