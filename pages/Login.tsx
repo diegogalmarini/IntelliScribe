@@ -129,21 +129,53 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     };
 
     return (
-        <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative">
+        <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative font-sans">
 
-            {/* Global Abstract Background (Subtle & Colorful) */}
-            <div className="absolute inset-0 z-0 bg-[#f8faff] dark:bg-[#050505]">
-                {/* Gradient Blobs */}
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-200/40 dark:bg-purple-900/20 rounded-full blur-[120px] animate-pulse-slow" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-200/40 dark:bg-blue-900/20 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
-                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-pink-200/40 dark:bg-pink-900/20 rounded-full blur-[100px] animate-pulse-slow delay-2000" />
-                <div className="absolute bottom-[20%] left-[10%] w-[30%] h-[30%] bg-indigo-200/40 dark:bg-indigo-900/20 rounded-full blur-[100px] animate-pulse-slow delay-3000" />
+            {/* Custom Animations for Smooth Waves */}
+            <style>{`
+                @keyframes drift-1 {
+                    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.8; }
+                    50% { transform: translate(10%, 15%) scale(1.1) rotate(10deg); opacity: 0.6; }
+                    100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.8; }
+                }
+                @keyframes drift-2 {
+                    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.7; }
+                    50% { transform: translate(-10%, -5%) scale(1.2) rotate(-5deg); opacity: 0.9; }
+                    100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.7; }
+                }
+                @keyframes aurora {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+            `}</style>
 
-                {/* Noise Texture Overlay for "Liquid" feel */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+            {/* Global Ethereal Wave Background */}
+            <div className="absolute inset-0 z-0 bg-[#F8FAFC] dark:bg-[#02040a]">
+
+                {/* Wave 1: Fresh Teal/Cyan (Top Right drift) */}
+                <div
+                    className="absolute top-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-[drift-1_25s_infinite_ease-in-out] dark:mix-blend-screen dark:opacity-30"
+                    style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(56, 189, 248, 0) 70%)' }} // Sky Blue
+                />
+
+                {/* Wave 2: Soft Green/Mint (Bottom Left drift) */}
+                <div
+                    className="absolute bottom-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-[drift-2_30s_infinite_ease-in-out] animation-delay-2000 dark:mix-blend-screen dark:opacity-20"
+                    style={{ background: 'radial-gradient(circle, rgba(74, 222, 128, 0.6) 0%, rgba(74, 222, 128, 0) 70%)' }} // Green-400
+                />
+
+                {/* Wave 3: Deep Indigo/Purple (Center Floating) */}
+                <div
+                    className="absolute top-[20%] left-[30%] w-[50vw] h-[50vw] rounded-full mix-blend-multiply filter blur-[120px] opacity-60 animate-[drift-1_35s_infinite_ease-in-out_reverse] dark:mix-blend-screen dark:opacity-30"
+                    style={{ background: 'radial-gradient(circle, rgba(129, 140, 248, 0.8) 0%, rgba(129, 140, 248, 0) 70%)' }} // Indigo-400
+                />
+
+                {/* Noise Texture for Texture/Realism */}
+                <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
             </div>
 
-            {/* Left Side: Auth Form - REAL LIQUID GLASS */}
+            {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
             <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20 
                           bg-white/40 dark:bg-black/40 backdrop-blur-3xl border-r border-white/40 dark:border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.05)]">
 
