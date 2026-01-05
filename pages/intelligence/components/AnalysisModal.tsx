@@ -16,6 +16,9 @@ const CATEGORIES = [
     { type: 'divider' },
     { id: 'General', label: 'General', icon: Wand2 },
     { id: 'Business', label: 'Meeting & Business', icon: Building2 },
+    { id: 'Speech', label: 'Speech', icon: Mic },
+    { id: 'Call', label: 'Call', icon: Phone },
+    { id: 'Consulting', label: 'Consulting', icon: Briefcase },
     { id: 'Education', label: 'Education', icon: GraduationCap },
     { id: 'Medical', label: 'Medical', icon: Stethoscope },
     { id: 'Legal', label: 'Legal', icon: Scale },
@@ -26,7 +29,7 @@ const CATEGORIES = [
 ];
 
 function UsersIcon(props: any) { return <Users {...props} /> }
-import { Users } from 'lucide-react';
+import { Users, Mic, Phone, Briefcase } from 'lucide-react';
 
 const LANGUAGES = [
     { code: 'es', label: 'Español' },
