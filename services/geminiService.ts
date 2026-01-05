@@ -1,7 +1,7 @@
 import { TranscriptSegment } from "../types";
 
 // Helper to call our secure backend
-const callAIEndpoint = async (action: string, payload: any, language: 'en' | 'es') => {
+const callAIEndpoint = async (action: string, payload: any, language: string) => {
   try {
     const response = await fetch('/api/ai', {
       method: 'POST',
@@ -22,7 +22,7 @@ const callAIEndpoint = async (action: string, payload: any, language: 'en' | 'es
   }
 };
 
-export const generateMeetingSummary = async (transcript: string, language: 'en' | 'es' = 'en', template: string = 'general'): Promise<string> => {
+export const generateMeetingSummary = async (transcript: string, language: string = 'en', template: string = 'general'): Promise<string> => {
   try {
     const result = await callAIEndpoint('summary', { transcript, template }, language);
     if (!result) throw new Error("No output from AI");
@@ -36,7 +36,7 @@ export const chatWithTranscript = async (
   transcript: string,
   history: { role: 'user' | 'model', text: string }[],
   newMessage: string,
-  language: 'en' | 'es' = 'en'
+  language: string = 'en'
 ): Promise<string> => {
   try {
     const result = await callAIEndpoint('chat', { transcript, history, message: newMessage }, language);
@@ -50,7 +50,7 @@ export const chatWithTranscript = async (
 export const transcribeAudio = async (
   audioBase64?: string,
   mimeType?: string,
-  language: 'en' | 'es' = 'en',
+  language: string = 'en',
   audioUrl?: string
 ): Promise<Partial<TranscriptSegment>[]> => {
   try {
