@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Search, Sparkles, Star, Clock, LayoutGrid, Check, ChevronDown, Wand2, Languages, Microscope, Scale, Building2, Stethoscope, GraduationCap, PenTool, Radio } from 'lucide-react';
+import { X, Search, Sparkles, Clock, LayoutGrid, Check, ChevronDown, Wand2, Languages, Microscope, Scale, Building2, Stethoscope, GraduationCap, PenTool, Radio, Eye } from 'lucide-react';
 import { AI_TEMPLATES, AITemplate } from '../../../constants/templates';
 
 interface AnalysisModalProps {
@@ -11,7 +11,6 @@ interface AnalysisModalProps {
 
 const CATEGORIES = [
     { id: 'all', label: 'All files', icon: LayoutGrid },
-    { id: 'favorites', label: 'Favorites', icon: Star },
     { id: 'recent', label: 'Recently used', icon: Clock },
     { type: 'divider' },
     { id: 'General', label: 'General', icon: Wand2 },
@@ -47,6 +46,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>('general');
     const [selectedLanguage, setSelectedLanguage] = useState('es');
     const [showLangMenu, setShowLangMenu] = useState(false);
+    const [previewTemplate, setPreviewTemplate] = useState<AITemplate | null>(null);
 
     // Filtering logic
     const filteredTemplates = useMemo(() => {
@@ -57,8 +57,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
             if (!matchesSearch) return false;
 
             if (selectedCategory === 'all') return true;
-            if (selectedCategory === 'recent') return true;
-            if (selectedCategory === 'favorites') return false;
+            if (selectedCategory === 'recent') return true; // Placeholder logic for recent
 
             return template.category === selectedCategory || (selectedCategory === 'Business' && template.category === 'Meeting');
         });
@@ -85,12 +84,15 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 {/* Header */}
                 <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#1a1a1a]">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Select a template</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors text-gray-500 dark:text-gray-400 dark:hover:text-white"
-                    >
-                        <X size={20} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {/* Close Button */}
+                        <button
+                            onClick={onClose}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors text-gray-500 dark:text-gray-400 dark:hover:text-white"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex-1 flex overflow-hidden">
@@ -115,8 +117,8 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                     <div key={idx} className="my-2 border-t border-gray-200 dark:border-white/5 mx-2" />
                                 ) : (
                                     <button
-                                        key={cat.id}
-                                        onClick={() => setSelectedCategory(cat.id!)}
+                                        key={cat.id || idx}
+                                        onClick={() => cat.id && setSelectedCategory(cat.id)}
                                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedCategory === cat.id
                                             ? 'bg-gray-200/50 dark:bg-white/10 text-gray-900 dark:text-white'
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
@@ -131,15 +133,15 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                     </div>
 
                     {/* Main Grid */}
-                    <div className="flex-1 bg-white dark:bg-[#1a1a1a] p-6 overflow-y-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex-1 bg-white dark:bg-[#1a1a1a] p-6 overflow-y-auto relative">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
                             {filteredTemplates.map((template) => {
                                 const isSelected = selectedTemplateId === template.id;
                                 return (
                                     <div
                                         key={template.id}
                                         onClick={() => setSelectedTemplateId(template.id)}
-                                        className={`group relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex flex-col h-full ${isSelected
+                                        className={`group relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex flex-col h-full min-h-[180px] ${isSelected
                                             ? 'border-blue-600 dark:border-blue-500 bg-gray-50 dark:bg-white/5 shadow-md'
                                             : 'border-transparent bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-white/5 hover:shadow-md border-gray-100 dark:border-white/5'
                                             }`}
@@ -148,11 +150,23 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                             <div className={`p-2.5 rounded-lg ${template.color} bg-opacity-10 dark:bg-opacity-20 text-opacity-100`}>
                                                 <template.icon size={24} className={template.color.split(' ')[0]} />
                                             </div>
-                                            {isSelected && (
-                                                <div className="bg-blue-600 text-white rounded-full p-1">
-                                                    <Check size={12} strokeWidth={3} />
-                                                </div>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setPreviewTemplate(template);
+                                                    }}
+                                                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    title="Preview Template"
+                                                >
+                                                    <Eye size={18} />
+                                                </button>
+                                                {isSelected && (
+                                                    <div className="bg-blue-600 text-white rounded-full p-1">
+                                                        <Check size={12} strokeWidth={3} />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <h3 className="font-semibold text-gray-900 dark:text-white text-base mb-2">
@@ -242,6 +256,68 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                         )}
                     </button>
                 </div>
+
+                {/* Preview Modal Overlay */}
+                {previewTemplate && (
+                    <div
+                        className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200"
+                        onClick={() => setPreviewTemplate(null)}
+                    >
+                        <div
+                            className="bg-white dark:bg-[#1a1a1a] w-full max-w-md max-h-[80vh] rounded-2xl shadow-2xl overflow-y-auto border border-gray-200 dark:border-gray-800 flex flex-col"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="p-6">
+                                <div className="flex flex-col items-center text-center mb-6">
+                                    <div className={`p-4 rounded-2xl ${previewTemplate.color} bg-opacity-10 dark:bg-opacity-20 text-opacity-100 mb-4`}>
+                                        <previewTemplate.icon size={48} className={previewTemplate.color.split(' ')[0]} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                        {previewTemplate.title}
+                                    </h3>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400 font-medium uppercase tracking-wide">
+                                        <span>{previewTemplate.category}</span>
+                                        <span>•</span>
+                                        <span>Plaud Style</span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Description</h4>
+                                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                                            {previewTemplate.description}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-xs">Outline</h4>
+                                        <ul className="space-y-2">
+                                            {previewTemplate.outline.map((item, idx) => (
+                                                <li key={idx} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/5 mt-auto">
+                                <button
+                                    onClick={() => {
+                                        setSelectedTemplateId(previewTemplate.id);
+                                        setPreviewTemplate(null);
+                                    }}
+                                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+                                >
+                                    Use this template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
