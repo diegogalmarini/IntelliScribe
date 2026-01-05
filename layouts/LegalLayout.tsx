@@ -14,9 +14,9 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({ children, title, lastU
         <div className="landing-page bg-white dark:bg-background-dark min-h-screen font-sans transition-colors duration-300 flex flex-col">
             <Navbar />
 
-            <div className="flex-grow pt-32 pb-24 px-6">
-                <div className="max-w-[1200px] mx-auto">
-                    <div className="flex flex-col md:flex-row gap-12 lg:gap-24">
+            <div className="flex-grow pt-32 pb-24 px-6 md:px-12">
+                <div className="max-w-5xl mx-auto">
+                    <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
                         {/* Sidebar */}
                         <LegalSidebar />
 
