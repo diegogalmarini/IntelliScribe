@@ -1,7 +1,7 @@
 import React from 'react';
-import { Navbar } from '../Landing/Navbar';
-import { Footer } from '../Footer';
-import { LegalSidebar } from './LegalSidebar';
+import { Navbar } from '../components/Landing/Navbar';
+import { Footer } from '../components/Footer';
+import { LegalSidebar } from '../components/Legal/LegalSidebar';
 
 interface LegalLayoutProps {
     children: React.ReactNode;

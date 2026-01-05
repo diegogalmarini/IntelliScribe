@@ -28,11 +28,6 @@ export const translations = {
     resetPassword: "Reset Password",
     enterNewPassword: "Enter your new password below.",
     newPasswordLabel: "New Password",
-    loginBtn: "Login",
-    signUpBtn: "Sign Up", // NEW
-    noAccount: "Don't have an account?", // NEW
-    alreadyHaveAccount: "Already have an account?", // NEW
-    newPasswordLabel: "New Password",
     confirmPasswordLabel: "Confirm Password",
     enterEmailFirst: "Please enter your email address first", // FIX: Added missing key
     letsGetStarted: "Let's Get Started", // NEW
