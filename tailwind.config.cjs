@@ -14,13 +14,13 @@ module.exports = {
                 primary: '#2563eb',
                 'primary-hover': '#1d4ed8',
                 'background-light': '#f8fafc',
-                'background-dark': '#02040a', // Antigravity Black
-                'surface-dark': '#0d1117',
+                'background-dark': '#0b0f17', // Navy Deep
+                'surface-dark': '#161b22', // Navy Surface
                 'surface-light': '#ffffff',
-                'border-dark': '#27272a', // Zinc-800
+                'border-dark': '#30363d', // Navy Border
                 'border-light': '#e2e8f0',
                 'text-secondary': '#94a3b8',
-                'card-dark': '#0d1117',
+                'card-dark': '#161b22',
                 'brand-violet': '#8B5CF6',
                 'brand-blue': '#2563eb',
                 'brand-green': '#D3E97A',
