@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Recording, UserProfile, Folder } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic, Search, X } from 'lucide-react';
+import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic, Search, X, LayoutTemplate, Star } from 'lucide-react';
 
 interface MinimalSidebarProps {
     recordings: Recording[];
@@ -17,6 +17,8 @@ interface MinimalSidebarProps {
     onMoveRecording?: (id: string, folderId: string) => void;
     folders?: Folder[];
     onLogoClick?: () => void;
+    currentView?: 'recordings' | 'subscription' | 'templates';
+    onViewChange?: (view: 'recordings' | 'subscription' | 'templates') => void;
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -32,7 +34,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onDeleteRecording,
     onMoveRecording,
     folders = [],
-    onLogoClick
+    onLogoClick,
+    currentView,
+    onViewChange
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);

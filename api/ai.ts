@@ -50,27 +50,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             let systemPrompt = '';
 
-            // Templates Definition
+            // Templates Definition (Replicated from shared constants)
             const templates: Record<string, { es: string, en: string }> = {
                 'general': {
                     es: `Eres un asistente ejecutivo experto. Analiza la siguiente transcripción y proporciona un resumen estructurado que incluya: 1. Resumen Ejecutivo, 2. Puntos Clave, 3. Conclusiones. Usa formato Markdown y responde en ESPAÑOL.`,
                     en: `You are an expert executive assistant. Analyze the following transcript and provide a structured summary including: 1. Executive Summary, 2. Key Points, 3. Conclusions. Use Markdown formatting.`
                 },
                 'meeting': {
-                    es: `Eres un secretario de actas profesional. Analiza esta reunión y genera: 1. Agenda/Temas tratados, 2. Decisiones tomadas, 3. Tareas pendientes (Action Items) con responsables si los hay. Usa formato Markdown claro.`,
+                    es: `Eres un secretario de actas profesional. Analiza esta reunión y genera: 1. Agenda/Temas tratados, 2. Decisiones tomadas, 3. Action Items (Tareas Pendientes) con responsables si los hay. Usa Markdown claro.`,
                     en: `You are a professional minute-taker. Analyze this meeting and generate: 1. Agenda/Topics, 2. Decisions Made, 3. Action Items with owners. Use clear Markdown.`
                 },
-                'class': {
-                    es: `Eres un estudiante de honor. Analiza esta clase/conferencia y extrae: 1. Conceptos Principales (Definiciones), 2. Puntos importantes para el examen, 3. Resumen de la lección. Usa bullet points y negritas para conceptos.`,
-                    en: `You are an honors student. Analyze this lecture and extract: 1. Key Concepts (Definitions), 2. Important points for the exam, 3. Lesson Summary. Use bullet points and bold text for concepts.`
+                'sales_bant': {
+                    es: `Eres un consultor de ventas experto. Analiza esta llamada usando BANT (Budget, Authority, Need, Timing). Identifica claramente: 1. Presupuesto, 2. Autoridad, 3. Necesidad, 4. Tiempo. Sugiere próximos pasos de cierre.`,
+                    en: `You are an expert sales consultant. Analyze this call using BANT (Budget, Authority, Need, Timing). Clearly identify each and suggest closing next steps.`
                 },
-                'interview': {
-                    es: `Eres un reclutador experto o periodista. Analiza esta entrevista y extrae: 1. Perfil del entrevistado, 2. Preguntas clave y respuestas resumidas, 3. Fortalezas/Debilidades o Puntos de interés.`,
-                    en: `You are an expert recruiter or journalist. Analyze this interview and extract: 1. Interviewee Profile, 2. Key Questions & Summarized Answers, 3. Strengths/Weaknesses or Key Insights.`
+                'medical_soap': {
+                    es: `Eres un médico experto. Genera una nota SOAP (Subjetivo, Objetivo, Evaluación, Plan) profesional basada en esta consulta. Mantén un tono clínico y formal.`,
+                    en: `You are an expert physician. Generate a professional SOAP note (Subjective, Objective, Assessment, Plan) based on this consultation. Maintain a clinical tone.`
                 },
-                'sales': {
-                    es: `Eres un consultor de ventas senior. Analiza esta llamada de ventas y detecta: 1. Necesidades/Dolores del cliente, 2. Objeciones, 3. Próximos pasos acordados, 4. Sentimiento general.`,
-                    en: `You are a senior sales consultant. Analyze this sales call and identify: 1. Client Needs/Pain Points, 2. Objections, 3. Agreed Next Steps, 4. General Sentiment.`
+                'legal': {
+                    es: `Eres un abogado senior. Analiza esta conversación y extrae: 1. Hechos fácticos relevantes, 2. Riesgos legales identificados, 3. Estrategia o pasos legales a seguir. Usa lenguaje jurídico preciso.`,
+                    en: `You are a senior attorney. Analyze this conversation and extract: 1. Relevant Facts, 2. Legal Risks Identified, 3. Legal Strategy/Next Steps. Use precise legal terminology.`
+                },
+                'hr_interview': {
+                    es: `Eres un reclutador experto. Evalúa al candidato basándote en esta entrevista. Analiza: 1. Perfil, 2. Competencias demostradas, 3. Ajuste cultural, 4. Recomendación fundamentada.`,
+                    en: `You are an expert recruiter. Evaluate the candidate based on this interview. Analyze: 1. Profile, 2. Demonstrated Competencies, 3. Culture Fit, 4. Reasoned Recommendation.`
+                },
+                'product_ux': {
+                    es: `Eres un Product Manager. Analiza este feedback/user interview. Extrae: 1. Citas clave del usuario, 2. Pain Points identificados, 3. Solicitudes de funcionalidades, 4. Sentimiento general.`,
+                    en: `You are a Product Manager. Analyze this user feedback/interview. Extract: 1. Key User Quotes, 2. Pain Points, 3. Feature Requests, 4. General Sentiment.`
+                },
+                'education_lecture': {
+                    es: `Eres un estudiante de honor. Genera notas de estudio de esta clase: 1. Conceptos y Definiciones (con negritas), 2. Puntos probables de examen, 3. Resumen estructurado.`,
+                    en: `You are an honors student. Generate study notes from this lecture: 1. Concepts & Definitions (bold), 2. Likely exam topics, 3. Structured summary.`
+                },
+                'journalism': {
+                    es: `Eres un periodista de investigación. Extrae: 1. Titulares potenciales, 2. Las mejores citas textuales (verbatim), 3. Resumen narrativo de los hechos revelados.`,
+                    en: `You are an investigative journalist. Extract: 1. Potential Headlines, 2. Best Direct Quotes (verbatim), 3. Narrative summary of revealed facts.`
+                },
+                'research': {
+                    es: `Eres un investigador académico. Sintetiza la discusión en: 1. Hipótesis, 2. Metodología, 3. Hallazgos, 4. Brechas (Gaps) identificadas en la investigación.`,
+                    en: `You are an academic researcher. Synthesize the discussion into: 1. Hypotheses, 2. Methodology, 3. Findings, 4. Research Gaps identified.`
                 }
             };
 

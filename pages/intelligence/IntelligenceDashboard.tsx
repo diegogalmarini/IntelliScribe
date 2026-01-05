@@ -9,6 +9,7 @@ import { InlineRecorder } from './components/InlineRecorder';
 import { InlineEditor } from './components/InlineEditor';
 import { SubscriptionView } from './components/SubscriptionView';   // Added import
 import { MultiAudioUploader } from './components/MultiAudioUploader';  // NEW
+import { TemplateGallery } from './TemplateGallery'; // NEW
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
@@ -49,7 +50,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onUpdateRecording,
     initialView = 'recordings' // Default value
 }) => {
-    const [view, setView] = useState<'recordings' | 'subscription'>(initialView); // View state
+    const [view, setView] = useState<'recordings' | 'subscription' | 'templates'>(initialView); // View state
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     // Sync view with prop changes (e.g. navigation trigger)
@@ -573,6 +574,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     setIsRecording(false);
                     setSearchQuery('');
                 }}
+                currentView={view}
+                onViewChange={setView}
             />
 
             {/* Main Content */}
@@ -629,6 +632,15 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         />
                     ) : view === 'subscription' ? (
                         <SubscriptionView user={user} />
+                    ) : view === 'templates' ? (
+                        <TemplateGallery
+                            onUseTemplate={(templateId) => {
+                                console.log("Using template:", templateId);
+                                setView('recordings');
+                                handleNewRecording(); // Go to recorder
+                                // TODO: Pass templateId to recorder context or state
+                            }}
+                        />
                     ) : isEditorOpen && activeRecording ? (
                         <InlineEditor
                             recording={activeRecording}

@@ -8,43 +8,11 @@ interface AnalysisModalProps {
     isGenerating: boolean;
 }
 
-const templates = [
-    {
-        id: 'general',
-        icon: FileText,
-        title: 'General',
-        description: 'Resumen estructurado con puntos clave y conclusiones.',
-        color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-    },
-    {
-        id: 'meeting',
-        icon: Users,
-        title: 'Reunión',
-        description: 'Acta con decisiones tomadas y tareas pendientes.',
-        color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-    },
-    {
-        id: 'class',
-        icon: GraduationCap,
-        title: 'Clase/Conferencia',
-        description: 'Conceptos clave, definiciones y puntos de examen.',
-        color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
-    },
-    {
-        id: 'interview',
-        icon: Mic,
-        title: 'Entrevista',
-        description: 'Perfil del candidato, preguntas y fortalezas.',
-        color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
-    },
-    {
-        id: 'sales',
-        icon: Briefcase,
-        title: 'Ventas',
-        description: 'Necesidades cliente, objeciones y próximos pasos.',
-        color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-    }
-];
+import { AI_TEMPLATES } from '../../../constants/templates';
+
+// Map shared templates to the format expected by the modal if needed, or just use them directly.
+// The types match closely enough (icon, title, description, color, id).
+const templates = AI_TEMPLATES;
 
 export const AnalysisModal: React.FC<AnalysisModalProps> = ({
     isOpen,
@@ -86,8 +54,8 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                 key={template.id}
                                 onClick={() => setSelectedTemplate(template.id)}
                                 className={`relative p-4 rounded-xl border-2 text-left transition-all duration-200 flex items-start gap-4 hover:shadow-md ${selectedTemplate === template.id
-                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/10'
-                                        : 'border-transparent bg-gray-50 dark:bg-[#252525] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/10'
+                                    : 'border-transparent bg-gray-50 dark:bg-[#252525] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                                     }`}
                                 disabled={isGenerating}
                             >
@@ -96,8 +64,8 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                 </div>
                                 <div>
                                     <h3 className={`font-medium mb-1 ${selectedTemplate === template.id
-                                            ? 'text-blue-700 dark:text-blue-300'
-                                            : 'text-gray-900 dark:text-gray-200'
+                                        ? 'text-blue-700 dark:text-blue-300'
+                                        : 'text-gray-900 dark:text-gray-200'
                                         }`}>
                                         {template.title}
                                     </h3>
