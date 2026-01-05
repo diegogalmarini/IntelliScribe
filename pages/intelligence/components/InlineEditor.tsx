@@ -567,7 +567,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             {/* FIXED AREA: Header + Slim Player */}
             <div className="flex-shrink-0 flex flex-col z-50 border-b border-black/[0.05] dark:border-white/[0.05]">
                 {/* Header */}
-                <header className="flex items-center justify-between whitespace-nowrap bg-white dark:bg-[#1a1a1a] px-6 py-3">
+                <header className="flex items-center justify-between whitespace-nowrap bg-white dark:bg-background-dark px-6 py-3">
                     <div className="flex items-center gap-4 text-slate-900 dark:text-white flex-shrink min-w-0">
                         <div className="size-8 text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-white cursor-pointer flex items-center justify-center rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all" onClick={onClose}>
                             <span className="material-symbols-outlined text-xl">close</span>
@@ -681,7 +681,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                 </header>
 
                 {/* SLIM PLAYER BAR */}
-                <div className="bg-white dark:bg-[#1a1a1a] px-6 py-4 flex items-center gap-4">
+                <div className="bg-white dark:bg-background-dark px-6 py-4 flex items-center gap-4">
                     <button
                         onClick={togglePlay}
                         disabled={!signedAudioUrl}
@@ -764,7 +764,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             </div>
 
             {/* SCROLLABLE AREA: Transcript */}
-            <div className="flex-1 overflow-y-auto relative bg-white dark:bg-[#1a1a1a]">
+            <div className="flex-1 overflow-y-auto relative bg-white dark:bg-background-dark">
                 <main className="max-w-4xl mx-auto w-full px-6 py-8 mb-20">
                     <div className="min-h-[500px]">
                         {segments.length === 0 ? (

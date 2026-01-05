@@ -339,7 +339,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-[#1a1a1a]">
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-background-dark">
             {/* Header */}
             <div className="px-8 py-4 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="flex items-center justify-between mb-3">
@@ -420,7 +420,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             <div className="flex-1 overflow-y-auto px-8 py-6">
                 <div className="max-w-4xl mx-auto space-y-8">
                     {/* Audio Player Card */}
-                    <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                    <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText size={16} className="text-[#8e8e8e]" />
                             <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
@@ -511,7 +511,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                     {/* Transcription Card */}
                     {hasTranscript ? (
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <FileText size={16} className="text-[#8e8e8e]" />
@@ -568,7 +568,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
                                                         <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
                                                     </div>
-                                                    <div className="relative flex flex-col items-center gap-1 bg-white dark:bg-[#2a2a2a] px-4">
+                                                    <div className="relative flex flex-col items-center gap-1 bg-white dark:bg-card-dark px-4">
                                                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-1.5 shadow-sm">
                                                             <Calendar size={14} />
                                                             {new Date(temporalMeta.recordedAt).toLocaleDateString('es-ES', {
@@ -678,7 +678,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                             <div className="flex items-center gap-2 mb-4">
                                 <FileText size={16} className="text-[#8e8e8e]" />
                                 <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
@@ -715,7 +715,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                     {/* Summary Card */}
                     {hasSummary && (
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <Sparkles size={16} className="text-[#8e8e8e]" />
@@ -760,7 +760,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                     {/* Processing State */}
                     {!hasTranscript && recording.status === 'Processing' && (
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-12">
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-12">
                             <div className="flex flex-col items-center justify-center text-center">
                                 <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
                                 <p className="text-[12px] text-[#8e8e8e]">
@@ -772,7 +772,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                     {/* No Transcript Available */}
                     {!hasTranscript && recording.status !== 'Processing' && (
-                        <div className="bg-white dark:bg-[#2a2a2a] rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                             <p className="text-[12px] text-[#8e8e8e] text-center">
                                 Transcripción no disponible
                             </p>
