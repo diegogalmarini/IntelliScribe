@@ -551,6 +551,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 onDeleteRecording={onDeleteRecording}
                 onMoveRecording={onMoveRecording}
                 folders={folders}
+                onLogoClick={() => {
+                    setView('recordings');
+                    setSelectedId(null);
+                    setIsEditorOpen(false);
+                    setIsRecording(false);
+                    setSearchQuery('');
+                }}
             />
 
             {/* Main Content */}

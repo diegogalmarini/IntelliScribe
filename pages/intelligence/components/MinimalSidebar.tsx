@@ -16,6 +16,7 @@ interface MinimalSidebarProps {
     onDeleteRecording?: (id: string) => void;
     onMoveRecording?: (id: string, folderId: string) => void;
     folders?: Folder[];
+    onLogoClick?: () => void;
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -30,7 +31,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onRenameRecording,
     onDeleteRecording,
     onMoveRecording,
-    folders = []
+    folders = [],
+    onLogoClick
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
@@ -112,7 +114,10 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
         <div className="hidden md:flex md:w-64 h-full bg-white dark:bg-[#171717] flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
-                <div className="flex items-center justify-center px-2">
+                <div
+                    className="flex items-center justify-center px-2 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={onLogoClick}
+                >
                     <img
                         src={document.documentElement.classList.contains('dark') ? '/logo-diktalo-b.svg' : '/logo-diktalo.svg'}
                         alt="Diktalo"
