@@ -56,13 +56,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden animate-fade-in"
+          className="fixed inset-0 bg-slate-900/50 dark:bg-black/50 z-40 md:hidden animate-fade-in"
           onClick={onClose}
         />
       )}
 
       <aside className={`
-        fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-background-dark border-r border-slate-200 dark:border-border-dark flex flex-col transition-transform duration-300 ease-in-out
+        fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-surface-dark border-r border-slate-200 dark:border-border-dark flex flex-col transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-border-dark/50">
