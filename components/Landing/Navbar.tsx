@@ -55,7 +55,7 @@ export const Navbar: React.FC = () => {
                             <a href="/login" className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
                                 Login
                             </a>
-                            <a href="/login" className="px-5 py-2.5 bg-slate-950 text-white text-[13px] font-semibold rounded-lg hover:shadow-lg transition-all active:scale-95 btn-owner">
+                            <a href="/login" className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-[13px] font-semibold rounded-lg hover:shadow-lg dark:hover:bg-slate-200 transition-all active:scale-95 btn-owner">
                                 {t('navCtaFree')}
                             </a>
                             <div className="flex items-center gap-3 pl-2">
@@ -91,7 +91,7 @@ export const Navbar: React.FC = () => {
                             <button onClick={() => handleNavClick('pricing')} className="text-xl font-bold text-slate-900 dark:text-white py-2">Planes</button>
                             <button onClick={() => handleNavClick('faq')} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
                             <a href="/login" className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</a>
-                            <a href="/login" className="px-6 py-4 bg-primary text-white text-sm font-semibold rounded-xl mt-4">
+                            <a href="/login" className="px-6 py-4 bg-primary dark:bg-white text-white dark:text-slate-950 text-sm font-semibold rounded-xl mt-4">
                                 {t('navCtaFree')}
                             </a>
                             <div className="flex justify-center gap-6 mt-8">

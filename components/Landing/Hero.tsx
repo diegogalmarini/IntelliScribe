@@ -53,7 +53,7 @@ export const Hero: React.FC = () => {
                 >
                     <Link
                         to="/login"
-                        className="w-full sm:w-auto px-10 py-5 bg-slate-950 text-white font-semibold text-lg transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group rounded-xl"
+                        className="w-full sm:w-auto px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-semibold text-lg transition-all shadow-xl hover:shadow-2xl dark:hover:bg-slate-200 flex items-center justify-center gap-2 group rounded-xl"
                     >
                         Empezar gratis
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
