@@ -110,78 +110,86 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
             // Upload Logic
             const processUpload = async () => {
+                // 0. OPTIMISTIC UPDATE: Show immediately
+                const now = new Date();
+                const tempId = `temp-${Date.now()}`;
+
+                // Create optimistic recording state
+                const optimisticRecording: Recording = {
+                    id: tempId,
+                    folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+                    title: file.name.replace(/\.[^/.]+$/, ""),
+                    description: `Subiendo...`,
+                    date: now.toISOString(),
+                    duration: '00:00:00',
+                    durationSeconds: 0,
+                    status: 'Processing', // Shows spinner
+                    tags: ['upload', 'manual'],
+                    participants: 1,
+                    audioUrl: '',
+                    summary: null,
+                    segments: [],
+                    notes: [],
+                    media: [],
+                    metadata: { type: 'single' }
+                };
+
+                // Show it immediately
+                setTempRecording(optimisticRecording);
+                setView('recordings');
+                setSelectedId(tempId);
+                // Important: clear any previous editor state so DetailView shows up
+                setIsEditorOpen(false);
+
                 try {
                     // 1. Upload to Storage
                     const audioUrl = await uploadAudio(file, user.id!);
                     if (!audioUrl) throw new Error("Error al subir el archivo a storage.");
 
-                    console.log('[Dashboard] File uploaded, creating DB entry...');
-
-                    // 2. Prepare Metadata
-                    // We don't have duration yet, defaulting to 0. 
-                    // Backend/Transcription usually updates this, or we could load Audio element to check.
-                    // For speed, let's create it with 0 and update later.
-
-                    const now = new Date();
-                    const recording: Recording = {
-                        id: '', // databaseService will clean this or generate UUID? It usually expects empty string for new
-                        folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
-                        title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+                    // 2. Prepare Final Metadata
+                    const recordingData: Recording = {
+                        ...optimisticRecording,
+                        id: '', // let DB assign UUID
                         description: `Subido manualmente: ${file.name}`,
-                        date: now.toISOString(),
-                        duration: '00:00:00',
-                        durationSeconds: 0,
-                        status: 'Processing', // Mark as processing so user knows
-                        tags: ['upload', 'manual'],
-                        participants: 1,
-                        audioUrl: audioUrl, // Save the storage path
-                        summary: null,
-                        segments: [],
-                        notes: [],
-                        media: [],
-                        metadata: {
-                            type: 'single'
-                        }
+                        audioUrl: audioUrl,
                     };
 
                     // 3. Create in Database
-                    const createdRecording = await databaseService.createRecording(recording);
+                    const createdRecording = await databaseService.createRecording(recordingData);
                     if (!createdRecording) throw new Error("Error al crear el registro en base de datos.");
 
                     console.log('[Dashboard] Recording created:', createdRecording.id);
 
+                    // Update local state with REAL ID
+                    setTempRecording(createdRecording);
+                    setSelectedId(createdRecording.id); // Switch selection to real ID
+
                     // 4. Trigger Transcription (Auto)
-                    // Get signed URL first (needed for Gemini/API)
                     const signedUrl = await getSignedAudioUrl(audioUrl);
                     if (signedUrl) {
                         try {
                             const segments = await transcribeAudio(undefined, file.type, 'es', signedUrl);
                             if (segments && segments.length > 0) {
-                                // Update DB with segments
                                 await databaseService.updateRecording(createdRecording.id, {
                                     segments: segments as any,
                                     status: 'Completed'
                                 });
-                                // Update local if selected (will be handled by navigation below)
+                                // Update local optimistic view
+                                setTempRecording(prev => prev ? ({ ...prev, segments: segments as any, status: 'Completed' }) : null);
                             }
                         } catch (transcribeError) {
                             console.error("Auto-transcription failed (background):", transcribeError);
-                            // Don't fail the whole visual flow, let it stay in Processing
                         }
                     }
-
-                    // 5. Success Feedback & Navigation
-                    setTempRecording(createdRecording); // Show immediately
-                    setView('recordings');
-                    setSelectedId(createdRecording.id);
-                    setIsEditorOpen(false); // Open Detail View
 
                 } catch (error: any) {
                     console.error("Upload failed:", error);
                     alert(`Error al subir el archivo: ${error.message}`);
+                    // Revert optimistic update
+                    setTempRecording(null);
+                    setSelectedId(null);
                 } finally {
                     setIsProcessingMultiAudio(false);
-                    // Clear input
                     if (fileInputRef.current) fileInputRef.current.value = '';
                 }
             };
