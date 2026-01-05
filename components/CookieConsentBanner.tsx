@@ -115,7 +115,7 @@ export const CookieConsentBanner: React.FC = () => {
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-4">
                                     Utilizamos cookies para mejorar su experiencia, analizar el tráfico y personalizar el contenido.
-                                    Puede aceptar todas las cookies o gestionar sus preferencias. Lea nuestra <a href="/legal/cookies" className="text-primary hover:underline">Política de Cookies</a>.
+                                    Puede aceptar todas las cookies o gestionar sus preferencias. Lea nuestra <a href="/cookies" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Política de Cookies</a>.
                                 </p>
 
                                 <div className="flex flex-col gap-2">
