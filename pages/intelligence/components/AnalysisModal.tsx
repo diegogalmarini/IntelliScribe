@@ -29,12 +29,8 @@ function UsersIcon(props: any) { return <Users {...props} /> }
 import { Users } from 'lucide-react';
 
 const LANGUAGES = [
-    { code: 'es', label: 'Spanish (Spain)' },
-    { code: 'en', label: 'English (US)' },
-    { code: 'fr', label: 'French' },
-    { code: 'de', label: 'German' },
-    { code: 'it', label: 'Italian' },
-    { code: 'pt', label: 'Portuguese' },
+    { code: 'es', label: 'Español' },
+    { code: 'en', label: 'English' },
 ];
 
 export const AnalysisModal: React.FC<AnalysisModalProps> = ({
@@ -119,8 +115,8 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                         key={cat.id}
                                         onClick={() => setSelectedCategory(cat.id!)}
                                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedCategory === cat.id
-                                                ? 'bg-gray-200/50 dark:bg-white/10 text-gray-900 dark:text-white'
-                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                                            ? 'bg-gray-200/50 dark:bg-white/10 text-gray-900 dark:text-white'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
                                             }`}
                                     >
                                         {cat.icon && <cat.icon size={16} />}
@@ -141,8 +137,8 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                         key={template.id}
                                         onClick={() => setSelectedTemplateId(template.id)}
                                         className={`group relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex flex-col h-full ${isSelected
-                                                ? 'border-blue-600 dark:border-blue-500 bg-gray-50 dark:bg-white/5 shadow-md'
-                                                : 'border-transparent bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-white/5 hover:shadow-md border-gray-100 dark:border-white/5'
+                                            ? 'border-blue-600 dark:border-blue-500 bg-gray-50 dark:bg-white/5 shadow-md'
+                                            : 'border-transparent bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-white/5 hover:shadow-md border-gray-100 dark:border-white/5'
                                             }`}
                                     >
                                         <div className="flex items-start justify-between mb-3">
@@ -211,8 +207,8 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                                     setShowLangMenu(false);
                                                 }}
                                                 className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 ${selectedLanguage === lang.code
-                                                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10'
-                                                        : 'text-gray-700 dark:text-gray-300'
+                                                    ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10'
+                                                    : 'text-gray-700 dark:text-gray-300'
                                                     }`}
                                             >
                                                 {lang.label}
