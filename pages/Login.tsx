@@ -162,7 +162,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
             {/* Left Side: Auth Form - LIQUID GLASS EFFECT */}
             <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20
-                          bg-white/40 dark:bg-black/40 backdrop-blur-3xl border-r border-white/40 dark:border-white/5 shadow-[0_0_40px_rgba(0,0,0,0.05)]">
+                          bg-white/40 dark:bg-transparent backdrop-blur-3xl border-r border-white/40 dark:border-none shadow-[0_0_40px_rgba(0,0,0,0.05)] dark:shadow-none">
 
                 {/* Header (Logo + Language + Theme) */}
                 <div className="absolute top-8 left-8 right-8 flex justify-between items-center">
