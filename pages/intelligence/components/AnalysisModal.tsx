@@ -59,7 +59,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
             if (selectedCategory === 'all') return true;
             if (selectedCategory === 'recent') return true; // Placeholder logic for recent
 
-            return template.category === selectedCategory || (selectedCategory === 'Business' && template.category === 'Meeting');
+            return template.category === selectedCategory;
         });
     }, [selectedCategory, searchQuery]);
 
