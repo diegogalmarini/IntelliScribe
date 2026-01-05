@@ -392,7 +392,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                             className="flex items-center gap-2 px-3 py-1.5 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
                         >
                             <BarChart3 size={16} />
-                            <span>Analizar</span>
+                            <span>Resumen</span>
                         </button>
 
                         {/* Preguntar a Diktalo */}
