@@ -166,7 +166,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                 {/* Header (Logo + Language + Theme) */}
                 <div className="absolute top-8 left-8 right-8 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate(AppRoute.LANDING)}>
                         <img
                             src="/logo-diktalo.svg"
                             alt="Diktalo"
