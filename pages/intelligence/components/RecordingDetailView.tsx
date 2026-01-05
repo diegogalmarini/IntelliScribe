@@ -430,7 +430,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                         {recording.audioUrl ? (
                             <div className="space-y-4">
-                                <div className="bg-[#f7f7f8] dark:bg-[#1f1f1f] rounded-lg p-3 flex items-center gap-4">
+                                <div className="bg-[#f7f7f8] dark:bg-black/20 rounded-lg p-3 flex items-center gap-4">
                                     {/* Play/Pause Button */}
                                     <button
                                         onClick={togglePlay}
@@ -496,7 +496,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                 {/* Download Button */}
                                 <button
                                     onClick={handleDownloadAudio}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-[#2a2b32] border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
                                 >
                                     <Download size={14} />
                                     Descargar Audio
