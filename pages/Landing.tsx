@@ -15,8 +15,6 @@ import { Navbar } from '../components/Landing/Navbar';
 
 export const Landing: React.FC = () => {
     const { t } = useLanguage();
-    const { t } = useLanguage();
-    // const { theme } = useTheme(); // Unused
     const { scrollYProgress } = useScroll();
     // const [isMenuOpen, setIsMenuOpen] = React.useState(false); // Unused, moved to Navbar
     const scaleX = useSpring(scrollYProgress, {
