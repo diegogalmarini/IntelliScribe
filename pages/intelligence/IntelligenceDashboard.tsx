@@ -502,7 +502,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [tempRecording, setTempRecording] = useState<Recording | null>(null);
 
     // Use search results when searching, otherwise use all recordings
-    const displayedRecordings = searchQuery.trim() ? searchResults : recordings;
+    // Fix: Include tempRecording (optimistic update) in the list if not already present
+    const displayedRecordings = React.useMemo(() => {
+        const base = searchQuery.trim() ? searchResults : recordings;
+        if (tempRecording && !base.find(r => r.id === tempRecording.id)) {
+            return [tempRecording, ...base];
+        }
+        return base;
+    }, [searchQuery, searchResults, recordings, tempRecording]);
 
     // Find active recording - check temp, then search results, then full recordings
     const activeRecording = (selectedId && tempRecording && tempRecording.id === selectedId)
