@@ -3,9 +3,15 @@ import { useEffect } from 'react';
 const CrispWidget = () => {
     useEffect(() => {
         const crispId = import.meta.env.VITE_CRISP_WEBSITE_ID;
+        if (!crispId) {
+            console.warn('[Crisp] No VITE_CRISP_WEBSITE_ID found.');
+            return;
+        }
 
-        if (crispId) {
-            console.log('[Crisp] Initializing with ID:', crispId);
+        const initCrisp = () => {
+            if (window.$crisp) return; // Already initialized
+
+            console.log('[Crisp] Initializing via Consent...');
             window.$crisp = [];
             window.CRISP_WEBSITE_ID = crispId;
 
@@ -15,18 +21,25 @@ const CrispWidget = () => {
                 s.src = "https://client.crisp.chat/l.js";
                 s.async = true;
                 d.getElementsByTagName("head")[0].appendChild(s);
-
-                // Hide Crisp widget by default
-                setTimeout(() => {
-                    const crispButton = document.querySelector('.crisp-client');
-                    if (crispButton) {
-                        (crispButton as HTMLElement).style.display = 'none';
-                    }
-                }, 1000);
             })();
-        } else {
-            console.warn('[Crisp] No VITE_CRISP_WEBSITE_ID found, skipping initialization.');
+        };
+
+        // Check if consent is already stored and allowed
+        const savedConsent = localStorage.getItem('diktalo_cookie_consent');
+        if (savedConsent) {
+            const parsed = JSON.parse(savedConsent);
+            if (parsed.functional) {
+                initCrisp();
+            }
         }
+
+        // Listen for new consent event
+        const handleConsent = () => initCrisp();
+        window.addEventListener('diktalo-consent-functional-granted', handleConsent);
+
+        return () => {
+            window.removeEventListener('diktalo-consent-functional-granted', handleConsent);
+        };
     }, []);
 
     return null;

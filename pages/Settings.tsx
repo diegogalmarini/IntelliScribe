@@ -499,6 +499,23 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                 Instrucciones de Instalación
                             </a>
                         </section>
+                        <section>
+                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-6">Trust Center</h4>
+                            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-white/5 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <h5 className="text-slate-900 dark:text-white font-bold mb-1">Centro de Seguridad y Confianza</h5>
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md">
+                                        Conoce cómo protegemos tus datos, nuestros estándares de encriptación y privacidad de IA.
+                                    </p>
+                                </div>
+                                <a
+                                    href="/trust"
+                                    className="px-4 py-2 bg-white dark:bg-white/10 hover:bg-slate-50 dark:hover:bg-white/20 border border-slate-200 dark:border-white/10 rounded-lg text-slate-700 dark:text-white text-sm font-bold transition-colors shadow-sm"
+                                >
+                                    Ver Trust Center
+                                </a>
+                            </div>
+                        </section>
                     </div>
                 );
         }

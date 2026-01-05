@@ -31,6 +31,7 @@ export const Footer: React.FC = () => {
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">Legal</h4>
                     <a href="/terms" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footerTerms')}</a>
                     <a href="/privacy" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footerPrivacy')}</a>
+                    <a href="/trust" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Trust Center</a>
                 </div>
 
                 {/* Column 3: Contact */}

@@ -96,10 +96,97 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            // TODO: Implement proper file upload to backend
-            console.log('File selected:', file.name);
-            // For now, navigate to recording page
-            onNavigate(AppRoute.RECORDING);
+            // Check if user is logged in
+            if (!user || !user.id) {
+                alert("Debes iniciar sesión para subir archivos.");
+                return;
+            }
+
+            // Set loading state (reuse multi-audio spinner or a new one?)
+            // Using processing state for simpler UI feedback
+            setIsProcessingMultiAudio(true); // Reusing this for spinner visibility if shared, or add specific state
+
+            console.log('[Dashboard] Starting single file upload:', file.name);
+
+            // Upload Logic
+            const processUpload = async () => {
+                try {
+                    // 1. Upload to Storage
+                    const audioUrl = await uploadAudio(file, user.id!);
+                    if (!audioUrl) throw new Error("Error al subir el archivo a storage.");
+
+                    console.log('[Dashboard] File uploaded, creating DB entry...');
+
+                    // 2. Prepare Metadata
+                    // We don't have duration yet, defaulting to 0. 
+                    // Backend/Transcription usually updates this, or we could load Audio element to check.
+                    // For speed, let's create it with 0 and update later.
+
+                    const now = new Date();
+                    const recording: Recording = {
+                        id: '', // databaseService will clean this or generate UUID? It usually expects empty string for new
+                        folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+                        title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+                        description: `Subido manualmente: ${file.name}`,
+                        date: now.toISOString(),
+                        duration: '00:00:00',
+                        durationSeconds: 0,
+                        status: 'Processing', // Mark as processing so user knows
+                        tags: ['upload', 'manual'],
+                        participants: 1,
+                        audioUrl: audioUrl, // Save the storage path
+                        summary: null,
+                        segments: [],
+                        notes: [],
+                        media: [],
+                        metadata: {
+                            type: 'single'
+                        }
+                    };
+
+                    // 3. Create in Database
+                    const createdRecording = await databaseService.createRecording(recording);
+                    if (!createdRecording) throw new Error("Error al crear el registro en base de datos.");
+
+                    console.log('[Dashboard] Recording created:', createdRecording.id);
+
+                    // 4. Trigger Transcription (Auto)
+                    // Get signed URL first (needed for Gemini/API)
+                    const signedUrl = await getSignedAudioUrl(audioUrl);
+                    if (signedUrl) {
+                        try {
+                            const segments = await transcribeAudio(undefined, file.type, 'es', signedUrl);
+                            if (segments && segments.length > 0) {
+                                // Update DB with segments
+                                await databaseService.updateRecording(createdRecording.id, {
+                                    segments: segments as any,
+                                    status: 'Completed'
+                                });
+                                // Update local if selected (will be handled by navigation below)
+                            }
+                        } catch (transcribeError) {
+                            console.error("Auto-transcription failed (background):", transcribeError);
+                            // Don't fail the whole visual flow, let it stay in Processing
+                        }
+                    }
+
+                    // 5. Success Feedback & Navigation
+                    setTempRecording(createdRecording); // Show immediately
+                    setView('recordings');
+                    setSelectedId(createdRecording.id);
+                    setIsEditorOpen(false); // Open Detail View
+
+                } catch (error: any) {
+                    console.error("Upload failed:", error);
+                    alert(`Error al subir el archivo: ${error.message}`);
+                } finally {
+                    setIsProcessingMultiAudio(false);
+                    // Clear input
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                }
+            };
+
+            processUpload();
         }
     };
 

@@ -24,7 +24,10 @@ import CrispWidget from './components/CrispWidget';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
 import { Privacy } from './pages/legal/Privacy';
+import { TrustCenter } from './pages/legal/TrustCenter';
+import { Cookies } from './pages/legal/Cookies';
 import { useIdleTimer } from './hooks/useIdleTimer';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
 
 // ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
 // CRITICAL: Admin components are lazy-loaded to ensure they are NEVER
@@ -51,6 +54,8 @@ const AppContent: React.FC = () => {
         if (isResetPassword) return AppRoute.RESET_PASSWORD;
         if (path === '/terms') return AppRoute.TERMS;
         if (path === '/privacy') return AppRoute.PRIVACY;
+        if (path === '/trust') return AppRoute.TRUST;
+        if (path === '/cookies') return AppRoute.COOKIES;
         if (path === '/login') return AppRoute.LOGIN;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         if (path === '/intelligence') return AppRoute.INTELLIGENCE;
@@ -70,6 +75,8 @@ const AppContent: React.FC = () => {
         if (isResetPassword) newRoute = AppRoute.RESET_PASSWORD;
         else if (path === '/terms') newRoute = AppRoute.TERMS;
         else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
+        else if (path === '/trust') newRoute = AppRoute.TRUST;
+        else if (path === '/cookies') newRoute = AppRoute.COOKIES;
         else if (path === '/login') newRoute = AppRoute.LOGIN;
         else if (path === '/dashboard') newRoute = AppRoute.DASHBOARD;
         else if (path === '/intelligence') newRoute = AppRoute.INTELLIGENCE;
@@ -385,6 +392,8 @@ const AppContent: React.FC = () => {
             [AppRoute.MANUAL]: '/manual',
             [AppRoute.TERMS]: '/terms',
             [AppRoute.PRIVACY]: '/privacy',
+            [AppRoute.TRUST]: '/trust',
+            [AppRoute.COOKIES]: '/cookies',
             [AppRoute.RESET_PASSWORD]: '/reset-password',
             [AppRoute.ADMIN_OVERVIEW]: '/admin',
             [AppRoute.ADMIN_USERS]: '/admin/users',
@@ -563,6 +572,24 @@ const AppContent: React.FC = () => {
             <>
                 <CrispWidget />
                 <Privacy />
+            </>
+        );
+    }
+
+    if (currentRoute === AppRoute.TRUST) {
+        return (
+            <>
+                <CrispWidget />
+                <TrustCenter />
+            </>
+        );
+    }
+
+    if (currentRoute === AppRoute.COOKIES) {
+        return (
+            <>
+                <CrispWidget />
+                <Cookies />
             </>
         );
     }
@@ -765,6 +792,7 @@ const App: React.FC = () => {
             <LanguageProvider>
                 <ThemeProvider>
                     <AppContent />
+                    <CookieConsentBanner />
                 </ThemeProvider>
             </LanguageProvider>
         </AuthProvider>
