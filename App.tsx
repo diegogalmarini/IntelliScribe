@@ -28,6 +28,7 @@ import { TrustCenter } from './pages/legal/TrustCenter';
 import { Cookies } from './pages/legal/Cookies';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
+import { PublicLayout } from './layouts/PublicLayout';
 
 // ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
 // CRITICAL: Admin components are lazy-loaded to ensure they are NEVER
@@ -560,37 +561,37 @@ const AppContent: React.FC = () => {
 
     if (currentRoute === AppRoute.TERMS) {
         return (
-            <>
+            <PublicLayout>
                 <CrispWidget />
                 <Terms />
-            </>
+            </PublicLayout>
         );
     }
 
     if (currentRoute === AppRoute.PRIVACY) {
         return (
-            <>
+            <PublicLayout>
                 <CrispWidget />
                 <Privacy />
-            </>
+            </PublicLayout>
         );
     }
 
     if (currentRoute === AppRoute.TRUST) {
         return (
-            <>
+            <PublicLayout>
                 <CrispWidget />
                 <TrustCenter />
-            </>
+            </PublicLayout>
         );
     }
 
     if (currentRoute === AppRoute.COOKIES) {
         return (
-            <>
+            <PublicLayout>
                 <CrispWidget />
                 <Cookies />
-            </>
+            </PublicLayout>
         );
     }
 
