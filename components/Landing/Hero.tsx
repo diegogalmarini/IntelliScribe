@@ -9,7 +9,7 @@ export const Hero: React.FC = () => {
     const { t } = useLanguage();
 
     return (
-        <div className="relative overflow-hidden bg-white dark:bg-[#0b0f17] pt-32 pb-20 lg:pt-48 lg:pb-32 transition-colors duration-300">
+        <div className="relative overflow-hidden bg-white dark:bg-background-dark pt-32 pb-20 lg:pt-48 lg:pb-32 transition-colors duration-300">
 
             {/* 1. Fondo Técnico (Grid Sutil) */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>

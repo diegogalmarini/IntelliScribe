@@ -528,7 +528,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     console.log('[Dashboard Render] ActiveRec:', activeRecording?.id, 'IsEditorOpen:', isEditorOpen, 'TempRec:', tempRecording?.id, 'View:', view);
 
     return (
-        <div className="flex h-screen bg-white dark:bg-[#1a1a1a] overflow-hidden">
+        <div className="flex h-screen bg-white dark:bg-background-dark overflow-hidden">
             {/* Hidden file input for upload */}
             <input
                 ref={fileInputRef}
@@ -605,7 +605,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 </div>
 
                 {/* Content Area - Editor, Recorder, Recording Detail, Empty State, or Subscription View */}
-                <div className="flex-1 overflow-hidden bg-white dark:bg-[#1a1a1a]">
+                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
                     {showMultiAudioUploader ? (
                         <MultiAudioUploader
                             user={user}

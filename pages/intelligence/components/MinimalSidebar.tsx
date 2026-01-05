@@ -111,7 +111,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     return (
-        <div className="hidden md:flex md:w-64 h-full bg-white dark:bg-[#171717] flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
+        <div className="hidden md:flex md:w-64 h-full bg-white dark:bg-surface-dark flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
             {/* Logo */}
             <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div
@@ -137,7 +137,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                 <span className="font-normal">{user.subscription.minutesUsed} / {user.subscription.minutesLimit} min</span>
                                 <span className="font-normal">{Math.round((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100)}%</span>
                             </div>
-                            <div className="h-1 bg-[#e5e5e5] dark:bg-[#2a2a2a] rounded-full overflow-hidden">
+                            <div className="h-1 bg-[#e5e5e5] dark:bg-card-dark rounded-full overflow-hidden">
                                 <div
                                     className={`h-full transition-all ${(user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 90 ? 'bg-red-500' :
                                         (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
@@ -161,7 +161,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder="Buscar..."
-                            className="w-full pl-9 pr-8 py-2 bg-[#f7f7f8] dark:bg-[#2a2a2a] border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                            className="w-full pl-9 pr-8 py-2 bg-[#f7f7f8] dark:bg-card-dark border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
                         />
                         {searchQuery && (
                             <button
@@ -199,7 +199,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                 <button
                                     onClick={() => onSelectRecording(recording.id)}
                                     className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition-colors group ${selectedId === recording.id
-                                        ? 'bg-[#f0f0f0] dark:bg-[#2a2a2a] text-[#0d0d0d] dark:text-white'
+                                        ? 'bg-[#f0f0f0] dark:bg-card-dark text-[#0d0d0d] dark:text-white'
                                         : 'text-[#676767] dark:text-[#c5c5c5] hover:bg-[#f7f7f8] dark:hover:bg-white/[0.05]'
                                         }`}
                                 >
@@ -309,7 +309,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             {deleteConfirmId && (
                 <>
                     <div className="fixed inset-0 bg-black/50 z-[300]" onClick={() => setDeleteConfirmId(null)} />
-                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-2xl z-[400] p-6">
+                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-card-dark rounded-2xl shadow-2xl z-[400] p-6">
                         <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-2">
                             ¿Eliminar grabación?
                         </h3>
@@ -338,7 +338,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             {moveModalId && (
                 <>
                     <div className="fixed inset-0 bg-black/50 z-[300]" onClick={() => setMoveModalId(null)} />
-                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-2xl z-[400] p-6">
+                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-card-dark rounded-2xl shadow-2xl z-[400] p-6">
                         <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-4">
                             Mover a carpeta
                         </h3>
