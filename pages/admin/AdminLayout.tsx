@@ -47,11 +47,11 @@ export const AdminLayout: React.FC<Props> = ({
     ];
 
     return (
-        <div className="flex h-screen bg-slate-900 text-white overflow-hidden">
+        <div className="flex h-screen bg-background-dark text-white overflow-hidden">
             {/* Admin Sidebar */}
-            <aside className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
+            <aside className="w-64 bg-surface-dark border-r border-border-dark flex flex-col">
                 {/* Header */}
-                <div className="p-6 border-b border-slate-700">
+                <div className="p-6 border-b border-border-dark">
                     <div className="flex items-center gap-3 mb-2">
                         <span className="material-symbols-outlined text-3xl text-amber-400">
                             bolt
@@ -75,7 +75,7 @@ export const AdminLayout: React.FC<Props> = ({
                                 onClick={() => onNavigate(item.route)}
                                 className={`w-full flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
                                     ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/30'
-                                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
                                     }`}
                             >
                                 <span className="material-symbols-outlined text-2xl">
@@ -95,7 +95,7 @@ export const AdminLayout: React.FC<Props> = ({
                 </nav>
 
                 {/* Admin User Info */}
-                <div className="p-4 border-t border-slate-700">
+                <div className="p-4 border-t border-border-dark">
                     <div className="flex items-center gap-3 mb-3 px-2">
                         {user.avatarUrl ? (
                             <img
@@ -128,7 +128,7 @@ export const AdminLayout: React.FC<Props> = ({
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-auto bg-slate-900">
+            <main className="flex-1 overflow-auto bg-background-dark">
                 {children}
             </main>
         </div>
