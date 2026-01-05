@@ -14,13 +14,13 @@ module.exports = {
                 primary: '#2563eb',
                 'primary-hover': '#1d4ed8',
                 'background-light': '#f8fafc',
-                'background-dark': '#111827',
-                'surface-dark': '#1f2937',
+                'background-dark': '#02040a', // Antigravity Black
+                'surface-dark': '#0d1117',
                 'surface-light': '#ffffff',
-                'border-dark': '#232f48',
+                'border-dark': '#27272a', // Zinc-800
                 'border-light': '#e2e8f0',
                 'text-secondary': '#94a3b8',
-                'card-dark': '#1f2937',
+                'card-dark': '#0d1117',
                 'brand-violet': '#8B5CF6',
                 'brand-blue': '#2563eb',
                 'brand-green': '#D3E97A',
