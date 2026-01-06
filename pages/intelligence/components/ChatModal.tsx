@@ -163,13 +163,19 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
                                                 {cleanContent}
                                             </div>
                                             {actionId && onOpenRecording && (
-                                                <button
-                                                    onClick={() => onOpenRecording(actionId)}
-                                                    className="self-start flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-900/30"
-                                                >
-                                                    <ExternalLink size={14} />
-                                                    {language === 'es' ? 'Abrir Grabación' : 'Open Recording'}
-                                                </button>
+                                                localRecordings.some(r => r.id === actionId) ? (
+                                                    <button
+                                                        onClick={() => onOpenRecording(actionId)}
+                                                        className="self-start flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-900/30"
+                                                    >
+                                                        <ExternalLink size={14} />
+                                                        {language === 'es' ? 'Abrir Grabación' : 'Open Recording'}
+                                                    </button>
+                                                ) : (
+                                                    <span className="self-start text-[11px] text-gray-500 italic px-2">
+                                                        {language === 'es' ? '(Grabación no disponible)' : '(Recording unavailable)'}
+                                                    </span>
+                                                )
                                             )}
                                         </div>
                                     </div>
