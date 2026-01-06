@@ -64,6 +64,18 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     useEffect(() => {
         if (initialView) setView(initialView);
     }, [initialView]);
+
+    // Handle Deep Linking (e.g. from Extension)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const action = params.get('action');
+        if (action === 'upload') {
+            console.log('[Dashboard] Deep link detected: upload');
+            setShowMultiAudioUploader(true);
+            // Clean URL without refresh
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, []);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);

@@ -5,6 +5,8 @@ import './Popup.css';
 
 // Lucide-like icons (simple SVG components for the extension)
 const MicIcon = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /><line x1="8" x2="16" y1="22" y2="22" /></svg>;
+const CameraIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>;
+const UploadIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>;
 
 const Popup: React.FC = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -187,6 +189,19 @@ const Popup: React.FC = () => {
         }, 2000);
     };
 
+    const handleScreenshot = () => {
+        console.log('[Popup] Screenshot requested');
+        // Placeholder for Day 3
+        chrome.tabs.captureVisibleTab(chrome.windows.WINDOW_ID_CURRENT, { format: 'png' }, (dataUrl) => {
+            console.log('Snapshot taken (length):', dataUrl?.length);
+            // TODO: Save or show preview
+        });
+    };
+
+    const handleImport = () => {
+        chrome.tabs.create({ url: 'https://www.diktalo.com/intelligence?action=upload' });
+    };
+
     return (
         <div className="popup">
             <header className="popup-header">
@@ -243,18 +258,43 @@ const Popup: React.FC = () => {
                 {/* Main Controls - Redesigned */}
                 <div className="controls-group">
                     {!isRecording ? (
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <button
+                                    className="btn-mic-start"
+                                    onClick={handleStartRecording}
+                                    disabled={status === 'processing'}
+                                >
+                                    {status === 'processing' ? <div className="spinner-clean" /> : <MicIcon />}
+                                </button>
+                                {/* <div className="cancel-text">Cancelar</div> */}
+                            </div>
+
                             <button
-                                className="btn-mic-start"
-                                onClick={handleStartRecording}
-                                disabled={status === 'processing'}
+                                onClick={handleImport}
+                                className="flex items-center gap-2 text-xs text-slate-500 hover:text-blue-600 transition-colors"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                             >
-                                {status === 'processing' ? <div className="spinner-clean" /> : <MicIcon />}
+                                <UploadIcon />
+                                <span>Importar Archivo</span>
                             </button>
-                            {/* <div className="cancel-text">Cancelar</div> */}
                         </div>
                     ) : (
                         <>
+                            {/* Screenshot Button (New) */}
+                            <div className="control-item">
+                                <button
+                                    className="btn-pause-grey"
+                                    onClick={handleScreenshot}
+                                    title="Capturar Pantalla"
+                                >
+                                    <div className="btn-icon-pause" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <CameraIcon />
+                                    </div>
+                                </button>
+                                <span className="btn-label">FOTO</span>
+                            </div>
+
                             {/* Stop Button */}
                             <div className="control-item">
                                 <button
