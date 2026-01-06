@@ -26,7 +26,8 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
         scrollToBottom();
     }, [messages]);
 
-    if (!isOpen) return null;
+    // --- FIX: Move Hook calls ABOVE any conditional return ---
+    // Previously: if (!isOpen) return null; was here, causing Error #310
 
     const [localRecordings, setLocalRecordings] = useState<Recording[]>(recordings);
 
@@ -113,6 +114,8 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
             setLoading(false);
         }
     };
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
