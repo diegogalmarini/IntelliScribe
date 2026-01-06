@@ -136,6 +136,16 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     onBlur={() => setEditingFolderId(null)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault(); // Prevent default form submit which might clash
+                                            handleRenameFolder(e);
+                                        }
+                                        if (e.key === 'Escape') {
+                                            e.preventDefault();
+                                            setEditingFolderId(null);
+                                        }
+                                    }}
                                     className="w-full bg-white dark:bg-slate-800 border border-blue-500 rounded text-sm px-1.5 py-0.5 focus:outline-none"
                                 />
                             </form>
