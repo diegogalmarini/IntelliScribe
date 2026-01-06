@@ -203,6 +203,26 @@ export const databaseService = {
         }));
     },
 
+    async getRecordingsSegments(ids: string[]): Promise<Map<string, any[]>> {
+        if (!ids.length) return new Map();
+
+        const { data, error } = await supabase
+            .from('recordings')
+            .select('id, segments')
+            .in('id', ids);
+
+        if (error) {
+            console.error('Error fetching segments:', error);
+            return new Map();
+        }
+
+        const map = new Map();
+        data?.forEach((r: any) => {
+            map.set(r.id, r.segments || []);
+        });
+        return map;
+    },
+
     async searchRecordings(userId: string, searchQuery: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
         if (!searchQuery || !searchQuery.trim()) {
             return this.getRecordings(userId, page, pageSize);
