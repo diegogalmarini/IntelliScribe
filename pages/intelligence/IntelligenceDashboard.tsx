@@ -11,6 +11,7 @@ import { SubscriptionView } from './components/SubscriptionView';
 import { MultiAudioUploader } from './components/MultiAudioUploader';
 import { TemplateGallery } from './TemplateGallery';
 import { ChatModal } from './components/ChatModal';
+import { AlertModal, AlertType } from '../../components/AlertModal';
 import { MessageSquare } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { transcribeAudio } from '../../services/geminiService';
@@ -74,6 +75,20 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     // Multi-audio upload state
     const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
+    const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false);
+
+    // Alert State
+    const [alertState, setAlertState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type: AlertType;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'info'
+    });
 
     // Chat State
     const [chatState, setChatState] = useState<{
@@ -92,7 +107,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             title
         });
     };
-    const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false);
+
 
     // Format plan name for display
     const formatPlanName = (planId: string) => {
@@ -125,11 +140,21 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     setSelectedId(id);
                 } else {
                     console.error("Recording not found via ID fetch:", id);
-                    alert("No se pudo encontrar la grabación solicitada. Puede haber sido eliminada o no tienes acceso.");
+                    setAlertState({
+                        isOpen: true,
+                        title: 'Grabación no encontrada',
+                        message: 'No se pudo encontrar la grabación solicitada. Puede haber sido eliminada o no tienes acceso.',
+                        type: 'error'
+                    });
                 }
             } catch (err) {
                 console.error("Error fetching remote recording:", err);
-                alert("Error de conexión al intentar abrir la grabación.");
+                setAlertState({
+                    isOpen: true,
+                    title: 'Error de conexión',
+                    message: 'Hubo un problema al intentar recuperar la grabación. Por favor verifica tu conexión.',
+                    type: 'error'
+                });
             }
         }
         onSelectRecording(id);
@@ -786,7 +811,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 onLogout={onLogout}
             />
 
-
+            {/* Custom Alert Modal */}
+            <AlertModal
+                isOpen={alertState.isOpen}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                title={alertState.title}
+                message={alertState.message}
+                type={alertState.type}
+            />
         </div>
     );
 };
