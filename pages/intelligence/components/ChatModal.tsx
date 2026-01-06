@@ -7,10 +7,11 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 interface ChatModalProps {
     isOpen: boolean;
     onClose: () => void;
-    recording: Recording;
+    recordings: Recording[]; // Changed from single recording to array
+    title?: string; // Optional title for the chat context
 }
 
-export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording }) => {
+export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recordings, title }) => {
     const { language } = useLanguage();
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
@@ -36,10 +37,22 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
         setLoading(true);
 
         try {
-            // Construct transcript string
-            const fullTranscript = recording.segments && recording.segments.length > 0
-                ? recording.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
-                : "No transcript available.";
+            // Construct transcript string from multiple recordings
+            let fullTranscript = '';
+
+            if (recordings.length === 1) {
+                const r = recordings[0];
+                fullTranscript = r.segments && r.segments.length > 0
+                    ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
+                    : "No transcript available.";
+            } else {
+                fullTranscript = recordings.map(r => {
+                    const segments = r.segments && r.segments.length > 0
+                        ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
+                        : "No transcript available.";
+                    return `[Document: ${r.title} (Date: ${r.date})]\n${segments}\n--- End of Document ---`;
+                }).join('\n\n');
+            }
 
             // Convert history for API (map 'assistant' -> 'model')
             const history = messages.map(m => ({
@@ -81,10 +94,10 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
                         </div>
                         <div>
                             <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-                                {language === 'es' ? 'Preguntar a Diktalo' : 'Ask Diktalo'}
+                                {title || (language === 'es' ? 'Preguntar a Diktalo' : 'Ask Diktalo')}
                             </h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] sm:max-w-md truncate">
-                                {recording.title}
+                                {recordings.length === 1 ? recordings[0].title : `${recordings.length} recordings`}
                             </p>
                         </div>
                     </div>
@@ -115,8 +128,8 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
                             >
                                 <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-green-600 text-white'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-green-600 text-white'
                                         }`}>
                                         {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                     </div>

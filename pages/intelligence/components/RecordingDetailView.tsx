@@ -3,16 +3,15 @@ import { Recording } from '../../../types';
 import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { ChatModal } from './ChatModal';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { AnalysisModal } from './AnalysisModal';
 import { ExportModal } from './ExportModal';
-import { useLanguage } from '../../../contexts/LanguageContext';
-
 import { generateMeetingSummary } from '../../../services/geminiService';
 import { getSignedAudioUrl } from '../../../services/storageService';
 import * as exportUtils from '../../../utils/exportUtils';
 import { supabase } from '../../../lib/supabase';
 import { saveAs } from 'file-saver';
+
 
 interface RecordingDetailViewProps {
     recording: Recording;
@@ -22,9 +21,10 @@ interface RecordingDetailViewProps {
     onUpdateSummary?: (summary: string) => void;
     onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>) => void;
     onUpdateRecording?: (recordingId: string, updates: Partial<{ durationSeconds: number }>) => void;
+    onAskDiktalo?: () => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -41,7 +41,6 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const [editingSegmentIndex, setEditingSegmentIndex] = useState<number | null>(null);
     const [editedSegmentText, setEditedSegmentText] = useState('');
 
-    const [chatOpen, setChatOpen] = useState(false);
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
@@ -290,7 +289,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     };
 
     const handleAskDiktalo = () => {
-        setChatOpen(true);
+        if (onAskDiktalo) onAskDiktalo();
     };
 
 
@@ -772,11 +771,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                 onGenerate={handleGenerateSummary}
                 isGenerating={isGenerating}
             />
-            <ChatModal
-                isOpen={chatOpen}
-                onClose={() => setChatOpen(false)}
-                recording={recording}
-            />
+            {/* ChatModal moved to Dashboard level */}
             <ExportModal
                 isOpen={exportOpen}
                 onClose={() => setExportOpen(false)}
