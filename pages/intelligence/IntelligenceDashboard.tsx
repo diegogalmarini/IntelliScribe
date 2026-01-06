@@ -121,16 +121,15 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 const rec = await databaseService.getRecordingDetails(id);
                 if (rec) {
                     // We need to inject this recording into view so activeRecording selection works
-                    // We can add it to searchResults as a temporary holder or introduce a fetchedRecording state
-                    // For simplicity, let's use searchResults or a specialized state if searching isn't active
-                    // Actually, let's add a state for 'externalSelectedRecording'
                     setSearchResults(prev => [...prev, rec]); // Hack: push to search results to make it visible
                     setSelectedId(id);
                 } else {
                     console.error("Recording not found via ID fetch:", id);
+                    alert("No se pudo encontrar la grabación solicitada. Puede haber sido eliminada o no tienes acceso.");
                 }
             } catch (err) {
                 console.error("Error fetching remote recording:", err);
+                alert("Error de conexión al intentar abrir la grabación.");
             }
         }
         onSelectRecording(id);
