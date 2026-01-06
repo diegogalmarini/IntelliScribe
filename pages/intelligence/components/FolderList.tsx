@@ -17,6 +17,8 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
     const [newFolderName, setNewFolderName] = useState('');
     const [loading, setLoading] = useState(true);
     const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
+    const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+    const [editName, setEditName] = useState('');
 
     useEffect(() => {
         if (userId) {
@@ -42,6 +44,24 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
             setFolders([newFolder, ...folders]);
             setNewFolderName('');
             setIsCreating(false);
+        }
+    };
+
+    const startEditing = (folder: FolderType, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingFolderId(folder.id);
+        setEditName(folder.name);
+    };
+
+    const handleRenameFolder = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editName.trim() || !editingFolderId) return;
+
+        const success = await databaseService.renameFolder(editingFolderId, editName);
+        if (success) {
+            setFolders(folders.map(f => f.id === editingFolderId ? { ...f, name: editName } : f));
+            setEditingFolderId(null);
+            setEditName('');
         }
     };
 
@@ -108,15 +128,36 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                             }`}
                         onClick={() => onSelectFolder(folder.id)}
                     >
-                        <div className="flex items-center gap-2 truncate">
-                            <Folder className="w-4 h-4 text-blue-400" fill={selectedFolderId === folder.id ? "currentColor" : "none"} />
-                            <span className="truncate">{folder.name}</span>
-                        </div>
+                        {editingFolderId === folder.id ? (
+                            <form onSubmit={handleRenameFolder} className="flex-1 mr-2" onClick={e => e.stopPropagation()}>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    onBlur={() => setEditingFolderId(null)}
+                                    className="w-full bg-white dark:bg-slate-800 border border-blue-500 rounded text-sm px-1.5 py-0.5 focus:outline-none"
+                                />
+                            </form>
+                        ) : (
+                            <div className="flex items-center gap-2 truncate">
+                                <Folder className="w-4 h-4 text-blue-400" fill={selectedFolderId === folder.id ? "currentColor" : "none"} />
+                                <span className="truncate text-sm">{folder.name}</span>
+                            </div>
+                        )}
 
-                        <div className="opacity-0 group-hover:opacity-100 flex items-center">
+                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1">
+                            <button
+                                onClick={(e) => startEditing(folder, e)}
+                                className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-blue-500 rounded transition-colors"
+                                title="Renombrar"
+                            >
+                                <Edit2 className="w-3 h-3" />
+                            </button>
                             <button
                                 onClick={(e) => handleDeleteFolder(folder.id, e)}
                                 className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 rounded transition-colors"
+                                title="Eliminar"
                             >
                                 <Trash2 className="w-3 h-3" />
                             </button>

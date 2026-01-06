@@ -110,6 +110,19 @@ export const databaseService = {
         };
     },
 
+    async renameFolder(id: string, name: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('folders')
+            .update({ name, updated_at: new Date().toISOString() })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error renaming folder:', error);
+            return false;
+        }
+        return true;
+    },
+
     async deleteFolder(id: string): Promise<boolean> {
         const { error } = await supabase
             .from('folders')
