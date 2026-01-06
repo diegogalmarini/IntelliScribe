@@ -761,26 +761,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                         </div>
                     )}
 
-                    {/* Processing State */}
-                    {!hasTranscript && recording.status === 'Processing' && (
-                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-12">
-                            <div className="flex flex-col items-center justify-center text-center">
-                                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <p className="text-[12px] text-[#8e8e8e]">
-                                    Procesando transcripción...
-                                </p>
-                            </div>
-                        </div>
-                    )}
 
-                    {/* No Transcript Available */}
-                    {!hasTranscript && recording.status !== 'Processing' && (
-                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <p className="text-[12px] text-[#8e8e8e] text-center">
-                                Transcripción no disponible
-                            </p>
-                        </div>
-                    )}
                 </div>
             </div>
 
