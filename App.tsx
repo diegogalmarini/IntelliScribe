@@ -310,7 +310,7 @@ const AppContent: React.FC = () => {
 
         const newRecording: Recording = {
             id: '',
-            folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+            folderId: (selectedFolderId === 'ALL' || selectedFolderId === 'FAVORITES') ? null : selectedFolderId,
             title: customTitle || 'Nueva Grabación',
             description: t('liveCaptureSession') || 'Live Capture',
             date: new Date().toISOString(),
