@@ -57,11 +57,23 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
         e.preventDefault();
         if (!editName.trim() || !editingFolderId) return;
 
-        const success = await databaseService.renameFolder(editingFolderId, editName);
-        if (success) {
-            setFolders(folders.map(f => f.id === editingFolderId ? { ...f, name: editName } : f));
-            setEditingFolderId(null);
-            setEditName('');
+        const originalFolders = [...folders];
+        const folderIdToRename = editingFolderId;
+        const newName = editName.trim();
+
+        // 1. Optimistic Update
+        setFolders(folders.map(f => f.id === folderIdToRename ? { ...f, name: newName } : f));
+        setEditingFolderId(null);
+        setEditName('');
+
+        // 2. Background DB Update
+        try {
+            const success = await databaseService.renameFolder(folderIdToRename, newName);
+            if (!success) throw new Error('Failed to rename in DB');
+        } catch (error) {
+            console.error('Rename failed, reverting:', error);
+            alert('Error al renombrar la carpeta. Inténtalo de nuevo.');
+            setFolders(originalFolders); // Revert on failure
         }
     };
 
@@ -135,10 +147,17 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                                     type="text"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
-                                    onBlur={() => setEditingFolderId(null)}
+                                    onBlur={() => {
+                                        // Delay to allow form submit to fire if Enter was pressed
+                                        setTimeout(() => {
+                                            if (editingFolderId === folder.id) {
+                                                setEditingFolderId(null);
+                                            }
+                                        }, 200);
+                                    }}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
-                                            e.preventDefault(); // Prevent default form submit which might clash
+                                            e.preventDefault();
                                             handleRenameFolder(e);
                                         }
                                         if (e.key === 'Escape') {
