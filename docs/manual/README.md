@@ -49,6 +49,14 @@ Exportar datos en diferentes formatos.
 
 ---
 
+### `/organizacion/`
+Herramientas para ordenar y gestionar tu contenido.
+
+**Documentos:**
+- ✅ [Carpetas y Chat Inteligente](./organizacion/carpetas-y-chat.md) - Gestión de carpetas y Ask Diktalo Multi-Nivel
+
+---
+
 ### `/suscripciones/` *(En desarrollo)*
 Planes, facturación y límites.
 
