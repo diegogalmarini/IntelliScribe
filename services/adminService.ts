@@ -17,6 +17,9 @@ export const adminService = {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return false;
 
+            // Emergency Admin Access for Owner
+            if (user.email === 'diegogalmarini@gmail.com') return true;
+
             const { data, error } = await supabase
                 .from('profiles')
                 .select('role')

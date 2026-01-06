@@ -11,7 +11,9 @@ import {
     Moon,
     Monitor,
     LogOut,
-    ChevronDown
+    LogOut,
+    ChevronDown,
+    ShieldCheck
 } from 'lucide-react';
 import { useTheme } from '../../../contexts/ThemeContext';
 
@@ -54,6 +56,15 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user, onNavigate, onLogout, 
         { icon: CreditCard, label: t('plans') || 'Planes', action: () => onNavigate(AppRoute.SUBSCRIPTION) },
         { icon: Settings, label: t('settings') || 'Configuración', action: onOpenSettings },
     ];
+
+    // Admin Link for Owner
+    if (user.email === 'diegogalmarini@gmail.com' || user.role === 'admin' || user.role === 'super_admin') {
+        menuItems.unshift({
+            icon: ShieldCheck,
+            label: 'Admin Panel',
+            action: () => onNavigate(AppRoute.ADMIN_OVERVIEW)
+        });
+    }
 
     const themeOptions = [
         { icon: Sun, label: t('lightMode') || 'Claro', value: 'light' as const },
