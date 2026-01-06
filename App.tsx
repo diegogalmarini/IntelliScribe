@@ -132,8 +132,24 @@ const AppContent: React.FC = () => {
     // Recordings & Folders State
     const [recordings, setRecordings] = useState<Recording[]>([]);
     const [folders, setFolders] = useState<Folder[]>([
-        { id: 'all', name: 'All Recordings', type: 'system', icon: 'folder_open' },
-        { id: 'favorites', name: 'Favorites', type: 'system', icon: 'star' }
+        {
+            id: 'ALL',
+            name: 'All Recordings',
+            type: 'system',
+            icon: 'folder_open',
+            color: '#64748b',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        },
+        {
+            id: 'FAVORITES',
+            name: 'Favorites',
+            type: 'system',
+            icon: 'star',
+            color: '#eab308',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        }
     ]);
 
     // Handle Logout defined early for useIdleTimer
@@ -224,8 +240,24 @@ const AppContent: React.FC = () => {
 
             console.log(`[DEBUG] Data fetched: ${dbRecordings.length} recordings, ${dbFolders.length} folders`);
             setFolders([
-                { id: 'ALL', name: t('allRecordings'), icon: 'list', type: 'system' },
-                { id: 'FAVORITES', name: t('favorites'), icon: 'star', type: 'system' },
+                {
+                    id: 'ALL',
+                    name: t('allRecordings'),
+                    type: 'system',
+                    icon: 'list',
+                    color: '#64748b',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'FAVORITES',
+                    name: t('favorites'),
+                    type: 'system',
+                    icon: 'star',
+                    color: '#eab308',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
                 ...dbFolders
             ]);
 
@@ -426,7 +458,10 @@ const AppContent: React.FC = () => {
             id: tempId,
             name: name,
             type: 'user',
-            icon: 'folder'
+            icon: 'folder',
+            color: '#3b82f6',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
         setFolders(prev => [...prev, newFolder]);
 
@@ -648,9 +683,13 @@ const AppContent: React.FC = () => {
                 transition={{ duration: 0.3 }}
             >
                 {/* Sidebar */}
-                {/* Hide Sidebar for Intelligence route - it has its own minimal sidebar */}
-                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION &&
-                    currentRoute !== AppRoute.ADMIN_OVERVIEW && currentRoute !== AppRoute.ADMIN_USERS && currentRoute !== AppRoute.ADMIN_FINANCIALS && currentRoute !== AppRoute.ADMIN_PLANS && (
+                {/* Hide Sidebar for Intelligence route and others */}
+                {currentRoute !== AppRoute.INTELLIGENCE &&
+                    currentRoute !== AppRoute.RECORDING &&
+                    currentRoute !== AppRoute.RESET_PASSWORD &&
+                    currentRoute !== AppRoute.DASHBOARD &&
+                    currentRoute !== AppRoute.SUBSCRIPTION &&
+                    !currentRoute.startsWith('admin_') && ( // Generic check for admin routes to avoid type overlap errors
                         <Sidebar
                             currentRoute={currentRoute}
                             onNavigate={navigate}
@@ -696,6 +735,7 @@ const AppContent: React.FC = () => {
                             onRecordingComplete={handleRecordingComplete}
                             onUpdateRecording={handleUpdateRecording}
                             initialView="recordings"
+                            onSelectFolder={setSelectedFolderId}
                         />
                     )}
 

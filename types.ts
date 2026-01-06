@@ -29,6 +29,16 @@ export interface RecordingMetadata {
   }>;
 }
 
+export interface Folder {
+  id: string;
+  name: string;
+  type: 'system' | 'user';
+  color: string;
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TranscriptSegment {
   id: string;
   timestamp: string;
@@ -46,12 +56,12 @@ export interface Recording {
   duration: string; // Formatted string HH:MM:SS
   durationSeconds: number; // Raw seconds for calculations
   status: 'Completed' | 'Processing' | 'Live' | 'Draft';
+  folderId?: string | null; // Optional link to a folder
   tags: string[];
   participants: number;
   audioUrl?: string; // The blob URL
   segments?: TranscriptSegment[]; // The saved transcript
   summary?: string; // The AI generated summary
-  folderId?: string; // New field for filtering
   notes?: NoteItem[];
   media?: MediaItem[];
   metadata?: RecordingMetadata; // Temporal metadata for multi-audio and pauses
@@ -106,12 +116,7 @@ export interface UserProfile {
   subscription: UserSubscription;
 }
 
-export interface Folder {
-  id: string;
-  name: string;
-  type: 'system' | 'user';
-  icon: string;
-}
+
 
 export enum AppRoute {
   LANDING = 'landing',

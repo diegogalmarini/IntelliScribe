@@ -71,8 +71,11 @@ export const databaseService = {
         return data.map((f: DBFolder) => ({
             id: f.id,
             name: f.name,
-            type: f.type,
-            icon: f.icon
+            type: f.type, // Map from DB
+            icon: f.icon,
+            color: '#3b82f6',
+            createdAt: f.created_at,
+            updatedAt: f.created_at
         }));
     },
 
@@ -99,8 +102,11 @@ export const databaseService = {
         return {
             id: data.id,
             name: data.name,
-            type: data.type,
-            icon: data.icon
+            type: 'user',
+            icon: data.icon,
+            color: '#3b82f6',
+            createdAt: data.created_at,
+            updatedAt: data.created_at
         };
     },
 
@@ -402,6 +408,19 @@ export const databaseService = {
 
         if (error) {
             console.error('Error deleting recording:', error);
+            return false;
+        }
+        return true;
+    },
+
+    async moveRecording(id: string, folderId: string | null): Promise<boolean> {
+        const { error } = await supabase
+            .from('recordings')
+            .update({ folder_id: folderId })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error moving recording:', error);
             return false;
         }
         return true;

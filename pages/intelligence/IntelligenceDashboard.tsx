@@ -7,9 +7,12 @@ import { SettingsModal } from './components/SettingsModal';
 import { RecordingDetailView } from './components/RecordingDetailView';
 import { InlineRecorder } from './components/InlineRecorder';
 import { InlineEditor } from './components/InlineEditor';
-import { SubscriptionView } from './components/SubscriptionView';   // Added import
-import { MultiAudioUploader } from './components/MultiAudioUploader';  // NEW
-import { TemplateGallery } from './TemplateGallery'; // NEW
+import { SubscriptionView } from './components/SubscriptionView';
+import { MultiAudioUploader } from './components/MultiAudioUploader';
+import { TemplateGallery } from './TemplateGallery';
+import { ChatModal } from './components/ChatModal';
+import { MessageSquare } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
@@ -31,6 +34,7 @@ interface IntelligenceDashboardProps {
     onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => Promise<Recording | void> | void;
     onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
     initialView?: 'recordings' | 'subscription'; // Added prop
+    onSelectFolder?: (folderId: string | null) => void;
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -48,8 +52,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onSearch,
     onRecordingComplete,
     onUpdateRecording,
-    initialView = 'recordings' // Default value
+    initialView = 'recordings', // Default value
+    onSelectFolder
 }) => {
+    const { t } = useLanguage();
     const [view, setView] = useState<'recordings' | 'subscription' | 'templates'>(initialView); // View state
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -68,6 +74,24 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     // Multi-audio upload state
     const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
+
+    // Chat State
+    const [chatState, setChatState] = useState<{
+        isOpen: boolean;
+        recordings: Recording[];
+        title?: string;
+    }>({
+        isOpen: false,
+        recordings: []
+    });
+
+    const handleAskDiktalo = (contextRecordings: Recording[], title?: string) => {
+        setChatState({
+            isOpen: true,
+            recordings: contextRecordings,
+            title
+        });
+    };
     const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false);
 
     // Format plan name for display
@@ -118,7 +142,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 // Create optimistic recording state
                 const optimisticRecording: Recording = {
                     id: tempId,
-                    folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+                    folderId: selectedFolderId === 'ALL' ? null : selectedFolderId, // Assign folder if selected
                     title: file.name.replace(/\.[^/.]+$/, ""),
                     description: `Subiendo...`,
                     date: now.toISOString(),
@@ -512,13 +536,27 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     // Use search results when searching, otherwise use all recordings
     // Fix: Include tempRecording (optimistic update) in the list if not already present
+    // Use search results when searching, otherwise use all recordings
     const displayedRecordings = React.useMemo(() => {
-        const base = searchQuery.trim() ? searchResults : recordings;
+        let base = searchQuery.trim() ? searchResults : recordings;
+
+        // Filter by Folder
+        if (selectedFolderId) {
+            if (selectedFolderId === 'ALL') {
+                // Show all
+            } else if (selectedFolderId === 'FAVORITES') {
+                // TODO: Implement favorites filtering if field exists
+            } else {
+                base = base.filter(r => r.folderId === selectedFolderId);
+            }
+        }
+
         if (tempRecording && !base.find(r => r.id === tempRecording.id)) {
+            // Include temp recording regardless of folder for visibility during processing
             return [tempRecording, ...base];
         }
         return base;
-    }, [searchQuery, searchResults, recordings, tempRecording]);
+    }, [searchQuery, searchResults, recordings, tempRecording, selectedFolderId]);
 
     // Find active recording - check temp, then search results, then full recordings
     const activeRecording = (selectedId && tempRecording && tempRecording.id === selectedId)
@@ -564,18 +602,35 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 onRenameRecording={onRenameRecording}
-                onDeleteRecording={onDeleteRecording}
-                onMoveRecording={onMoveRecording}
+                onDeleteRecording={(id) => {
+                    onDeleteRecording(id);
+                    if (selectedId === id) setSelectedId(null);
+                }}
+                onMoveRecording={(id, folderId) => {
+                    // Update UI via parent and trigger DB
+                    onMoveRecording(id, folderId === 'root' ? '' : folderId);
+                }}
                 folders={folders}
+                selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
+                onSelectFolder={onSelectFolder}
                 onLogoClick={() => {
                     setView('recordings');
                     setSelectedId(null);
                     setIsEditorOpen(false);
                     setIsRecording(false);
                     setSearchQuery('');
+                    if (onSelectFolder) onSelectFolder('ALL');
                 }}
                 currentView={view}
                 onViewChange={setView}
+            />
+
+            {/* Chat Modal (Global/Folder/Single) */}
+            <ChatModal
+                isOpen={chatState.isOpen}
+                onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
+                recordings={chatState.recordings}
+                title={chatState.title}
             />
 
             {/* Main Content */}
@@ -609,6 +664,19 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
                     {/* Right side: Plan badge + User Menu */}
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => {
+                                const title = selectedFolderId === 'ALL' || !selectedFolderId
+                                    ? (t('allRecordings') || 'All Recordings')
+                                    : folders.find(f => f.id === selectedFolderId)?.name || 'Folder';
+                                handleAskDiktalo(displayedRecordings, `Chat: ${title}`);
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
+                        >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">{t('askDiktalo') || 'Ask AI'}</span>
+                        </button>
+
                         <button
                             onClick={() => setView('subscription')}
                             className="px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md border border-blue-100 dark:border-blue-500/20 hover:opacity-80 transition-opacity"
@@ -663,6 +731,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onUpdateSummary={handleUpdateSummary}
                             onUpdateSegment={handleUpdateSegment}
                             onUpdateRecording={onUpdateRecording}
+                            onAskDiktalo={() => handleAskDiktalo([activeRecording], activeRecording.title)}
                         />
                     ) : (
                         <EmptyStateClean
