@@ -581,7 +581,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Bar */}
-                <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
                     {/* Left side: Logo (mobile) or Back Button (subscription view) */}
                     <div className="flex items-center gap-3">
                         {/* Mobile Logo */}
