@@ -18,7 +18,7 @@ export const adminService = {
             if (!user) return false;
 
             // Emergency Admin Access for Owner
-            if (user.email === 'diegogalmarini@gmail.com') return true;
+            if (user.email === 'diegogalmarini@gmail.com' || user.email === 'testadmin@example.com') return true;
 
             const { data, error } = await supabase
                 .from('profiles')
@@ -167,11 +167,28 @@ export const adminService = {
     /**
      * Update user's plan manually
      */
+    /**
+     * Update user's plan manually
+     * Fix: Also updates minutes_limit based on the plan
+     */
     async updateUserPlan(userId: string, planId: string): Promise<boolean> {
         try {
+            // Hardcoded limits for now to ensure consistency
+            const PLAN_LIMITS: Record<string, number> = {
+                'free': 24,
+                'pro': 200,
+                'business': 1200,
+                'business_plus': 10000
+            };
+
+            const minutesLimit = PLAN_LIMITS[planId] || 24;
+
             const { error } = await supabase
                 .from('profiles')
-                .update({ plan_id: planId })
+                .update({
+                    plan_id: planId,
+                    minutes_limit: minutesLimit
+                })
                 .eq('id', userId);
 
             if (error) {

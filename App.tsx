@@ -604,6 +604,40 @@ const AppContent: React.FC = () => {
         );
     }
 
+    // ========== ADMIN ROUTES (Top Level) ==========
+    const isAdminRoute =
+        currentRoute === AppRoute.ADMIN_OVERVIEW ||
+        currentRoute === AppRoute.ADMIN_USERS ||
+        currentRoute === AppRoute.ADMIN_FINANCIALS ||
+        currentRoute === AppRoute.ADMIN_PLANS;
+
+    if (isAdminRoute) {
+        return (
+            <Suspense fallback={
+                <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-[#050505] transition-colors">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            }>
+                <AdminRoute onNavigate={navigate}>
+                    <AdminLayout
+                        currentRoute={currentRoute}
+                        onNavigate={navigate}
+                        user={user}
+                    >
+                        {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
+                        {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
+                        {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
+                        {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
+                    </AdminLayout>
+                </AdminRoute>
+            </Suspense>
+        );
+    }
+
     return (
         <>
             <CrispWidget />
@@ -728,36 +762,7 @@ const AppContent: React.FC = () => {
                         </div>
                     )}
 
-                    {/* ========== ADMIN ROUTES ========== */}
-                    {/* CRITICAL: Using Suspense for lazy-loaded admin components */}
-                    {(currentRoute === AppRoute.ADMIN_OVERVIEW ||
-                        currentRoute === AppRoute.ADMIN_USERS ||
-                        currentRoute === AppRoute.ADMIN_FINANCIALS ||
-                        currentRoute === AppRoute.ADMIN_PLANS) && (
-                            <Suspense fallback={
-                                <div className="flex items-center justify-center h-full bg-slate-900">
-                                    <div className="flex flex-col items-center gap-3">
-                                        <div className="animate-spin material-symbols-outlined text-4xl text-amber-400">
-                                            progress_activity
-                                        </div>
-                                        <p className="text-white">Loading Admin Dashboard...</p>
-                                    </div>
-                                </div>
-                            }>
-                                <AdminRoute onNavigate={navigate}>
-                                    <AdminLayout
-                                        currentRoute={currentRoute}
-                                        onNavigate={navigate}
-                                        user={user}
-                                    >
-                                        {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
-                                        {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
-                                        {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
-                                        {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
-                                    </AdminLayout>
-                                </AdminRoute>
-                            </Suspense>
-                        )}
+
                 </div>
             </motion.div>
 
