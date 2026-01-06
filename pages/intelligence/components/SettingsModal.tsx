@@ -310,8 +310,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     }
                                 }}
                                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors text-[13px] font-medium ${selectedSection === item.id && item.id !== 'help'
-                                    ? 'bg-[#f0f0f0] dark:bg-white/10 text-slate-900 dark:text-white'
-                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'
                                     }`}
                             >
                                 <item.icon size={18} strokeWidth={1.5} />
@@ -438,7 +438,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                                                     placeholder="+1 234 567 890"
                                                     disabled={user.phoneVerified}
-                                                    className={`bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm w-40 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700 ${user.phoneVerified ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                                    className={`bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm w-40 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 transition-all ${user.phoneVerified ? 'opacity-75 cursor-not-allowed' : ''}`}
                                                 />
                                                 {!user.phoneVerified && (
                                                     user.subscription?.planId === 'business_plus' ? (
@@ -573,14 +573,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
                                             <button
                                                 onClick={() => setTheme('light')}
-                                                className={`p-2 rounded-md transition-all ${theme === 'light' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                                className={`p-2 rounded-md transition-all ${theme === 'light' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                                 title="Light Mode"
                                             >
                                                 <Sun size={16} />
                                             </button>
                                             <button
                                                 onClick={() => setTheme('dark')}
-                                                className={`p-2 rounded-md transition-all ${theme === 'dark' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                                className={`p-2 rounded-md transition-all ${theme === 'dark' ? 'bg-slate-700 text-blue-400 shadow-sm ring-1 ring-white/10' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                                 title="Dark Mode"
                                             >
                                                 <Moon size={16} />
@@ -675,7 +675,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                             return next;
                                                         });
                                                     }}
-                                                    className={`w-10 h-5 rounded-full transition-colors relative ${notifications[item.id as keyof typeof notifications] ? 'bg-slate-900 dark:bg-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                                    className={`w-10 h-5 rounded-full transition-colors relative ${notifications[item.id as keyof typeof notifications] ? 'bg-blue-600 dark:bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`}
                                                 >
                                                     <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white dark:bg-slate-900 rounded-full transition-transform ${notifications[item.id as keyof typeof notifications] ? 'translate-x-5' : 'translate-x-0'}`} />
                                                 </button>
@@ -711,7 +711,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     return next;
                                                 });
                                             }}
-                                            className={`w-10 h-5 rounded-full transition-colors relative ${notifications.browserPush ? 'bg-slate-900 dark:bg-white' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                            className={`w-10 h-5 rounded-full transition-colors relative ${notifications.browserPush ? 'bg-blue-600 dark:bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`}
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white dark:bg-slate-900 rounded-full transition-transform ${notifications.browserPush ? 'translate-x-5' : 'translate-x-0'}`} />
                                         </button>
@@ -808,8 +808,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             }}
                                             disabled={isLoadingToken || !apiToken}
                                             className={`absolute top-2 right-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${copyStatus === 'copied'
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                    : 'bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90'
+                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                : 'bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90'
                                                 } disabled:opacity-50`}
                                         >
                                             {copyStatus === 'copied' ? t('copied') : t('copy')}
