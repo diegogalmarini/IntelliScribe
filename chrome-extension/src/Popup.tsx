@@ -18,6 +18,8 @@ const Popup: React.FC = () => {
     const [isConfigExpanded, setIsConfigExpanded] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [showStopConfirm, setShowStopConfirm] = useState(false);
+    const [meetingPlatform, setMeetingPlatform] = useState<'MEET' | 'TEAMS' | 'ZOOM' | null>(null);
+    const [showAppWarning, setShowAppWarning] = useState(false);
 
     const timerRef = useRef<number | null>(null);
 
@@ -36,6 +38,22 @@ const Popup: React.FC = () => {
             }
         });
 
+        // Smart Context Detection
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const tab = tabs[0];
+            if (tab && tab.url) {
+                if (tab.url.includes('meet.google.com')) setMeetingPlatform('MEET');
+                else if (tab.url.includes('teams.microsoft.com') || tab.url.includes('teams.live.com')) {
+                    setMeetingPlatform('TEAMS');
+                    setShowAppWarning(true);
+                }
+                else if (tab.url.includes('zoom.us')) {
+                    setMeetingPlatform('ZOOM');
+                    setShowAppWarning(true);
+                }
+            }
+        });
+
         chrome.storage.local.get(['authToken'], (result) => {
             if (result.authToken) {
                 setAuthToken(result.authToken);
@@ -43,6 +61,8 @@ const Popup: React.FC = () => {
             }
         });
     }, []);
+
+    // ... (Timer logic omitted for brevity, it's unchanged) ...
 
     // Timer logic
     useEffect(() => {
@@ -191,10 +211,17 @@ const Popup: React.FC = () => {
 
     const handleScreenshot = () => {
         console.log('[Popup] Screenshot requested');
-        // Placeholder for Day 3
-        chrome.tabs.captureVisibleTab(chrome.windows.WINDOW_ID_CURRENT, { format: 'png' }, (dataUrl) => {
-            console.log('Snapshot taken (length):', dataUrl?.length);
-            // TODO: Save or show preview
+        setStatus('processing');
+        chrome.runtime.sendMessage({ action: 'CAPTURE_SCREENSHOT' }, (response) => {
+            if (response?.success) {
+                console.log('Snapshot saved:', response.path);
+                setStatus('success');
+                setTimeout(() => setStatus('idle'), 1500);
+            } else {
+                console.error('Snapshot failed:', response?.error);
+                setError(response?.error || 'Error capturando pantalla');
+                setStatus('error');
+            }
         });
     };
 
@@ -210,9 +237,12 @@ const Popup: React.FC = () => {
                     Diktalo
                 </h1>
                 <div className={`status - badge ${isRecording ? 'status-recording' : ''} `}>
-                    {isRecording ? (isPaused ? 'PAUSADO' : 'GRABANDO') : 'LISTO'}
+                    {isRecording ?
+                        (isPaused ? 'PAUSADO' : (meetingPlatform ? `GRABANDO ${meetingPlatform}` : 'GRABANDO'))
+                        : 'LISTO'}
                 </div>
             </header>
+
 
             <div className="popup-body">
                 {/* Timer Display */}
@@ -259,9 +289,30 @@ const Popup: React.FC = () => {
                 <div className="controls-group">
                     {!isRecording ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+
+                            {/* Smart Assistance Warning */}
+                            {showAppWarning && (
+                                <div style={{
+                                    fontSize: '11px',
+                                    color: '#f59e0b',
+                                    background: '#fffbeb',
+                                    padding: '8px',
+                                    borderRadius: '6px',
+                                    textAlign: 'center',
+                                    border: '1px solid #fcd34d',
+                                    marginBottom: '8px',
+                                    maxWidth: '220px'
+                                }}>
+                                    💡 <b>¿Usando la App de Escritorio?</b><br />
+                                    El audio podría no capturarse. <br />
+                                    Usa la opción <b>'Importar Archivo'</b> 👇
+                                </div>
+                            )}
+
                             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                                 <button
                                     className="btn-mic-start"
+                                    title="Iniciar Grabación"
                                     onClick={handleStartRecording}
                                     disabled={status === 'processing'}
                                 >
