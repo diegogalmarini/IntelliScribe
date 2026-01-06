@@ -519,7 +519,7 @@ export const translations = {
     step2Desc: "Nuestra IA convierte voz a texto con etiquetas de orador en segundos.",
     step3Title: "3. Analiza",
     step3Desc: "Haz preguntas a Diktalo o usa plantillas como **Ventas BANT** o **Médico SOAP**.",
-    allRecordings: "Grabaciones Recientes",
+    allRecordings: "Todas las Grabaciones",
     manageRecordings: "Gestiona y analiza tus grabaciones.",
     searchPlaceholder: "Buscar transcripciones...",
     colConversation: "Conversación",
