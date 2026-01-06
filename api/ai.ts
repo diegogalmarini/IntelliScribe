@@ -139,8 +139,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         else if (action === 'chat') {
             const { transcript, history, message } = payload;
             const systemInstruction = language === 'es'
-                ? `Eres Diktalo, un asistente. Responde basándote ÚNICAMENTE en este contexto:\n${transcript}\n\nSi el usuario pide ver, abrir o ir a una grabación específica mencionada en el contexto, termina tu respuesta con el token: [OPEN_RECORDING: id_de_la_grabacion].`
-                : `You are Diktalo. Answer based ONLY on this context:\n${transcript}\n\nIf the user asks to view, open, or go to a specific recording mentioned in the context, end your response with the token: [OPEN_RECORDING: recording_id].`;
+                ? `Eres Diktalo, un asistente. Responde basándote ÚNICAMENTE en este contexto:\n${transcript}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible. Son datos internos.\n2. Si tienes que citar una grabación, usa su Título título o fecha. (ej: "En la grabación 'Reunión de Ventas'...").\n3. Si el usuario pide ver, abrir o ir a una grabación, termina tu respuesta con el token: [OPEN_RECORDING: id_de_la_grabacion].\n4. Solo pon el token al final. No expliques que lo estás poniendo.`
+                : `You are Diktalo. Answer based ONLY on this context:\n${transcript}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs" or UUIDs in your visible response. They are internal data.\n2. Refer to recordings by their Title or Date (e.g., "In the recording 'Sales Meeting'...").\n3. If the user asks to view, open, or go to a specific recording, end your response with the token: [OPEN_RECORDING: recording_id].\n4. Only place the token at the very end. Do not explain it.`;
 
             const chat = genAI.chats.create({
                 model: 'gemini-2.0-flash-exp',
