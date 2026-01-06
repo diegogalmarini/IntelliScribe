@@ -49,7 +49,7 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
                         onClick={() => onAction(action.type)}
                         className={`group flex flex-col items-center gap-4 p-6 rounded-2xl border transition-all duration-200
                             ${idx === 2 ? 'col-span-2' : 'col-span-1'}
-                            bg-white dark:bg-[#1e1e1e] 
+                            bg-white dark:bg-transparent 
                             border-blue-100 dark:border-blue-500/20
                             hover:border-blue-500 hover:bg-blue-50/50 
                             dark:hover:bg-blue-500/10 dark:hover:border-blue-400/50
@@ -57,7 +57,7 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
                             active:scale-[0.98]
                         `}
                     >
-                        <div className="w-14 h-14 rounded-full bg-blue-100/50 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500 group-hover:border-blue-600 transition-all duration-200">
+                        <div className="w-14 h-14 rounded-full bg-blue-100/50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500 group-hover:border-blue-600 transition-all duration-200">
                             <action.icon size={24} className="text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                         </div>
                         <span className="text-sm font-semibold text-gray-900 dark:text-blue-100 group-hover:text-blue-700 dark:group-hover:text-white transition-colors">
