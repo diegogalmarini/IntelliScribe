@@ -139,8 +139,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         else if (action === 'chat') {
             const { transcript, history, message } = payload;
             const systemInstruction = language === 'es'
-                ? `Eres Diktalo, un asistente. Responde basándote ÚNICAMENTE en este contexto:\n${transcript}`
-                : `You are Diktalo. Answer based ONLY on this context:\n${transcript}`;
+                ? `Eres Diktalo, un asistente. Responde basándote ÚNICAMENTE en este contexto:\n${transcript}\n\nSi el usuario pide ver, abrir o ir a una grabación específica mencionada en el contexto, termina tu respuesta con el token: [OPEN_RECORDING: id_de_la_grabacion].`
+                : `You are Diktalo. Answer based ONLY on this context:\n${transcript}\n\nIf the user asks to view, open, or go to a specific recording mentioned in the context, end your response with the token: [OPEN_RECORDING: recording_id].`;
 
             const chat = genAI.chats.create({
                 model: 'gemini-2.0-flash-exp',
