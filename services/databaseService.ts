@@ -113,7 +113,7 @@ export const databaseService = {
     async renameFolder(id: string, name: string): Promise<{ success: boolean; error?: any }> {
         const { error } = await supabase
             .from('folders')
-            .update({ name, updated_at: new Date().toISOString() })
+            .update({ name }) // Removed updated_at to fix schema error
             .eq('id', id);
 
         if (error) {
