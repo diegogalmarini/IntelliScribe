@@ -29,45 +29,45 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+            <div className="bg-[#0f1115] border border-[#1f1f1f] rounded-xl w-full max-w-[420px] shadow-2xl overflow-hidden font-sans">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-slate-700">
-                    <h2 className="text-xl font-bold text-white">Add Credits</h2>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-[#1f1f1f]">
+                    <h2 className="text-base font-semibold text-white">Add Credits</h2>
                     <button
                         onClick={onClose}
-                        className="p-1 hover:bg-slate-700 rounded-lg transition-colors"
+                        className="p-1 hover:bg-white/5 rounded transition-colors text-slate-400 hover:text-white"
                     >
-                        <span className="material-symbols-outlined text-slate-400">close</span>
+                        <span className="material-symbols-outlined text-[20px]">close</span>
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-6">
+                <div className="p-5 space-y-5">
                     {/* User Info */}
-                    <div className="flex items-center gap-3 p-4 bg-slate-700/50 rounded-lg">
+                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/5">
                         {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="" className="w-12 h-12 rounded-full" />
+                            <img src={user.avatarUrl} alt="" className="w-10 h-10 rounded-full" />
                         ) : (
-                            <div className="w-12 h-12 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
                                 {user.firstName?.[0] || user.email[0].toUpperCase()}
                             </div>
                         )}
-                        <div>
-                            <div className="font-medium text-white">{user.firstName} {user.lastName}</div>
-                            <div className="text-sm text-slate-400">{user.email}</div>
+                        <div className="overflow-hidden">
+                            <div className="font-medium text-white text-sm truncate">{user.firstName} {user.lastName}</div>
+                            <div className="text-xs text-slate-400 truncate">{user.email}</div>
                         </div>
                     </div>
 
                     {/* Current Usage */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <div className="text-xs text-slate-400 mb-1">Used</div>
-                            <div className="text-lg font-bold text-white">{user.minutesUsed} min</div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                            <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Used</div>
+                            <div className="text-base font-medium text-white">{user.minutesUsed} min</div>
                         </div>
-                        <div>
-                            <div className="text-xs text-slate-400 mb-1">Limit</div>
-                            <div className="text-lg font-bold text-white">
+                        <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                            <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Limit</div>
+                            <div className="text-base font-medium text-white">
                                 {user.minutesLimit === -1 ? '∞' : `${user.minutesLimit} min`}
                             </div>
                         </div>
@@ -75,37 +75,37 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
 
                     {/* Credit Type */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                        <label className="block text-xs font-medium text-slate-300 mb-2">
                             Credit Type
                         </label>
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => setType('limit')}
-                                className={`p-3 rounded-lg border transition-colors ${type === 'limit'
-                                        ? 'bg-blue-600 border-blue-500 text-white'
-                                        : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
+                                className={`p-2.5 rounded-lg border transition-all text-left group ${type === 'limit'
+                                    ? 'bg-blue-500/10 border-blue-500/50 text-blue-400'
+                                    : 'bg-transparent border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-white/5'
                                     }`}
                             >
-                                <div className="font-medium">Increase Limit</div>
-                                <div className="text-xs mt-1 opacity-80">Permanent credit</div>
+                                <div className="font-medium text-sm">Increase Limit</div>
+                                <div className={`text-[10px] mt-0.5 ${type === 'limit' ? 'text-blue-400/70' : 'text-slate-500'}`}>Permanent</div>
                             </button>
 
                             <button
                                 onClick={() => setType('used')}
-                                className={`p-3 rounded-lg border transition-colors ${type === 'used'
-                                        ? 'bg-green-600 border-green-500 text-white'
-                                        : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
+                                className={`p-2.5 rounded-lg border transition-all text-left ${type === 'used'
+                                    ? 'bg-green-500/10 border-green-500/50 text-green-400'
+                                    : 'bg-transparent border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-white/5'
                                     }`}
                             >
-                                <div className="font-medium">Refund Usage</div>
-                                <div className="text-xs mt-1 opacity-80">One-time refund</div>
+                                <div className="font-medium text-sm">Refund Usage</div>
+                                <div className={`text-[10px] mt-0.5 ${type === 'used' ? 'text-green-400/70' : 'text-slate-500'}`}>One-time</div>
                             </button>
                         </div>
                     </div>
 
                     {/* Minutes Input */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                        <label className="block text-xs font-medium text-slate-300 mb-2">
                             Minutes to Add
                         </label>
                         <input
@@ -114,63 +114,50 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
                             onChange={(e) => setMinutes(parseInt(e.target.value) || 0)}
                             min="1"
                             step="15"
-                            className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-amber-500"
+                            className="w-full px-3 py-2 bg-[#0a0c10] border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all placeholder-slate-600"
                         />
                         <div className="flex gap-2 mt-2">
-                            <button
-                                onClick={() => setMinutes(30)}
-                                className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300"
-                            >
-                                30 min
-                            </button>
-                            <button
-                                onClick={() => setMinutes(60)}
-                                className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300"
-                            >
-                                1 hour
-                            </button>
-                            <button
-                                onClick={() => setMinutes(120)}
-                                className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300"
-                            >
-                                2 hours
-                            </button>
+                            {[30, 60, 120].map(val => (
+                                <button
+                                    key={val}
+                                    onClick={() => setMinutes(val)}
+                                    className="px-2.5 py-1 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded text-[11px] text-slate-300 transition-colors"
+                                >
+                                    {val < 60 ? `${val} min` : `${val / 60} hour${val > 60 ? 's' : ''}`}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
                     {/* Preview */}
-                    <div className="p-4 bg-slate-700/50 rounded-lg">
-                        <div className="text-sm text-slate-400 mb-2">Preview:</div>
+                    <div className="px-3 py-2 bg-blue-500/5 border border-blue-500/10 rounded-lg flex items-center justify-between">
+                        <span className="text-xs text-blue-200/50">Preview Result:</span>
                         {type === 'limit' ? (
-                            <div className="text-white">
-                                New Limit: <span className="font-bold text-blue-400">
-                                    {user.minutesLimit === -1 ? '∞' : user.minutesLimit + minutes} min
-                                </span>
-                            </div>
+                            <span className="text-sm font-bold text-blue-400">
+                                {user.minutesLimit === -1 ? '∞' : user.minutesLimit + minutes} min <span className="text-[10px] font-normal opacity-70">(Limit)</span>
+                            </span>
                         ) : (
-                            <div className="text-white">
-                                New Usage: <span className="font-bold text-green-400">
-                                    {Math.max(0, user.minutesUsed - minutes)} min
-                                </span>
-                            </div>
+                            <span className="text-sm font-bold text-green-400">
+                                {Math.max(0, user.minutesUsed - minutes)} min <span className="text-[10px] font-normal opacity-70">(Used)</span>
+                            </span>
                         )}
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-700">
+                <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-[#1f1f1f] bg-black/20">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-white"
+                        className="px-3 py-1.5 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={submitting}
-                        className="px-4 py-2 bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors text-slate-900 font-medium disabled:opacity-50"
+                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
-                        {submitting ? 'Adding...' : 'Add Credits'}
+                        {submitting ? 'Adding...' : 'Confirm'}
                     </button>
                 </div>
             </div>
