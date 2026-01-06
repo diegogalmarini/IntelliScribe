@@ -679,7 +679,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             <ChatModal
                 isOpen={chatState.isOpen}
                 onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
-                recordings={chatState.recordings}
+                // Filter chat recordings to ensure they still exist in the main list
+                recordings={chatState.recordings.filter(r =>
+                    // Check if it exists in the main recordings list (prop) or search results
+                    recordings.some(valid => valid.id === r.id) ||
+                    searchResults.some(valid => valid.id === r.id)
+                )}
                 title={chatState.title}
                 onOpenRecording={(id) => {
                     setChatState(prev => ({ ...prev, isOpen: false }));
