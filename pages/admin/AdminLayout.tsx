@@ -4,13 +4,13 @@ import {
     LayoutDashboard,
     Users,
     CreditCard,
-    Tag, // Using Tag or DollarSign for Plans
+    Tag,
     LogOut,
     Menu,
     X,
-    Shield
+    Shield,
+    ChevronLeft
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
     currentRoute: AppRoute;
@@ -20,8 +20,9 @@ interface Props {
 }
 
 /**
- * AdminLayout - Minimalist Light Theme
- * Matches the main application design language (SettingsModal, IntelligenceDashboard).
+ * AdminLayout - Minimalist Light Theme Sub-Navigation
+ * Designed to sit alongside the main app sidebar.
+ * Removed redundant Logo/Header and Profile Footer.
  */
 export const AdminLayout: React.FC<Props> = ({
     currentRoute,
@@ -29,6 +30,7 @@ export const AdminLayout: React.FC<Props> = ({
     user,
     children
 }) => {
+    // Default open on desktop, closed on mobile
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
 
     const navItems = [
@@ -56,9 +58,9 @@ export const AdminLayout: React.FC<Props> = ({
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-[#050505] text-slate-900 dark:text-white overflow-hidden font-sans">
-            {/* Mobile Header */}
+            {/* Mobile Header (Only visible on small screens) */}
             <div className="md:hidden fixed top-0 w-full bg-white dark:bg-[#0A0D13] border-b border-slate-200 dark:border-[#1f1f1f] z-20 px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-semibold">
+                <div className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
                     <Shield className="w-5 h-5 text-blue-600" />
                     <span>Admin</span>
                 </div>
@@ -70,28 +72,16 @@ export const AdminLayout: React.FC<Props> = ({
                 </button>
             </div>
 
-            {/* Admin Sidebar */}
+            {/* Admin Sub-Sidebar / Navigation Panel */}
             <aside className={`
-                fixed md:static inset-y-0 left-0 z-10 w-64 bg-white dark:bg-[#0A0D13] border-r border-slate-200 dark:border-[#1f1f1f] flex flex-col transition-transform duration-200
+                fixed md:static inset-y-0 left-0 z-10 w-64 bg-white/50 dark:bg-[#0A0D13]/50 border-r border-slate-200 dark:border-[#1f1f1f] flex flex-col transition-transform duration-200 backdrop-blur-xl
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
             `}>
-                {/* Header */}
-                <div className="p-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                            <Shield size={18} fill="currentColor" />
-                        </div>
-                        <div>
-                            <h1 className="text-base font-bold text-slate-900 dark:text-white leading-none">
-                                Diktalo
-                            </h1>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Administration</span>
-                        </div>
+                {/* Navigation Links */}
+                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">
+                        Administration
                     </div>
-                </div>
-
-                {/* Navigation */}
-                <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
                     {navItems.map((item) => {
                         const isActive = currentRoute === item.route;
                         return (
@@ -101,9 +91,9 @@ export const AdminLayout: React.FC<Props> = ({
                                     onNavigate(item.route);
                                     if (window.innerWidth < 768) setIsSidebarOpen(false);
                                 }}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                                        ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'
+                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive
+                                    ? 'bg-white dark:bg-white/10 text-blue-600 dark:text-blue-400 shadow-sm ring-1 ring-slate-200 dark:ring-white/10'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'
                                     }`}
                             >
                                 <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
@@ -113,41 +103,21 @@ export const AdminLayout: React.FC<Props> = ({
                     })}
                 </nav>
 
-                {/* Footer Controls */}
+                {/* Exit Button */}
                 <div className="p-4 border-t border-slate-100 dark:border-[#1f1f1f]">
-                    <div className="flex items-center gap-3 mb-4 px-2">
-                        {user.avatarUrl ? (
-                            <img
-                                src={user.avatarUrl}
-                                alt={user.firstName}
-                                className="w-8 h-8 rounded-full object-cover ring-2 ring-white dark:ring-[#1f1f1f]"
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                {user.firstName?.[0] || 'A'}
-                            </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                                {user.firstName}
-                            </div>
-                            <div className="text-xs text-slate-500 truncate">Administrator</div>
-                        </div>
-                    </div>
-
                     <button
                         onClick={() => onNavigate(AppRoute.DASHBOARD)}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg text-sm font-medium transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-sm font-medium transition-colors"
                     >
-                        <LogOut size={16} />
-                        <span>Exit Admin</span>
+                        <ChevronLeft size={16} />
+                        <span>Back to Dashboard</span>
                     </button>
                 </div>
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-auto pt-16 md:pt-0">
-                <div className="max-w-[1600px] mx-auto p-4 md:p-8">
+            <main className="flex-1 overflow-auto pt-16 md:pt-0 bg-slate-50 dark:bg-[#050505]">
+                <div className="max-w-[1200px] mx-auto p-6 md:p-10">
                     {children}
                 </div>
             </main>
