@@ -196,13 +196,18 @@ export const adminService = {
                 console.warn('[adminService] Could not fetch plan config, using defaults:', configError);
             }
 
-            // 2. Update user profile with new plan AND correct limit
+            // 2. Update user profile with new plan AND all correct limits (IA, Storage, Calls)
+            // Using values from the plan configuration or defaults matching the screenshots
+            const updates = {
+                plan_id: planId,
+                minutes_limit: planConfig?.limits?.transcription_minutes ?? DEFAULT_LIMITS[planId] ?? 24,
+                storage_limit: planConfig?.limits?.storage_gb ?? (planId === 'business_plus' ? 50 : planId === 'business' ? 20 : planId === 'pro' ? 5 : 0),
+                call_limit: planConfig?.limits?.call_minutes ?? (planId === 'business_plus' ? 300 : 0)
+            };
+
             const { error } = await supabase
                 .from('profiles')
-                .update({
-                    plan_id: planId,
-                    minutes_limit: minutesLimit
-                })
+                .update(updates)
                 .eq('id', userId);
 
             if (error) {
