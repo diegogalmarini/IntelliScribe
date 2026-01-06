@@ -184,8 +184,8 @@ export const adminService = {
             const DEFAULT_LIMITS: Record<string, number> = {
                 'free': 24,
                 'pro': 200,
-                'business': 1200,
-                'business_plus': 3000 // Conservative estimate if DB fails
+                'business': 600,
+                'business_plus': 1200 // Default to 1200 (20 hours) matching owner profile
             };
 
             let minutesLimit = DEFAULT_LIMITS[planId] || 24;
