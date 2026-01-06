@@ -372,18 +372,20 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             >
                                 📂 Sin Carpeta (Raíz)
                             </button>
-                            {folders.length === 0 ? (
+                            {folders.filter(f => f.type === 'user').length === 0 ? (
                                 <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5] text-center pt-2">No tienes carpetas creadas</p>
                             ) : (
-                                folders.map(folder => (
-                                    <button
-                                        key={folder.id}
-                                        onClick={() => handleMoveToFolder(moveModalId, folder.id)}
-                                        className="w-full text-left px-4 py-3 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
-                                    >
-                                        📁 {folder.name}
-                                    </button>
-                                ))
+                                folders
+                                    .filter(f => f.type === 'user')
+                                    .map(folder => (
+                                        <button
+                                            key={folder.id}
+                                            onClick={() => handleMoveToFolder(moveModalId, folder.id)}
+                                            className="w-full text-left px-4 py-3 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
+                                        >
+                                            📁 {folder.name}
+                                        </button>
+                                    ))
                             )}
                         </div>
                         <button
