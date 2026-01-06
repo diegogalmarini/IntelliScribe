@@ -258,8 +258,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     // Show RecordingDetailView (default) instead of InlineEditor
                     setIsEditorOpen(false);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error saving recording:", error);
+                alert(`Error al guardar la grabación: ${error.message || 'Error desconocido'}`);
                 setIsRecording(false);
             }
         };
