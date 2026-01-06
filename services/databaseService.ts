@@ -316,10 +316,18 @@ export const databaseService = {
             .eq('id', id)
             .single();
 
-        if (error || !r) {
+        if (error) {
+            // PGRST116: JSON object requested, multiple (or no) rows returned
+            // 406 Not Acceptable: No rows found for .single()
+            if (error.code === 'PGRST116' || error.message?.includes('406')) {
+                console.warn('[databaseService] Recording not found (406/PGRST116)', id);
+                return null;
+            }
             logger.error('Error fetching recording details', { error, id });
             return null;
         }
+
+        if (!r) return null;
 
         return {
             id: r.id,
