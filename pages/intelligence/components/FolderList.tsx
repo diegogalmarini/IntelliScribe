@@ -68,11 +68,17 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
 
         // 2. Background DB Update
         try {
-            const success = await databaseService.renameFolder(folderIdToRename, newName);
-            if (!success) throw new Error('Failed to rename in DB');
-        } catch (error) {
-            console.error('Rename failed, reverting:', error);
-            alert('Error al renombrar la carpeta. Inténtalo de nuevo.');
+            const { success, error } = await databaseService.renameFolder(folderIdToRename, newName);
+            if (!success) {
+                // Log and Alert detailed error
+                console.error('Rename failed DB response:', error);
+                const errorMsg = error?.message || JSON.stringify(error) || 'Unknown DB Error';
+                alert(`Error al renombrar: ${errorMsg}`);
+                setFolders(originalFolders); // Revert on failure
+            }
+        } catch (error: any) {
+            console.error('Rename failed exception:', error);
+            alert(`Error inesperado: ${error.message || error}`);
             setFolders(originalFolders); // Revert on failure
         }
     };

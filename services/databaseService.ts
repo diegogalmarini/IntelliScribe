@@ -110,7 +110,7 @@ export const databaseService = {
         };
     },
 
-    async renameFolder(id: string, name: string): Promise<boolean> {
+    async renameFolder(id: string, name: string): Promise<{ success: boolean; error?: any }> {
         const { error } = await supabase
             .from('folders')
             .update({ name, updated_at: new Date().toISOString() })
@@ -118,9 +118,9 @@ export const databaseService = {
 
         if (error) {
             console.error('Error renaming folder:', error);
-            return false;
+            return { success: false, error };
         }
-        return true;
+        return { success: true };
     },
 
     async deleteFolder(id: string): Promise<boolean> {
