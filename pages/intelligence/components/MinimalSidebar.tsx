@@ -172,6 +172,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 <FolderList
                     onSelectFolder={onSelectFolder}
                     selectedFolderId={selectedFolderId || null}
+                    userId={user?.id}
                 />
             )}
 

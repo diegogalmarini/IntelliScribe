@@ -1,26 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
 import { Folder, Plus, MoreVertical, Edit2, Trash2, FolderOpen } from 'lucide-react';
-import { folderService } from '../../../services/folderService';
+import { databaseService } from '../../../services/databaseService';
 import { Folder as FolderType } from '../../../types';
 
 interface FolderListProps {
     onSelectFolder: (folderId: string | null) => void;
     selectedFolderId: string | null;
+    userId?: string;
 }
 
-export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selectedFolderId }) => {
+export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selectedFolderId, userId }) => {
     const [folders, setFolders] = useState<FolderType[]>([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        loadFolders();
-    }, []);
+        if (userId) {
+            loadFolders();
+        } else {
+            setLoading(false);
+        }
+    }, [userId]);
 
     const loadFolders = async () => {
-        const data = await folderService.getFolders();
+        if (!userId) return;
+        const data = await databaseService.getFolders(userId);
         setFolders(data);
         setLoading(false);
     };
@@ -29,7 +35,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
         e.preventDefault();
         if (!newFolderName.trim()) return;
 
-        const newFolder = await folderService.createFolder(newFolderName);
+        const newFolder = await databaseService.createFolder(newFolderName);
         if (newFolder) {
             setFolders([newFolder, ...folders]);
             setNewFolderName('');
@@ -40,7 +46,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
     const handleDeleteFolder = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (confirm('¿Estás seguro de eliminar esta carpeta? Los audios no se borrarán, solo se desvincularán.')) {
-            const success = await folderService.deleteFolder(id);
+            const success = await databaseService.deleteFolder(id);
             if (success) {
                 setFolders(folders.filter(f => f.id !== id));
                 if (selectedFolderId === id) onSelectFolder(null);
@@ -78,8 +84,8 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                 <button
                     onClick={() => onSelectFolder(null)}
                     className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors ${selectedFolderId === null
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
                         }`}
                 >
                     <FolderOpen className="w-4 h-4" />
@@ -90,8 +96,8 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                     <div
                         key={folder.id}
                         className={`group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${selectedFolderId === folder.id
-                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
                             }`}
                         onClick={() => onSelectFolder(folder.id)}
                     >
