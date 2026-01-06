@@ -667,15 +667,20 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => {
+                                const folderName = folders.find(f => f.id === selectedFolderId)?.name;
                                 const title = selectedFolderId === 'ALL' || !selectedFolderId
-                                    ? (t('allRecordings') || 'All Recordings')
-                                    : folders.find(f => f.id === selectedFolderId)?.name || 'Folder';
-                                handleAskDiktalo(displayedRecordings, `Chat: ${title}`);
+                                    ? (t('allRecordings') || 'Todas las grabaciones')
+                                    : `Carpeta: ${folderName || 'Carpeta'}`;
+                                handleAskDiktalo(displayedRecordings, title);
                             }}
                             className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
                         >
                             <MessageSquare className="w-3.5 h-3.5" />
-                            <span className="hidden md:inline">{t('askDiktalo') || 'Ask AI'}</span>
+                            <span className="hidden md:inline">
+                                {selectedFolderId && selectedFolderId !== 'ALL' && selectedFolderId !== 'FAVORITES'
+                                    ? `Chat con ${folders.find(f => f.id === selectedFolderId)?.name || 'Carpeta'}`
+                                    : (t('askDiktalo') || 'Preguntar a Diktalo')}
+                            </span>
                         </button>
 
                         <button
