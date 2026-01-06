@@ -41,7 +41,18 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
     }, [messages]);
 
     useEffect(() => {
+        if (isOpen) {
+            // Reset state when opening or when title/recordings change
+            setMessages([]);
+            setMessage('');
+            setLoading(false);
+            setLocalRecordings(recordings);
+        }
+    }, [isOpen, recordings, title]);
+
+    useEffect(() => {
         setLocalRecordings(recordings);
+
         const fetchMissingSegments = async () => {
             // Check if any recording is missing segments (and is not just empty)
             const missingIds = recordings.filter(r => !r.segments || r.segments.length === 0).map(r => r.id);
