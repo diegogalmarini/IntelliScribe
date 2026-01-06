@@ -4,7 +4,7 @@ import {
     Database, HelpCircle, LogOut, ChevronRight, ExternalLink,
     Camera, Mail, Phone, Globe, Lock, Key, Smartphone,
     Monitor, Download, Trash2, Save, Mic, Cloud, Info, Check,
-    Moon, Sun, Laptop, ChevronDown, Zap, Code // Added Code icon
+    Moon, Sun, Laptop, ChevronDown, Zap, Code, ShieldCheck // Added Code icon, ShieldCheck
 } from 'lucide-react';
 import { UserProfile, AppRoute } from '../../../types';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -23,7 +23,7 @@ interface SettingsModalProps {
     onLogout: () => void;
 }
 
-type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'developer' | 'help' | 'about';
+type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'developer' | 'help' | 'about' | 'admin';
 
 const TIMEZONES = [
     { value: 'America/New_York', label: '(GMT-5) Eastern Time (US & Canada)' },
@@ -267,6 +267,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         { id: 'about' as Section, icon: Info, label: 'About Diktalo' },
     ];
 
+    // Admin Link for Owner in Settings Sidebar
+    if (user.email === 'diegogalmarini@gmail.com' || user.role === 'admin' || user.role === 'super_admin') {
+        menuItems.unshift({
+            id: 'admin' as Section,
+            icon: ShieldCheck,
+            label: 'Admin Panel'
+        });
+    }
+
     const handleHelpClick = () => {
         window.open('https://support.diktalo.com', '_blank');
     };
@@ -305,6 +314,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 onClick={() => {
                                     if (item.id === 'help') {
                                         handleHelpClick();
+                                    } else if (item.id === 'admin') {
+                                        onClose();
+                                        onNavigate(AppRoute.ADMIN_OVERVIEW);
                                     } else {
                                         setSelectedSection(item.id);
                                     }
