@@ -611,7 +611,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setView('subscription')}
-                            className="px-2.5 py-1 bg-[#f0f0f0] dark:bg-[#2f2f2f] text-[#444746] dark:text-[#e3e3e3] text-xs font-medium rounded-md hover:opacity-80 transition-opacity"
+                            className="px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md border border-blue-100 dark:border-blue-500/20 hover:opacity-80 transition-opacity"
                         >
                             {formatPlanName(user?.subscription?.planId || 'free')}
                         </button>
