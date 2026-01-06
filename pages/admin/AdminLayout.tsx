@@ -1,5 +1,16 @@
 import React from 'react';
 import { UserProfile, AppRoute } from '../../types';
+import {
+    LayoutDashboard,
+    Users,
+    CreditCard,
+    Tag, // Using Tag or DollarSign for Plans
+    LogOut,
+    Menu,
+    X,
+    Shield
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
     currentRoute: AppRoute;
@@ -9,8 +20,8 @@ interface Props {
 }
 
 /**
- * AdminLayout - Dark-themed command center layout
- * Features: Admin sidebar with navigation, distinct branding, exit button
+ * AdminLayout - Minimalist Light Theme
+ * Matches the main application design language (SettingsModal, IntelligenceDashboard).
  */
 export const AdminLayout: React.FC<Props> = ({
     currentRoute,
@@ -18,118 +29,127 @@ export const AdminLayout: React.FC<Props> = ({
     user,
     children
 }) => {
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
     const navItems = [
         {
             route: AppRoute.ADMIN_OVERVIEW,
-            icon: 'dashboard',
+            icon: LayoutDashboard,
             label: 'Overview',
-            description: 'Business KPIs & Stats'
         },
         {
             route: AppRoute.ADMIN_USERS,
-            icon: 'group',
-            label: 'Users (CRM)',
-            description: 'Manage customers & plans'
+            icon: Users,
+            label: 'Users',
         },
         {
             route: AppRoute.ADMIN_FINANCIALS,
-            icon: 'attach_money',
+            icon: CreditCard,
             label: 'Financials',
-            description: 'Calls & revenue tracking'
         },
-        // --- NUEVA PESTAÑA AÑADIDA AQUÍ ---
         {
             route: AppRoute.ADMIN_PLANS,
-            icon: 'price_change', // Icono de Google Fonts
-            label: 'Planes & Precios',
-            description: 'Editor de productos y límites'
+            icon: Tag,
+            label: 'Plans & Pricing',
         }
     ];
 
     return (
-        <div className="flex h-screen bg-background-dark text-white overflow-hidden">
+        <div className="flex h-screen bg-slate-50 dark:bg-[#050505] text-slate-900 dark:text-white overflow-hidden font-sans">
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 w-full bg-white dark:bg-[#0A0D13] border-b border-slate-200 dark:border-[#1f1f1f] z-20 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 font-semibold">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                    <span>Admin</span>
+                </div>
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg"
+                >
+                    {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
+            </div>
+
             {/* Admin Sidebar */}
-            <aside className="w-64 bg-surface-dark border-r border-border-dark flex flex-col">
+            <aside className={`
+                fixed md:static inset-y-0 left-0 z-10 w-64 bg-white dark:bg-[#0A0D13] border-r border-slate-200 dark:border-[#1f1f1f] flex flex-col transition-transform duration-200
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            `}>
                 {/* Header */}
-                <div className="p-6 border-b border-border-dark">
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className="material-symbols-outlined text-3xl text-amber-400">
-                            bolt
-                        </span>
+                <div className="p-6">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                            <Shield size={18} fill="currentColor" />
+                        </div>
                         <div>
-                            <h1 className="text-xl font-bold text-amber-400 tracking-wide">
-                                COMMAND CENTER
+                            <h1 className="text-base font-bold text-slate-900 dark:text-white leading-none">
+                                Diktalo
                             </h1>
-                            <p className="text-xs text-slate-400">Admin Dashboard</p>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Administration</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
                     {navItems.map((item) => {
                         const isActive = currentRoute === item.route;
                         return (
                             <button
                                 key={item.route}
-                                onClick={() => onNavigate(item.route)}
-                                className={`w-full flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
-                                    ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/30'
-                                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                onClick={() => {
+                                    onNavigate(item.route);
+                                    if (window.innerWidth < 768) setIsSidebarOpen(false);
+                                }}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
+                                        ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'
+                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'
                                     }`}
                             >
-                                <span className="material-symbols-outlined text-2xl">
-                                    {item.icon}
-                                </span>
-                                <div className="flex-1 text-left">
-                                    <div className={`font-semibold ${isActive ? 'text-slate-900' : 'text-white'}`}>
-                                        {item.label}
-                                    </div>
-                                    <div className={`text-xs ${isActive ? 'text-slate-700' : 'text-slate-400'}`}>
-                                        {item.description}
-                                    </div>
-                                </div>
+                                <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
+                                <span>{item.label}</span>
                             </button>
                         );
                     })}
                 </nav>
 
-                {/* Admin User Info */}
-                <div className="p-4 border-t border-border-dark">
-                    <div className="flex items-center gap-3 mb-3 px-2">
+                {/* Footer Controls */}
+                <div className="p-4 border-t border-slate-100 dark:border-[#1f1f1f]">
+                    <div className="flex items-center gap-3 mb-4 px-2">
                         {user.avatarUrl ? (
                             <img
                                 src={user.avatarUrl}
                                 alt={user.firstName}
-                                className="w-8 h-8 rounded-full"
+                                className="w-8 h-8 rounded-full object-cover ring-2 ring-white dark:ring-[#1f1f1f]"
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-slate-900 font-bold">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-xs">
                                 {user.firstName?.[0] || 'A'}
                             </div>
                         )}
                         <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-white truncate">
-                                {user.firstName} {user.lastName}
+                            <div className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                                {user.firstName}
                             </div>
-                            <div className="text-xs text-amber-400">Administrator</div>
+                            <div className="text-xs text-slate-500 truncate">Administrator</div>
                         </div>
                     </div>
 
-                    {/* Exit Admin Button */}
                     <button
                         onClick={() => onNavigate(AppRoute.DASHBOARD)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm font-medium"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg text-sm font-medium transition-colors"
                     >
-                        <span className="material-symbols-outlined text-lg">exit_to_app</span>
+                        <LogOut size={16} />
                         <span>Exit Admin</span>
                     </button>
                 </div>
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-auto bg-background-dark">
-                {children}
+            <main className="flex-1 overflow-auto pt-16 md:pt-0">
+                <div className="max-w-[1600px] mx-auto p-4 md:p-8">
+                    {children}
+                </div>
             </main>
         </div>
     );
