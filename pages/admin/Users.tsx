@@ -18,7 +18,6 @@ export const Users: React.FC = () => {
     const [showRecordingsModal, setShowRecordingsModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState<{ type: 'ban' | 'plan', data?: any } | null>(null);
-    const [confirmAction, setConfirmAction] = useState<{ type: 'ban' | 'plan', data?: any } | null>(null);
     const [filterPlan, setFilterPlan] = useState<string>('all');
     const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
@@ -50,325 +49,316 @@ export const Users: React.FC = () => {
         const success = await adminService.updateUserPlan(selectedUser.id, confirmAction.data);
         if (success) {
             loadUsers();
-            if (success) {
-                loadUsers();
-                showToast('Plan updated successfully', 'success');
-            } else {
-                showToast('Failed to update plan', 'error');
-            }
+            showToast('Plan updated successfully', 'success');
+        } else {
+            showToast('Failed to update plan', 'error');
+        }
 
-            setShowConfirmModal(false);
-            setConfirmAction(null);
-            setSelectedUser(null);
+        setShowConfirmModal(false);
+        setConfirmAction(null);
+        setSelectedUser(null);
+    };
+
+    const handleBanUser = (user: AdminUser) => {
+        setSelectedUser(user);
+        setConfirmAction({ type: 'ban' });
+        setShowConfirmModal(true);
+    };
+
+    const executeBanUser = async () => {
+        if (!selectedUser) return;
+
+        const action = selectedUser.status === 'banned' ? 'unban' : 'ban';
+        const success = await adminService.toggleBanUser(selectedUser.id, selectedUser.status !== 'banned');
+
+        if (success) {
+            loadUsers();
+            showToast(`User ${action}ned successfully`, 'success');
+        } else {
+            showToast(`Failed to ${action} user`, 'error');
+        }
+
+        setShowConfirmModal(false);
+        setConfirmAction(null);
+        setSelectedUser(null);
+    };
+
+    const getPlanColor = (plan: string) => {
+        const colors: Record<string, string> = {
+            'free': 'bg-slate-600 text-slate-200',
+            'pro': 'bg-blue-600 text-white',
+            'business': 'bg-purple-600 text-white',
+            'business_plus': 'bg-amber-600 text-white'
         };
+        return colors[plan] || 'bg-slate-600';
+    };
 
-        const handleBanUser = (user: AdminUser) => {
-            setSelectedUser(user);
-            setConfirmAction({ type: 'ban' });
-            setShowConfirmModal(true);
+    const getStatusColor = (status: string) => {
+        const colors: Record<string, string> = {
+            'active': 'text-green-400',
+            'past_due': 'text-orange-400',
+            'canceled': 'text-slate-400',
+            'banned': 'text-red-400'
         };
+        return colors[status] || 'text-slate-400';
+    };
 
-        const executeBanUser = async () => {
-            if (!selectedUser) return;
+    const filteredUsers = filterPlan === 'all'
+        ? users
+        : users.filter(u => u.planId === filterPlan);
 
-            const action = selectedUser.status === 'banned' ? 'unban' : 'ban';
-            const success = await adminService.toggleBanUser(selectedUser.id, selectedUser.status !== 'banned');
-
-            if (success) {
-                loadUsers();
-                if (success) {
-                    loadUsers();
-                    showToast(`User ${action}ned successfully`, 'success');
-                } else {
-                    showToast(`Failed to ${action} user`, 'error');
-                }
-
-                setShowConfirmModal(false);
-                setConfirmAction(null);
-                setSelectedUser(null);
-            };
-
-            const getPlanColor = (plan: string) => {
-                const colors: Record<string, string> = {
-                    'free': 'bg-slate-600 text-slate-200',
-                    'pro': 'bg-blue-600 text-white',
-                    'business': 'bg-purple-600 text-white',
-                    'business_plus': 'bg-amber-600 text-white'
-                };
-                return colors[plan] || 'bg-slate-600';
-            };
-
-            const getStatusColor = (status: string) => {
-                const colors: Record<string, string> = {
-                    'active': 'text-green-400',
-                    'past_due': 'text-orange-400',
-                    'canceled': 'text-slate-400',
-                    'banned': 'text-red-400'
-                };
-                return colors[status] || 'text-slate-400';
-            };
-
-            const filteredUsers = filterPlan === 'all'
-                ? users
-                : users.filter(u => u.planId === filterPlan);
-
-            if (loading) {
-                return (
-                    <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin material-symbols-outlined text-4xl text-amber-400">
-                            progress_activity
-                        </div>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="p-8">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-white mb-2">User Management (CRM)</h1>
-                        <p className="text-slate-400">Manage customer accounts, plans, and credits</p>
-                    </div>
-
-                    {/* Search & Filters */}
-                    <div className="mb-6 flex flex-col md:flex-row gap-4">
-                        <div className="flex-1">
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search by email, name, or UUID..."
-                                    className="w-full px-4 py-3 pl-12 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500"
-                                />
-                                <span className="material-symbols-outlined absolute left-4 top-3.5 text-slate-400">
-                                    search
-                                </span>
-                            </div>
-                        </div>
-
-                        <select
-                            value={filterPlan}
-                            onChange={(e) => setFilterPlan(e.target.value)}
-                            className="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500"
-                        >
-                            <option value="all">All Plans</option>
-                            <option value="free">Free</option>
-                            <option value="pro">Pro</option>
-                            <option value="business">Business</option>
-                            <option value="business_plus">Business+</option>
-                        </select>
-
-                        <button
-                            onClick={loadUsers}
-                            className="flex items-center gap-2 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
-                        >
-                            <span className="material-symbols-outlined">refresh</span>
-                            <span>Refresh</span>
-                        </button>
-                    </div>
-
-                    {/* Users Table */}
-                    <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-slate-700/50">
-                                    <tr>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">User</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Plan</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Usage</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Status</th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Joined</th>
-                                        <th className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-700">
-                                    {filteredUsers.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                                                No users found
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredUsers.map((user) => (
-                                            <tr key={user.id} className="hover:bg-slate-700/30 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        {user.avatarUrl ? (
-                                                            <img src={user.avatarUrl} alt="" className="w-10 h-10 rounded-full" />
-                                                        ) : (
-                                                            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">
-                                                                {user.firstName?.[0] || user.email[0].toUpperCase()}
-                                                            </div>
-                                                        )}
-                                                        <div>
-                                                            <div className="text-sm font-medium text-white">
-                                                                {user.firstName} {user.lastName}
-                                                            </div>
-                                                            <div className="text-xs text-slate-400">{user.email}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <td className="px-6 py-4">
-                                                    <select
-                                                        value={user.planId}
-                                                        onChange={(e) => handleChangePlan(user, e.target.value)}
-                                                        className={`px-3 py-1 rounded-full text-xs font-bold ${getPlanColor(user.planId)} cursor-pointer`}
-                                                    >
-                                                        <option value="free">Free</option>
-                                                        <option value="pro">Pro</option>
-                                                        <option value="business">Business</option>
-                                                        <option value="business_plus">Business+</option>
-                                                    </select>
-                                                </td>
-
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden max-w-[120px]">
-                                                            <div
-                                                                className={`h-full transition-all ${user.usagePercentage > 90 ? 'bg-red-500' :
-                                                                    user.usagePercentage > 70 ? 'bg-orange-500' :
-                                                                        'bg-blue-500'
-                                                                    }`}
-                                                                style={{ width: `${Math.min(user.usagePercentage, 100)}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-xs text-slate-400 min-w-[60px]">
-                                                            {user.minutesUsed}/{user.minutesLimit === -1 ? '∞' : user.minutesLimit}
-                                                        </span>
-                                                    </div>
-                                                </td>
-
-                                                <td className="px-6 py-4">
-                                                    <span className={`text-sm font-medium ${getStatusColor(user.status)}`}>
-                                                        {user.status}
-                                                    </span>
-                                                </td>
-
-                                                <td className="px-6 py-4 text-sm text-slate-400">
-                                                    {new Date(user.createdAt).toLocaleDateString()}
-                                                </td>
-
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedUser(user);
-                                                                setShowCreditsModal(true);
-                                                            }}
-                                                            className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-green-400"
-                                                            title="Add Credits"
-                                                        >
-                                                            <span className="material-symbols-outlined text-lg">add_circle</span>
-                                                        </button>
-
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedUser(user);
-                                                                setShowRecordingsModal(true);
-                                                            }}
-                                                            className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-blue-400"
-                                                            title="View Recordings (Ghost Mode)"
-                                                        >
-                                                            <span className="material-symbols-outlined text-lg">visibility</span>
-                                                        </button>
-
-                                                        <button
-                                                            onClick={() => handleBanUser(user)}
-                                                            className={`p-2 hover:bg-slate-700 rounded-lg transition-colors ${user.status === 'banned' ? 'text-green-400' : 'text-red-400'
-                                                                }`}
-                                                            title={user.status === 'banned' ? 'Unban User' : 'Ban User'}
-                                                        >
-                                                            <span className="material-symbols-outlined text-lg">
-                                                                {user.status === 'banned' ? 'check_circle' : 'block'}
-                                                            </span>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 text-sm text-slate-400">
-                        Showing {filteredUsers.length} of {users.length} total users
-                    </div>
-
-                    {/* Modals */}
-                    {showCreditsModal && selectedUser && (
-                        <AddCreditsModal
-                            user={selectedUser}
-                            onClose={() => {
-                                setShowCreditsModal(false);
-                                setSelectedUser(null);
-                            }}
-                            onConfirm={async (userId, minutes, type) => {
-                                const success = await adminService.addCredits(userId, minutes, type);
-                                if (success) {
-                                    loadUsers();
-                                    setShowCreditsModal(false);
-                                    setSelectedUser(null);
-                                    if (success) {
-                                        loadUsers();
-                                        setShowCreditsModal(false);
-                                        setSelectedUser(null);
-                                        showToast('Credits added successfully', 'success');
-                                    } else {
-                                        showToast('Failed to add credits', 'error');
-                                    }
-                                }
-                            }
-                />
-                    )}
-
-                    {showRecordingsModal && selectedUser && (
-                        <UserRecordingsModal
-                            userId={selectedUser.id}
-                            userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
-                            onClose={() => {
-                                setShowRecordingsModal(false);
-                                setSelectedUser(null);
-                            }}
-                        />
-                    )}
-
-                    {/* Confirm Modal */}
-                    <ConfirmModal
-                        isOpen={showConfirmModal}
-                        title={confirmAction?.type === 'ban'
-                            ? (selectedUser?.status === 'banned' ? 'Unban User' : 'Ban User')
-                            : 'Change Plan'
-                        }
-                        message={confirmAction?.type === 'ban'
-                            ? `Are you sure you want to ${selectedUser?.status === 'banned' ? 'unban' : 'ban'} ${selectedUser?.email}? ${selectedUser?.status === 'banned' ? 'This will reactivate their account.' : 'This will immediately disable their account and prevent login.'}`
-                            : `Change ${selectedUser?.email} from ${selectedUser?.planId} to ${confirmAction?.data} plan?`
-                        }
-                        confirmText={confirmAction?.type === 'ban' ? (selectedUser?.status === 'banned' ? 'Unban' : 'Ban') : 'Change Plan'}
-                        cancelText="Cancel"
-                        onConfirm={confirmAction?.type === 'ban' ? executeBanUser : executeChangePlan}
-                        onCancel={() => {
-                            setShowConfirmModal(false);
-                            setConfirmAction(null);
-                            setSelectedUser(null);
-                        }}
-                        danger={confirmAction?.type === 'ban' && selectedUser?.status !== 'banned'}
-                    />
-
-                    {/* Toast Notification */}
-                    {toast && (
-                        <div className={`fixed top-6 right-6 z-[100] px-4 py-3 rounded-lg shadow-lg border flex items-center gap-3 animate-in slide-in-from-right-10 duration-300 ${toast.type === 'success'
-                            ? 'bg-[#0f1115] border-green-500/20 text-green-400'
-                            : 'bg-[#0f1115] border-red-500/20 text-red-400'
-                            }`}>
-                            <span className="material-symbols-outlined text-xl">
-                                {toast.type === 'success' ? 'check_circle' : 'error'}
-                            </span>
-                            <span className="text-sm font-medium text-white">{toast.message}</span>
-                        </div>
-                    )}
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <div className="animate-spin material-symbols-outlined text-4xl text-amber-400">
+                    progress_activity
                 </div>
-            );
-        };
+            </div>
+        );
+    }
+
+    return (
+        <div className="p-8">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-white mb-2">User Management (CRM)</h1>
+                <p className="text-slate-400">Manage customer accounts, plans, and credits</p>
+            </div>
+
+            {/* Search & Filters */}
+            <div className="mb-6 flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search by email, name, or UUID..."
+                            className="w-full px-4 py-3 pl-12 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500"
+                        />
+                        <span className="material-symbols-outlined absolute left-4 top-3.5 text-slate-400">
+                            search
+                        </span>
+                    </div>
+                </div>
+
+                <select
+                    value={filterPlan}
+                    onChange={(e) => setFilterPlan(e.target.value)}
+                    className="px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-amber-500"
+                >
+                    <option value="all">All Plans</option>
+                    <option value="free">Free</option>
+                    <option value="pro">Pro</option>
+                    <option value="business">Business</option>
+                    <option value="business_plus">Business+</option>
+                </select>
+
+                <button
+                    onClick={loadUsers}
+                    className="flex items-center gap-2 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
+                >
+                    <span className="material-symbols-outlined">refresh</span>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            {/* Users Table */}
+            <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-slate-700/50">
+                            <tr>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">User</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Plan</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Usage</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Status</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Joined</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-700">
+                            {filteredUsers.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                                        No users found
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredUsers.map((user) => (
+                                    <tr key={user.id} className="hover:bg-slate-700/30 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                {user.avatarUrl ? (
+                                                    <img src={user.avatarUrl} alt="" className="w-10 h-10 rounded-full" />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">
+                                                        {user.firstName?.[0] || user.email[0].toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <div className="text-sm font-medium text-white">
+                                                        {user.firstName} {user.lastName}
+                                                    </div>
+                                                    <div className="text-xs text-slate-400">{user.email}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <select
+                                                value={user.planId}
+                                                onChange={(e) => handleChangePlan(user, e.target.value)}
+                                                className={`px-3 py-1 rounded-full text-xs font-bold ${getPlanColor(user.planId)} cursor-pointer`}
+                                            >
+                                                <option value="free">Free</option>
+                                                <option value="pro">Pro</option>
+                                                <option value="business">Business</option>
+                                                <option value="business_plus">Business+</option>
+                                            </select>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden max-w-[120px]">
+                                                    <div
+                                                        className={`h-full transition-all ${user.usagePercentage > 90 ? 'bg-red-500' :
+                                                            user.usagePercentage > 70 ? 'bg-orange-500' :
+                                                                'bg-blue-500'
+                                                            }`}
+                                                        style={{ width: `${Math.min(user.usagePercentage, 100)}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs text-slate-400 min-w-[60px]">
+                                                    {user.minutesUsed}/{user.minutesLimit === -1 ? '∞' : user.minutesLimit}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <span className={`text-sm font-medium ${getStatusColor(user.status)}`}>
+                                                {user.status}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-6 py-4 text-sm text-slate-400">
+                                            {new Date(user.createdAt).toLocaleDateString()}
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setShowCreditsModal(true);
+                                                    }}
+                                                    className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-green-400"
+                                                    title="Add Credits"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">add_circle</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setShowRecordingsModal(true);
+                                                    }}
+                                                    className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-blue-400"
+                                                    title="View Recordings (Ghost Mode)"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">visibility</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleBanUser(user)}
+                                                    className={`p-2 hover:bg-slate-700 rounded-lg transition-colors ${user.status === 'banned' ? 'text-green-400' : 'text-red-400'
+                                                        }`}
+                                                    title={user.status === 'banned' ? 'Unban User' : 'Ban User'}
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">
+                                                        {user.status === 'banned' ? 'check_circle' : 'block'}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="mt-4 text-sm text-slate-400">
+                Showing {filteredUsers.length} of {users.length} total users
+            </div>
+
+            {/* Modals */}
+            {showCreditsModal && selectedUser && (
+                <AddCreditsModal
+                    user={selectedUser}
+                    onClose={() => {
+                        setShowCreditsModal(false);
+                        setSelectedUser(null);
+                    }}
+                    onConfirm={async (userId, minutes, type) => {
+                        const success = await adminService.addCredits(userId, minutes, type);
+                        if (success) {
+                            loadUsers();
+                            setShowCreditsModal(false);
+                            setSelectedUser(null);
+                            showToast('Credits added successfully', 'success');
+                        } else {
+                            showToast('Failed to add credits', 'error');
+                        }
+                    }}
+                />
+            )}
+
+            {showRecordingsModal && selectedUser && (
+                <UserRecordingsModal
+                    userId={selectedUser.id}
+                    userName={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                    onClose={() => {
+                        setShowRecordingsModal(false);
+                        setSelectedUser(null);
+                    }}
+                />
+            )}
+
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={showConfirmModal}
+                title={confirmAction?.type === 'ban'
+                    ? (selectedUser?.status === 'banned' ? 'Unban User' : 'Ban User')
+                    : 'Change Plan'
+                }
+                message={confirmAction?.type === 'ban'
+                    ? `Are you sure you want to ${selectedUser?.status === 'banned' ? 'unban' : 'ban'} ${selectedUser?.email}? ${selectedUser?.status === 'banned' ? 'This will reactivate their account.' : 'This will immediately disable their account and prevent login.'}`
+                    : `Change ${selectedUser?.email} from ${selectedUser?.planId} to ${confirmAction?.data} plan?`
+                }
+                confirmText={confirmAction?.type === 'ban' ? (selectedUser?.status === 'banned' ? 'Unban' : 'Ban') : 'Change Plan'}
+                cancelText="Cancel"
+                onConfirm={confirmAction?.type === 'ban' ? executeBanUser : executeChangePlan}
+                onCancel={() => {
+                    setShowConfirmModal(false);
+                    setConfirmAction(null);
+                    setSelectedUser(null);
+                }}
+                danger={confirmAction?.type === 'ban' && selectedUser?.status !== 'banned'}
+            />
+
+            {/* Toast Notification */}
+            {toast && (
+                <div className={`fixed top-6 right-6 z-[100] px-4 py-3 rounded-lg shadow-lg border flex items-center gap-3 animate-in slide-in-from-right-10 duration-300 ${toast.type === 'success'
+                    ? 'bg-[#0f1115] border-green-500/20 text-green-400'
+                    : 'bg-[#0f1115] border-red-500/20 text-red-400'
+                    }`}>
+                    <span className="material-symbols-outlined text-xl">
+                        {toast.type === 'success' ? 'check_circle' : 'error'}
+                    </span>
+                    <span className="text-sm font-medium text-white">{toast.message}</span>
+                </div>
+            )}
+        </div>
+    );
+};
