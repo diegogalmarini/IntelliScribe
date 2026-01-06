@@ -28,6 +28,37 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
 
     if (!isOpen) return null;
 
+    const [localRecordings, setLocalRecordings] = useState<Recording[]>(recordings);
+
+    useEffect(() => {
+        setLocalRecordings(recordings);
+        const fetchMissingSegments = async () => {
+            // Check if any recording is missing segments (and is not just empty)
+            const missingIds = recordings.filter(r => !r.segments || r.segments.length === 0).map(r => r.id);
+
+            if (missingIds.length > 0) {
+                // Optimize: Only fetch if we suspect they might have content (optional, but good for now to just fetch)
+                try {
+                    const { databaseService } = await import('../../../services/databaseService');
+                    const segmentsMap = await databaseService.getRecordingsSegments(missingIds);
+
+                    setLocalRecordings(prev => prev.map(r => {
+                        if (segmentsMap.has(r.id)) {
+                            return { ...r, segments: segmentsMap.get(r.id) };
+                        }
+                        return r;
+                    }));
+                } catch (err) {
+                    console.error("Error fetching missing segments for chat context:", err);
+                }
+            }
+        };
+
+        if (isOpen) {
+            fetchMissingSegments();
+        }
+    }, [recordings, isOpen]);
+
     const handleSend = async () => {
         if (!message.trim() || loading) return;
 
@@ -37,16 +68,16 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
         setLoading(true);
 
         try {
-            // Construct transcript string from multiple recordings
+            // Construct transcript string from multiple recordings (using localRecordings which has segments)
             let fullTranscript = '';
 
-            if (recordings.length === 1) {
-                const r = recordings[0];
+            if (localRecordings.length === 1) {
+                const r = localRecordings[0];
                 fullTranscript = r.segments && r.segments.length > 0
                     ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
                     : "No transcript available.";
             } else {
-                fullTranscript = recordings.map(r => {
+                fullTranscript = localRecordings.map(r => {
                     const segments = r.segments && r.segments.length > 0
                         ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
                         : "No transcript available.";
