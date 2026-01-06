@@ -371,7 +371,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                         type="text"
                                                         value={editName.firstName}
                                                         onChange={(e) => setEditName({ ...editName, firstName: e.target.value })}
-                                                        className="w-24 px-2 py-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        className="w-24 px-2 py-1 bg-white dark:bg-transparent border border-slate-200 dark:border-blue-500/20 rounded text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 transition-all"
                                                         placeholder="First"
                                                         autoFocus
                                                     />
@@ -379,7 +379,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                         type="text"
                                                         value={editName.lastName}
                                                         onChange={(e) => setEditName({ ...editName, lastName: e.target.value })}
-                                                        className="w-24 px-2 py-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                                        className="w-24 px-2 py-1 bg-white dark:bg-transparent border border-slate-200 dark:border-blue-500/20 rounded text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 transition-all"
                                                         placeholder="Last"
                                                     />
                                                 </div>
@@ -406,7 +406,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                         setEditName({ firstName: user.firstName || '', lastName: user.lastName || '' });
                                                         setIsEditingName(true);
                                                     }}
-                                                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-1 p-1 hover:bg-slate-100 dark:hover:bg-white/5 rounded transition-colors"
+                                                    className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 ml-1 p-1 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded transition-colors"
                                                 >
                                                     <SettingsIcon size={14} />
                                                 </button>
@@ -490,7 +490,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
                                         <button
                                             onClick={handlePlansClick}
-                                            className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                                            className="px-4 py-1.5 border border-slate-200 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/30 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
                                         >
                                             Manage
                                         </button>
@@ -513,7 +513,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
                                                 </div>
                                             </div>
-                                            <button className="px-4 py-1.5 bg-slate-50 dark:bg-white/5 text-slate-400 dark:text-slate-500 text-xs rounded-lg cursor-not-allowed">
+                                            <button className="px-4 py-1.5 bg-slate-50 dark:bg-transparent border border-transparent dark:border-slate-700/50 text-slate-400 dark:text-slate-500 text-xs rounded-lg cursor-not-allowed">
                                                 Remove
                                             </button>
                                         </div>
@@ -541,7 +541,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <div>
                                             <button
                                                 onClick={() => setShowLogoutConfirm(true)}
-                                                className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                                                className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/30 text-slate-700 dark:text-slate-300 text-xs rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
                                             >
                                                 Log out
                                             </button>
