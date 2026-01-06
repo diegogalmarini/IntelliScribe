@@ -169,20 +169,34 @@ export const adminService = {
      */
     /**
      * Update user's plan manually
-     * Fix: Also updates minutes_limit based on the plan
+     * Fix: Dynamically fetches minutes_limit from plans_configuration to ensure accuracy
      */
     async updateUserPlan(userId: string, planId: string): Promise<boolean> {
         try {
-            // Hardcoded limits for now to ensure consistency
-            const PLAN_LIMITS: Record<string, number> = {
+            // 1. Fetch official limits from database configuration
+            const { data: planConfig, error: configError } = await supabase
+                .from('plans_configuration')
+                .select('limits')
+                .eq('id', planId)
+                .single();
+
+            // Default fallbacks only if DB fetch fails completely
+            const DEFAULT_LIMITS: Record<string, number> = {
                 'free': 24,
                 'pro': 200,
                 'business': 1200,
-                'business_plus': 10000
+                'business_plus': 3000 // Conservative estimate if DB fails
             };
 
-            const minutesLimit = PLAN_LIMITS[planId] || 24;
+            let minutesLimit = DEFAULT_LIMITS[planId] || 24;
 
+            if (planConfig?.limits && typeof planConfig.limits.transcription_minutes === 'number') {
+                minutesLimit = planConfig.limits.transcription_minutes;
+            } else if (configError) {
+                console.warn('[adminService] Could not fetch plan config, using defaults:', configError);
+            }
+
+            // 2. Update user profile with new plan AND correct limit
             const { error } = await supabase
                 .from('profiles')
                 .update({
