@@ -290,10 +290,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-[#0f1115] rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden border border-slate-200 dark:border-white/10 font-sans">
+            <div className="bg-white dark:bg-[#050505] rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden border border-slate-200 dark:border-[#1f1f1f] font-sans">
 
                 {/* Sidebar */}
-                <div className="w-64 flex flex-col border-r border-slate-100 dark:border-white/5 bg-[#fbfbfb] dark:bg-transparent">
+                <div className="w-64 flex flex-col border-r border-slate-100 dark:border-[#1f1f1f] bg-[#fbfbfb] dark:bg-[#0A0D13]">
                     <div className="p-6 pb-2">
                         <h2 className="text-xl font-medium text-slate-800 dark:text-white">Settings</h2>
                     </div>
