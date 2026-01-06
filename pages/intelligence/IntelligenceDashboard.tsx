@@ -105,9 +105,34 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         return names[planId] || planId;
     };
 
-    const handleSelectRecording = (id: string) => {
+    const handleSelectRecording = async (id: string) => {
         setView('recordings'); // Switch back to recordings view
-        setSelectedId(id);
+
+        // Check if recording exists in current lists
+        const existing = recordings.find(r => r.id === id) || searchResults.find(r => r.id === id);
+
+        if (existing) {
+            setSelectedId(id);
+        } else {
+            // Not found locally (maybe paginated), fetch it
+            try {
+                // Determine if we need to show loading? For now just try fetch
+                const { databaseService } = await import('../../services/databaseService');
+                const rec = await databaseService.getRecordingDetails(id);
+                if (rec) {
+                    // We need to inject this recording into view so activeRecording selection works
+                    // We can add it to searchResults as a temporary holder or introduce a fetchedRecording state
+                    // For simplicity, let's use searchResults or a specialized state if searching isn't active
+                    // Actually, let's add a state for 'externalSelectedRecording'
+                    setSearchResults(prev => [...prev, rec]); // Hack: push to search results to make it visible
+                    setSelectedId(id);
+                } else {
+                    console.error("Recording not found via ID fetch:", id);
+                }
+            } catch (err) {
+                console.error("Error fetching remote recording:", err);
+            }
+        }
         onSelectRecording(id);
         setIsEditorOpen(false); // Show RecordingDetailView by default
     };
@@ -559,7 +584,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         return base;
     }, [searchQuery, searchResults, recordings, tempRecording, selectedFolderId]);
 
-    // Find active recording - check temp, then search results, then full recordings
+    // Find active recording - check temp, then search results (which includes externally fetched), then full recordings
     const activeRecording = (selectedId && tempRecording && tempRecording.id === selectedId)
         ? tempRecording
         : selectedId
