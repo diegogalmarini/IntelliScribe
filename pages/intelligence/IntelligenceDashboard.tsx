@@ -632,6 +632,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
                 recordings={chatState.recordings}
                 title={chatState.title}
+                onOpenRecording={(id) => {
+                    setChatState(prev => ({ ...prev, isOpen: false }));
+                    handleSelectRecording(id);
+                }}
             />
 
             {/* Main Content */}

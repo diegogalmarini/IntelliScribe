@@ -1,22 +1,36 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Recording } from '../../../types';
-import { X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { X, Send, Bot, User, Loader2, ExternalLink } from 'lucide-react';
 import { chatWithTranscript } from '../../../services/geminiService';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface ChatModalProps {
     isOpen: boolean;
     onClose: () => void;
-    recordings: Recording[]; // Changed from single recording to array
-    title?: string; // Optional title for the chat context
+    recordings: Recording[];
+    title?: string;
+    onOpenRecording?: (id: string) => void;
 }
 
-export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recordings, title }) => {
+export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recordings, title, onOpenRecording }) => {
     const { language } = useLanguage();
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [localRecordings, setLocalRecordings] = useState<Recording[]>(recordings);
+
+    // Helper to parse message content and extract action
+    const parseMessage = (content: string) => {
+        const match = content.match(/\[OPEN_RECORDING:\s*([^\]]+)\]/);
+        if (match) {
+            return {
+                cleanContent: content.replace(match[0], '').trim(),
+                actionId: match[1].trim()
+            };
+        }
+        return { cleanContent: content, actionId: null };
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,11 +40,6 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
         scrollToBottom();
     }, [messages]);
 
-    // --- FIX: Move Hook calls ABOVE any conditional return ---
-    // Previously: if (!isOpen) return null; was here, causing Error #310
-
-    const [localRecordings, setLocalRecordings] = useState<Recording[]>(recordings);
-
     useEffect(() => {
         setLocalRecordings(recordings);
         const fetchMissingSegments = async () => {
@@ -38,7 +47,6 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
             const missingIds = recordings.filter(r => !r.segments || r.segments.length === 0).map(r => r.id);
 
             if (missingIds.length > 0) {
-                // Optimize: Only fetch if we suspect they might have content (optional, but good for now to just fetch)
                 try {
                     const { databaseService } = await import('../../../services/databaseService');
                     const segmentsMap = await databaseService.getRecordingsSegments(missingIds);
@@ -69,20 +77,20 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
         setLoading(true);
 
         try {
-            // Construct transcript string from multiple recordings (using localRecordings which has segments)
+            // Construct transcript string from multiple recordings
             let fullTranscript = '';
 
             if (localRecordings.length === 1) {
                 const r = localRecordings[0];
-                fullTranscript = r.segments && r.segments.length > 0
+                fullTranscript = `[ID: ${r.id} | Title: ${r.title}]\n` + (r.segments && r.segments.length > 0
                     ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
-                    : "No transcript available.";
+                    : "No transcript available.");
             } else {
                 fullTranscript = localRecordings.map(r => {
                     const segments = r.segments && r.segments.length > 0
                         ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
                         : "No transcript available.";
-                    return `[Document: ${r.title} (Date: ${r.date})]\n${segments}\n--- End of Document ---`;
+                    return `[Document ID: ${r.id} | Title: ${r.title} | Date: ${r.date}]\n${segments}\n--- End of Document ---`;
                 }).join('\n\n');
             }
 
@@ -155,29 +163,43 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
                             </p>
                         </div>
                     ) : (
-                        messages.map((msg, idx) => (
-                            <div
-                                key={idx}
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
-                                <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-green-600 text-white'
-                                        }`}>
-                                        {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
-                                    </div>
-                                    <div
-                                        className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${msg.role === 'user'
-                                            ? 'bg-blue-600 text-white rounded-br-none'
-                                            : 'bg-white dark:bg-[#2a2a2a] text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-800 rounded-bl-none'
-                                            }`}
-                                    >
-                                        {msg.content}
+                        messages.map((msg, idx) => {
+                            const { cleanContent, actionId } = parseMessage(msg.content);
+                            return (
+                                <div
+                                    key={idx}
+                                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                >
+                                    <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user'
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-green-600 text-white'
+                                            }`}>
+                                            {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <div
+                                                className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${msg.role === 'user'
+                                                    ? 'bg-blue-600 text-white rounded-br-none'
+                                                    : 'bg-white dark:bg-[#2a2a2a] text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-800 rounded-bl-none'
+                                                    }`}
+                                            >
+                                                {cleanContent}
+                                            </div>
+                                            {actionId && onOpenRecording && (
+                                                <button
+                                                    onClick={() => onOpenRecording(actionId)}
+                                                    className="self-start flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-900/30"
+                                                >
+                                                    <ExternalLink size={14} />
+                                                    {language === 'es' ? 'Abrir Grabación' : 'Open Recording'}
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                     {loading && (
                         <div className="flex justify-start">
