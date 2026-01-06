@@ -42,17 +42,25 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
             </p>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 md:gap-6 flex-wrap justify-center w-full max-w-md">
-                {actions.map(action => (
+            <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
+                {actions.map((action, idx) => (
                     <button
                         key={action.type}
                         onClick={() => onAction(action.type)}
-                        className="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 rounded-2xl border border-[#e5e5e5] dark:border-[#3c3c3c] hover:border-[#d0d0d0] dark:hover:border-[#4f4f4f] hover:bg-[#fafafa] dark:hover:bg-[#2a2a2a] transition-all flex-1 min-w-[140px] md:min-w-[180px]"
+                        className={`group flex flex-col items-center gap-4 p-6 rounded-2xl border transition-all duration-200
+                            ${idx === 2 ? 'col-span-2' : 'col-span-1'}
+                            bg-white dark:bg-[#1e1e1e] 
+                            border-gray-200 dark:border-white/5
+                            hover:border-blue-500/50 hover:bg-blue-50/50 
+                            dark:hover:bg-blue-500/10 dark:hover:border-blue-500/30
+                            hover:shadow-lg hover:shadow-blue-500/5 dark:hover:shadow-none
+                            active:scale-[0.98]
+                        `}
                     >
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-[#f5f5f5] dark:bg-[#2f2f2f] flex items-center justify-center">
-                            <action.icon size={22} className="text-[#444746] dark:text-slate-300 md:w-[26px] md:h-[26px]" />
+                        <div className="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                            <action.icon size={24} className="text-blue-600 dark:text-blue-400" />
                         </div>
-                        <span className="text-xs md:text-sm font-medium text-[#1f1f1f] dark:text-slate-300">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                             {action.label}
                         </span>
                     </button>
