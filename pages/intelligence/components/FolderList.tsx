@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Folder, Plus, MoreVertical, Edit2, Trash2, FolderOpen } from 'lucide-react';
 import { databaseService } from '../../../services/databaseService';
 import { Folder as FolderType } from '../../../types';
+import { ConfirmModal } from './ConfirmModal';
 
 interface FolderListProps {
     onSelectFolder: (folderId: string | null) => void;
@@ -15,6 +16,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
     const [isCreating, setIsCreating] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const [loading, setLoading] = useState(true);
+    const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
 
     useEffect(() => {
         if (userId) {
@@ -43,15 +45,20 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
         }
     };
 
-    const handleDeleteFolder = async (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (confirm('¿Estás seguro de eliminar esta carpeta? Los audios no se borrarán, solo se desvincularán.')) {
-            const success = await databaseService.deleteFolder(id);
+    const confirmDeleteFolder = async () => {
+        if (folderToDelete) {
+            const success = await databaseService.deleteFolder(folderToDelete);
             if (success) {
-                setFolders(folders.filter(f => f.id !== id));
-                if (selectedFolderId === id) onSelectFolder(null);
+                setFolders(folders.filter(f => f.id !== folderToDelete));
+                if (selectedFolderId === folderToDelete) onSelectFolder(null);
             }
+            setFolderToDelete(null);
         }
+    };
+
+    const handleDeleteFolder = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setFolderToDelete(id);
     };
 
     return (
@@ -117,6 +124,17 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                     </div>
                 ))}
             </div>
+
+            <ConfirmModal
+                isOpen={!!folderToDelete}
+                onClose={() => setFolderToDelete(null)}
+                onConfirm={confirmDeleteFolder}
+                title="Eliminar Carpeta"
+                message="¿Estás seguro de eliminar esta carpeta? Los audios no se borrarán, solo se desvincularán."
+                confirmText="Eliminar"
+                cancelText="Cancelar"
+                isDestructive={true}
+            />
         </div>
     );
 };
