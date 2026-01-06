@@ -323,7 +323,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col bg-white dark:bg-[#1a1a1a] relative">
+                <div className="flex-1 flex flex-col bg-white dark:bg-transparent relative">
                     <button
                         onClick={onClose}
                         className="absolute top-6 right-6 p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
