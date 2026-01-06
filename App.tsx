@@ -615,20 +615,21 @@ const AppContent: React.FC = () => {
             >
                 {/* Sidebar */}
                 {/* Hide Sidebar for Intelligence route - it has its own minimal sidebar */}
-                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && (
-                    <Sidebar
-                        currentRoute={currentRoute}
-                        onNavigate={navigate}
-                        activeFolderId={selectedFolderId}
-                        onSelectFolder={setSelectedFolderId}
-                        folders={folders}
-                        onAddFolder={handleAddFolder}
-                        onDeleteFolder={handleDeleteFolder}
-                        user={user}
-                        isOpen={isSidebarOpen}
-                        onClose={() => setIsSidebarOpen(false)}
-                    />
-                )}
+                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION &&
+                    currentRoute !== AppRoute.ADMIN_OVERVIEW && currentRoute !== AppRoute.ADMIN_USERS && currentRoute !== AppRoute.ADMIN_FINANCIALS && currentRoute !== AppRoute.ADMIN_PLANS && (
+                        <Sidebar
+                            currentRoute={currentRoute}
+                            onNavigate={navigate}
+                            activeFolderId={selectedFolderId}
+                            onSelectFolder={setSelectedFolderId}
+                            folders={folders}
+                            onAddFolder={handleAddFolder}
+                            onDeleteFolder={handleDeleteFolder}
+                            user={user}
+                            isOpen={isSidebarOpen}
+                            onClose={() => setIsSidebarOpen(false)}
+                        />
+                    )}
 
                 {/* Main Content Area */}
                 <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
