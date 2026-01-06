@@ -68,7 +68,7 @@ const CustomSelect: React.FC<{
         <div className={`relative ${className}`} ref={containerRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
+                className="w-full bg-white dark:bg-transparent border border-slate-200 dark:border-blue-500/20 rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-blue-500/5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
                 <div className="flex items-center gap-2 truncate">
                     {icon}
@@ -290,10 +290,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden border border-slate-200 dark:border-slate-800 font-sans">
+            <div className="bg-white dark:bg-[#0f1115] rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden border border-slate-200 dark:border-white/10 font-sans">
 
                 {/* Sidebar */}
-                <div className="w-64 flex flex-col border-r border-slate-100 dark:border-slate-800 bg-[#fbfbfb] dark:bg-[#1a1a1a]">
+                <div className="w-64 flex flex-col border-r border-slate-100 dark:border-white/5 bg-[#fbfbfb] dark:bg-transparent">
                     <div className="p-6 pb-2">
                         <h2 className="text-xl font-medium text-slate-800 dark:text-white">Settings</h2>
                     </div>
@@ -438,7 +438,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
                                                     placeholder="+1 234 567 890"
                                                     disabled={user.phoneVerified}
-                                                    className={`bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm w-40 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 transition-all ${user.phoneVerified ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                                    className={`bg-white dark:bg-transparent border border-slate-200 dark:border-blue-500/20 rounded-lg px-3 py-1.5 text-sm w-40 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500 transition-all ${user.phoneVerified ? 'opacity-75 cursor-not-allowed' : ''}`}
                                                 />
                                                 {!user.phoneVerified && (
                                                     user.subscription?.planId === 'business_plus' ? (
