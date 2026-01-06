@@ -23,7 +23,7 @@ interface SettingsModalProps {
     onLogout: () => void;
 }
 
-type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'developer' | 'help' | 'about' | 'admin';
+type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'developer' | 'help' | 'about' | 'admin' | 'security';
 
 const TIMEZONES = [
     { value: 'America/New_York', label: '(GMT-5) Eastern Time (US & Canada)' },
@@ -262,7 +262,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         { id: 'integrations' as Section, icon: Zap, label: 'Integrations' },
         { id: 'custom_vocabulary' as Section, icon: Database, label: 'Custom vocabulary' },
         { id: 'private_cloud' as Section, icon: Cloud, label: 'Private Cloud Sync' },
-        { id: 'developer' as Section, icon: Code, label: 'Developer' },
+        { id: 'developers' as Section, icon: Code, label: 'Developer' },
+        { id: 'security' as Section, icon: Lock, label: 'Security' },
         { id: 'help' as Section, icon: HelpCircle, label: 'Help Center' },
         { id: 'about' as Section, icon: Info, label: 'About Diktalo' },
     ];
