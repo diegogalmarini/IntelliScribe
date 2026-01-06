@@ -12,7 +12,8 @@ async function getState() {
         'recordingStartTime',
         'isPaused',
         'pauseStartTime',
-        'totalPausedTime'
+        'totalPausedTime',
+        'capturedScreenshots'
     ]);
 }
 
@@ -22,7 +23,8 @@ async function clearState() {
         'recordingStartTime',
         'isPaused',
         'pauseStartTime',
-        'totalPausedTime'
+        'totalPausedTime',
+        'capturedScreenshots'
     ]);
 }
 
@@ -48,6 +50,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             return await resumeRecording();
         }
 
+        if (message.action === 'CAPTURE_SCREENSHOT') {
+            return await captureAndUploadScreenshot();
+        }
+
         if (message.action === 'GET_STATUS') {
             const state = await getState();
             return {
@@ -55,7 +61,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                 isPaused: state.isPaused || false,
                 tabId: state.recordingTabId || null,
                 startTime: state.recordingStartTime || null,
-                totalPausedTime: state.totalPausedTime || 0
+                totalPausedTime: state.totalPausedTime || 0,
+                capturedCount: state.capturedScreenshots?.length || 0
             };
         }
         return { success: false, error: 'Unknown action' };
@@ -169,6 +176,76 @@ async function resumeRecording() {
     });
 }
 
+    });
+}
+
+// --- Screenshot Logic ---
+
+async function captureAndUploadScreenshot() {
+    console.log('[Background] captureAndUploadScreenshot starting...');
+
+    // 1. Capture Visible Tab
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+        chrome.tabs.captureVisibleTab(null as any, { format: 'png' }, (dataUrl) => {
+            if (chrome.runtime.lastError) {
+                return reject(new Error(chrome.runtime.lastError.message));
+            }
+            resolve(dataUrl || '');
+        });
+    });
+
+    if (!dataUrl) throw new Error('Failed to capture tab');
+
+    // 2. Prepare Upload
+    const blob = base64ToBlob(dataUrl, 'image/png');
+    const { authToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseUrl', 'supabaseKey']);
+
+    if (!authToken || !supabaseUrl || !supabaseKey) {
+        throw new Error('No auth token found');
+    }
+
+    // 3. Get User ID (Cache this in real app)
+    const user = await getUserDetails(authToken, supabaseUrl, supabaseKey);
+    const userId = user.id;
+
+    // 4. Upload to Supabase
+    const timestamp = Date.now();
+    const filename = `screenshot-${timestamp}.png`;
+    const path = `${userId}/screenshots/${filename}`;
+    const endpoint = `${supabaseUrl}/storage/v1/object/recordings/${path}`; // Storing in 'recordings' bucket for now
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'apikey': supabaseKey,
+            'Content-Type': 'image/png'
+        },
+        body: blob
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to upload screenshot to Storage');
+    }
+
+    console.log('[Background] Screenshot uploaded:', path);
+
+    // 5. Save to Session State
+    const state = await getState();
+    const currentList = state.capturedScreenshots || [];
+    const newScreenshot = {
+        path: path,
+        timestamp: timestamp,
+        url: `${supabaseUrl}/storage/v1/object/public/recordings/${path}` // Public URL assumption or signed url needed later
+    };
+
+    await saveState({
+        capturedScreenshots: [...currentList, newScreenshot]
+    });
+
+    return { success: true, path: path };
+}
+
 async function stopRecording() {
     console.log('[Background] stopRecording called');
     const state = await getState();
@@ -185,8 +262,14 @@ async function stopRecording() {
                 try {
                     const audioBlob = base64ToBlob(response.audioData, 'audio/webm');
 
+                    // Prepare metadata with screenshots
+                    const attachments = state.capturedScreenshots || [];
+                    const metadata = {
+                        attachments: attachments
+                    };
+
                     // Pass calculated duration to upload function
-                    const uploadResult = await uploadAudioToDiktalo(audioBlob, durationSeconds);
+                    const uploadResult = await uploadAudioToDiktalo(audioBlob, durationSeconds, metadata);
 
                     await clearState();
                     await closeOffscreenDocument();
@@ -288,7 +371,7 @@ async function refreshSession(): Promise<string> {
     }
 }
 
-async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number): Promise<{ recordingId: string }> {
+async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, extraMetadata: any = {}): Promise<{ recordingId: string }> {
     console.log('[Background] uploadAudioToDiktalo called (Direct-to-Cloud), blob size:', audioBlob.size);
 
     let { authToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseUrl', 'supabaseKey']);
@@ -314,7 +397,8 @@ async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number): P
 
         const recording = await registerRecording(token, filePath, durationSeconds, {
             source: 'chrome-extension', // Hardcoded for now, could be dynamic
-            original_filename: `recording-${Date.now()}.webm`
+            original_filename: `recording-${Date.now()}.webm`,
+            ...extraMetadata
         });
 
         return { recordingId: recording.recordingId };
