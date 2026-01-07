@@ -195,6 +195,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
     const [newTerm, setNewTerm] = useState('');
 
+    // Mobile Menu State
+    const [showMenu, setShowMenu] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Initial check for mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Reset menu visibility when opening modal
+    useEffect(() => {
+        if (isOpen) {
+            setShowMenu(true);
+        }
+    }, [isOpen]);
+
     const handleUpdateUser = (updates: Partial<UserProfile>) => {
         if (onUpdateUser) {
             onUpdateUser(updates);
@@ -299,13 +318,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-[#050505] rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden border border-slate-200 dark:border-[#1f1f1f] font-sans">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
+            <div className={`bg-white dark:bg-[#050505] md:rounded-xl shadow-2xl w-full max-w-5xl h-full md:h-[85vh] flex flex-col md:flex-row overflow-hidden border-0 md:border border-slate-200 dark:border-[#1f1f1f] font-sans ${isMobile ? 'rounded-none' : ''}`}>
 
                 {/* Sidebar */}
-                <div className="w-64 flex flex-col border-r border-slate-100 dark:border-[#1f1f1f] bg-[#fbfbfb] dark:bg-[#0A0D13]">
-                    <div className="p-6 pb-2">
+                <div className={`w-full md:w-64 flex flex-col border-b md:border-b-0 md:border-r border-slate-100 dark:border-[#1f1f1f] bg-[#fbfbfb] dark:bg-[#0A0D13] ${isMobile && !showMenu ? 'hidden' : 'flex'}`}>
+                    <div className="p-6 pb-2 flex justify-between items-center">
                         <h2 className="text-xl font-medium text-slate-800 dark:text-white">Settings</h2>
+                        {isMobile && (
+                            <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600">
+                                <X size={24} />
+                            </button>
+                        )}
                     </div>
 
                     <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
@@ -320,31 +344,60 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         onNavigate(AppRoute.ADMIN_OVERVIEW);
                                     } else {
                                         setSelectedSection(item.id);
+                                        if (isMobile) setShowMenu(false);
                                     }
                                 }}
-                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-colors text-[13px] font-medium ${selectedSection === item.id && item.id !== 'help'
+                                className={`w-full flex items-center gap-3 px-3 py-3 md:py-2 rounded-md text-left transition-colors text-[13px] font-medium border-b md:border-b-0 border-slate-100 dark:border-white/5 md:border-transparent ${selectedSection === item.id && item.id !== 'help' && !isMobile
                                     ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300'
                                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'
                                     }`}
                             >
                                 <item.icon size={18} strokeWidth={1.5} />
                                 <span>{item.label}</span>
-                                {item.id === 'help' && <ExternalLink size={14} className="ml-auto opacity-50" />}
+                                {item.id === 'help' ? (
+                                    <ExternalLink size={14} className="ml-auto opacity-50" />
+                                ) : (
+                                    isMobile && <ChevronRight size={16} className="ml-auto opacity-30" />
+                                )}
                             </button>
                         ))}
                     </nav>
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col bg-white dark:bg-transparent relative">
-                    <button
-                        onClick={onClose}
-                        className="absolute top-6 right-6 p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
+                <div className={`flex-1 flex flex-col bg-white dark:bg-transparent relative ${isMobile && showMenu ? 'hidden' : 'flex'}`}>
 
-                    <div className="flex-1 overflow-y-auto px-12 py-10">
+                    {/* Content Header for Mobile */}
+                    {isMobile && (
+                        <div className="flex items-center gap-3 p-4 border-b border-slate-100 dark:border-white/5">
+                            <button
+                                onClick={() => setShowMenu(true)}
+                                className="p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full"
+                            >
+                                <ChevronDown className="rotate-90" size={20} />
+                            </button>
+                            <span className="font-medium text-slate-900 dark:text-white">
+                                {menuItems.find(i => i.id === selectedSection)?.label}
+                            </span>
+                            <button
+                                onClick={onClose}
+                                className="ml-auto p-2 text-slate-400 hover:text-slate-600"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                    )}
+
+                    {!isMobile && (
+                        <button
+                            onClick={onClose}
+                            className="absolute top-6 right-6 p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                    )}
+
+                    <div className="flex-1 overflow-y-auto px-6 py-6 md:px-12 md:py-10">
                         {/* --- ACCOUNT SECTION --- */}
                         {selectedSection === 'account' && (
                             <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">
