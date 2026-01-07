@@ -857,7 +857,20 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                                 </div>
                                             )}
 
-                                            <div className="flex gap-6 group hover:bg-black/[0.02] dark:hover:bg-white/[0.02] p-4 -mx-4 rounded-xl transition-all duration-200">
+                                            <div
+                                                key={`segment-div-${segment.id}`}
+                                                className="flex gap-6 group hover:bg-black/[0.02] dark:hover:bg-white/[0.02] p-4 -mx-4 rounded-xl transition-all duration-200"
+                                                onMouseUp={() => {
+                                                    try {
+                                                        const selection = window.getSelection();
+                                                        if (selection && !selection.isCollapsed && selection.anchorNode && selection.focusNode) {
+                                                            // Selection is valid
+                                                        }
+                                                    } catch (e) {
+                                                        console.warn('Selection error suppressed:', e);
+                                                    }
+                                                }}
+                                            >
                                                 <div className="flex-shrink-0 w-12 pt-1">
                                                     <button
                                                         onClick={() => {

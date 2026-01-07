@@ -593,7 +593,19 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                             )}
 
                                             {/* Segment Content */}
-                                            <div className="flex gap-4">
+                                            <div
+                                                className="flex gap-4"
+                                                onMouseUp={() => {
+                                                    try {
+                                                        const selection = window.getSelection();
+                                                        if (selection && !selection.isCollapsed && selection.anchorNode && selection.focusNode) {
+                                                            // Valid selection
+                                                        }
+                                                    } catch (e) {
+                                                        console.warn('Selection error suppressed:', e);
+                                                    }
+                                                }}
+                                            >
                                                 <button
                                                     onClick={() => handleTimestampClick(segment.timestamp)}
                                                     className="text-[11px] text-[#8e8e8e] hover:text-blue-600 dark:hover:text-blue-400 font-mono shrink-0 w-16 text-left cursor-pointer hover:underline transition-colors"

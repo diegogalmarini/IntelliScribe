@@ -647,29 +647,40 @@ const AppContent: React.FC = () => {
         currentRoute === AppRoute.ADMIN_PLANS;
 
     if (isAdminRoute) {
+        class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+            constructor(props: any) { super(props); this.state = { hasError: false }; }
+            static getDerivedStateFromError(error: any) { return { hasError: true }; }
+            render() {
+                if (this.state.hasError) return <div className="p-4 text-red-500">Failed to load Admin module. Refresh page.</div>;
+                return this.props.children;
+            }
+        }
+
         return (
-            <Suspense fallback={
-                <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-[#050505] transition-colors">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+            <ErrorBoundary>
+                <Suspense fallback={
+                    <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-[#050505] transition-colors">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }>
-                <AdminRoute onNavigate={navigate}>
-                    <AdminLayout
-                        currentRoute={currentRoute}
-                        onNavigate={navigate}
-                        user={user}
-                    >
-                        {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
-                        {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
-                        {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
-                        {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
-                    </AdminLayout>
-                </AdminRoute>
-            </Suspense>
+                }>
+                    <AdminRoute onNavigate={navigate}>
+                        <AdminLayout
+                            currentRoute={currentRoute}
+                            onNavigate={navigate}
+                            user={user}
+                        >
+                            {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
+                            {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
+                            {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
+                            {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
+                        </AdminLayout>
+                    </AdminRoute>
+                </Suspense>
+            </ErrorBoundary>
         );
     }
 

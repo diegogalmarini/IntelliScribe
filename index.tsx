@@ -19,6 +19,11 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     replaysOnErrorSampleRate: 1.0, // 100% when error occurs
     // Environment
     environment: import.meta.env.MODE,
+    ignoreErrors: [
+      // Vercel Feedback Widget (vercel.live) race condition
+      "Failed to execute 'selectNode' on 'Range'",
+      "InvalidNodeTypeError: Failed to execute 'selectNode' on 'Range': the given Node has no parent."
+    ],
   });
 }
 

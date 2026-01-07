@@ -12,7 +12,7 @@ import { MultiAudioUploader } from './components/MultiAudioUploader';
 import { TemplateGallery } from './TemplateGallery';
 import { ChatModal } from './components/ChatModal';
 import { AlertModal, AlertType } from '../../components/AlertModal';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
@@ -65,6 +65,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (initialView) setView(initialView);
     }, [initialView]);
 
+    const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false); // MOVED UP
+    const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false); // MOVED UP
+
     // Handle Deep Linking (e.g. from Extension)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -85,9 +88,31 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [isSearching, setIsSearching] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Multi-audio upload state
-    const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
-    const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false);
+
+
+    // Sidebar State
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Handle Mobile Resize Logic
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            if (mobile) {
+                setIsSidebarOpen(false); // Default close on mobile
+            } else {
+                setIsSidebarOpen(true); // Default open on desktop
+            }
+        };
+
+        // Initial check
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     // Alert State
     const [alertState, setAlertState] = useState<{
@@ -171,12 +196,18 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
         onSelectRecording(id);
         setIsEditorOpen(false); // Show RecordingDetailView by default
+
+        // Auto-close sidebar on mobile when selecting
+        if (isMobile) {
+            setIsSidebarOpen(false);
+        }
     };
 
     const handleNewRecording = () => {
         // Open inline recorder instead of navigating to old LiveRecording page
         setIsRecording(true);
         setSelectedId(null); // Clear any selected recording
+        if (isMobile) setIsSidebarOpen(false);
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,6 +257,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 setSelectedId(tempId);
                 // Important: clear any previous editor state so DetailView shows up
                 setIsEditorOpen(false);
+                if (isMobile) setIsSidebarOpen(false);
 
                 try {
                     // 1. Upload to Storage
@@ -644,7 +676,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     console.log('[Dashboard Render] ActiveRec:', activeRecording?.id, 'IsEditorOpen:', isEditorOpen, 'TempRec:', tempRecording?.id, 'View:', view);
 
     return (
-        <div className="flex h-screen bg-white dark:bg-background-dark overflow-hidden">
+        <div className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
             {/* Hidden file input for upload */}
             <input
                 ref={fileInputRef}
@@ -654,166 +686,198 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 className="hidden"
             />
 
-            <MinimalSidebar
-                recordings={displayedRecordings}
-                selectedId={selectedId}
-                onSelectRecording={handleSelectRecording}
-                onNewRecording={handleNewRecording}
-                userFirstName={user?.firstName || 'Usuario'}
-                user={user}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onRenameRecording={onRenameRecording}
-                onDeleteRecording={(id) => {
-                    onDeleteRecording(id);
-                    if (selectedId === id) setSelectedId(null);
-                }}
-                onMoveRecording={(id, folderId) => {
-                    // Update UI via parent and trigger DB
-                    onMoveRecording(id, folderId === 'root' ? '' : folderId);
-                }}
-                folders={folders}
-                selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
-                onSelectFolder={onSelectFolder}
-                onLogoClick={() => {
-                    setView('recordings');
-                    setSelectedId(null);
-                    setIsEditorOpen(false);
-                    setIsRecording(false);
-                    setSearchQuery('');
-                    if (onSelectFolder) onSelectFolder('ALL');
-                }}
-                currentView={view}
-                onViewChange={setView}
-            />
+            {/* --- SIDEBAR CONTAINER --- */}
+            {/* MOBILE: Off-canvas Overlay */}
+            <div
+                className={`
+                    fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-surface-dark shadow-2xl transform transition-transform duration-300 ease-in-out md:hidden
+                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                `}
+            >
+                <MinimalSidebar
+                    recordings={displayedRecordings}
+                    selectedId={selectedId}
+                    onSelectRecording={handleSelectRecording}
+                    onNewRecording={handleNewRecording}
+                    userFirstName={user?.firstName || 'Usuario'}
+                    user={user}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onRenameRecording={onRenameRecording}
+                    onDeleteRecording={(id) => {
+                        onDeleteRecording(id);
+                        if (selectedId === id) setSelectedId(null);
+                    }}
+                    onMoveRecording={(id, folderId) => {
+                        onMoveRecording(id, folderId === 'root' ? '' : folderId);
+                    }}
+                    folders={folders}
+                    selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
+                    onSelectFolder={onSelectFolder}
+                    onLogoClick={() => {
+                        onNavigate(AppRoute.LANDING); // Or reset view
+                        setView('recordings');
+                        setSelectedId(null);
+                        setIsEditorOpen(false);
+                    }}
+                    currentView={view}
+                    onViewChange={setView}
+                    isOpen={isSidebarOpen}
+                    onToggle={() => setIsSidebarOpen(false)}
+                />
+            </div>
 
-            {/* Chat Modal (Global/Folder/Single) */}
-            <ChatModal
-                isOpen={chatState.isOpen}
-                onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
-                // Filter chat recordings to ensure they still exist in the main list
-                recordings={chatState.recordings.filter(r =>
-                    // Check if it exists in the main recordings list (prop) or search results
-                    recordings.some(valid => valid.id === r.id) ||
-                    searchResults.some(valid => valid.id === r.id)
+            {/* Mobile Backdrop */}
+            {isMobile && isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
+            {/* DESKTOP: Push/Collapse Transition */}
+            <div
+                className={`
+                    hidden md:block relative h-full bg-white dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05] transition-all duration-300 ease-in-out overflow-hidden
+                    ${isSidebarOpen ? 'w-64 opacity-100' : 'w-0 opacity-0 border-r-0'}
+                `}
+            >
+                <div className="w-64 h-full"> {/* Inner wrapper to prevent content squishing */}
+                    <MinimalSidebar
+                        recordings={displayedRecordings}
+                        selectedId={selectedId}
+                        onSelectRecording={handleSelectRecording}
+                        onNewRecording={handleNewRecording}
+                        userFirstName={user?.firstName || 'Usuario'}
+                        user={user}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        onRenameRecording={onRenameRecording}
+                        onDeleteRecording={(id) => {
+                            onDeleteRecording(id);
+                            if (selectedId === id) setSelectedId(null);
+                        }}
+                        onMoveRecording={(id, folderId) => {
+                            onMoveRecording(id, folderId === 'root' ? '' : folderId);
+                        }}
+                        folders={folders}
+                        selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
+                        onSelectFolder={onSelectFolder}
+                        onLogoClick={() => {
+                            onNavigate(AppRoute.LANDING);
+                            setView('recordings');
+                            setSelectedId(null);
+                            setIsEditorOpen(false);
+                        }}
+                        currentView={view}
+                        onViewChange={setView}
+                        isOpen={isSidebarOpen}
+                        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    />
+                </div>
+            </div>
+
+
+            {/* --- MAIN CONTENT --- */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
+
+                {/* Global Toggle Button (Visible when sidebar is closed OR on mobile) */}
+                {(!isSidebarOpen || isMobile) && (
+                    <div className="absolute top-4 left-4 z-50">
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="p-2 bg-white dark:bg-[#1a1a1a] border border-black/10 dark:border-white/10 rounded-lg shadow-sm text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
+                        >
+                            <LayoutTemplate size={20} />
+                        </button>
+                    </div>
                 )}
-                title={chatState.title}
-                onOpenRecording={(id) => {
-                    setChatState(prev => ({ ...prev, isOpen: false }));
-                    handleSelectRecording(id);
-                }}
-            />
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Top Bar */}
-                <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
-                    {/* Left side: Logo (mobile) or Back Button (subscription view) */}
-                    <div className="flex items-center gap-3">
-                        {/* Mobile Logo */}
-                        <div className="md:hidden flex items-center gap-2">
-                            <img
-                                src={document.documentElement.classList.contains('dark') ? '/logo-diktalo-b.svg' : '/logo-diktalo.svg'}
-                                alt="Diktalo"
-                                className="h-6 w-auto"
-                            />
-                        </div>
+                {/* Top Bar (Simplified to reduce clutter, since Sidebar handles most logic) */}
+                {/* Note: In ChatGPT style, the header is often minimal or part of the specific tool view (like editor).
+                    We'll keep the right-side profile/settings access here for continuity. */}
+                <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+                    {/* Show plan badge if needed, or keeping it clean? keeping for now */}
+                    <button
+                        onClick={() => setView('subscription')}
+                        className="hidden md:block px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md border border-blue-100 dark:border-blue-500/20 hover:opacity-80 transition-opacity"
+                    >
+                        {formatPlanName(user?.subscription?.planId || 'free')}
+                    </button>
 
-                        {/* Back Button for Subscription View (Desktop) */}
-                        {view === 'subscription' && (
-                            <button
-                                onClick={() => setView('recordings')}
-                                className="hidden md:block p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M19 12H5" />
-                                    <path d="M12 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Right side: Plan badge + User Menu */}
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => {
-                                const folderName = folders.find(f => f.id === selectedFolderId)?.name;
-                                const title = selectedFolderId === 'ALL' || !selectedFolderId
-                                    ? (t('allRecordings') || 'Todas las grabaciones')
-                                    : `Carpeta: ${folderName || 'Carpeta'}`;
-                                handleAskDiktalo(displayedRecordings, title);
-                            }}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
-                        >
-                            <MessageSquare className="w-3.5 h-3.5" />
-                            <span className="hidden md:inline">
-                                {selectedFolderId && selectedFolderId !== 'ALL' && selectedFolderId !== 'FAVORITES'
-                                    ? `Chat con ${folders.find(f => f.id === selectedFolderId)?.name || 'Carpeta'}`
-                                    : (t('askDiktalo') || 'Preguntar a Diktalo')}
-                            </span>
-                        </button>
-
-                        <button
-                            onClick={() => setView('subscription')}
-                            className="px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md border border-blue-100 dark:border-blue-500/20 hover:opacity-80 transition-opacity"
-                        >
-                            {formatPlanName(user?.subscription?.planId || 'free')}
-                        </button>
-                        <ProfileAvatar
-                            user={user}
-                            onClick={() => setIsSettingsOpen(true)}
-                        />
-                    </div>
+                    <ProfileAvatar
+                        user={user}
+                        onClick={() => setIsSettingsOpen(true)}
+                    />
                 </div>
 
-                {/* Content Area - Editor, Recorder, Recording Detail, Empty State, or Subscription View */}
-                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
+                {/* Content Body */}
+                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark pt-14 md:pt-0">
+                    {/* Added padding top for mobile header area if needed, or if we rely on Absolute buttons */}
+
                     {showMultiAudioUploader ? (
-                        <MultiAudioUploader
-                            user={user}
-                            onProcess={handleProcessMultiAudio}
-                            onCancel={() => setShowMultiAudioUploader(false)}
-                        />
+                        <div className="h-full pt-12 md:pt-0"> {/* Spacer for buttons */}
+                            <MultiAudioUploader
+                                user={user}
+                                onProcess={handleProcessMultiAudio}
+                                onCancel={() => setShowMultiAudioUploader(false)}
+                            />
+                        </div>
                     ) : view === 'subscription' ? (
-                        <SubscriptionView user={user} />
+                        <div className="h-full pt-12 md:pt-0 overflow-y-auto">
+                            <SubscriptionView user={user} />
+                        </div>
                     ) : view === 'templates' ? (
-                        <TemplateGallery
-                            onUseTemplate={(templateId) => {
-                                console.log("Using template:", templateId);
-                                setView('recordings');
-                                handleNewRecording(); // Go to recorder
-                                // TODO: Pass templateId to recorder context or state
-                            }}
-                        />
+                        <div className="h-full pt-12 md:pt-0">
+                            <TemplateGallery
+                                onUseTemplate={(templateId) => {
+                                    console.log("Using template:", templateId);
+                                    setView('recordings');
+                                    handleNewRecording();
+                                }}
+                            />
+                        </div>
                     ) : isEditorOpen && activeRecording ? (
-                        <InlineEditor
-                            recording={activeRecording}
-                            user={user}
-                            onUpdateRecording={onUpdateRecording}
-                            onClose={handleCloseEditor}
-                        />
+                        <div className="flex-1 h-full overflow-hidden flex flex-col relative">
+                            <InlineEditor
+                                recording={activeRecording}
+                                user={user}
+                                onUpdateRecording={onUpdateRecording}
+                                onClose={handleCloseEditor}
+                            />
+                        </div>
                     ) : isRecording ? (
-                        <InlineRecorder
-                            user={user}
-                            onComplete={handleRecordingComplete}
-                            onCancel={handleCancelRecording}
-                        />
+                        <div className="h-full pt-12 md:pt-0">
+                            <InlineRecorder
+                                user={user}
+                                onComplete={handleRecordingComplete}
+                                onCancel={handleCancelRecording}
+                            />
+                        </div>
                     ) : activeRecording ? (
-                        <RecordingDetailView
-                            recording={activeRecording}
-                            onGenerateTranscript={handleGenerateTranscript}
-                            onRename={(newTitle) => onRenameRecording(activeRecording?.id, newTitle)}
-                            onUpdateSpeaker={handleUpdateSpeaker}
-                            onUpdateSummary={handleUpdateSummary}
-                            onUpdateSegment={handleUpdateSegment}
-                            onUpdateRecording={onUpdateRecording}
-                            onAskDiktalo={() => handleAskDiktalo([activeRecording], activeRecording.title)}
-                        />
+                        <div className="h-full pt-12 md:pt-0">
+                            <RecordingDetailView
+                                recording={activeRecording} // Use activeRecording from hook/find
+                                onGenerateTranscript={!activeRecording.segments || activeRecording.segments.length === 0 ? handleGenerateTranscript : undefined}
+                                onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
+                                onUpdateSpeaker={handleUpdateSpeaker}
+                                onUpdateSummary={(summary) => onUpdateRecording(activeRecording.id, { summary })}
+                                onUpdateSegment={(idx, updates) => handleUpdateSegment(idx, updates)}
+                                onUpdateRecording={onUpdateRecording}
+                                onAskDiktalo={() => handleAskDiktalo([activeRecording])}
+                            />
+                        </div>
                     ) : (
-                        <EmptyStateClean
-                            userName={user?.firstName || 'Usuario'}
-                            onAction={handleAction}
-                        />
+                        <div className="h-full pt-12 md:pt-0">
+                            <EmptyStateClean
+                                userName={user?.firstName || 'Usuario'}
+                                onAction={(type) => {
+                                    if (type === 'record') handleNewRecording();
+                                    if (type === 'upload') fileInputRef.current?.click();
+                                    if (type === 'multiaudio') setShowMultiAudioUploader(true);
+                                }}
+                            />
+                        </div>
                     )}
                 </div>
             </div>
@@ -828,7 +892,19 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 onLogout={onLogout}
             />
 
-            {/* Custom Alert Modal */}
+            {/* Chat Modal */}
+            <ChatModal
+                isOpen={chatState.isOpen}
+                onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
+                recordings={chatState.recordings}
+                title={chatState.title}
+                onOpenRecording={(id) => {
+                    setChatState(prev => ({ ...prev, isOpen: false }));
+                    handleSelectRecording(id);
+                }}
+            />
+
+            {/* Alert Modal */}
             <AlertModal
                 isOpen={alertState.isOpen}
                 onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
@@ -839,5 +915,3 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         </div>
     );
 };
-
-export default IntelligenceDashboard;

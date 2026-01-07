@@ -25,6 +25,10 @@ interface MinimalSidebarProps {
     onLogoClick?: () => void;
     currentView?: 'recordings' | 'subscription' | 'templates';
     onViewChange?: (view: 'recordings' | 'subscription' | 'templates') => void;
+
+    // New Mobile/Collapse Props
+    isOpen?: boolean;
+    onToggle?: () => void;
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -47,7 +51,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
 
     onLogoClick,
     currentView,
-    onViewChange
+    onViewChange,
+    isOpen = true,
+    onToggle
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
@@ -127,9 +133,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     return (
-        <div className="hidden md:flex md:w-64 h-full bg-white dark:bg-surface-dark flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
-            {/* Logo */}
-            <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05]">
+        <div className="flex w-full md:w-64 h-full bg-white dark:bg-surface-dark flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
+            {/* Logo & Close Button */}
+            <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05] flex items-center justify-between">
                 <div
                     className="flex items-center justify-center px-2 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={onLogoClick}
@@ -140,6 +146,16 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                         className="h-8 w-auto"
                     />
                 </div>
+                {/* Close Sidebar Button */}
+                {onToggle && (
+                    <button
+                        onClick={onToggle}
+                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"
+                        title="Cerrar menú"
+                    >
+                        <LayoutTemplate size={18} className="rotate-180" />
+                    </button>
+                )}
             </div>
 
             {/* Usage Indicator */}
