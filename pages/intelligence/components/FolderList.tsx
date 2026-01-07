@@ -128,7 +128,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
             <div className="space-y-0.5">
                 <button
                     onClick={() => onSelectFolder(null)}
-                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors ${selectedFolderId === null
+                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[0.8rem] transition-colors ${selectedFolderId === null
                         ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
                         : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
                         }`}
@@ -177,7 +177,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                         ) : (
                             <div className="flex items-center gap-2 truncate">
                                 <Folder className="w-4 h-4 text-blue-400" fill={selectedFolderId === folder.id ? "currentColor" : "none"} />
-                                <span className="truncate text-sm">{folder.name}</span>
+                                <span className="truncate text-[0.8rem]">{folder.name}</span>
                             </div>
                         )}
 
