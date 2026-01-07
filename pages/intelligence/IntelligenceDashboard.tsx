@@ -915,3 +915,5 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         </div>
     );
 };
+
+export default IntelligenceDashboard;
