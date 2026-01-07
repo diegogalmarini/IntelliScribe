@@ -719,17 +719,20 @@ const AppContent: React.FC = () => {
                 <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
 
                     {/* Mobile Header Toggle */}
-                    {currentRoute !== AppRoute.RESET_PASSWORD && (
-                        <div className="md:hidden flex items-center p-4 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark">
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg"
-                            >
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
-                            <span className="ml-2 font-bold text-lg text-primary">Diktalo</span>
-                        </div>
-                    )}
+                    {currentRoute !== AppRoute.RESET_PASSWORD &&
+                        currentRoute !== AppRoute.DASHBOARD &&
+                        currentRoute !== AppRoute.INTELLIGENCE &&
+                        currentRoute !== AppRoute.SUBSCRIPTION && (
+                            <div className="md:hidden flex items-center p-4 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark">
+                                <button
+                                    onClick={() => setIsSidebarOpen(true)}
+                                    className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg"
+                                >
+                                    <span className="material-symbols-outlined">menu</span>
+                                </button>
+                                <span className="ml-2 font-bold text-lg text-primary">Diktalo</span>
+                            </div>
+                        )}
                     {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE) && (
                         <IntelligenceDashboard
                             user={user}
