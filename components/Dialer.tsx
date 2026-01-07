@@ -19,6 +19,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
     const [activeCall, setActiveCall] = useState<any>(null);
     const [isMuted, setIsMuted] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [isPasting, setIsPasting] = useState(false); // UI State for feedback
 
     // Estado para el modal de verificación
     const [showVerification, setShowVerification] = useState(false);
@@ -137,6 +138,41 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
     }
 
 
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            const cleaned = text.replace(/[^0-9+]/g, '');
+            if (cleaned) {
+                setNumber(cleaned);
+                setIsPasting(true);
+                setTimeout(() => setIsPasting(false), 1000);
+            }
+        } catch (err) {
+            console.error('Failed to read clipboard:', err);
+            setErrorMessage('Permiso de portapapeles denegado o no disponible.');
+        }
+    };
+
+    const handleContacts = async () => {
+        try {
+            // @ts-ignore - Experimental API
+            if ('contacts' in navigator && 'ContactsManager' in window) {
+                const props = ['tel'];
+                const opts = { multiple: false };
+                // @ts-ignore
+                const contacts = await navigator.contacts.select(props, opts);
+                if (contacts[0] && contacts[0].tel && contacts[0].tel[0]) {
+                    const cleanTel = contacts[0].tel[0].replace(/[^0-9+]/g, '');
+                    setNumber(cleanTel);
+                }
+            } else {
+                setErrorMessage('Selector de contactos no soportado en este dispositivo.');
+            }
+        } catch (err) {
+            console.error('Contact picker error:', err);
+        }
+    };
+
     return (
         <>
             {/* El Dialer Visual */}
@@ -155,7 +191,23 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
                 {errorMessage && <div className="bg-red-500 text-white text-xs p-2 text-center">{errorMessage}</div>}
 
                 {/* Display */}
-                <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0">
+                <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0 relative">
+                    <button
+                        onClick={handlePaste}
+                        className={`absolute top-2 right-4 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors ${isPasting ? 'text-brand-green' : ''}`}
+                        title="Pegar número"
+                    >
+                        {isPasting ? 'Pegado!' : 'Pegar'}
+                    </button>
+                    {/* Botón Contactos - Solo visible si la API está disponible (aproximación) */}
+                    <button
+                        onClick={handleContacts}
+                        className="absolute top-2 left-4 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors flex items-center gap-1"
+                        title="Buscar Contacto"
+                    >
+                        <span className="material-symbols-outlined text-[14px]">contacts</span>
+                    </button>
+
                     <div className="flex items-center justify-center w-full mb-2">
                         <span className="text-3xl font-light text-slate-400 mr-1">+</span>
                         <div className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-widest break-all">
