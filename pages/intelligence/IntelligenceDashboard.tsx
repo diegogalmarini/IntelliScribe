@@ -781,38 +781,70 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             {/* --- MAIN CONTENT --- */}
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
 
-                {/* Global Toggle Button (Visible when sidebar is closed OR on mobile) */}
-                {(!isSidebarOpen || isMobile) && (
-                    <div className="absolute top-4 left-4 z-50">
-                        <button
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 bg-white dark:bg-[#1a1a1a] border border-black/10 dark:border-white/10 rounded-lg shadow-sm text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
-                        >
-                            <LayoutTemplate size={20} />
-                        </button>
+                {/* Top Bar */}
+                <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 flex-shrink-0 z-10 bg-white dark:bg-background-dark border-b border-gray-100 dark:border-white/5">
+                    {/* Left side: Toggle Button & Back Button */}
+                    <div className="flex items-center gap-3">
+                        {/* Toggle Button (Visible when sidebar is closed) */}
+                        {!isSidebarOpen && (
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="p-2 -ml-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"
+                            >
+                                <LayoutTemplate size={20} />
+                            </button>
+                        )}
+
+                        {/* Back Button for Subscription View */}
+                        {view === 'subscription' && (
+                            <button
+                                onClick={() => setView('recordings')}
+                                className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5" />
+                                    <path d="M12 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        )}
                     </div>
-                )}
 
-                {/* Top Bar (Simplified to reduce clutter, since Sidebar handles most logic) */}
-                {/* Note: In ChatGPT style, the header is often minimal or part of the specific tool view (like editor).
-                    We'll keep the right-side profile/settings access here for continuity. */}
-                <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
-                    {/* Show plan badge if needed, or keeping it clean? keeping for now */}
-                    <button
-                        onClick={() => setView('subscription')}
-                        className="hidden md:block px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md border border-blue-100 dark:border-blue-500/20 hover:opacity-80 transition-opacity"
-                    >
-                        {formatPlanName(user?.subscription?.planId || 'free')}
-                    </button>
+                    {/* Right side: Actions & Profile */}
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => {
+                                const folderName = folders.find(f => f.id === selectedFolderId)?.name;
+                                const title = selectedFolderId === 'ALL' || !selectedFolderId
+                                    ? (t('allRecordings') || 'Todas las grabaciones')
+                                    : `Carpeta: ${folderName || 'Carpeta'}`;
+                                handleAskDiktalo(displayedRecordings, title);
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
+                        >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">
+                                {selectedFolderId && selectedFolderId !== 'ALL' && selectedFolderId !== 'FAVORITES'
+                                    ? `Chat con ${folders.find(f => f.id === selectedFolderId)?.name || 'Carpeta'}`
+                                    : (t('askDiktalo') || 'Preguntar a Diktalo')}
+                            </span>
+                        </button>
 
-                    <ProfileAvatar
-                        user={user}
-                        onClick={() => setIsSettingsOpen(true)}
-                    />
+                        <button
+                            onClick={() => setView('subscription')}
+                            className="hidden md:block px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md border border-blue-100 dark:border-blue-500/20 hover:opacity-80 transition-opacity"
+                        >
+                            {formatPlanName(user?.subscription?.planId || 'free')}
+                        </button>
+
+                        <ProfileAvatar
+                            user={user}
+                            onClick={() => setIsSettingsOpen(true)}
+                        />
+                    </div>
                 </div>
 
                 {/* Content Body */}
-                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark pt-14 md:pt-0">
+                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark pt-0">
                     {/* Added padding top for mobile header area if needed, or if we rely on Absolute buttons */}
 
                     {showMultiAudioUploader ? (
