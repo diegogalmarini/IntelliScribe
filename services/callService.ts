@@ -54,11 +54,19 @@ export class CallService {
         if (isExpired) {
             console.log('🔄 Token expired or near expiration, renewing before call...');
             const renewed = await this.prepareToken(userId);
-            if (!renewed) throw new Error('No se pudo renovar la sesión de llamadas. Intente refrescar la página.');
+            if (!renewed) throw new Error('No se pudo renovar la sesión. Intente refrescar la página.');
+        }
+
+        if (!navigator.onLine) {
+            throw new Error('Sin conexión a Internet. Verifique su red.');
         }
 
         if (!this.device) {
-            throw new Error('System not ready. Please wait 2 seconds.');
+            console.warn('⚠️ Twilio Device not ready, attempting strict reload...');
+            const renewed = await this.prepareToken(userId);
+            if (!renewed || !this.device) {
+                throw new Error('El sistema de llamadas no está listo. Espere unos segundos o recargue.');
+            }
         }
 
         try {
@@ -83,7 +91,7 @@ export class CallService {
                 throw new Error('Browser not supported. Open in Chrome/Safari.');
             }
 
-            throw new Error(error.message || 'Call failed to connect');
+            throw new Error(error.message || 'Error de conexión desconocido.');
         }
     }
 

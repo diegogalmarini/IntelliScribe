@@ -18,7 +18,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log(`[VOICE] Request to call ${to} from user ${userId}`);
 
     if (!to) {
-        twiml.say('Error: número destino no proporcionado.');
+        console.error('[VOICE] ❌ Error: Missing "To" parameter');
+        twiml.say('Error de sistema: falta el número de destino.');
         res.setHeader('Content-Type', 'text/xml');
         return res.status(200).send(twiml.toString());
     }
@@ -75,8 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Continue with fallback
         }
     } else {
-        console.log('[VOICE] No userId provided, blocking call for security');
-        twiml.say({ language: 'es-ES' }, 'Error de autenticación. No se puede iniciar la llamada.');
+        console.warn('[VOICE] ⚠️ No userId provided. Blocking call for security reasons.');
+        twiml.say({ language: 'es-ES' }, 'Error de autenticación. Por favor, recargue la página.');
         res.setHeader('Content-Type', 'text/xml');
         return res.status(200).send(twiml.toString());
     }
@@ -109,11 +110,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Only include recordingStatusCallback if we have a valid userId
     // Otherwise, recording will still happen but won't be saved to database
+    // "record-from-answer-dual" is usually silent. If prompts occur, it might be due to 'announcements' or legal requirements in Twilio Console settings.
     const dialOptions: any = {
         callerId: callerId,  // Use verified phone or fallback
         answerOnBridge: true,
         timeout: 30,  // Add timeout to prevent hanging
-        record: 'record-from-answer-dual',  // Record both sides of call
+        record: 'record-from-answer-dual',  // Record both sides of call, should be silent
         recordingStatusCallbackMethod: 'POST',  // Ensure Twilio uses POST
         recordingStatusCallbackEvent: ['completed']  // Only notify when recording is done
     };
