@@ -7,9 +7,10 @@ interface InlineRecorderProps {
     user: UserProfile;
     onComplete: (audioBlob: Blob, durationSeconds: number, title: string, notes: NoteItem[], media: MediaItem[]) => void;
     onCancel: () => void;
+    onStateChange?: (state: 'idle' | 'recording' | 'paused') => void;
 }
 
-export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete, onCancel }) => {
+export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete, onCancel, onStateChange }) => {
     const { t } = useLanguage();
 
     // Recording state
@@ -257,6 +258,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
             setSeconds(0);
             mediaRecorderRef.current.start(1000);
             setIsRecording(true);
+            onStateChange?.('recording');
             if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();
         }
     };
@@ -267,15 +269,18 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
         if (isPaused) {
             mediaRecorderRef.current.resume();
             if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();
+            onStateChange?.('recording');
         } else {
             mediaRecorderRef.current.pause();
             if (audioContextRef.current?.state === 'running') audioContextRef.current.suspend();
+            onStateChange?.('paused');
         }
         setIsPaused(!isPaused);
     };
 
     const stopRecording = () => {
         setIsRecording(false);
+        onStateChange?.('idle');
         if (mediaRecorderRef.current) mediaRecorderRef.current.stop();
     };
 

@@ -135,12 +135,6 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     const handleLogoClick = () => {
-        if (isRecording) {
-            // Simple confirm for Beta. Can be upgraded to Custom Modal later.
-            if (!window.confirm("Recording in progress. Are you sure you want to leave?")) {
-                return;
-            }
-        }
         if (onLogoClick) onLogoClick();
     };
 
