@@ -179,8 +179,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     console.error("Recording not found via ID fetch:", id);
                     setAlertState({
                         isOpen: true,
-                        title: 'Grabación no encontrada',
-                        message: 'No se pudo encontrar la grabación solicitada. Puede haber sido eliminada o no tienes acceso.',
+                        title: t('recordingNotFoundTitle') || 'Grabación no encontrada',
+                        message: t('recordingNotFoundDesc') || 'No se pudo encontrar la grabación.',
                         type: 'error'
                     });
                 }
@@ -188,8 +188,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 console.error("Error fetching remote recording:", err);
                 setAlertState({
                     isOpen: true,
-                    title: 'Error de conexión',
-                    message: 'Hubo un problema al intentar recuperar la grabación. Por favor verifica tu conexión.',
+                    title: t('connectionErrorTitle') || 'Error de conexión',
+                    message: t('connectionErrorDesc') || 'Hubo un problema al intentar recuperar la grabación.',
                     type: 'error'
                 });
             }
@@ -215,7 +215,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (file) {
             // Check if user is logged in
             if (!user || !user.id) {
-                alert("Debes iniciar sesión para subir archivos.");
+                alert(t('upload_auth_alert'));
                 return;
             }
 

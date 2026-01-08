@@ -27,7 +27,7 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
         {
             type: 'multiaudio' as const,
             icon: MessageCircle,
-            label: 'Multi-Audio',
+            label: t('multi_audio_label'),
         },
     ];
 
@@ -35,10 +35,10 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
         <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-4xl mx-auto">
             {/* Greeting */}
             <h1 className="text-2xl md:text-4xl font-normal text-[#1f1f1f] dark:text-white mb-2 md:mb-3">
-                Hola, {userName}
+                {t('dashboard_greeting').replace('{name}', userName)}
             </h1>
             <p className="text-[#8e8e8e] dark:text-[#8e8e8e] text-sm md:text-lg mb-8 md:mb-16 text-center px-4">
-                {t('intelligenceWelcome') || '¿Qué quieres capturar hoy? Tu cerebro digital está listo para procesar.'}
+                {t('intelligenceWelcome')}
             </p>
 
             {/* Action Buttons */}

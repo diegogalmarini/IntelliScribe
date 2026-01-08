@@ -162,7 +162,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             <div className="px-3 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 <div className="px-2 text-[12px] text-[#676767] dark:text-[#c5c5c5]">
                     {user.subscription.minutesLimit === -1 ? (
-                        <span className="font-normal">Ilimitado</span>
+                        <span className="font-normal">{t('unlimited_label')}</span>
                     ) : (
                         <div className="space-y-1.5">
                             <div className="flex justify-between items-center">
@@ -203,7 +203,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             type="text"
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
-                            placeholder="Buscar..."
+                            placeholder={t('search_placeholder_short')}
                             className="w-full pl-9 pr-8 py-2 bg-[#f7f7f8] dark:bg-card-dark border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
                         />
                         {searchQuery && (
@@ -225,7 +225,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-normal text-[#0d0d0d] dark:text-white hover:bg-[#f0f0f0] dark:hover:bg-white/[0.08] rounded-lg transition-colors border border-black/10 dark:border-white/10"
                 >
                     <Plus size={16} strokeWidth={2} />
-                    <span>Nueva Sesión</span>
+                    <span>{t('new_session_btn')}</span>
                 </button>
             </div>
 
@@ -233,7 +233,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             <div className="flex-1 overflow-y-auto px-2 pb-2">
                 {recordings.length === 0 ? (
                     <p className="text-[12px] text-[#8e8e8e] dark:text-[#8e8e8e] text-center py-8 px-3">
-                        {searchQuery ? 'No hay resultados' : (selectedFolderId ? 'Carpeta vacía' : 'No hay grabaciones')}
+                        {searchQuery ? t('no_results_found_short') : (selectedFolderId ? t('folder_empty_short') : t('no_recordings_short'))}
                     </p>
                 ) : (
                     <div className="space-y-0.5">
@@ -265,13 +265,13 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 />
                                             ) : (
                                                 <div className="truncate font-normal">
-                                                    {recording.title || 'Sin título'}
+                                                    {recording.title || t('untitledRecording')}
                                                 </div>
                                             )}
                                             <div className="text-[11px] text-[#8e8e8e] dark:text-[#8e8e8e] mt-0.5">
                                                 {(() => {
                                                     const date = new Date(recording.date);
-                                                    if (isNaN(date.getTime())) return 'Sin fecha';
+                                                    if (isNaN(date.getTime())) return t('no_date_label');
                                                     return date.toLocaleDateString('es-ES', {
                                                         month: 'short',
                                                         day: 'numeric'
@@ -307,7 +307,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 className="w-full text-left px-4 py-2.5 text-[14px] text-[#ececec] hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
                                                 <FileText size={18} strokeWidth={1.5} />
-                                                <span>Ver Notas y Archivos</span>
+                                                <span>{t('viewContext')}</span>
                                             </button>
                                             <button
                                                 onClick={(e) => {
@@ -317,7 +317,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
                                                 <Edit3 size={18} strokeWidth={1.5} />
-                                                <span>Renombrar</span>
+                                                <span>{t('rename')}</span>
                                             </button>
                                             <button
                                                 onClick={(e) => {
@@ -327,7 +327,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
                                                 <FolderInput size={18} strokeWidth={1.5} />
-                                                <span>Mover a...</span>
+                                                <span>{t('move_to_folder_title')}</span>
                                             </button>
                                             <div className="my-1.5 border-t border-white/10"></div>
                                             <button
@@ -338,7 +338,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 className="w-full text-left px-4 py-2.5 text-[14px] text-red-400 hover:bg-red-900/20 flex items-center gap-3 transition-colors"
                                             >
                                                 <Trash2 size={18} strokeWidth={1.5} />
-                                                <span>Eliminar</span>
+                                                <span>{t('delete')}</span>
                                             </button>
                                         </div>
                                     </>
@@ -355,21 +355,21 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     <div className="fixed inset-0 bg-black/50 z-[300]" onClick={() => setDeleteConfirmId(null)} />
                     <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-card-dark rounded-2xl shadow-2xl z-[400] p-6">
                         <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-2">
-                            ¿Eliminar grabación?
+                            {t('delete_recording_confirm_title')}
                         </h3>
-                        <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5] mb-6">Esta acción no se puede deshacer.</p>
+                        <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5] mb-6">{t('delete_recording_confirm_desc')}</p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setDeleteConfirmId(null)}
                                 className="flex-1 px-4 py-2.5 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] font-medium hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
                             >
-                                Cancelar
+                                {t('cancel_btn')}
                             </button>
                             <button
                                 onClick={confirmDelete}
                                 className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-[13px] font-medium hover:bg-red-700 transition-colors"
                             >
-                                Eliminar
+                                {t('delete')}
                             </button>
                         </div>
                     </div>
@@ -380,16 +380,16 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 <>
                     <div className="fixed inset-0 bg-black/50 z-[300]" onClick={() => setMoveModalId(null)} />
                     <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-card-dark rounded-2xl shadow-2xl z-[400] p-6">
-                        <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-4">Mover a carpeta</h3>
+                        <h3 className="text-lg font-semibold text-[#0d0d0d] dark:text-white mb-4">{t('move_to_folder_title')}</h3>
                         <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">
                             <button
                                 onClick={() => handleMoveToFolder(moveModalId, 'root')}
                                 className="w-full text-left px-4 py-3 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors font-medium border border-blue-100 dark:border-blue-900/30"
                             >
-                                📂 Sin Carpeta (Raíz)
+                                📂 {t('no_folder_root_label')}
                             </button>
                             {folders.filter(f => f.type === 'user').length === 0 ? (
-                                <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5] text-center pt-2">No tienes carpetas creadas</p>
+                                <p className="text-[13px] text-[#676767] dark:text-[#c5c5c5] text-center pt-2">{t('no_folders_created_label')}</p>
                             ) : (
                                 folders
                                     .filter(f => f.type === 'user')
@@ -408,7 +408,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             onClick={() => setMoveModalId(null)}
                             className="w-full px-4 py-2.5 bg-[#f7f7f8] dark:bg-[#333] text-[#0d0d0d] dark:text-white rounded-lg text-[13px] font-medium hover:bg-[#ebebeb] dark:hover:bg-[#444] transition-colors"
                         >
-                            Cancelar
+                            {t('cancel_btn')}
                         </button>
                     </div>
                 </>
