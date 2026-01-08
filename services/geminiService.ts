@@ -23,7 +23,7 @@ const callAIEndpoint = async (action: string, payload: any, language: string) =>
   }
 };
 
-export const generateMeetingSummary = async (transcript: string, language: string = 'en', templateId: string = 'general'): Promise<string> => {
+export const generateMeetingSummary = async (transcript: string, language: string = 'en', templateId: string = 'general', attachments?: any[]): Promise<string> => {
   try {
     const templateObj = AI_TEMPLATES.find(t => t.id === templateId) || AI_TEMPLATES[0];
     // Select the correct language prompt from the template
@@ -32,7 +32,8 @@ export const generateMeetingSummary = async (transcript: string, language: strin
     const result = await callAIEndpoint('summary', {
       transcript,
       template: templateId,
-      systemPrompt // Pass the specialized prompt
+      systemPrompt, // Pass the specialized prompt
+      attachments
     }, language);
     if (!result) throw new Error("No output from AI");
     return result;

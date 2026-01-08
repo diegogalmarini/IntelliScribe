@@ -12,6 +12,7 @@ import * as exportUtils from '../../../utils/exportUtils';
 import { supabase } from '../../../lib/supabase';
 import { databaseService } from '../../../services/databaseService';
 import { saveAs } from 'file-saver';
+import { Image as ImageIcon } from 'lucide-react'; // Import Image icon
 
 
 interface RecordingDetailViewProps {
@@ -406,8 +407,25 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 .map(s => `${s.speaker}: ${s.text}`)
                 .join('\n');
 
+            // Prepare attachments with relative timestamps
+            let preparedAttachments: any[] = [];
+            if (fullRecording?.metadata?.attachments && fullRecording.date) {
+                const startTime = new Date(fullRecording.date).getTime();
+                preparedAttachments = fullRecording.metadata.attachments.map(att => {
+                    const diffMs = att.timestamp - startTime;
+                    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+                    const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
+                    const s = (diffSec % 60).toString().padStart(2, '0');
+                    return {
+                        time: `${h}:${m}:${s}`,
+                        url: att.url
+                    };
+                });
+            }
+
             // Map language code if needed, but 'es' and 'en' match. 
-            const summary = await generateMeetingSummary(fullTranscriptArr, language as any, template);
+            const summary = await generateMeetingSummary(fullTranscriptArr, language as any, template, preparedAttachments);
 
             if (onUpdateSummary) {
                 onUpdateSummary(summary);
@@ -668,6 +686,38 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             </p>
                         )}
                     </div>
+
+                    {/* Attachments Gallery */}
+                    {fullRecording?.metadata?.attachments && fullRecording.metadata.attachments.length > 0 && (
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <ImageIcon size={16} className="text-[#8e8e8e]" />
+                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                    Galería de Adjuntos
+                                </h2>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {fullRecording.metadata.attachments.map((att, idx) => {
+                                    const diffMs = att.timestamp - new Date(fullRecording.date).getTime();
+                                    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+                                    const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
+                                    const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
+                                    const s = (diffSec % 60).toString().padStart(2, '0');
+                                    const timeLabel = `${h}:${m}:${s}`;
+
+                                    return (
+                                        <div key={idx} className="group relative rounded-lg overflow-hidden border border-black/10 dark:border-white/10 cursor-pointer" onClick={() => handleTimestampClick(timeLabel)}>
+                                            <img src={att.url} alt={`Screenshot at ${timeLabel}`} className="w-full h-32 object-cover hover:scale-105 transition-transform duration-300" />
+                                            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-1 px-2 flex items-center justify-between">
+                                                <span>{timeLabel}</span>
+                                                <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Transcription Card */}
                     {hasTranscript ? (
@@ -946,7 +996,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             <ExportModal
                 isOpen={exportOpen}
                 onClose={() => setExportOpen(false)}
-                recording={recording}
+                recording={fullRecording || recording}
             />
         </div>
     );

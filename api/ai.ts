@@ -46,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // --- Action 1: Meeting Summary ---
         if (action === 'summary') {
-            const { transcript, template: templateId = 'general', systemPrompt: systemPromptOverride } = payload;
+            const { transcript, template: templateId = 'general', systemPrompt: systemPromptOverride, attachments } = payload;
 
             // Basic fallback templates if systemPrompt is not provided by the frontend
             const fallbackTemplates: Record<string, { es: string, en: string }> = {
@@ -64,8 +64,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 systemPrompt = language === 'es' ? selected.es : selected.en;
             }
 
+            let visualContext = '';
+            if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+                // Attachments are expected to be { time: "HH:MM:SS", url: "..." }
+                const attachmentList = attachments.map((a: any) => `- Time: ${a.time} | URL: ${a.url}`).join('\n');
+                const instruction = language === 'es'
+                    ? `\n\n[CONTEXTO VISUAL]\nSe capturaron las siguientes capturas de pantalla durante la reunión:\n${attachmentList}\n\nINSTRUCCIÓN: Si el contenido de la transcripción coincide con el tiempo de una captura, DEBES insertar la imagen en el resumen usando el formato markdown: \n![Contexto Visual](url)\nInsértala justo después del párrafo relevante.`
+                    : `\n\n[VISUAL CONTEXT]\nThe following screenshots were captured during the meeting:\n${attachmentList}\n\nINSTRUCTION: If the transcript content aligns with the timestamp of a screenshot, you MUST insert the image into the summary using markdown format: \n![Visual Context](url)\nInsert it right after the relevant paragraph.`;
+
+                visualContext = instruction;
+            }
+
             const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
-            const finalPrompt = `${systemPrompt}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
+            const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.models.generateContent({
                 model: 'gemini-2.0-flash-exp',

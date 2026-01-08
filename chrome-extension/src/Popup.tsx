@@ -58,9 +58,26 @@ const Popup: React.FC = () => {
             if (result.authToken) {
                 setAuthToken(result.authToken);
                 setIsConfigExpanded(false);
+                checkSession();
+            } else {
+                setIsConfigExpanded(true);
             }
         });
     }, []);
+
+    const checkSession = () => {
+        chrome.runtime.sendMessage({ action: 'GET_USER' }, (response) => {
+            if (response?.success) {
+                console.log('[Popup] Session is valid for:', response.user.email);
+            } else {
+                console.warn('[Popup] Session invalid or expired:', response?.error);
+                if (response?.error?.includes('expired')) {
+                    setError('Sesión expirada. Por favor actualiza tu Token.');
+                    setIsConfigExpanded(true);
+                }
+            }
+        });
+    };
 
     // ... (Timer logic omitted for brevity, it's unchanged) ...
 
@@ -109,9 +126,14 @@ const Popup: React.FC = () => {
                 setIsPaused(false);
                 setRecordingTime(0);
                 setStatus('recording');
+                setError(null);
             } else {
+                console.error('[Popup] Start Recording failed:', response?.error);
                 setError(response?.error || 'Falló al iniciar grabación');
                 setStatus('error');
+                if (response?.error?.toLowerCase().includes('expired') || response?.error?.toLowerCase().includes('unauthorized')) {
+                    setIsConfigExpanded(true);
+                }
             }
         });
     };

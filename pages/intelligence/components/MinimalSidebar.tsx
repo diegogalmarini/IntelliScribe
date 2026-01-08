@@ -307,13 +307,13 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                             onClick={closeContextMenu}
                                         />
 
-                                        <div className="absolute right-1 top-8 w-56 bg-[#2a2a2a] rounded-xl shadow-2xl border border-white/10 py-2 z-[200]">
+                                        <div className="absolute right-1 top-8 w-56 bg-white dark:bg-[#2a2a2a] rounded-xl shadow-2xl border border-black/5 dark:border-white/10 py-2 z-[200]">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleViewNotes(recording.id);
                                                 }}
-                                                className="w-full text-left px-4 py-2.5 text-[14px] text-[#ececec] hover:bg-white/10 flex items-center gap-3 transition-colors"
+                                                className="w-full text-left px-4 py-2.5 text-[14px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
                                                 <FileText size={18} strokeWidth={1.5} />
                                                 <span>{t('viewContext')}</span>
@@ -323,7 +323,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                     e.stopPropagation();
                                                     handleRename(recording.id);
                                                 }}
-                                                className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
+                                                className="w-full text-left px-3 py-2 text-[14px] text-[#0d0d0d] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
                                                 <Edit3 size={18} strokeWidth={1.5} />
                                                 <span>{t('rename')}</span>
@@ -333,18 +333,18 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                     e.stopPropagation();
                                                     handleMoveTo(recording.id);
                                                 }}
-                                                className="w-full text-left px-3 py-2 text-[14px] text-white hover:bg-white/10 flex items-center gap-3 transition-colors"
+                                                className="w-full text-left px-3 py-2 text-[14px] text-[#0d0d0d] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center gap-3 transition-colors"
                                             >
                                                 <FolderInput size={18} strokeWidth={1.5} />
                                                 <span>{t('move_to_folder_title')}</span>
                                             </button>
-                                            <div className="my-1.5 border-t border-white/10"></div>
+                                            <div className="my-1.5 border-t border-black/5 dark:border-white/10"></div>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleDelete(recording.id);
                                                 }}
-                                                className="w-full text-left px-4 py-2.5 text-[14px] text-red-400 hover:bg-red-900/20 flex items-center gap-3 transition-colors"
+                                                className="w-full text-left px-4 py-2.5 text-[14px] text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors"
                                             >
                                                 <Trash2 size={18} strokeWidth={1.5} />
                                                 <span>{t('delete')}</span>

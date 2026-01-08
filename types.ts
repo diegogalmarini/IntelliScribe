@@ -27,6 +27,11 @@ export interface RecordingMetadata {
     resumedAt: string;
     durationSeconds: number;
   }>;
+  attachments?: Array<{
+    path: string;
+    timestamp: number;
+    url: string;
+  }>;
 }
 
 export interface Folder {
