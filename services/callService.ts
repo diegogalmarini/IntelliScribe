@@ -69,6 +69,12 @@ export class CallService {
             }
         }
 
+        // Clean up any existing connections before making a new call
+        // Force disconnect to ensure clean state and avoid 31005 error
+        if (this.device) {
+            this.device.disconnectAll();
+        }
+
         try {
             console.log('📞 Connecting call...');
 
@@ -91,12 +97,21 @@ export class CallService {
                 throw new Error('Browser not supported. Open in Chrome/Safari.');
             }
 
+            // 31005 usually means a connection error on hangup or setup
+            if (error.code === 31005) {
+                console.warn('⚠️ Recovering from 31005...');
+                this.device.disconnectAll();
+                // We could retry here, but for now just tell user to try again
+                throw new Error('Error de conexión temporal. Intente llamar de nuevo.');
+            }
+
             throw new Error(error.message || 'Error de conexión desconocido.');
         }
     }
 
     disconnect() {
         if (this.device) {
+            console.log('📞 Hanging up...');
             this.device.disconnectAll();
         }
     }

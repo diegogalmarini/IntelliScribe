@@ -9,9 +9,11 @@ interface DialerProps {
     onNavigate: (route: AppRoute) => void;
     // Callback para actualizar el usuario en App.tsx cuando se verifique
     onUserUpdated?: () => void;
+    // NEW: Callback when call finishes to refresh recordings
+    onCallFinished?: () => void;
 }
 
-export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated }) => {
+export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated, onCallFinished }) => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const [number, setNumber] = useState('');
@@ -67,6 +69,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
                 call.on('disconnect', () => {
                     setStatus('Ready');
                     setActiveCall(null);
+                    if (onCallFinished) onCallFinished(); // Validate recordings refresh
                 });
                 call.on('error', (err: any) => setErrorMessage(err.message));
             }
@@ -86,6 +89,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
         callService.disconnect();
         setStatus('Ready');
         setActiveCall(null);
+        if (onCallFinished) onCallFinished();
     };
 
     const toggleMute = () => {
@@ -141,7 +145,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated 
     const handlePaste = async () => {
         try {
             const text = await navigator.clipboard.readText();
-            const cleaned = text.replace(/[^0-9+]/g, '');
+            // FIX: Remove '+' because the UI already adds one. Keep only digits.
+            const cleaned = text.replace(/[^0-9]/g, '');
             if (cleaned) {
                 setNumber(cleaned);
                 setIsPasting(true);

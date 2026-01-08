@@ -825,6 +825,13 @@ const AppContent: React.FC = () => {
                 <Dialer
                     user={user}
                     onNavigate={navigate}
+                    onCallFinished={() => {
+                        console.log("📞 Call finished. Refreshing recordings...");
+                        // Aggressive polling to ensure recording appears
+                        fetchData();
+                        setTimeout(fetchData, 2000);
+                        setTimeout(fetchData, 5000);
+                    }}
                     onUserUpdated={async () => {
                         // Refresh user profile from database after verification
                         const { data, error } = await supabase
