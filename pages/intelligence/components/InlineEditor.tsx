@@ -609,7 +609,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                 onClick={handleTranscribeAudio}
                                 disabled={isTranscribing || !signedAudioUrl}
                                 title="Regenerar transcripción"
-                                className="flex items-center h-8 px-3 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-all gap-1.5 disabled:opacity-50 shadow-sm"
+                                className="flex items-center h-8 px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50"
                             >
                                 {isTranscribing ? (
                                     <span className="material-symbols-outlined animate-spin text-base">sync</span>
