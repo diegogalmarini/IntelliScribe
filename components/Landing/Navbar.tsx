@@ -5,14 +5,16 @@ import { LanguageSelector } from '../LanguageSelector';
 import { ThemeToggle } from '../ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { UserProfile } from '../../types';
 
-export const Navbar: React.FC = () => {
+export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t } = useLanguage();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
     const isLanding = location.pathname === '/';
+    const isAuthenticated = user && user.id && user.id !== '';
 
     const handleNavClick = (sectionId: string) => {
         setIsMenuOpen(false);
@@ -52,12 +54,38 @@ export const Navbar: React.FC = () => {
                         </nav>
 
                         <div className="flex items-center gap-6 border-l border-slate-200 dark:border-white/10 pl-10">
-                            <a href="/login" className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
-                                Login
-                            </a>
-                            <a href="/login" className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-[13px] font-semibold rounded-lg hover:shadow-lg dark:hover:bg-slate-200 transition-all active:scale-95 btn-owner">
-                                {t('navCtaFree')}
-                            </a>
+                            {isAuthenticated ? (
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-all group"
+                                    title="Go to Dashboard"
+                                >
+                                    <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-primary/20 overflow-hidden ring-2 ring-transparent group-hover:ring-primary/30 transition-all">
+                                        {user.avatarUrl ? (
+                                            <img
+                                                src={user.avatarUrl}
+                                                alt="User"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span>{user.firstName[0]}{user.lastName[0]}</span>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col items-start pr-2">
+                                        <p className="text-[12px] font-bold text-slate-900 dark:text-white leading-none mb-1">{user.firstName} {user.lastName}</p>
+                                        <p className="text-[10px] text-primary font-bold uppercase tracking-wider leading-none">Dashboard</p>
+                                    </div>
+                                </button>
+                            ) : (
+                                <>
+                                    <a href="/login" className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                        Login
+                                    </a>
+                                    <a href="/login" className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-[13px] font-semibold rounded-lg hover:shadow-lg dark:hover:bg-slate-200 transition-all active:scale-95 btn-owner">
+                                        {t('navCtaFree')}
+                                    </a>
+                                </>
+                            )}
                             <div className="flex items-center gap-3 pl-2">
                                 <LanguageSelector />
                                 <ThemeToggle />
@@ -90,10 +118,33 @@ export const Navbar: React.FC = () => {
                             <button onClick={() => handleNavClick('solutions')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('solSectionTag')}</button>
                             <button onClick={() => handleNavClick('pricing')} className="text-xl font-bold text-slate-900 dark:text-white py-2">Planes</button>
                             <button onClick={() => handleNavClick('faq')} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
-                            <a href="/login" className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</a>
-                            <a href="/login" className="px-6 py-4 bg-primary dark:bg-white text-white dark:text-slate-950 text-sm font-semibold rounded-xl mt-4">
-                                {t('navCtaFree')}
-                            </a>
+
+                            {isAuthenticated ? (
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="flex flex-col items-center gap-3 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10"
+                                >
+                                    <div className="h-16 w-16 rounded-full bg-gradient-brand flex items-center justify-center text-white font-bold text-xl shadow-xl overflow-hidden">
+                                        {user.avatarUrl ? (
+                                            <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span>{user.firstName[0]}{user.lastName[0]}</span>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-slate-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                                        <p className="text-sm text-primary font-bold">Ir al Dashboard</p>
+                                    </div>
+                                </button>
+                            ) : (
+                                <>
+                                    <a href="/login" className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</a>
+                                    <a href="/login" className="px-6 py-4 bg-primary dark:bg-white text-white dark:text-slate-950 text-sm font-semibold rounded-xl mt-4">
+                                        {t('navCtaFree')}
+                                    </a>
+                                </>
+                            )}
+
                             <div className="flex justify-center gap-6 mt-8">
                                 <LanguageSelector />
                                 <ThemeToggle />

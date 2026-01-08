@@ -12,8 +12,9 @@ import { useTheme } from '../contexts/ThemeContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Navbar } from '../components/Landing/Navbar';
+import { UserProfile } from '../types';
 
-export const Landing: React.FC = () => {
+export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t } = useLanguage();
     const { scrollYProgress } = useScroll();
     // const [isMenuOpen, setIsMenuOpen] = React.useState(false); // Unused, moved to Navbar
@@ -46,7 +47,7 @@ export const Landing: React.FC = () => {
 
             {/* Navbar imported from component */}
             <div className="z-50 relative">
-                <Navbar />
+                <Navbar user={user} />
             </div>
 
             {/* Sections with semantic IDs */}
