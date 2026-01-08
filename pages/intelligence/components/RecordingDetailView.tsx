@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Recording } from '../../../types';
-import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { AnalysisModal } from './AnalysisModal';
 import { ExportModal } from './ExportModal';
-import { generateMeetingSummary } from '../../../services/geminiService';
+import { generateMeetingSummary, transcribeAudio } from '../../../services/geminiService';
 import { getSignedAudioUrl } from '../../../services/storageService';
 import * as exportUtils from '../../../utils/exportUtils';
 import { supabase } from '../../../lib/supabase';
+import { databaseService } from '../../../services/databaseService';
 import { saveAs } from 'file-saver';
 
 
@@ -20,7 +21,7 @@ interface RecordingDetailViewProps {
     onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
     onUpdateSummary?: (summary: string) => void;
     onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>) => void;
-    onUpdateRecording?: (recordingId: string, updates: Partial<{ durationSeconds: number }>) => void;
+    onUpdateRecording?: (recordingId: string, updates: Partial<Recording>) => void;
     onAskDiktalo?: () => void;
 }
 
@@ -44,6 +45,14 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+
+    // CRITICAL: Local state for data that often goes missing in lightweight props
+    const [fullRecording, setFullRecording] = useState<Recording | null>(null);
+    const [segments, setSegments] = useState<any[]>(recording.segments || []);
+    const [summary, setSummary] = useState<string>(recording.summary || '');
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
     const audioRef = React.useRef<HTMLAudioElement>(null);
 
     // Simple markdown cleaner
@@ -52,29 +61,63 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         return text.replace(/```markdown/g, '').replace(/```/g, '').trim();
     };
 
+    // CRITICAL: Load full details from DB and prevent data loss on parent refresh
+    React.useEffect(() => {
+        const loadFullDetails = async () => {
+            if (!recording.id) return;
+
+            console.log(`[RecordingDetailView] Loading full details for: ${recording.id}`);
+            setIsLoadingDetails(true);
+
+            try {
+                // ALWAYS fetch from DB to get segments and summary, even if props are lightweight
+                const detailedRec = await databaseService.getRecordingDetails(recording.id);
+                if (detailedRec) {
+                    console.log(`[RecordingDetailView] Loaded full recording:`, {
+                        id: detailedRec.id,
+                        hasSegments: !!detailedRec.segments?.length,
+                        hasSummary: !!detailedRec.summary
+                    });
+                    setFullRecording(detailedRec);
+                    setSegments(detailedRec.segments || []);
+                    setSummary(detailedRec.summary || '');
+                    setEditedTitle(detailedRec.title);
+                }
+            } catch (err) {
+                console.error("[RecordingDetailView] Error loading details:", err);
+            } finally {
+                setIsLoadingDetails(false);
+            }
+        };
+
+        loadFullDetails();
+    }, [recording.id]);
+
     React.useEffect(() => {
         const loadSignedUrl = async () => {
-            if (recording.audioUrl) {
-                const url = await getSignedAudioUrl(recording.audioUrl);
+            const urlSource = fullRecording?.audioUrl || recording.audioUrl;
+            if (urlSource) {
+                const url = await getSignedAudioUrl(urlSource);
                 setSignedAudioUrl(url);
             } else {
                 setSignedAudioUrl(null);
             }
         };
         loadSignedUrl();
-    }, [recording.audioUrl]);
+    }, [recording.audioUrl, fullRecording?.audioUrl]);
 
     // Update duration when saving to DB
     React.useEffect(() => {
-        if (recording.durationSeconds) {
-            setDuration(recording.durationSeconds);
+        const durationSource = fullRecording?.durationSeconds || recording.durationSeconds;
+        if (durationSource) {
+            setDuration(durationSource);
         }
-    }, [recording.durationSeconds]);
+    }, [recording.durationSeconds, fullRecording?.durationSeconds]);
 
     // Reset duration state when recording changes to prevent sticky duration
     React.useEffect(() => {
         // Initialize with saved duration or 0 if not present
-        const initialDuration = recording.durationSeconds || 0;
+        const initialDuration = fullRecording?.durationSeconds || recording.durationSeconds || 0;
         setDuration(initialDuration);
         setCurrentTime(0);
         setIsPlaying(false);
@@ -254,8 +297,65 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
         setEditingSegmentIndex(null);
     };
 
-    const hasTranscript = recording.segments && recording.segments.length > 0;
-    const hasSummary = recording.summary && recording.summary.trim().length > 0;
+    const hasTranscript = segments && segments.length > 0;
+    const hasSummary = summary && summary.trim().length > 0;
+
+    const handleTranscribeAudio = async () => {
+        if (!signedAudioUrl) {
+            alert("Audio URL not available.");
+            return;
+        }
+
+        setIsTranscribing(true);
+        try {
+            // Fetch audio content as base64
+            const response = await fetch(signedAudioUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
+
+            const base64Promise = new Promise<string>((resolve) => {
+                reader.onloadend = () => {
+                    const base64 = (reader.result as string).split(',')[1];
+                    resolve(base64);
+                };
+            });
+            reader.readAsDataURL(blob);
+            const base64 = await base64Promise;
+
+            let mimeType = 'audio/mp3';
+            const audioUrlSource = fullRecording?.audioUrl || recording.audioUrl;
+            if (audioUrlSource?.endsWith('.webm')) mimeType = 'audio/webm';
+            else if (audioUrlSource?.endsWith('.wav')) mimeType = 'audio/wav';
+            else if (audioUrlSource?.endsWith('.m4a')) mimeType = 'audio/x-m4a';
+
+            // Transcribe using Gemini service
+            const result = await transcribeAudio(base64, mimeType, 'es', signedAudioUrl);
+
+            const newSegments = result.map((s, index) => ({
+                id: Date.now().toString() + index,
+                timestamp: s.timestamp || "00:00",
+                speaker: s.speaker || "Speaker",
+                text: s.text || "",
+                speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
+            }));
+
+            setSegments(newSegments);
+            if (onUpdateRecording) {
+                onUpdateRecording(recording.id, { segments: newSegments, status: 'Completed' });
+            }
+
+            // Also update internal fullRecording if it exists
+            if (fullRecording) {
+                setFullRecording({ ...fullRecording, segments: newSegments, status: 'Completed' });
+            }
+
+        } catch (error) {
+            console.error('Failed to transcribe', error);
+            alert("Error al regenerar la transcripción.");
+        } finally {
+            setIsTranscribing(false);
+        }
+    };
 
     const handleAnalyze = () => {
         setAnalysisOpen(true);
@@ -278,6 +378,10 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
             if (onUpdateSummary) {
                 onUpdateSummary(summary);
+            }
+            setSummary(summary); // Update local state immediately
+            if (fullRecording) {
+                setFullRecording({ ...fullRecording, summary });
             }
             setAnalysisOpen(false);
         } catch (error) {
@@ -393,6 +497,21 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 shrink-0">
+                        {/* Regenerar */}
+                        <button
+                            onClick={handleTranscribeAudio}
+                            disabled={isTranscribing || !signedAudioUrl}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                            title="Regenerar transcripción"
+                        >
+                            {isTranscribing ? (
+                                <Loader2 size={14} className="animate-spin text-brand-purple" />
+                            ) : (
+                                <RefreshCw size={14} className="text-brand-purple" />
+                            )}
+                            <span className="hidden sm:inline">{isTranscribing ? 'Procesando...' : 'Regenerar'}</span>
+                        </button>
+
                         {/* Analizar */}
                         <button
                             onClick={handleAnalyze}
@@ -536,7 +655,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                             </div>
 
                             <div className="space-y-4">
-                                {recording.segments.map((segment, idx) => {
+                                {segments.map((segment, idx) => {
                                     // Check for temporal metadata matches
                                     const temporalMeta = recording.metadata?.segments?.find(
                                         meta => meta.segmentStartIndex === idx
@@ -737,13 +856,13 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => exportUtils.exportAsPDF(recording, { includeSummary: true, includeTranscript: false })}
+                                        onClick={() => exportUtils.exportAsPDF({ ...recording, segments, summary }, { includeSummary: true, includeTranscript: false })}
                                         className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
                                     >
                                         PDF
                                     </button>
                                     <button
-                                        onClick={() => exportUtils.exportAsDoc(recording, { includeSummary: true, includeTranscript: false })}
+                                        onClick={() => exportUtils.exportAsDoc({ ...recording, segments, summary }, { includeSummary: true, includeTranscript: false })}
                                         className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
                                     >
                                         DOC
@@ -764,7 +883,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                         strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
                                     }}
                                 >
-                                    {cleanMarkdown(recording.summary)}
+                                    {cleanMarkdown(summary)}
                                 </ReactMarkdown>
                             </div>
                         </div>

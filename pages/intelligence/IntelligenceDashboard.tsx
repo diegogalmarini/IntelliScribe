@@ -158,6 +158,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleSelectRecording = async (id: string) => {
+        console.log(`[Dashboard] Selecting recording: ${id}`);
         setView('recordings'); // Switch back to recordings view
 
         // Check if recording exists in current lists
@@ -196,6 +197,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
         onSelectRecording(id);
         setIsEditorOpen(false); // Show RecordingDetailView by default
+        console.log(`[Dashboard] View state: isEditorOpen=false, activeId=${id}`);
 
         // Auto-close sidebar on mobile when selecting
         if (isMobile) {
