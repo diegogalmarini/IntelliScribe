@@ -717,12 +717,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </div>
                                             <CustomSelect
                                                 className="w-40"
-                                                value={preferences.transcriptionLanguage || 'Español'}
-                                                onChange={(val) => setPreferences({ ...preferences, transcriptionLanguage: val })}
+                                                value={user.transcriptionLanguage || 'es'}
+                                                onChange={(val) => {
+                                                    setPreferences({ ...preferences, transcriptionLanguage: val });
+                                                    handleUpdateUser({ transcriptionLanguage: val });
+                                                }}
                                                 options={[
-                                                    { value: 'Español', label: 'Español' },
-                                                    { value: 'English', label: 'English' },
-                                                    { value: 'Français', label: 'Français' },
+                                                    { value: 'es', label: 'Español' },
+                                                    { value: 'en', label: 'English' },
+                                                    { value: 'fr', label: 'Français' },
                                                 ]}
                                             />
                                         </div>

@@ -409,6 +409,16 @@ const AppContent: React.FC = () => {
         }
     }, [supabaseUser, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Polling for Auto-Refresh (every 30s)
+    useEffect(() => {
+        if (!supabaseUser) return;
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, 30000); // 30 seconds
+
+        return () => clearInterval(intervalId);
+    }, [supabaseUser, fetchData]);
+
 
     // --- HANDLERS ---
 

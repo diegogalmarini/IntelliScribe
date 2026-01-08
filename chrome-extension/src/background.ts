@@ -253,6 +253,14 @@ async function captureAndUploadScreenshot() {
         capturedScreenshots: [...currentList, newScreenshot]
     });
 
+    // 6. Notify User
+    chrome.notifications.create(`screenshot-${timestamp}`, {
+        type: 'basic',
+        iconUrl: 'icons/diktalo.png',
+        title: 'Captura Guardada',
+        message: 'La captura de pantalla se ha guardado correctamente.'
+    });
+
     return { success: true, path: path };
 }
 
