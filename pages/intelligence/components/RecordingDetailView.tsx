@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Recording } from '../../../types';
+import { Recording, UserProfile } from '../../../types';
 import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -16,6 +16,7 @@ import { saveAs } from 'file-saver';
 
 interface RecordingDetailViewProps {
     recording: Recording;
+    user: UserProfile;
     onGenerateTranscript?: () => Promise<void>;
     onRename?: (newTitle: string) => void;
     onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
@@ -25,7 +26,7 @@ interface RecordingDetailViewProps {
     onAskDiktalo?: () => void;
 }
 
-export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -329,7 +330,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             else if (audioUrlSource?.endsWith('.m4a')) mimeType = 'audio/x-m4a';
 
             // Transcribe using Gemini service
-            const result = await transcribeAudio(base64, mimeType, 'es', signedAudioUrl);
+            const targetLang = user.transcriptionLanguage || 'es';
+            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
             const newSegments = result.map((s, index) => ({
                 id: Date.now().toString() + index,
@@ -907,6 +909,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                 onClose={() => setAnalysisOpen(false)}
                 onGenerate={handleGenerateSummary}
                 isGenerating={isGenerating}
+                defaultLanguage={user.transcriptionLanguage || 'es'}
             />
             {/* ChatModal moved to Dashboard level */}
             <ExportModal

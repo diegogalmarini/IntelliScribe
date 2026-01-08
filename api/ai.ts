@@ -216,12 +216,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (!finalBase64) throw new Error('No audio data or URL provided');
 
+            const languageNames: Record<string, string> = {
+                'es': 'Spanish',
+                'en': 'English',
+                'fr': 'French',
+                'de': 'German',
+                'it': 'Italian',
+                'pt': 'Portuguese'
+            };
+            const targetLanguageName = languageNames[language] || 'English';
+
             const response = await genAI.models.generateContent({
                 model: 'gemini-2.0-flash-exp',
                 contents: {
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
-                        { text: "Transcribe this audio conversation. Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'." }
+                        { text: `Transcribe this audio conversation. The output MUST be in ${targetLanguageName}. If the audio is in a different language, translate it to ${targetLanguageName} while transcribing. Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'.` }
                     ]
                 },
                 config: { responseMimeType: 'application/json' }

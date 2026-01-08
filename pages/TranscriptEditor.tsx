@@ -343,7 +343,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             }
 
             // Transcribe using the signed URL
-            const result = await transcribeAudio(base64, mimeType, language, signedAudioUrl);
+            const targetLang = user.transcriptionLanguage || language || 'es';
+            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
             const newSegments: TranscriptSegment[] = result.map((s, index) => ({
                 id: Date.now().toString() + index,
@@ -374,7 +375,8 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         setSummaryError(null);
         setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
         try {
-            const summaryText = await generateMeetingSummary(fullTranscript, language);
+            const targetLang = user.transcriptionLanguage || language || 'es';
+            const summaryText = await generateMeetingSummary(fullTranscript, targetLang);
             setSummary(summaryText);
             onUpdateRecording(recording.id, { summary: summaryText });
         } catch (error: any) {

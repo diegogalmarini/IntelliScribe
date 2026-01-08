@@ -7,6 +7,7 @@ interface AnalysisModalProps {
     onClose: () => void;
     onGenerate: (templateId: string, language: string) => void;
     isGenerating: boolean;
+    defaultLanguage?: string;
 }
 
 const CATEGORIES = [
@@ -39,12 +40,13 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
     isOpen,
     onClose,
     onGenerate,
-    isGenerating
+    isGenerating,
+    defaultLanguage = 'es'
 }) => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>('general');
-    const [selectedLanguage, setSelectedLanguage] = useState('es');
+    const [selectedLanguage, setSelectedLanguage] = useState(defaultLanguage);
     const [showLangMenu, setShowLangMenu] = useState(false);
     const [previewTemplate, setPreviewTemplate] = useState<AITemplate | null>(null);
 

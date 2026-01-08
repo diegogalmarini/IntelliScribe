@@ -288,7 +288,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     const signedUrl = await getSignedAudioUrl(audioUrl);
                     if (signedUrl) {
                         try {
-                            const segments = await transcribeAudio(undefined, file.type, 'es', signedUrl);
+                            const targetLang = user.transcriptionLanguage || 'es';
+                            const segments = await transcribeAudio(undefined, file.type, targetLang, signedUrl);
                             if (segments && segments.length > 0) {
                                 await databaseService.updateRecording(createdRecording.id, {
                                     segments: segments as any,
@@ -385,7 +386,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
             // 4. Transcribe the full concatenated audio
             console.log('[Dashboard] Starting transcription...');
-            const fullTranscription = await transcribeAudio(undefined, 'audio/wav', 'es', signedUrl);
+            const targetLang = user.transcriptionLanguage || 'es';
+            const fullTranscription = await transcribeAudio(undefined, 'audio/wav', targetLang, signedUrl);
             console.log('[Dashboard] Transcription complete, segments:', fullTranscription.length);
 
             // 5. Distribute segments to speakers based on time offsets
@@ -564,7 +566,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const urlToUse = await getSignedAudioUrl(activeRecording.audioUrl);
             if (!urlToUse) throw new Error("No audio URL available");
 
-            const segments = await transcribeAudio(undefined, undefined, 'es', urlToUse);
+            const targetLang = user.transcriptionLanguage || 'es';
+            const segments = await transcribeAudio(undefined, undefined, targetLang, urlToUse);
 
             // Check if segments are valid
             if (!segments || segments.length === 0) {
@@ -894,6 +897,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         <div className="h-full pt-12 md:pt-0">
                             <RecordingDetailView
                                 recording={activeRecording} // Use activeRecording from hook/find
+                                user={user}
                                 onGenerateTranscript={!activeRecording.segments || activeRecording.segments.length === 0 ? handleGenerateTranscript : undefined}
                                 onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
                                 onUpdateSpeaker={handleUpdateSpeaker}

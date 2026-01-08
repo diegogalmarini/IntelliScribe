@@ -334,7 +334,8 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             }
 
             // Transcribe using the signed URL
-            const result = await transcribeAudio(base64, mimeType, user.transcriptionLanguage || language || 'en', signedAudioUrl);
+            const targetLang = user.transcriptionLanguage || language || 'es';
+            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
             const newSegments: TranscriptSegment[] = result.map((s, index) => ({
                 id: Date.now().toString() + index,
@@ -365,7 +366,8 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         setSummaryError(null);
         setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
         try {
-            const summaryText = await generateMeetingSummary(fullTranscript, user.transcriptionLanguage || language || 'en');
+            const targetLang = user.transcriptionLanguage || language || 'es';
+            const summaryText = await generateMeetingSummary(fullTranscript, targetLang);
             setSummary(summaryText);
             onUpdateRecording(recording.id, { summary: summaryText });
         } catch (error: any) {
