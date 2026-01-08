@@ -11,7 +11,10 @@ interface FolderListProps {
     userId?: string;
 }
 
+import { useLanguage } from '../../../contexts/LanguageContext';
+
 export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selectedFolderId, userId }) => {
+    const { t } = useLanguage();
     const [folders, setFolders] = useState<FolderType[]>([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
@@ -102,7 +105,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
     return (
         <div className="space-y-2 mt-6">
             <div className="flex items-center justify-between px-2 mb-2">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Carpetas</h3>
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('projects')}</h3>
                 <button
                     onClick={() => setIsCreating(true)}
                     className="p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-md transition-colors"
@@ -116,7 +119,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                     <input
                         autoFocus
                         type="text"
-                        placeholder="Nueva carpeta..."
+                        placeholder={t('newProjectPlaceholder')}
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
                         onBlur={() => !newFolderName && setIsCreating(false)}
@@ -134,7 +137,7 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                         }`}
                 >
                     <FolderOpen className="w-4 h-4" />
-                    <span className="truncate">Todos los archivos</span>
+                    <span className="truncate">{t('allFiles')}</span>
                 </button>
 
                 {folders.map(folder => (
@@ -205,10 +208,10 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
                 isOpen={!!folderToDelete}
                 onClose={() => setFolderToDelete(null)}
                 onConfirm={confirmDeleteFolder}
-                title="Eliminar Carpeta"
-                message="¿Estás seguro de eliminar esta carpeta? Los audios no se borrarán, solo se desvincularán."
-                confirmText="Eliminar"
-                cancelText="Cancelar"
+                title={t('deleteProjectTitle')}
+                message={t('deleteProjectConfirm')}
+                confirmText={t('delete')}
+                cancelText={t('cancel')}
                 isDestructive={true}
             />
         </div>
