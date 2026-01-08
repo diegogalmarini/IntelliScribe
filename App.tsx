@@ -208,6 +208,7 @@ const AppContent: React.FC = () => {
                 phoneVerified: data.phone_verified || false,
                 // Fallback to localStorage if DB fields are missing
                 timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
+                transcriptionLanguage: data.transcription_language || prev.transcriptionLanguage,
                 notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
                 role: data.role || 'Member',
                 subscription: {
@@ -511,7 +512,9 @@ const AppContent: React.FC = () => {
             if (updatedUser.notificationSettings) {
                 localStorage.setItem(`diktalo_settings_notifications_${user.id}`, JSON.stringify(updatedUser.notificationSettings));
             }
-
+            if (updatedUser.transcriptionLanguage) {
+                localStorage.setItem(`diktalo_settings_transcription_lang_${user.id}`, updatedUser.transcriptionLanguage);
+            }
             // Attempt DB update
             await databaseService.updateUserProfile(user.id, updatedUser);
         }

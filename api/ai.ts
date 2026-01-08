@@ -219,7 +219,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const languageNames: Record<string, string> = {
                 'es': 'Spanish',
                 'en': 'English',
-                'fr': 'French',
                 'de': 'German',
                 'it': 'Italian',
                 'pt': 'Portuguese'
