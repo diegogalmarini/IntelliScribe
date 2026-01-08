@@ -230,7 +230,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 contents: {
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
-                        { text: `Transcribe this audio conversation. The output MUST be in ${targetLanguageName}. If the audio is in a different language, translate it to ${targetLanguageName} while transcribing. Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'.` }
+                        {
+                            text: `Transcribe this audio conversation. 
+                        
+CRITICAL INSTRUCTION: The output MUST be entirely in ${targetLanguageName}. 
+If the audio contains any other language, you MUST translate it accurately into ${targetLanguageName} while transcribing. 
+The final JSON text must only contain ${targetLanguageName}.
+
+Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'.` }
                     ]
                 },
                 config: { responseMimeType: 'application/json' }

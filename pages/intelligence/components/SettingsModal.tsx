@@ -143,7 +143,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             phone: user.phone || prev.phone,
             timezone: user.timezone || prev.timezone
         }));
-    }, [user.phone, user.timezone]);
+        setPreferences(prev => ({
+            ...prev,
+            transcriptionLanguage: user.transcriptionLanguage || prev.transcriptionLanguage
+        }));
+    }, [user.phone, user.timezone, user.transcriptionLanguage]);
 
     // EFFECT: Fetch API Token when Developer section is selected
     useEffect(() => {
@@ -176,7 +180,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         autoLabelSpeakers: false,
         syncSpeakerLabels: false,
         helpImprove: false,
-        transcriptionLanguage: 'Español'
+        transcriptionLanguage: user.transcriptionLanguage || 'es'
     });
 
     // Notifications State - Initialize from user prop
