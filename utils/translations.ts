@@ -165,6 +165,11 @@ export const translations = {
     supportedFormats: "Supported: JPG, PNG, WEBP (Max 5MB)",
     sessionInit: "Session Initialized",
     recordingProgress: "Recording in progress...",
+
+    // Navigation Guard
+    confirmExitTitle: "Exit Recording?",
+    confirmExitDesc: "You have a recording in progress or paused. If you exit now, progress will be lost.",
+    confirmExitBtn: "Exit and Discard",
     noMic: "No microphones found",
     modeMeeting: "In-Person Meeting",
     modeCall: "Phone Call Mode",
@@ -755,6 +760,11 @@ export const translations = {
     supportedFormats: "Soportado: JPG, PNG, WEBP (Max 5MB)",
     sessionInit: "Sesión Inicializada",
     recordingProgress: "Grabación en curso...",
+
+    // Navigation Guard
+    confirmExitTitle: "¿Salir de la grabación?",
+    confirmExitDesc: "Tienes una grabación en curso o en pausa. Si sales ahora, se perderá el progreso.",
+    confirmExitBtn: "Salir y descartar",
     noMic: "No se encontraron micrófonos",
     modeMeeting: "Reunión Presencial",
     modeCall: "Modo Llamada Telefónica",

@@ -1035,10 +1035,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         window.history.replaceState({}, '', window.location.pathname);
                     }
                 }}
-                title={(t as any)('confirmExitTitle') || '¿Salir de la grabación?'}
-                message={(t as any)('confirmExitDesc') || 'Tienes una grabación en curso o en pausa. Si sales ahora, se perderá el progreso.'}
-                confirmText={(t as any)('confirmExitBtn') || 'Salir y descartar'}
-                cancelText={(t as any)('cancel') || 'Cancelar'}
+                title={t('confirmExitTitle')}
+                message={t('confirmExitDesc')}
+                confirmText={t('confirmExitBtn')}
+                cancelText={t('cancel')}
                 isDestructive={true}
             />
 
