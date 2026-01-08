@@ -11,6 +11,7 @@ import { SubscriptionView } from './components/SubscriptionView';
 import { MultiAudioUploader } from './components/MultiAudioUploader';
 import { TemplateGallery } from './TemplateGallery';
 import { ChatModal } from './components/ChatModal';
+import { ConfirmModal } from './components/ConfirmModal'; // Added Import
 import { AlertModal, AlertType } from '../../components/AlertModal';
 import { MessageSquare, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -127,6 +128,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         message: '',
         type: 'info'
     });
+
+    // Navigation Guard State
+    const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused'>('idle');
+    const [showNavConfirm, setShowNavConfirm] = useState(false);
 
     // Chat State
     const [chatState, setChatState] = useState<{
@@ -738,6 +743,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
                     onSelectFolder={onSelectFolder}
                     onLogoClick={() => {
+                        if (recorderStatus !== 'idle') {
+                            setShowNavConfirm(true);
+                            return;
+                        }
                         // Reset view to Dashboard Home
                         setView('recordings');
                         setSelectedId(null);
@@ -916,7 +925,11 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             <InlineRecorder
                                 user={user}
                                 onComplete={handleRecordingComplete}
-                                onCancel={handleCancelRecording}
+                                onCancel={() => {
+                                    handleCancelRecording();
+                                    if (isMobile) setIsSidebarOpen(true);
+                                }}
+                                onStateChange={setRecorderStatus}
                             />
                         </div>
                     ) : activeRecording ? (
@@ -978,6 +991,27 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 message={alertState.message}
                 type={alertState.type}
             />
+            {/* Navigation Confirm Modal */}
+            <ConfirmModal
+                isOpen={showNavConfirm}
+                onClose={() => setShowNavConfirm(false)}
+                onConfirm={() => {
+                    // Force reset
+                    setIsRecording(false);
+                    setRecorderStatus('idle'); // Force idle
+                    setView('recordings');
+                    setSelectedId(null);
+                    setIsEditorOpen(false);
+                    setShowMultiAudioUploader(false);
+                    window.history.replaceState({}, '', window.location.pathname);
+                }}
+                title={(t as any)('confirmExitTitle') || '¿Salir de la grabación?'}
+                message={(t as any)('confirmExitDesc') || 'Tienes una grabación en curso o en pausa. Si sales ahora, se perderá el progreso.'}
+                confirmText={(t as any)('confirmExitBtn') || 'Salir y descartar'}
+                cancelText={(t as any)('cancel') || 'Cancelar'}
+                isDestructive={true}
+            />
+
         </div>
     );
 };
