@@ -406,13 +406,14 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
 
     const handleDownloadAudio = async () => {
-        if (!recording.audioUrl) return;
+        const audioUrlSource = fullRecording?.audioUrl || recording.audioUrl;
+        if (!audioUrlSource) return;
 
         try {
             // Extract file extension from the original audio URL
-            const urlParts = recording.audioUrl.split('.');
+            const urlParts = audioUrlSource.split('.');
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
-            const fileName = `${recording.title || 'audio'}.${fileExtension}`;
+            const fileName = `${(fullRecording?.title || recording.title) || 'audio'}.${fileExtension}`;
 
             // Use the already signed URL if available (best for private files)
             // or fetch a new one if expired/missing
@@ -420,7 +421,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
             if (!downloadUrl) {
                 console.log('[RecordingDetailView] Generating new signed URL for download...');
-                downloadUrl = await getSignedAudioUrl(recording.audioUrl);
+                downloadUrl = await getSignedAudioUrl(audioUrlSource);
             }
 
             if (!downloadUrl) throw new Error('Could not generate download URL');
@@ -538,6 +539,13 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6">
                 <div className="max-w-4xl mx-auto space-y-8">
+                    {isLoadingDetails && !fullRecording && (
+                        <div className="flex items-center gap-2 text-[12px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg animate-pulse mb-4">
+                            <Loader2 size={14} className="animate-spin" />
+                            Actualizando detalles completos...
+                        </div>
+                    )}
+
                     {/* Audio Player Card */}
                     <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                         <div className="flex items-center gap-2 mb-4">
@@ -547,7 +555,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                             </h2>
                         </div>
 
-                        {recording.audioUrl ? (
+                        {(fullRecording?.audioUrl || recording.audioUrl) ? (
                             <div className="space-y-4">
                                 <div className="bg-[#f7f7f8] dark:bg-black/20 rounded-lg p-3 flex items-center gap-4">
                                     {/* Play/Pause Button */}
