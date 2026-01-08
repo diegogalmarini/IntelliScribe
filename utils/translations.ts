@@ -69,6 +69,11 @@ export const translations = {
     freePlan: "Starter Plan",
     member: "Member",
     admin: "Administrator",
+    projects: "Projects", // Renamed from folders
+    allFiles: "All files",
+    newProjectPlaceholder: "New project...", // Renamed from folder
+    deleteProjectTitle: "Delete Project",
+    deleteProjectConfirm: "Are you sure you want to delete this project? Audios will simply be unlinked.",
 
     // Dashboard / Home
     welcomeUser: "Good morning, {name}",
@@ -288,16 +293,16 @@ export const translations = {
 
     // Dashboard & Sidebar (New)
     dashboard_greeting: "Hello, {name}",
-    new_session_btn: "+ New Session",
+    new_session_btn: "New Session", // Removed +
     search_placeholder_short: "Search...",
     no_results_found_short: "No results",
-    folder_empty_short: "This folder is empty",
+    folder_empty_short: "This project is empty",
     no_recordings_short: "No recordings",
     no_date_label: "No date",
     unlimited_label: "Unlimited",
-    move_to_folder_title: "Move to folder",
-    no_folder_root_label: "No Folder (Root)",
-    no_folders_created_label: "You have no folders",
+    move_to_folder_title: "Move to project",
+    no_folder_root_label: "No Project (Root)",
+    no_folders_created_label: "You have no projects",
     delete_recording_confirm_title: "Delete recording?",
     delete_recording_confirm_desc: "This action cannot be undone.",
     multi_audio_label: "Multi-Audio",
@@ -614,6 +619,11 @@ export const translations = {
     freePlan: "Plan Starter",
     member: "Miembro",
     admin: "Administrador",
+    projects: "Proyectos", // Renamed from folders
+    allFiles: "Todos los archivos",
+    newProjectPlaceholder: "Nuevo proyecto...", // Renamed from folder
+    deleteProjectTitle: "Eliminar Proyecto",
+    deleteProjectConfirm: "¿Estás seguro de eliminar este proyecto? Los audios no se borrarán, solo se desvincularán.",
 
     // Dashboard / Home
     welcomeUser: "Hola, {name}",
@@ -845,16 +855,16 @@ export const translations = {
 
     // Dashboard & Sidebar (New)
     dashboard_greeting: "Hola, {name}",
-    new_session_btn: "+ Nueva Sesión",
+    new_session_btn: "Nueva Sesión", // Removed +
     search_placeholder_short: "Buscar...",
     no_results_found_short: "No hay resultados",
-    folder_empty_short: "Carpeta vacía",
+    folder_empty_short: "Proyecto vacío",
     no_recordings_short: "No hay grabaciones",
     no_date_label: "Sin fecha",
     unlimited_label: "Ilimitado",
-    move_to_folder_title: "Mover a carpeta",
-    no_folder_root_label: "Sin Carpeta (Raíz)",
-    no_folders_created_label: "No tienes carpetas creadas",
+    move_to_folder_title: "Mover a proyecto",
+    no_folder_root_label: "Sin Proyecto (Raíz)",
+    no_folders_created_label: "No tienes proyectos creados",
     delete_recording_confirm_title: "¿Eliminar grabación?",
     delete_recording_confirm_desc: "Esta acción no se puede deshacer.",
     multi_audio_label: "Multi-Audio",
