@@ -123,9 +123,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
 
             const selectedTemplate = templates[template] || templates['general'];
+            const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
             systemPrompt = language === 'es' ? selectedTemplate.es : selectedTemplate.en;
 
-            const finalPrompt = `${systemPrompt}\n\nTranscript:\n${transcript}`;
+            const finalPrompt = `${systemPrompt}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.models.generateContent({
                 model: 'gemini-2.0-flash-exp',

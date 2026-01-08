@@ -383,7 +383,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
         try {
             const targetLang = user.transcriptionLanguage || language || 'es';
-            const summaryText = await generateMeetingSummary(fullTranscript, targetLang);
+            const summaryText = await generateMeetingSummary(fullTranscript, targetLang, selectedTemplate);
             setSummary(summaryText);
             onUpdateRecording(recording.id, { summary: summaryText });
         } catch (error: any) {

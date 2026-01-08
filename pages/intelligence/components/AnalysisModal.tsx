@@ -48,6 +48,12 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>('general');
     const [selectedLanguage, setSelectedLanguage] = useState(defaultLanguage);
     const [showLangMenu, setShowLangMenu] = useState(false);
+
+    // Sync selectedLanguage with defaultLanguage if it changes
+    React.useEffect(() => {
+        setSelectedLanguage(defaultLanguage);
+    }, [defaultLanguage]);
+
     const [previewTemplate, setPreviewTemplate] = useState<AITemplate | null>(null);
 
     // Filtering logic
@@ -226,30 +232,25 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
                             {/* Language Dropdown */}
                             {showLangMenu && (
-                                <>
-                                    <div
-                                        className="fixed inset-0 z-30"
-                                        onClick={() => setShowLangMenu(false)}
-                                    />
-                                    <div className="absolute bottom-full left-0 mb-2 w-full sm:w-48 bg-white dark:bg-[#252525] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-40 py-1">
-                                        {LANGUAGES.map(lang => (
-                                            <button
-                                                key={lang.code}
-                                                onClick={() => {
-                                                    setSelectedLanguage(lang.code);
-                                                    setShowLangMenu(false);
-                                                }}
-                                                className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 ${selectedLanguage === lang.code
-                                                    ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10'
-                                                    : 'text-gray-700 dark:text-gray-300'
-                                                    }`}
-                                            >
-                                                {lang.label}
-                                                {selectedLanguage === lang.code && <Check size={14} />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
+                                <div className="absolute bottom-full left-0 mb-2 w-full sm:w-48 bg-white dark:bg-[#252525] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-[110] py-1 animate-in slide-in-from-bottom-2 duration-200">
+                                    {LANGUAGES.map(lang => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedLanguage(lang.code);
+                                                setShowLangMenu(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 ${selectedLanguage === lang.code
+                                                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10'
+                                                : 'text-gray-700 dark:text-gray-300'
+                                                }`}
+                                        >
+                                            {lang.label}
+                                            {selectedLanguage === lang.code && <Check size={14} />}
+                                        </button>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     </div>
