@@ -138,9 +138,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // --- Action 2: Chat with Transcript ---
         else if (action === 'chat') {
             const { transcript, history, message } = payload;
+            let finalContext = '';
+
+            // Handle Array of Recordings (Meso/Macro Level) or Single String
+            if (Array.isArray(transcript)) {
+                // It's an array of { title, date, content, id }
+                finalContext = transcript.map((item: any, index: number) => {
+                    return `--- RECORDING START [${index + 1}] ---\nTITLE: ${item.title}\nDATE: ${item.date}\nID: ${item.id}\nCONTENT:\n${item.content}\n--- RECORDING END ---`;
+                }).join('\n\n');
+            } else {
+                // Legacy support for single string
+                finalContext = typeof transcript === 'string' ? transcript : JSON.stringify(transcript);
+            }
+
+            // Safety limit (approx 700k chars to stay safe within Gemini 1M window and leave room for response)
+            const CHAR_LIMIT = 700000;
+            if (finalContext.length > CHAR_LIMIT) {
+                console.warn(`[AI_API] Context too large (${finalContext.length} chars). Truncating...`);
+                finalContext = finalContext.substring(0, CHAR_LIMIT) + "\n\n[SYSTEM: CONTEXT TRUNCATED DUE TO LENGTH]";
+            }
+
             const systemInstruction = language === 'es'
-                ? `Eres Diktalo, un asistente. Responde basándote ÚNICAMENTE en este contexto:\n${transcript}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible. Son datos internos.\n2. Si tienes que citar una grabación, usa su Título título o fecha. (ej: "En la grabación 'Reunión de Ventas'...").\n3. Si el usuario pide ver, abrir o ir a una grabación, termina tu respuesta con el token: [OPEN_RECORDING: id_de_la_grabacion].\n4. Solo pon el token al final. No expliques que lo estás poniendo.`
-                : `You are Diktalo. Answer based ONLY on this context:\n${transcript}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs" or UUIDs in your visible response. They are internal data.\n2. Refer to recordings by their Title or Date (e.g., "In the recording 'Sales Meeting'...").\n3. If the user asks to view, open, or go to a specific recording, end your response with the token: [OPEN_RECORDING: recording_id].\n4. Only place the token at the very end. Do not explain it.`;
+                ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto de grabaciones:\n${finalContext}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible.\n2. Si citas algo, menciona "En la grabación [Título]" o "En la reunión del [Fecha]".\n3. Si analizas múltiples grabaciones, busca patrones y conexiones entre ellas.\n4. Si el usuario pide abrir una grabación, termina con: [OPEN_RECORDING: id].`
+                : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
             const chat = genAI.chats.create({
                 model: 'gemini-2.0-flash-exp',

@@ -176,9 +176,6 @@ async function resumeRecording() {
     });
 }
 
-    });
-}
-
 // --- Screenshot Logic ---
 
 async function captureAndUploadScreenshot() {
@@ -384,6 +381,16 @@ async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, ex
     const performFullUpload = async (token: string): Promise<{ recordingId: string }> => {
         // 1. Get User ID (needed for storage path)
         console.log('[Background] Step 1: Getting User Details...');
+
+        // NOTIFICATION: Upload Starting
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/diktalo.png', // Ensure icon exists or use generic
+            title: 'Subiendo Grabación...',
+            message: 'Por favor no cierres el navegador hasta que termine.',
+            priority: 2
+        });
+
         const user = await getUserDetails(token, supabaseUrl, supabaseKey);
         const userId = user.id;
 
@@ -399,6 +406,15 @@ async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, ex
             source: 'chrome-extension', // Hardcoded for now, could be dynamic
             original_filename: `recording-${Date.now()}.webm`,
             ...extraMetadata
+        });
+
+        // NOTIFICATION: Success
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/diktalo.png',
+            title: '¡Grabación Guardada!',
+            message: 'Tu reunión ya está disponible en Diktalo.',
+            priority: 2
         });
 
         return { recordingId: recording.recordingId };
