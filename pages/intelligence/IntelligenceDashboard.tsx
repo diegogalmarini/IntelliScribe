@@ -735,7 +735,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
                     onSelectFolder={onSelectFolder}
                     onLogoClick={() => {
-                        onNavigate(AppRoute.LANDING); // Or reset view
+                        // Reset view to Dashboard Home
                         setView('recordings');
                         setSelectedId(null);
                         setIsEditorOpen(false);
@@ -785,7 +785,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
                         onSelectFolder={onSelectFolder}
                         onLogoClick={() => {
-                            onNavigate(AppRoute.LANDING);
+                            // Reset view to Dashboard Home
                             setView('recordings');
                             setSelectedId(null);
                             setIsEditorOpen(false);
