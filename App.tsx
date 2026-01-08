@@ -352,10 +352,14 @@ const AppContent: React.FC = () => {
     const handleUpdateRecording = async (id: string, updates: Partial<Recording>): Promise<void> => {
         await databaseService.updateRecording(id, updates);
 
-        // Update local state
-        setRecordings(prev =>
-            prev.map(rec => rec.id === id ? { ...rec, ...updates } : rec)
-        );
+        //CRITICAL FIX: Re-fetch from DB instead of merging partial data
+        // Merging loses fields not in 'updates' when base recording is incomplete
+        const fullRecording = await databaseService.getRecordingDetails(id);
+        if (fullRecording) {
+            setRecordings(prev =>
+                prev.map(rec => rec.id === id ? fullRecording : rec)
+            );
+        }
     };
 
     // --- DATA LOADING & AUTH EFFECT ---
