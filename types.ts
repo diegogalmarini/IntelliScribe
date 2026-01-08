@@ -101,6 +101,8 @@ export interface UserProfile {
   phone: string; // New field
   phoneVerified: boolean; // New field
   timezone?: string; // New field
+  language?: 'en' | 'es'; // Interface language persistence
+  transcriptionLanguage?: string; // Default transcription language persistence
   notificationSettings?: {
     email: {
       newRecording: boolean;
