@@ -28,7 +28,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-sm bg-white dark:bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 transform transition-all scale-100 opacity-100">
 
                 {/* Header */}
@@ -64,8 +64,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                             onClose();
                         }}
                         className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${isDestructive
-                                ? 'bg-red-600 hover:bg-red-700'
-                                : 'bg-blue-600 hover:bg-blue-700'
+                            ? 'bg-red-600 hover:bg-red-700'
+                            : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                     >
                         {confirmText}

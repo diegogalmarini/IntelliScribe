@@ -102,8 +102,8 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="w-full max-w-2xl bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl flex flex-col h-[80vh] overflow-hidden border border-gray-200 dark:border-gray-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4">
+            <div className="w-full h-full md:h-[80vh] md:max-w-2xl bg-white dark:bg-[#1e1e1e] rounded-none md:rounded-2xl shadow-2xl flex flex-col overflow-hidden border-0 md:border border-gray-200 dark:border-gray-800">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/[0.05] bg-white dark:bg-[#1e1e1e]">
                     <div className="flex items-center gap-3">
