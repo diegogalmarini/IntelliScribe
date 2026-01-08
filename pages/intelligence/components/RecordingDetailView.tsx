@@ -27,6 +27,38 @@ interface RecordingDetailViewProps {
     onAskDiktalo?: () => void;
 }
 
+// Subcomponent to handle individual image signing
+const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick }: { attachment: any, timeLabel: string, onTimestampClick: (t: string) => void }) => {
+    const [signedUrl, setSignedUrl] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    React.useEffect(() => {
+        const sign = async () => {
+            if (attachment.path) {
+                const url = await getSignedAudioUrl(attachment.path); // Reusing getSignedAudioUrl as it works for storage paths
+                setSignedUrl(url);
+            } else {
+                setSignedUrl(attachment.url); // Fallback to raw URL
+            }
+            setLoading(false);
+        };
+        sign();
+    }, [attachment.path, attachment.url]);
+
+    if (loading) return <div className="w-full h-32 bg-gray-100 dark:bg-white/5 animate-pulse rounded-lg" />;
+    if (!signedUrl) return null;
+
+    return (
+        <div className="group relative rounded-lg overflow-hidden border border-black/10 dark:border-white/10 cursor-pointer" onClick={() => onTimestampClick(timeLabel)}>
+            <img src={signedUrl} alt={`Screenshot at ${timeLabel}`} className="w-full h-32 object-cover hover:scale-105 transition-transform duration-300" />
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-1 px-2 flex items-center justify-between">
+                <span>{timeLabel}</span>
+                {/* <span className="material-symbols-outlined text-[10px]">open_in_new</span> */}
+            </div>
+        </div>
+    );
+};
+
 export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
     const { t } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
@@ -407,21 +439,31 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 .map(s => `${s.speaker}: ${s.text}`)
                 .join('\n');
 
-            // Prepare attachments with relative timestamps
+            // Prepare attachments with relative timestamps AND SIGNED URLS
             let preparedAttachments: any[] = [];
             if (fullRecording?.metadata?.attachments && fullRecording.date) {
                 const startTime = new Date(fullRecording.date).getTime();
-                preparedAttachments = fullRecording.metadata.attachments.map(att => {
+
+                // Process attachments in parallel to sign URLs
+                preparedAttachments = await Promise.all(fullRecording.metadata.attachments.map(async (att) => {
                     const diffMs = att.timestamp - startTime;
                     const diffSec = Math.max(0, Math.floor(diffMs / 1000));
                     const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
                     const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
                     const s = (diffSec % 60).toString().padStart(2, '0');
+
+                    // Sign the URL if path exists
+                    let finalUrl = att.url;
+                    if (att.path) {
+                        const signed = await getSignedAudioUrl(att.path);
+                        if (signed) finalUrl = signed;
+                    }
+
                     return {
                         time: `${h}:${m}:${s}`,
-                        url: att.url
+                        url: finalUrl
                     };
-                });
+                }));
             }
 
             // Map language code if needed, but 'es' and 'en' match. 
@@ -705,14 +747,16 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                     const s = (diffSec % 60).toString().padStart(2, '0');
                                     const timeLabel = `${h}:${m}:${s}`;
 
+                                    // Use a hook-derived signed URL map or async load?
+                                    // For simplicity, we'll assume a helper component or state.
+                                    // Actually, we can just use a local component that handles its own signing
                                     return (
-                                        <div key={idx} className="group relative rounded-lg overflow-hidden border border-black/10 dark:border-white/10 cursor-pointer" onClick={() => handleTimestampClick(timeLabel)}>
-                                            <img src={att.url} alt={`Screenshot at ${timeLabel}`} className="w-full h-32 object-cover hover:scale-105 transition-transform duration-300" />
-                                            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-1 px-2 flex items-center justify-between">
-                                                <span>{timeLabel}</span>
-                                                <span className="material-symbols-outlined text-[10px]">open_in_new</span>
-                                            </div>
-                                        </div>
+                                        <AttachmentThumbnail
+                                            key={idx}
+                                            attachment={att}
+                                            timeLabel={timeLabel}
+                                            onTimestampClick={handleTimestampClick}
+                                        />
                                     );
                                 })}
                             </div>
