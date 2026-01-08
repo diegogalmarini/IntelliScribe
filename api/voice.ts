@@ -122,7 +122,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Only add callback URL if we have a valid userId (not 'guest', 'unknown', etc.)
     if (userId && userId !== 'guest' && userId !== 'unknown') {
-        dialOptions.recordingStatusCallback = `${callbackUrl}?userId=${userId}`;
+        dialOptions.recordingStatusCallback = `${callbackUrl}?userId=${userId}&to=${encodeURIComponent(numberToCall)}`;
         console.log(`[VOICE] ✅ Recording will be saved to database for user ${userId}`);
     } else {
         console.log(`[VOICE] ⚠️ Recording will be created in Twilio but NOT saved to database (no valid userId)`);

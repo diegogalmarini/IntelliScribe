@@ -122,7 +122,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const formattedDuration = formatDuration(durationSeconds);
 
         // Robust naming for To/From (Twilio parameters can sometimes be missing in different flows)
-        const recipient = To || 'Unknown Number';
+        // Prefer 'to' from query params (passed by us) over Twilio's body params
+        const queryTo = req.query.to as string;
+        const recipient = queryTo ? decodeURIComponent(queryTo) : (To || 'Unknown Number');
         const sender = From || 'Diktalo User';
 
         const recordingData = {
