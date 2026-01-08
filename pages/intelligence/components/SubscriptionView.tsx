@@ -3,7 +3,8 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { loadStripe } from '@stripe/stripe-js';
 import { supabase } from '../../../lib/supabase';
 import { PlanConfig, UserProfile } from '../../../types';
-import { Check, ChevronDown, Plus, ExternalLink } from 'lucide-react';
+import { Check, ChevronDown, Plus, ExternalLink, Minus } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -17,6 +18,9 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
     const [loading, setLoading] = useState<string | null>(null);
     const [plans, setPlans] = useState<PlanConfig[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
+
+    // FAQ State
+    const [openFaqId, setOpenFaqId] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -121,6 +125,10 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
         }
     };
 
+    const toggleFaq = (index: number) => {
+        setOpenFaqId(openFaqId === index ? null : index);
+    };
+
     if (isLoadingData) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -131,10 +139,10 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
     // FAQ Data
     const FAQS = [
-        { q: t('faq_1_q'), a: '' },
-        { q: t('faq_2_q'), a: '' },
-        { q: t('faq_3_q'), a: '' },
-        { q: t('faq_4_q'), a: '' }
+        { q: t('faq_1_q'), a: t('faq_1_a') },
+        { q: t('faq_2_q'), a: t('faq_2_a') },
+        { q: t('faq_3_q'), a: t('faq_3_a') },
+        { q: t('faq_4_q'), a: t('faq_4_a') }
     ];
 
     return (
@@ -380,7 +388,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[120, 600, 3000, 6000].map((mins, i) => (
                                 <div key={i} className="bg-white dark:bg-[#2a2a2a] p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                    <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">{mins} minutes</div>
+                                    <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">{mins} {t('minutes_suffix_lower')}</div>
                                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-3">{t('minutes_one_time')}</div>
                                     <button className="w-full py-1.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
                                         {t('minutes_buy')}
@@ -397,9 +405,36 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                         </h3>
                         <div className="grid gap-3 max-w-3xl mx-auto">
                             {FAQS.map((faq, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-white dark:bg-[#1f1f1f] border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{faq.q}</span>
-                                    <Plus size={16} className="text-slate-400" />
+                                <div
+                                    key={i}
+                                    onClick={() => toggleFaq(i)}
+                                    className={`flex flex-col p-4 bg-white dark:bg-[#1f1f1f] border rounded-xl cursor-pointer transition-all ${openFaqId === i
+                                        ? 'border-blue-500 dark:border-blue-400'
+                                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                                        }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{faq.q}</span>
+                                        {openFaqId === i ? (
+                                            <Minus size={16} className="text-blue-500" />
+                                        ) : (
+                                            <Plus size={16} className="text-slate-400" />
+                                        )}
+                                    </div>
+                                    <AnimatePresence>
+                                        {openFaqId === i && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="pt-3 text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                                    {faq.a}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             ))}
                         </div>
