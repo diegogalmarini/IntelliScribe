@@ -763,6 +763,18 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                         </div>
                     )}
 
+                    {/* DEBUG PANEL - TEMPORARY */}
+                    <div className="mt-4 p-4 bg-gray-100 dark:bg-[#1e1e1e] rounded text-xs font-mono text-left">
+                        <p className="font-bold text-red-500">DEBUG INFO (Visible only during dev):</p>
+                        <p>Recording ID: {fullRecording?.id}</p>
+                        <p>Date: {fullRecording?.date}</p>
+                        <p>Metadata Present: {fullRecording?.metadata ? 'YES' : 'NO'}</p>
+                        <p>Attachments Count: {fullRecording?.metadata?.attachments?.length || 0}</p>
+                        <pre className="mt-2 overflow-auto max-h-32 bg-white dark:bg-black p-2 border border-gray-300">
+                            {JSON.stringify(fullRecording?.metadata?.attachments || [], null, 2)}
+                        </pre>
+                    </div>
+
                     {/* Transcription Card */}
                     {hasTranscript ? (
                         <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
