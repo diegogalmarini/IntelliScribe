@@ -132,6 +132,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     // Navigation Guard State
     const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused'>('idle');
     const [showNavConfirm, setShowNavConfirm] = useState(false);
+    const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
     // Chat State
     const [chatState, setChatState] = useState<{
@@ -164,6 +165,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleSelectRecording = async (id: string) => {
+        // Guard: Check if recording
+        if (recorderStatus !== 'idle') {
+            setPendingAction(() => () => handleSelectRecording(id));
+            setShowNavConfirm(true);
+            return;
+        }
+
         console.log(`[Dashboard] Selecting recording: ${id}`);
         setView('recordings'); // Switch back to recordings view
 
@@ -212,10 +220,29 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleNewRecording = () => {
+        // Guard: Check if recording
+        if (recorderStatus !== 'idle') {
+            setPendingAction(() => () => handleNewRecording());
+            setShowNavConfirm(true);
+            return;
+        }
+
         // Open inline recorder instead of navigating to old LiveRecording page
         setIsRecording(true);
         setSelectedId(null); // Clear any selected recording
         if (isMobile) setIsSidebarOpen(false);
+    };
+
+    const handleSelectFolder = (folderId: string | null) => {
+        // Guard: Check if recording
+        if (recorderStatus !== 'idle') {
+            setPendingAction(() => () => handleSelectFolder(folderId));
+            setShowNavConfirm(true);
+            return;
+        }
+
+        if (onSelectFolder) onSelectFolder(folderId);
+        setIsSidebarOpen(false);
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -741,7 +768,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     }}
                     folders={folders}
                     selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
-                    onSelectFolder={onSelectFolder}
+                    onSelectFolder={handleSelectFolder}
                     onLogoClick={() => {
                         if (recorderStatus !== 'idle') {
                             setShowNavConfirm(true);
@@ -999,11 +1026,18 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     // Force reset
                     setIsRecording(false);
                     setRecorderStatus('idle'); // Force idle
-                    setView('recordings');
-                    setSelectedId(null);
                     setIsEditorOpen(false);
                     setShowMultiAudioUploader(false);
-                    window.history.replaceState({}, '', window.location.pathname);
+
+                    if (pendingAction) {
+                        pendingAction();
+                        setPendingAction(null);
+                    } else {
+                        // Default fallback (Logo Click behavior)
+                        setView('recordings');
+                        setSelectedId(null);
+                        window.history.replaceState({}, '', window.location.pathname);
+                    }
                 }}
                 title={(t as any)('confirmExitTitle') || '¿Salir de la grabación?'}
                 message={(t as any)('confirmExitDesc') || 'Tienes una grabación en curso o en pausa. Si sales ahora, se perderá el progreso.'}
