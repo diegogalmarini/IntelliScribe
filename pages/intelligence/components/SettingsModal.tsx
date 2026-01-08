@@ -91,7 +91,7 @@ const CustomSelect: React.FC<{
                                     setIsOpen(false);
                                 }}
                                 className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${option.value === value
-                                    ? 'bg-primary/10 text-primary font-medium'
+                                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium'
                                     : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'
                                     }`}
                             >
@@ -99,7 +99,7 @@ const CustomSelect: React.FC<{
                                     {option.icon}
                                     <span>{option.label}</span>
                                 </div>
-                                {option.value === value && <Check size={14} className="text-primary" />}
+                                {option.value === value && <Check size={14} className="text-blue-600 dark:text-blue-400" />}
                             </button>
                         ))}
                     </div>
@@ -282,7 +282,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         { id: 'custom_vocabulary' as Section, icon: Database, label: 'Custom vocabulary' },
         { id: 'private_cloud' as Section, icon: Cloud, label: 'Private Cloud Sync' },
         { id: 'developers' as Section, icon: Code, label: 'Developer' },
-        { id: 'security' as Section, icon: Lock, label: 'Security' },
+        // Security merged into Account
         { id: 'help' as Section, icon: HelpCircle, label: 'Help Center' },
         { id: 'about' as Section, icon: Info, label: 'About Diktalo' },
     ];
@@ -547,7 +547,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 {/* Plan & Billing */}
                                 <div>
                                     <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Plan & billing</h2>
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div>
                                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Current Plan</p>
                                             <span className="px-2.5 py-1 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-medium rounded">
@@ -556,7 +556,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
                                         <button
                                             onClick={handlePlansClick}
-                                            className="px-4 py-1.5 border border-slate-200 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/30 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                                            className="w-full md:w-auto px-4 py-1.5 border border-slate-200 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/30 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
                                         >
                                             Manage
                                         </button>
@@ -567,11 +567,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Login Methods */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Login methods</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Security & Login</h2>
                                     <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
+                                        {/* Password Row */}
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                                <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400">
+                                                    <Lock size={16} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">Password</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Last changed 3 months ago</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="w-full md:w-auto px-4 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                                                onClick={() => alert("Change password flow would open here")}
+                                            >
+                                                Change password
+                                            </button>
+                                        </div>
+
+                                        <div className="h-px bg-slate-50 dark:bg-white/5 w-full" />
+
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-white rounded-lg border border-slate-100 dark:border-transparent flex items-center justify-center">
                                                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
                                                 </div>
                                                 <div>
@@ -579,8 +600,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
                                                 </div>
                                             </div>
-                                            <button className="px-4 py-1.5 bg-slate-50 dark:bg-transparent border border-transparent dark:border-slate-700/50 text-slate-400 dark:text-slate-500 text-xs rounded-lg cursor-not-allowed">
-                                                Remove
+                                            <button className="w-full md:w-auto px-4 py-1.5 bg-slate-50 dark:bg-transparent border border-transparent dark:border-slate-700/50 text-slate-400 dark:text-slate-500 text-xs rounded-lg cursor-not-allowed">
+                                                Connected
                                             </button>
                                         </div>
 
@@ -675,9 +696,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Select your preferred language for using Diktalo.</p>
                                             </div>
                                             <CustomSelect
-                                                className="w-40"
+                                                className="w-full md:w-40"
                                                 value={language}
-                                                onChange={(val) => setLanguage(val as 'en' | 'es')}
+                                                onChange={(val) => {
+                                                    setLanguage(val as 'en' | 'es');
+                                                    // Sync with user profile for persistence
+                                                    handleUpdateUser({ language: val as 'en' | 'es' });
+                                                }}
                                                 options={[
                                                     { value: 'en', label: 'English' },
                                                     { value: 'es', label: 'Español' }
@@ -921,7 +946,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     </div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Select your industry to help AI learn your field's context.</p>
                                     <CustomSelect
-                                        className="w-full max-w-xs"
+                                        className="w-full md:max-w-xs"
                                         value={customVocab.industry}
                                         onChange={(val) => setCustomVocab(prev => ({ ...prev, industry: val }))}
                                         options={[
@@ -936,27 +961,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 </div>
 
                                 <div className={!customVocab.enabled ? 'opacity-50 pointer-events-none' : ''}>
-                                    <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center justify-between mb-2 md:mb-4">
                                         <h3 className="text-sm font-medium text-slate-900 dark:text-white">Vocabulary</h3>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={newTerm}
-                                                onChange={(e) => setNewTerm(e.target.value)}
-                                                placeholder="Enter term..."
-                                                className="px-3 py-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg text-xs w-48 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') handleAddTerm();
-                                                }}
-                                            />
-                                            <button
-                                                onClick={handleAddTerm}
-                                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                                                disabled={!newTerm.trim()}
-                                            >
-                                                Add
-                                            </button>
-                                        </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row gap-2">
+                                        <input
+                                            type="text"
+                                            value={newTerm}
+                                            onChange={(e) => setNewTerm(e.target.value)}
+                                            placeholder="Enter term..."
+                                            className="px-3 py-2 md:py-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm md:text-xs w-full md:w-48 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleAddTerm();
+                                            }}
+                                        />
+                                        <button
+                                            onClick={handleAddTerm}
+                                            className="px-3 py-2 md:py-1 bg-black dark:bg-white text-white dark:text-black text-sm md:text-xs font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 w-full md:w-auto"
+                                            disabled={!newTerm.trim()}
+                                        >
+                                            Add
+                                        </button>
                                     </div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Add names, companies or industry-specific terms you use often.</p>
 
