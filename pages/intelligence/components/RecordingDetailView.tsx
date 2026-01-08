@@ -397,19 +397,17 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     };
 
     const handleGenerateSummary = async (template: string, language: string) => {
-        if (!recording.segments) return;
+        if (!segments || segments.length === 0) return;
 
         setIsGenerating(true);
         try {
-            // Reconstruct full transcript
-            const fullTranscript = recording.segments
+            // Reconstruct full transcript from LOCAL state (which has renames/edits)
+            const fullTranscriptArr = segments
                 .map(s => `${s.speaker}: ${s.text}`)
                 .join('\n');
 
             // Map language code if needed, but 'es' and 'en' match. 
-            // Others like 'fr', 'de' might need to be supported in backend or service eventually.
-            // For now cast to any or string as service signature might be strict.
-            const summary = await generateMeetingSummary(fullTranscript, language as any, template);
+            const summary = await generateMeetingSummary(fullTranscriptArr, language as any, template);
 
             if (onUpdateSummary) {
                 onUpdateSummary(summary);
