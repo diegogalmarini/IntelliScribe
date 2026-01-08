@@ -17,6 +17,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
+import { notifyNewRecording } from '../../services/emailService';
 import { concatenateAudios, timeToSeconds } from '../../services/audioConcat';
 
 interface IntelligenceDashboardProps {
@@ -284,6 +285,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     setTempRecording(createdRecording);
                     setSelectedId(createdRecording.id); // Switch selection to real ID
 
+                    // Notify user via email (async)
+                    notifyNewRecording(user, createdRecording).catch(err => console.error('[Notification] Failed to send email:', err));
+
                     // 4. Trigger Transcription (Auto)
                     const signedUrl = await getSignedAudioUrl(audioUrl);
                     if (signedUrl) {
@@ -473,6 +477,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
             // Set temp recording to ensure immediate availability with fresh metadata
             setTempRecording(createdRecording);
+
+            // Notify user via email (async)
+            notifyNewRecording(user, createdRecording).catch(err => console.error('[Notification] Failed to send email:', err));
 
             setShowMultiAudioUploader(false);
             setView('recordings');

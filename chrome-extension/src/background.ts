@@ -65,6 +65,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                 capturedCount: state.capturedScreenshots?.length || 0
             };
         }
+
+        if (message.action === 'GET_USER') {
+            try {
+                const user = await getUserDetails();
+                return { success: true, user };
+            } catch (error: any) {
+                return { success: false, error: error.message };
+            }
+        }
         return { success: false, error: 'Unknown action' };
     };
 
@@ -84,6 +93,101 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         chrome.runtime.sendMessage({ action: 'PING' }).catch(() => { });
     }
 });
+
+// --- Auth State ---
+let isRefreshing = false;
+let refreshQueue: ((token: string) => void)[] = [];
+
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+    const { authToken, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseKey']);
+
+    if (!authToken || !supabaseKey) {
+        throw new Error('401: Unauthorized - No authentication token found.');
+    }
+
+    const headers = new Headers(options.headers || {});
+    if (!headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${authToken}`);
+    }
+    if (!headers.has('apikey')) {
+        headers.set('apikey', supabaseKey);
+    }
+
+    const response = await fetch(url, { ...options, headers });
+
+    // If failed with 401/403, attempt a single refresh
+    if (response.status === 401 || response.status === 403) {
+        console.warn(`[Background] Auth failed (${response.status}) for ${url}. Attempting refresh...`);
+
+        try {
+            const newToken = await getOrRefreshAccessToken();
+
+            // Retry the original request with new token
+            headers.set('Authorization', `Bearer ${newToken}`);
+            return await fetch(url, { ...options, headers });
+        } catch (refreshError: any) {
+            console.error('[Background] Could not recover from auth failure:', refreshError.message);
+            throw new Error(`Session expired and auto-refresh failed: ${refreshError.message}`);
+        }
+    }
+
+    return response;
+}
+
+/**
+ * Ensures we only have one refresh process at a time
+ */
+async function getOrRefreshAccessToken(): Promise<string> {
+    if (isRefreshing) {
+        return new Promise((resolve) => {
+            refreshQueue.push(resolve);
+        });
+    }
+
+    isRefreshing = true;
+    try {
+        const { refreshToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['refreshToken', 'supabaseUrl', 'supabaseKey']);
+
+        if (!refreshToken || !supabaseUrl || !supabaseKey) {
+            throw new Error('No refresh token available.');
+        }
+
+        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey
+            },
+            body: JSON.stringify({ refresh_token: refreshToken })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Supabase Refresh Error (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (!data.access_token || !data.refresh_token) {
+            throw new Error('Invalid refresh response from Supabase.');
+        }
+
+        await chrome.storage.local.set({
+            authToken: data.access_token,
+            refreshToken: data.refresh_token
+        });
+
+        const newToken = data.access_token;
+
+        // Resolve the queue
+        const currentQueue = [...refreshQueue];
+        refreshQueue = [];
+        currentQueue.forEach(resolve => resolve(newToken));
+
+        return newToken;
+    } finally {
+        isRefreshing = false;
+    }
+}
 
 async function startRecording(tabId: number) {
     console.log('[Background] Starting recording for tab:', tabId);
@@ -208,60 +312,60 @@ async function captureAndUploadScreenshot() {
 
     // 2. Prepare Upload
     const blob = base64ToBlob(dataUrl, 'image/png');
-    const { authToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseUrl', 'supabaseKey']);
+    const { supabaseUrl } = await chrome.storage.local.get(['supabaseUrl']);
+    if (!supabaseUrl) throw new Error('Supabase URL not configured.');
 
-    if (!authToken || !supabaseUrl || !supabaseKey) {
-        throw new Error('No auth token found');
+    // 3. Perform Authenticated Flow
+    try {
+        // A. Get User ID (Auto-refreshes if needed)
+        const user = await getUserDetails();
+        const userId = user.id;
+
+        // B. Upload to Supabase (Auto-refreshes if needed)
+        const timestamp = Date.now();
+        const filename = `screenshot-${timestamp}.png`;
+        const path = `${userId}/screenshots/${filename}`;
+        const endpoint = `${supabaseUrl}/storage/v1/object/recordings/${path}`;
+
+        const response = await authenticatedFetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'image/png' },
+            body: blob
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Storage Upload failed: ${errorText}`);
+        }
+
+        console.log('[Background] Screenshot uploaded:', path);
+
+        // C. Save to Session State
+        const state = await getState();
+        const currentList = state.capturedScreenshots || [];
+        const newScreenshot = {
+            path: path,
+            timestamp: timestamp,
+            url: `${supabaseUrl}/storage/v1/object/public/recordings/${path}`
+        };
+
+        await saveState({
+            capturedScreenshots: [...currentList, newScreenshot]
+        });
+
+        // D. Notify User
+        chrome.notifications.create(`screenshot-${timestamp}`, {
+            type: 'basic',
+            iconUrl: 'icons/diktalo.png',
+            title: 'Captura Guardada',
+            message: 'La captura de pantalla se ha guardado correctamente.'
+        });
+
+        return { success: true, path: path };
+    } catch (error: any) {
+        console.error('[Background] Screenshot process failed:', error);
+        throw error;
     }
-
-    // 3. Get User ID (Cache this in real app)
-    const user = await getUserDetails(authToken, supabaseUrl, supabaseKey);
-    const userId = user.id;
-
-    // 4. Upload to Supabase
-    const timestamp = Date.now();
-    const filename = `screenshot-${timestamp}.png`;
-    const path = `${userId}/screenshots/${filename}`;
-    const endpoint = `${supabaseUrl}/storage/v1/object/recordings/${path}`; // Storing in 'recordings' bucket for now
-
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'apikey': supabaseKey,
-            'Content-Type': 'image/png'
-        },
-        body: blob
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to upload screenshot to Storage');
-    }
-
-    console.log('[Background] Screenshot uploaded:', path);
-
-    // 5. Save to Session State
-    const state = await getState();
-    const currentList = state.capturedScreenshots || [];
-    const newScreenshot = {
-        path: path,
-        timestamp: timestamp,
-        url: `${supabaseUrl}/storage/v1/object/public/recordings/${path}` // Public URL assumption or signed url needed later
-    };
-
-    await saveState({
-        capturedScreenshots: [...currentList, newScreenshot]
-    });
-
-    // 6. Notify User
-    chrome.notifications.create(`screenshot-${timestamp}`, {
-        type: 'basic',
-        iconUrl: 'icons/diktalo.png',
-        title: 'Captura Guardada',
-        message: 'La captura de pantalla se ha guardado correctamente.'
-    });
-
-    return { success: true, path: path };
 }
 
 async function stopRecording() {
@@ -349,86 +453,29 @@ async function closeOffscreenDocument() {
     }
 }
 
-async function refreshSession(): Promise<string> {
-    console.log('[Background] Attempting to refresh session...');
-    const { refreshToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['refreshToken', 'supabaseUrl', 'supabaseKey']);
+async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, extraMetadata: any = {}): Promise<{ recordingId: string }> {
+    console.log('[Background] uploadAudioToDiktalo starting...');
 
-    if (!refreshToken || !supabaseUrl || !supabaseKey) {
-        throw new Error('Missing refresh token or Supabase configuration.');
-    }
+    // NOTIFICATION: Upload Starting
+    chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'icons/diktalo.png',
+        title: 'Subiendo Grabación...',
+        message: 'Por favor no cierres el navegador hasta que termine.',
+        priority: 2
+    });
 
     try {
-        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': supabaseKey
-            },
-            body: JSON.stringify({ refresh_token: refreshToken })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Refresh failed: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-
-        if (!data.access_token || !data.refresh_token) {
-            throw new Error('Invalid refresh response');
-        }
-
-        console.log('[Background] Session refreshed successfully.');
-
-        // Update storage with new tokens
-        await chrome.storage.local.set({
-            authToken: data.access_token,
-            refreshToken: data.refresh_token
-        });
-
-        return data.access_token;
-    } catch (error: any) {
-        console.error('[Background] Refresh session error:', error);
-        throw error;
-    }
-}
-
-async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, extraMetadata: any = {}): Promise<{ recordingId: string }> {
-    console.log('[Background] uploadAudioToDiktalo called (Direct-to-Cloud), blob size:', audioBlob.size);
-
-    let { authToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseUrl', 'supabaseKey']);
-
-    if (!authToken || !supabaseUrl || !supabaseKey) {
-        throw new Error('Not authenticated. Please set your API token in settings.');
-    }
-
-    // Helper to perform the full upload flow
-    const performFullUpload = async (token: string): Promise<{ recordingId: string }> => {
-        // 1. Get User ID (needed for storage path)
-        console.log('[Background] Step 1: Getting User Details...');
-
-        // NOTIFICATION: Upload Starting
-        chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'icons/diktalo.png', // Ensure icon exists or use generic
-            title: 'Subiendo Grabación...',
-            message: 'Por favor no cierres el navegador hasta que termine.',
-            priority: 2
-        });
-
-        const user = await getUserDetails(token, supabaseUrl, supabaseKey);
+        // 1. Get User ID (Auto-refreshes if needed)
+        const user = await getUserDetails();
         const userId = user.id;
 
-        // 2. Upload to Storage
-        console.log('[Background] Step 2: Uploading to Supabase Storage...');
-        const filePath = await uploadToSupabaseStorage(token, supabaseUrl, supabaseKey, userId, audioBlob);
-        console.log('[Background] Storage upload complete. Path:', filePath);
+        // 2. Upload to Storage (Auto-refreshes if needed)
+        const filePath = await uploadToSupabaseStorage(userId, audioBlob);
 
-        // 3. Register Recording in DB via API
-        console.log('[Background] Step 3: Registering with API...');
-
-        const recording = await registerRecording(token, filePath, durationSeconds, {
-            source: 'chrome-extension', // Hardcoded for now, could be dynamic
+        // 3. Register Recording in DB via API (Auto-refreshes if needed)
+        const recording = await registerRecording(filePath, durationSeconds, {
+            source: 'chrome-extension',
             original_filename: `recording-${Date.now()}.webm`,
             ...extraMetadata
         });
@@ -443,99 +490,69 @@ async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, ex
         });
 
         return { recordingId: recording.recordingId };
-    };
-
-    try {
-        return await performFullUpload(authToken);
     } catch (error: any) {
-        console.warn('[Background] Upload flow failed, checking if 401/Refresh needed:', error);
-
-        // If error suggests auth failure (401 or 403), try refresh
-        if (error.message.includes('401') || error.message.includes('403') || error.message.includes('Unauthorized')) {
-            console.log('[Background] Attempting token refresh due to 401/403...');
-            try {
-                const newToken = await refreshSession();
-                console.log('[Background] Token refreshed. Retrying flow...');
-                return await performFullUpload(newToken);
-            } catch (refreshError) {
-                console.error('[Background] Refresh failed:', refreshError);
-                throw new Error('Session expired and auto-refresh failed.');
-            }
-        }
-
+        console.error('[Background] Final upload stage failed:', error);
         throw error;
     }
 }
 
-// --- Direct Cloud Helpers ---
+// --- Auth Protected Resource Helpers ---
 
-async function getUserDetails(token: string, supabaseUrl: string, supabaseKey: string) {
-    const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'apikey': supabaseKey
-        }
-    });
+async function getUserDetails() {
+    const { supabaseUrl } = await chrome.storage.local.get(['supabaseUrl']);
+    if (!supabaseUrl) throw new Error('Supabase URL missing');
 
+    const response = await authenticatedFetch(`${supabaseUrl}/auth/v1/user`);
     if (!response.ok) {
-        throw new Error(`Get User failed: ${response.status} ${response.statusText}`);
+        throw new Error(`Get User failed: ${response.status}`);
     }
     return await response.json();
 }
 
-async function uploadToSupabaseStorage(token: string, supabaseUrl: string, supabaseKey: string, userId: string, blob: Blob): Promise<string> {
+async function uploadToSupabaseStorage(userId: string, blob: Blob): Promise<string> {
+    const { supabaseUrl } = await chrome.storage.local.get(['supabaseUrl']);
+    if (!supabaseUrl) throw new Error('Supabase URL missing');
+
     const timestamp = Date.now();
     const filename = `${timestamp}.webm`;
-    const path = `${userId}/${filename}`; // RLS requires {userId}/* prefix
-
+    const path = `${userId}/${filename}`;
     const endpoint = `${supabaseUrl}/storage/v1/object/recordings/${path}`;
 
-    console.log('[Background] Uploading to:', endpoint);
-
-    const response = await fetch(endpoint, {
+    const response = await authenticatedFetch(endpoint, {
         method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'apikey': supabaseKey,
-            'Content-Type': 'audio/webm',
-            // 'x-upsert': 'false' // Optional
-        },
+        headers: { 'Content-Type': 'audio/webm' },
         body: blob
     });
 
     if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Storage Upload failed (${response.status}): ${text}`);
+        throw new Error(`Storage Upload failed: ${text}`);
     }
 
     return path;
 }
 
-async function registerRecording(token: string, filePath: string, duration: number, metadata: any) {
-    const endpoint = 'https://www.diktalo.com/api/upload-audio'; // We keep the same endpoint name but change payload
+async function registerRecording(filePath: string, duration: number, metadata: any) {
+    const endpoint = 'https://www.diktalo.com/api/upload-audio';
 
     const payload = {
         filePath: filePath,
         duration: duration,
         metadata: {
             ...metadata,
-            title: `Tab Recording - ${new Date().toLocaleString()}`,
-            tabUrl: 'Confirmed Direct Upload' // We can't easily access tab URL here without passing it down, simplifying for now
+            title: `Extension Recording - ${new Date().toLocaleString()}`,
         }
     };
 
-    const response = await fetch(endpoint, {
+    const response = await authenticatedFetch(endpoint, {
         method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json' // Instructs API to treat as registration
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Registration failed (${response.status}): ${text}`);
+        throw new Error(`Registration failed: ${text}`);
     }
 
     return await response.json();

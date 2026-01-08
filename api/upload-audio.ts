@@ -180,7 +180,7 @@ export default async function handler(req, res) {
             user_id: userId,
             title: title,
             description: fileMetadata.tabUrl ? `Captured from: ${fileMetadata.tabUrl}` : 'Captured via Chrome Extension',
-            date: new Date().toISOString(),
+            date: new Date(Date.now() - ((fileDuration || 0) * 1000)).toISOString(), // Set date to START time (approx) so relative timestamps work
             duration_seconds: fileDuration || null,
             status: null, // No processing happening yet
             audio_url: filePath, // Using the correct path variable
@@ -189,7 +189,8 @@ export default async function handler(req, res) {
             metadata: {
                 source: source,
                 tab_url: fileMetadata.tabUrl,
-                original_filename: fileMetadata.original_filename
+                original_filename: fileMetadata.original_filename,
+                attachments: fileMetadata.attachments // Ensure screenshots are saved
             }
         };
 

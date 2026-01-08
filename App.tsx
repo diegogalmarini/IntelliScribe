@@ -20,6 +20,7 @@ import { uploadAudio } from './services/storageService';
 import { Dialer } from './components/Dialer';
 import { supabase } from './lib/supabase';
 import { databaseService } from './services/databaseService';
+import { notifyNewRecording } from './services/emailService';
 import CrispWidget from './components/CrispWidget';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
@@ -345,6 +346,9 @@ const AppContent: React.FC = () => {
 
         // Navigate to dashboard to show the new recording in InlineEditor
         navigate(AppRoute.DASHBOARD);
+
+        // Notify user via email (async, don't block UI)
+        notifyNewRecording(user, createdRecording).catch(err => console.error('[Notification] Failed to send email:', err));
 
         fetchData();
         return createdRecording;

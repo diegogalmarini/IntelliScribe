@@ -383,7 +383,25 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
         try {
             const targetLang = user.transcriptionLanguage || language || 'es';
-            const summaryText = await generateMeetingSummary(fullTranscript, targetLang, selectedTemplate);
+
+            // Prepare attachments with relative timestamps
+            let preparedAttachments: any[] = [];
+            if (recording.metadata?.attachments && recording.date) {
+                const startTime = new Date(recording.date).getTime();
+                preparedAttachments = recording.metadata.attachments.map(att => {
+                    const diffMs = att.timestamp - startTime;
+                    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+                    const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
+                    const s = (diffSec % 60).toString().padStart(2, '0');
+                    return {
+                        time: `${h}:${m}:${s}`,
+                        url: att.url
+                    };
+                });
+            }
+
+            const summaryText = await generateMeetingSummary(fullTranscript, targetLang, selectedTemplate, preparedAttachments);
             setSummary(summaryText);
             onUpdateRecording(recording.id, { summary: summaryText });
         } catch (error: any) {
