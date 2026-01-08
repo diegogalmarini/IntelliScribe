@@ -83,40 +83,41 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         let mounted = true;
 
         const loadFullDetails = async () => {
-            let currentRec = initialRecording;
+            console.log('[InlineEditor] Loading full details for:', initialRecording.id);
 
-            // Check if we need to fetch details (missing audioUrl OR (completed but missing segments))
-            if (!currentRec.audioUrl || (currentRec.status === 'Completed' && (!currentRec.segments || currentRec.segments.length === 0))) {
-                setIsLoadingDetails(true);
-                const fullRec = await databaseService.getRecordingDetails(currentRec.id);
-                if (mounted && fullRec) {
-                    setRecording(fullRec);
-                    setSegments(fullRec.segments || []);
-                    setSummary(fullRec.summary || '');
-                    // Sync title
-                    setEditTitle(fullRec.title);
-                    currentRec = fullRec;
-                }
-                if (mounted) setIsLoadingDetails(false);
-            } else {
-                // Determine if we need to sync props to state
-                setRecording(currentRec);
-                setSegments(currentRec.segments || []);
-                setSummary(currentRec.summary || '');
-                setEditTitle(currentRec.title);
-            }
+            // ALWAYS load from database to ensure complete data
+            setIsLoadingDetails(true);
+            const fullRec = await databaseService.getRecordingDetails(initialRecording.id);
 
-            // GENERATE SIGNED URL
-            if (currentRec.id && currentRec.audioUrl) {
-                if (currentRec.audioUrl.startsWith('data:')) {
-                    if (mounted) setSignedAudioUrl(currentRec.audioUrl);
-                } else {
-                    const signed = await getSignedAudioUrl(currentRec.audioUrl);
-                    if (mounted && signed) {
-                        setSignedAudioUrl(signed);
+            if (mounted && fullRec) {
+                console.log('[InlineEditor] Loaded full recording:', {
+                    id: fullRec.id,
+                    hasAudio: !!fullRec.audioUrl,
+                    segmentsCount: fullRec.segments?.length || 0,
+                    hasSummary: !!fullRec.summary
+                });
+
+                setRecording(fullRec);
+                setSegments(fullRec.segments || []);
+                setSummary(fullRec.summary || '');
+                setEditTitle(fullRec.title);
+
+                // GENERATE SIGNED URL
+                if (fullRec.audioUrl) {
+                    if (fullRec.audioUrl.startsWith('data:')) {
+                        setSignedAudioUrl(fullRec.audioUrl);
+                    } else {
+                        const signed = await getSignedAudioUrl(fullRec.audioUrl);
+                        if (mounted && signed) {
+                            setSignedAudioUrl(signed);
+                        }
                     }
                 }
+            } else {
+                console.error('[InlineEditor] Failed to load recording details');
             }
+
+            if (mounted) setIsLoadingDetails(false);
         };
 
         loadFullDetails();
