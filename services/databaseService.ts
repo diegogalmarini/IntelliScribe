@@ -566,6 +566,8 @@ export const databaseService = {
 
         if (Object.keys(dbUpdates).length === 0) return true;
 
+        console.log(`[Database] Updating user profile for ${userId}:`, dbUpdates);
+
         const { error } = await supabase
             .from('profiles')
             .update(dbUpdates)
@@ -575,6 +577,7 @@ export const databaseService = {
             console.error('Error updating user profile:', error);
             return false;
         }
+        console.log(`[Database] User profile updated successfully for ${userId}`);
         return true;
     }
 };
