@@ -130,6 +130,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     });
 
     // Navigation Guard State
+    // Navigation Guard State
     const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused'>('idle');
     const [showNavConfirm, setShowNavConfirm] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
@@ -243,6 +244,23 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
         if (onSelectFolder) onSelectFolder(folderId);
         setIsSidebarOpen(false);
+    };
+
+    const handleLogoClick = () => {
+        // Guard: Check if recording
+        if (recorderStatus !== 'idle') {
+            setShowNavConfirm(true);
+            return;
+        }
+
+        // Reset view to Dashboard Home
+        setView('recordings');
+        setSelectedId(null);
+        setIsEditorOpen(false);
+        setIsRecording(false); // EXIT RECORDER
+        setShowMultiAudioUploader(false); // EXIT MULTI-AUDIO
+        // Clean deep link params if any
+        window.history.replaceState({}, '', window.location.pathname);
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -769,20 +787,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     folders={folders}
                     selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
                     onSelectFolder={handleSelectFolder}
-                    onLogoClick={() => {
-                        if (recorderStatus !== 'idle') {
-                            setShowNavConfirm(true);
-                            return;
-                        }
-                        // Reset view to Dashboard Home
-                        setView('recordings');
-                        setSelectedId(null);
-                        setIsEditorOpen(false);
-                        setIsRecording(false); // EXIT RECORDER
-                        setShowMultiAudioUploader(false); // EXIT MULTI-AUDIO
-                        // Clean deep link params if any
-                        window.history.replaceState({}, '', window.location.pathname);
-                    }}
+                    onLogoClick={handleLogoClick}
                     currentView={view}
                     onViewChange={setView}
                     isOpen={isSidebarOpen}
@@ -826,17 +831,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         }}
                         folders={folders}
                         selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
-                        onSelectFolder={onSelectFolder}
-                        onLogoClick={() => {
-                            // Reset view to Dashboard Home
-                            setView('recordings');
-                            setSelectedId(null);
-                            setIsEditorOpen(false);
-                            setIsRecording(false); // EXIT RECORDER
-                            setShowMultiAudioUploader(false); // EXIT MULTI-AUDIO
-                            // Clean deep link params if any
-                            window.history.replaceState({}, '', window.location.pathname);
-                        }}
+                        onSelectFolder={handleSelectFolder}
+                        onLogoClick={handleLogoClick}
                         currentView={view}
                         onViewChange={setView}
                         isOpen={isSidebarOpen}
