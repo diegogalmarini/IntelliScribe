@@ -742,6 +742,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         setView('recordings');
                         setSelectedId(null);
                         setIsEditorOpen(false);
+                        setIsRecording(false); // EXIT RECORDER
+                        setShowMultiAudioUploader(false); // EXIT MULTI-AUDIO
+                        // Clean deep link params if any
+                        window.history.replaceState({}, '', window.location.pathname);
                     }}
                     currentView={view}
                     onViewChange={setView}
@@ -792,6 +796,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             setView('recordings');
                             setSelectedId(null);
                             setIsEditorOpen(false);
+                            setIsRecording(false); // EXIT RECORDER
+                            setShowMultiAudioUploader(false); // EXIT MULTI-AUDIO
+                            // Clean deep link params if any
+                            window.history.replaceState({}, '', window.location.pathname);
                         }}
                         currentView={view}
                         onViewChange={setView}
