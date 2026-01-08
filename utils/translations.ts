@@ -278,6 +278,82 @@ export const translations = {
     usageMinutes: "{used} / {limit} minutes used this month.",
     unlimitedAccess: "Unlimited access active.",
 
+    // Settings New
+    settings_account: "Account",
+    settings_preferences: "Preferences",
+    settings_notifications: "Notifications",
+    settings_integrations: "Integrations",
+    settings_custom_vocab: "Custom Vocabulary",
+    settings_private_cloud: "Private Cloud Sync",
+    settings_developer: "Developer",
+    settings_admin: "Admin Panel",
+    settings_help: "Help Center",
+    settings_about: "About Diktalo",
+
+    // Account Section
+    account_header: "Account",
+    account_name_label: "Name",
+    account_personal_info: "Personal Information",
+    account_phone_label: "Phone number",
+    account_phone_desc: "Used for Caller ID in outbound calls.",
+    account_timezone_label: "Time zone",
+    account_timezone_desc: "Your local time for meetings and recordings.",
+    account_plan_billing: "Plan & billing",
+    account_current_plan: "Current Plan",
+    manage: "Manage",
+    account_security_login: "Security & Login",
+    account_password_last_changed: "Last changed 3 months ago",
+    account_change_password: "Change password",
+    coming_soon: "Coming Soon",
+    account_actions: "Account Actions",
+    delete_account: "Delete account",
+    plan_required: "Plan Required",
+    verify: "Verify",
+
+    // Preferences Section
+    appearance_header: "Appearance",
+    theme_label: "Theme",
+    theme_desc: "Choose how Diktalo looks to you.",
+    language_header: "Language",
+    display_language_label: "Display language",
+    display_language_desc: "Select your preferred language for using Diktalo.",
+    transcription_language_label: "Transcription language",
+    transcription_language_desc: "Default language for analysis and transcription.",
+
+    // Custom Vocab
+    vocab_header: "Custom Vocabulary",
+    vocab_enable_label: "Enable custom vocabulary",
+    vocab_enable_desc: "Improve transcription accuracy for specific terms.",
+    vocab_industry_label: "Industry Context",
+    vocab_industry_desc: "Select your industry to help AI learn your field's context.",
+    vocab_terms_label: "Vocabulary",
+    vocab_term_placeholder: "Enter term...",
+    add: "Add",
+    vocab_terms_desc: "Add names, companies or industry-specific terms you use often.",
+    vocab_added_terms: "Added Terms",
+    vocab_industry_medical: "Medical / Healthcare",
+    vocab_industry_legal: "Legal",
+    vocab_industry_finance: "Finance / Banking",
+    vocab_industry_tech: "Technology / Engineering",
+    vocab_industry_general: "General Business",
+    vocab_industry_placeholder: "Select industry...",
+
+    // Developer
+    dev_header: "Developer Settings",
+    dev_api_token_label: "API Access Token",
+    dev_api_token_desc: "Use this token to authenticate with the Diktalo API.",
+    dev_copy_token: "Copy Token",
+
+    // Integrations
+    integrations_header: "Integrations",
+    integrations_desc: "Supercharge your workflow by connecting Diktalo to your favorite tools.",
+
+    // Notifications
+    notify_email_header: "Email notifications",
+    notify_browser_header: "Browser notifications",
+    notify_push_label: "Push notifications",
+    notify_push_desc: "Receive notifications in your browser when Diktalo is open.",
+
     // Notifications Settings
     notifyEmailGroup: "Email Notifications",
     notifyBrowserGroup: "Browser Alerts",
@@ -736,6 +812,82 @@ export const translations = {
     notifyMarketingDesc: "Noticias sobre nuevas funciones y promociones.",
     notifyBrowserPush: "Notificaciones Push",
     notifyBrowserPushDesc: "Recibe alertas incluso con la pestaña cerrada.",
+
+    // Settings New
+    settings_account: "Cuenta",
+    settings_preferences: "Preferencias",
+    settings_notifications: "Notificaciones",
+    settings_integrations: "Integraciones",
+    settings_custom_vocab: "Vocabulario Personal",
+    settings_private_cloud: "Sincronización Privada",
+    settings_developer: "Desarrollador",
+    settings_admin: "Panel Admin",
+    settings_help: "Centro de Ayuda",
+    settings_about: "Sobre Diktalo",
+
+    // Account Section
+    account_header: "Cuenta",
+    account_name_label: "Nombre",
+    account_personal_info: "Información Personal",
+    account_phone_label: "Número de teléfono",
+    account_phone_desc: "Usado para Caller ID en llamadas salientes.",
+    account_timezone_label: "Zona horaria",
+    account_timezone_desc: "Tu hora local para reuniones y grabaciones.",
+    account_plan_billing: "Plan y facturación",
+    account_current_plan: "Plan Actual",
+    manage: "Gestionar",
+    account_security_login: "Seguridad y Acceso",
+    account_password_last_changed: "Cambiado hace 3 meses",
+    account_change_password: "Cambiar contraseña",
+    coming_soon: "Próximamente",
+    account_actions: "Acciones de cuenta",
+    delete_account: "Eliminar cuenta",
+    plan_required: "Plan Requerido",
+    verify: "Verificar",
+
+    // Preferences Section
+    appearance_header: "Apariencia",
+    theme_label: "Tema",
+    theme_desc: "Elige cómo se ve Diktalo para ti.",
+    language_header: "Idioma",
+    display_language_label: "Idioma de interfaz",
+    display_language_desc: "Selecciona tu idioma preferido para usar Diktalo.",
+    transcription_language_label: "Idioma de transcripción",
+    transcription_language_desc: "Idioma predeterminado para análisis y transcripción.",
+
+    // Custom Vocab
+    vocab_header: "Vocabulario Personal",
+    vocab_enable_label: "Habilitar vocabulario",
+    vocab_enable_desc: "Mejora la precisión para términos específicos.",
+    vocab_industry_label: "Contexto de Industria",
+    vocab_industry_desc: "Selecciona tu industria para ayudar a la IA con el contexto.",
+    vocab_terms_label: "Vocabulario",
+    vocab_term_placeholder: "Introduce término...",
+    add: "Añadir",
+    vocab_terms_desc: "Añade nombres, empresas o términos específicos que uses a menudo.",
+    vocab_added_terms: "Términos Añadidos",
+    vocab_industry_medical: "Médico / Salud",
+    vocab_industry_legal: "Legal",
+    vocab_industry_finance: "Finanzas / Banca",
+    vocab_industry_tech: "Tecnología / Ingeniería",
+    vocab_industry_general: "Negocios General",
+    vocab_industry_placeholder: "Seleccionar industria...",
+
+    // Developer
+    dev_header: "Ajustes de Desarrollador",
+    dev_api_token_label: "Token de Acceso API",
+    dev_api_token_desc: "Usa este token para autenticarte con la API de Diktalo.",
+    dev_copy_token: "Copiar Token",
+
+    // Integrations
+    integrations_header: "Integraciones",
+    integrations_desc: "Potencia tu flujo de trabajo conectando Diktalo a tus herramientas favoritas.",
+
+    // Notifications
+    notify_email_header: "Notificaciones por correo",
+    notify_browser_header: "Notificaciones de navegador",
+    notify_push_label: "Notificaciones push",
+    notify_push_desc: "Recibe notificaciones en tu navegador cuando Diktalo esté abierto.",
 
     preferences: "Preferencias",
     weeklySummary: "Resumen Semanal",

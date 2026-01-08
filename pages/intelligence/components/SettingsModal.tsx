@@ -275,16 +275,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     const menuItems = [
-        { id: 'account' as Section, icon: User, label: 'Account' },
-        { id: 'preferences' as Section, icon: SettingsIcon, label: 'Preferences' },
-        { id: 'notifications' as Section, icon: Bell, label: 'Notifications' },
-        { id: 'integrations' as Section, icon: Zap, label: 'Integrations' },
-        { id: 'custom_vocabulary' as Section, icon: Database, label: 'Custom vocabulary' },
-        { id: 'private_cloud' as Section, icon: Cloud, label: 'Private Cloud Sync' },
-        { id: 'developers' as Section, icon: Code, label: 'Developer' },
+        { id: 'account' as Section, icon: User, label: t('settings_account') },
+        { id: 'preferences' as Section, icon: SettingsIcon, label: t('settings_preferences') },
+        { id: 'notifications' as Section, icon: Bell, label: t('settings_notifications') },
+        { id: 'integrations' as Section, icon: Zap, label: t('settings_integrations') },
+        { id: 'custom_vocabulary' as Section, icon: Database, label: t('settings_custom_vocab') },
+        { id: 'private_cloud' as Section, icon: Cloud, label: t('settings_private_cloud') },
+        { id: 'developers' as Section, icon: Code, label: t('settings_developer') },
         // Security merged into Account
-        { id: 'help' as Section, icon: HelpCircle, label: 'Help Center' },
-        { id: 'about' as Section, icon: Info, label: 'About Diktalo' },
+        { id: 'help' as Section, icon: HelpCircle, label: t('settings_help') },
+        { id: 'about' as Section, icon: Info, label: t('settings_about') },
     ];
 
     // Admin Link for Owner in Settings Sidebar
@@ -292,7 +292,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         menuItems.unshift({
             id: 'admin' as Section,
             icon: ShieldCheck,
-            label: 'Admin Panel'
+            label: t('settings_admin')
         });
     }
 
@@ -324,7 +324,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {/* Sidebar */}
                 <div className={`w-full md:w-64 flex flex-col border-b md:border-b-0 md:border-r border-slate-100 dark:border-[#1f1f1f] bg-[#fbfbfb] dark:bg-[#0A0D13] ${isMobile && !showMenu ? 'hidden' : 'flex'}`}>
                     <div className="p-6 pb-2 flex justify-between items-center">
-                        <h2 className="text-xl font-medium text-slate-800 dark:text-white">Settings</h2>
+                        <h2 className="text-xl font-medium text-slate-800 dark:text-white">{t('settings')}</h2>
                         {isMobile && (
                             <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600">
                                 <X size={24} />
@@ -401,7 +401,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {/* --- ACCOUNT SECTION --- */}
                         {selectedSection === 'account' && (
                             <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">
-                                <h1 className="text-2xl font-normal text-slate-900 dark:text-white">Account</h1>
+                                <h1 className="text-2xl font-normal text-slate-900 dark:text-white">{t('account_header')}</h1>
 
                                 {/* Profile Header */}
                                 <div className="flex items-center gap-6">
@@ -429,7 +429,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         />
                                     </div>
                                     <div>
-                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Name</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('account_name_label')}</div>
                                         {isEditingName ? (
                                             <div className="flex items-center gap-2 animate-in fade-in duration-200">
                                                 <div className="flex gap-2">
@@ -485,17 +485,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Personal Information */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Personal Information</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('account_personal_info')}</h2>
                                     <div className="space-y-6">
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">Phone number</p>
+                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">{t('account_phone_label')}</p>
                                                     {user.phoneVerified && (
-                                                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase rounded-sm">Verified</span>
+                                                        <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase rounded-sm">{t('verified')}</span>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Used for Caller ID in outbound calls.</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('account_phone_desc')}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <input
@@ -512,12 +512,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                             onClick={() => setShowPhoneVerify(true)}
                                                             className="px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
                                                         >
-                                                            Verify
+                                                            {t('verify')}
                                                         </button>
                                                     ) : (
                                                         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 text-xs font-medium rounded-lg cursor-not-allowed" title="Requires Business+ Plan">
                                                             <Lock size={12} />
-                                                            <span>Plan Required</span>
+                                                            <span>{t('plan_required')}</span>
                                                         </div>
                                                     )
                                                 )}
@@ -526,8 +526,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-slate-900 dark:text-white">Time zone</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Your local time for meetings and recordings.</p>
+                                                <p className="text-sm font-medium text-slate-900 dark:text-white">{t('account_timezone_label')}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('account_timezone_desc')}</p>
                                             </div>
                                             <CustomSelect
                                                 className="w-[240px]"
@@ -546,10 +546,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Plan & Billing */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Plan & billing</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('account_plan_billing')}</h2>
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Current Plan</p>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{t('account_current_plan')}</p>
                                             <span className="px-2.5 py-1 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-medium rounded">
                                                 {formatPlanName(user.subscription?.planId || 'free')}
                                             </span>
@@ -558,7 +558,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             onClick={handlePlansClick}
                                             className="w-full md:w-auto px-4 py-1.5 border border-slate-200 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/30 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
                                         >
-                                            Manage
+                                            {t('manage')}
                                         </button>
                                     </div>
                                 </div>
@@ -567,7 +567,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Login Methods */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Security & Login</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('account_security_login')}</h2>
                                     <div className="space-y-4">
                                         {/* Password Row */}
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -576,15 +576,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     <Lock size={16} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">Password</p>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Last changed 3 months ago</p>
+                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">{t('passwordLabel')}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{t('account_password_last_changed')}</p>
                                                 </div>
                                             </div>
                                             <button
                                                 className="w-full md:w-auto px-4 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                                                 onClick={() => alert("Change password flow would open here")}
                                             >
-                                                Change password
+                                                {t('account_change_password')}
                                             </button>
                                         </div>
 
@@ -601,7 +601,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 </div>
                                             </div>
                                             <button className="w-full md:w-auto px-4 py-1.5 bg-slate-50 dark:bg-transparent border border-transparent dark:border-slate-700/50 text-slate-400 dark:text-slate-500 text-xs rounded-lg cursor-not-allowed">
-                                                Connected
+                                                {t('connected')}
                                             </button>
                                         </div>
 
@@ -613,7 +613,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white">Apple</p>
                                             </div>
                                             <button className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 text-xs rounded-lg cursor-not-allowed uppercase" disabled>
-                                                Coming Soon
+                                                {t('coming_soon')}
                                             </button>
                                         </div>
                                     </div>
@@ -623,14 +623,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Account Actions */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Account actions</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('account_actions')}</h2>
                                     <div className="space-y-3">
                                         <div>
                                             <button
                                                 onClick={() => setShowLogoutConfirm(true)}
                                                 className="px-4 py-1.5 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/30 text-slate-700 dark:text-slate-300 text-xs rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
                                             >
-                                                Log out
+                                                {t('logout')}
                                             </button>
                                         </div>
                                         <div>
@@ -638,7 +638,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 onClick={() => setShowDeleteConfirm(true)}
                                                 className="px-4 py-1.5 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                                             >
-                                                Delete account
+                                                {t('delete_account')}
                                             </button>
                                         </div>
                                     </div>
@@ -651,11 +651,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">
                                 {/* Appearance Section */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Appearance</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('appearance_header')}</h2>
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-medium text-slate-900 dark:text-white">Theme</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Choose how Diktalo looks to you.</p>
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{t('theme_label')}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('theme_desc')}</p>
                                         </div>
                                         <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
                                             <button
@@ -687,13 +687,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 {/* Language */}
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Language</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('language_header')}</h2>
 
                                     <div className="space-y-6">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-slate-900 dark:text-white">Display language</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Select your preferred language for using Diktalo.</p>
+                                                <p className="text-sm font-medium text-slate-900 dark:text-white">{t('display_language_label')}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('display_language_desc')}</p>
                                             </div>
                                             <CustomSelect
                                                 className="w-full md:w-40"
@@ -712,8 +712,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-slate-900 dark:text-white">Transcription language</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Default language for analysis and transcription.</p>
+                                                <p className="text-sm font-medium text-slate-900 dark:text-white">{t('transcription_language_label')}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('transcription_language_desc')}</p>
                                             </div>
                                             <CustomSelect
                                                 className="w-40"
@@ -735,7 +735,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {selectedSection === 'notifications' && (
                             <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Email notifications</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('notify_email_header')}</h2>
                                     <div className="space-y-6">
                                         {[
                                             { id: 'newRecording', label: 'New recording', desc: 'Get notified when a new recording is finished.' },
@@ -778,11 +778,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
 
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">Browser notifications</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('notify_browser_header')}</h2>
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-medium text-slate-900 dark:text-white">Push notifications</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Receive notifications in your browser when Diktalo is open.</p>
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{t('notify_push_label')}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('notify_push_desc')}</p>
                                         </div>
                                         <button
                                             onClick={() => {
@@ -815,9 +815,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {selectedSection === 'integrations' && (
                             <div className="max-w-2xl space-y-8 animate-in fade-in duration-300">
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-2">Integrations</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-2">{t('integrations_header')}</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        Connect Diktalo with your favorite tools to automate your workflow.
+                                        {t('integrations_desc')}
                                     </p>
                                 </div>
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
@@ -852,7 +852,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </div>
                                         </div>
                                         <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-400 text-xs font-medium rounded-lg" disabled>
-                                            Soon
+                                            {t('coming_soon')}
                                         </button>
                                     </div>
                                 </div>
@@ -863,7 +863,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {selectedSection === 'developer' && (
                             <div className="max-w-2xl space-y-8 animate-in fade-in duration-300">
                                 <div>
-                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-2">Developer Settings</h2>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-2">{t('dev_header')}</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Manage your API keys and access tokens for external tools like the Chrome Extension.
                                     </p>
@@ -877,8 +877,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <Key size={20} />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Extension Configuration</h3>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Copy this JSON configuration to the Chrome Extension to enable persistent authentication.</p>
+                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{t('dev_api_token_label')}</h3>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('dev_api_token_desc')}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -903,7 +903,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 : 'bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90'
                                                 } disabled:opacity-50`}
                                         >
-                                            {copyStatus === 'copied' ? t('copied') : t('copy')}
+                                            {copyStatus === 'copied' ? t('copied') : t('dev_copy_token')}
                                         </button>
                                     </div>
                                     <p className="mt-2 text-[10px] text-slate-400">
@@ -919,11 +919,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <h2 className="text-xl font-normal text-slate-900 dark:text-white">Custom vocabulary</h2>
+                                            <h2 className="text-xl font-normal text-slate-900 dark:text-white">{t('vocab_header')}</h2>
                                             <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-wide font-medium rounded">Beta</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs text-slate-500">Enable custom vocabulary</span>
+                                            <span className="text-xs text-slate-500">{t('vocab_enable_label')}</span>
                                             <button
                                                 onClick={() => setCustomVocab(prev => ({ ...prev, enabled: !prev.enabled }))}
                                                 className={`w-10 h-5 rounded-full relative transition-colors ${customVocab.enabled ? 'bg-slate-900 dark:bg-white' : 'bg-slate-200 dark:bg-slate-700'}`}
@@ -933,7 +933,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
                                     </div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        AI prioritizes terminology from your selected field and custom terms to improve transcription accuracy.
+                                        {t('vocab_enable_desc')}
                                     </p>
                                 </div>
 
@@ -941,35 +941,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className={!customVocab.enabled ? 'opacity-50 pointer-events-none' : ''}>
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-medium text-slate-900 dark:text-white">Industry</h3>
+                                        <h3 className="text-sm font-medium text-slate-900 dark:text-white">{t('vocab_industry_label')}</h3>
                                         <span className="text-xs text-slate-400">Please select</span>
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Select your industry to help AI learn your field's context.</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{t('vocab_industry_desc')}</p>
                                     <CustomSelect
                                         className="w-full md:max-w-xs"
                                         value={customVocab.industry}
                                         onChange={(val) => setCustomVocab(prev => ({ ...prev, industry: val }))}
                                         options={[
-                                            { value: 'medical', label: 'Medical / Healthcare' },
-                                            { value: 'legal', label: 'Legal' },
-                                            { value: 'finance', label: 'Finance / Banking' },
-                                            { value: 'tech', label: 'Technology / Engineering' },
-                                            { value: 'general', label: 'General Business' }
+                                            { value: 'medical', label: t('vocab_industry_medical') },
+                                            { value: 'legal', label: t('vocab_industry_legal') },
+                                            { value: 'finance', label: t('vocab_industry_finance') },
+                                            { value: 'tech', label: t('vocab_industry_tech') },
+                                            { value: 'general', label: t('vocab_industry_general') }
                                         ]}
-                                        placeholder="Select industry..."
+                                        placeholder={t('vocab_industry_placeholder')}
                                     />
                                 </div>
 
                                 <div className={!customVocab.enabled ? 'opacity-50 pointer-events-none' : ''}>
                                     <div className="flex items-center justify-between mb-2 md:mb-4">
-                                        <h3 className="text-sm font-medium text-slate-900 dark:text-white">Vocabulary</h3>
+                                        <h3 className="text-sm font-medium text-slate-900 dark:text-white">{t('vocab_terms_label')}</h3>
                                     </div>
                                     <div className="flex flex-col md:flex-row gap-2">
                                         <input
                                             type="text"
                                             value={newTerm}
                                             onChange={(e) => setNewTerm(e.target.value)}
-                                            placeholder="Enter term..."
+                                            placeholder={t('vocab_term_placeholder')}
                                             className="px-3 py-2 md:py-1 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm md:text-xs w-full md:w-48 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') handleAddTerm();
@@ -980,10 +980,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             className="px-3 py-2 md:py-1 bg-black dark:bg-white text-white dark:text-black text-sm md:text-xs font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 w-full md:w-auto"
                                             disabled={!newTerm.trim()}
                                         >
-                                            Add
+                                            {t('add')}
                                         </button>
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Add names, companies or industry-specific terms you use often.</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">{t('vocab_terms_desc')}</p>
 
                                     {customVocab.terms.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl">
@@ -1019,7 +1019,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 <div className="w-16 h-16 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
                                     <Puzzle size={24} className="text-slate-300 dark:text-slate-600" />
                                 </div>
-                                <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-2">Coming Soon</h2>
+                                <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-2">{t('coming_soon')}</h2>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
                                     This section is currently under development. Check back later for updates.
                                 </p>
