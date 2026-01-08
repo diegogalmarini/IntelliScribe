@@ -197,27 +197,35 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
 
                 {/* Display */}
                 <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0 relative">
-                    <button
-                        onClick={handlePaste}
-                        className={`absolute top-2 right-4 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors ${isPasting ? 'text-brand-green' : ''}`}
-                        title="Pegar número"
-                    >
-                        {isPasting ? 'Pegado!' : 'Pegar'}
-                    </button>
-                    {/* Botón Contactos - Solo visible si la API está disponible (aproximación) */}
-                    <button
-                        onClick={handleContacts}
-                        className="absolute top-2 left-4 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors flex items-center gap-1"
-                        title="Buscar Contacto"
-                    >
-                        <span className="material-symbols-outlined text-[14px]">contacts</span>
-                    </button>
 
-                    <div className="flex items-center justify-center w-full mb-2">
-                        <span className="text-3xl font-light text-slate-400 mr-1">+</span>
-                        <div className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-widest break-all">
-                            {number || <span className="opacity-30">34...</span>}
-                        </div>
+                    {/* Botón Contactos - Visible solo si soportado (Android/Chrome) */}
+                    {'contacts' in navigator && 'ContactsManager' in window && (
+                        <button
+                            onClick={handleContacts}
+                            className="absolute top-2 left-4 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors flex items-center gap-1"
+                            title="Buscar Contacto"
+                        >
+                            <span className="material-symbols-outlined text-[14px]">contacts</span>
+                        </button>
+                    )}
+
+                    <div className="flex items-center justify-center w-full mb-2 px-8">
+                        <span className="text-3xl font-light text-slate-400 mr-1 select-none">+</span>
+
+                        {/* Native Input for Cursor & Editing */}
+                        <input
+                            type="tel"
+                            value={number}
+                            onChange={(e) => {
+                                // Strip non-digit characters to avoid errors
+                                // Also handles pasting '+34...' -> '34...'
+                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                setNumber(val);
+                            }}
+                            className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-widest bg-transparent border-none outline-none w-full placeholder:text-slate-200 dark:placeholder:text-slate-800"
+                            placeholder="34..."
+                            autoFocus
+                        />
                     </div>
                 </div>
 
