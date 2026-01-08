@@ -29,11 +29,14 @@ El sistema de chat (RAG - Retrieval Augmented Generation) escala en 3 niveles:
 *   **Estado:** ✅ Implementado (`RecordingDetailView`).
 
 ### Nivel 2: Meso (Chat con el Proyecto/Carpeta)
-*   **Contexto:** Múltiples grabaciones dentro de un Proyecto (Folder).
+*   **Contexto:** Múltiples grabaciones (10-20) dentro de un Proyecto (Folder).
 *   **Query:** "Analiza las 5 entrevistas de la carpeta 'Candidatos Ventas' y compáralos".
-*   **Estado:** 🚧 Pendiente / Por Validar.
+*   **Estado:** ✅ Implementado (Context Stuffing).
+    *   *Nota Técnica:* Actualmente envía todo el texto de la carpeta a Gemini 1.5 Pro. Funciona perfecto para < 50 grabaciones gracias a la ventana de contexto de 1M tokens.
 
 ### Nivel 3: Macro (Chat con la Cuenta)
 *   **Contexto:** Toda la base de conocimientos del usuario.
 *   **Query:** "¿Cuándo fue la última vez que hablé de 'precios' con algún cliente en los últimos 6 meses?".
-*   **Estado:** 🚧 Pendiente / Por Validar.
+*   **Estado:** ⚠️ Implementado Parcialmente (Brute Force).
+    *   *Limitación:* Usa la misma lógica que Nivel 2. Si el usuario tiene 1000 grabaciones, fallará por límites de red.
+    *   *Roadmap:* Migrar a **RAG (Vector Search)** con `pgvector` en Supabase para escalar.
