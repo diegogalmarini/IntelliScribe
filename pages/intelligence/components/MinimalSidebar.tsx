@@ -152,10 +152,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     onClick={handleLogoClick}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-600/20">
-                        D
-                    </div>
-                    <span className="font-bold text-xl text-gray-900 dark:text-white tracking-tight">Diktalo</span>
+                    <img src="/logo-diktalo.svg" alt="Diktalo" className="h-8 w-auto dark:hidden" />
+                    <img src="/logo-diktalo-b.svg" alt="Diktalo" className="h-8 w-auto hidden dark:block" />
                 </button>
                 {/* Close Sidebar Button */}
                 {onToggle && (
