@@ -46,86 +46,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // --- Action 1: Meeting Summary ---
         if (action === 'summary') {
-            const { transcript, template = 'general' } = payload;
+            const { transcript, template: templateId = 'general', systemPrompt: systemPromptOverride } = payload;
 
-            let systemPrompt = '';
-
-            // Templates Definition (Replicated from shared constants)
-            const templates: Record<string, { es: string, en: string }> = {
-                'adaptive': {
-                    es: `Eres una IA adaptativa inteligente. Tu objetivo es "Adaptive Structure & All-Scene Adaptation". Analiza el contenido y selecciona AUTOMÁTICAMENTE la mejor estructura de resumen basada en el tipo de audio (reunión, entrevista, clase, monólogo, etc.). Genera un resumen inteligente que se adapte perfectamente al escenario detectado.`,
-                    en: `You are an intelligent adaptive AI. Your goal is "Adaptive Structure & All-Scene Adaptation". Analyze the content and AUTOMATICALLY select the best summary structure based on the audio type (meeting, interview, lecture, monologue, etc.). Generate an intelligent summary that perfectly adapts to the detected scenario.`
-                },
-                'reasoning': {
-                    es: `Eres una IA de inferencia lógica ("Reasoning Autopilot"). Utiliza "Intelligent Inference" para deducir y generar la estructura de resumen más adecuada. Ajusta tu análisis en tiempo real ("Dynamic Optimization") para equilibrar eficiencia y precisión. Crea un resumen claro y lógico basado en las notas transcritas.`,
-                    en: `You are a logical inference AI ("Reasoning Autopilot"). Use "Intelligent Inference" to deduce and generate the most suitable summary structure. Adjust your analysis in real-time ("Dynamic Optimization") to balance efficiency and accuracy. Create a clear, logical summary based on the transcribed notes.`
-                },
-                'detailed': {
-                    es: `Objetivo: Resumen altamente detallado y limpio. 1. Conversation Summary: Párrafo general del propósito de la llamada. 2. Action Items: Lista tareas con descripción. Usa etiquetas como [URGENT], [QUOTE] si aplica. 3. Follow-Ups: A quién contactar y cuándo. Etiqueta [FOLLOW-UP]. 4. Key Details: Extrae Nombres, Teléfonos, Direcciones, Fechas. Sé extremadamente preciso y organizado.`,
-                    en: `Goal: Highly detailed and clean summary. 1. Conversation Summary: General paragraph of the call's purpose. 2. Action Items: List tasks with descriptions. Use tags like [URGENT], [QUOTE] if applicable. 3. Follow-Ups: Who to contact and when. Tag [FOLLOW-UP]. 4. Key Details: Extract Names, Phone Numbers, Addresses, Dates. Be extremely precise and organized.`
-                },
-                'verbatim': {
-                    es: `TU ÚNICA TAREA ES CORREGIR Y FORMATEAR LA TRANSCRIPCIÓN LITERAL. - NO resumas. NO interpretes. NO opines. - Mantén el orden cronológico exacto. - Identifica hablantes (e.g., "Hablante 1:", "Hablante 2:") si es posible. - El texto debe ser una transcripción textual completa, limpia y legible.`,
-                    en: `YOUR ONLY TASK IS TO CORRECT AND FORMAT THE VERBATIM TRANSCRIPT. - DO NOT summarize. DO NOT interpret. DO NOT opine. - Maintain exact chronological order. - Identify speakers (e.g., "Speaker 1:", "Speaker 2:") if possible. - The text must be a complete, clean, and readable verbatim transcript.`
-                },
-                'discussion_meeting': {
-                    es: `Eres un redactor de discusiones de equipo. Para cada tema tratado: 1. Topic: Título del tema. 2. Conclusion: La conclusión alcanzada. 3. Next Steps: Pasos a seguir basados en la conclusión. 4. Discussion Points: Puntos de vista, hechos o argumentos presentados. Estructura claramente por temas.`,
-                    en: `You are a team discussion writer. For each topic discussed: 1. Topic: Title of the topic. 2. Conclusion: The conclusion reached. 3. Next Steps: Action items based on the conclusion. 4. Discussion Points: Viewpoints, facts, or arguments presented. Structure clearly by topics.`
-                },
-                'meeting_note': {
-                    es: `Genera una Nota de Reunión estructurada: ⏰ Meeting Information: Extrae fecha, hora, lugar y asistentes si se mencionan. 📝 Meeting Notes: Desglosa por Tópicos y Subtópicos. Para cada uno da una descripción breve y Conclusiones. 📅 Next Arrangements: Lista clara de Action Items.`,
-                    en: `Generate a structured Meeting Note: ⏰ Meeting Information: Extract date, time, location, and attendees if mentioned. 📝 Meeting Notes: Break down by Topics and Subtopics. For each, give a brief description and Conclusions. 📅 Next Arrangements: Clear list of Action Items.`
-                },
-                'call_discussion': {
-                    es: `Analiza esta llamada ("Discussion CALL"). Para cada punto discutido: 1. Description: Descripción detallada. 2. Conclusions: Conclusiones y to-dos. 3. Reasons: Razones que apoyan la conclusión. Formato estructurado y lógico.`,
-                    en: `Analyze this call ("Discussion CALL"). For each discussion point: 1. Description: Detailed description. 2. Conclusions: Conclusions and action items (to-dos). 3. Reasons: Reasons supporting the conclusion. Structured and logical format.`
-                },
-                'sales_bant': {
-                    es: `Eres un consultor de ventas experto. Analiza usando BANT. Identifica: Budget, Authority, Need, Timing. Sugiere próximos pasos.`,
-                    en: `You are an expert sales consultant. Analyze using BANT. Identify: Budget, Authority, Need, Timing. Suggest next steps.`
-                },
-                'university_lecture': {
-                    es: `Transforma la lección en un capítulo de manual universitario claro y profundo. - Organiza en secciones lógicas con títulos. - Explica cada concepto con tono didáctico y fluido. - Añade ejemplos prácticos y analogías. - Relaciona con otros temas (curiosidades científicas/históricas). - Al final: Schema Riassuntivo con palabras clave.`,
-                    en: `Transform the lecture into a clear, in-depth useriversity textbook chapter. - Organize into logical sections with titles. - Explain each concept with a didactic and fluid tone. - Add practical examples and analogies. - Relate to other topics (scientific/historical curiosities). - At the end: Summary Schema with key words.`
-                },
-                'class_note': {
-                    es: `Genera notas de clase ("Class Note"): - Class Info (Materia, Fecha, etc). - Keywords (Palabras clave). - Key Learnings (Puntos de conocimiento). - Explanations: Detalle, análisis, derivación de fórmulas. - Examples: Descripción de ejemplos dados. - Assignments: Tareas asignadas.`,
-                    en: `Generate Class Notes: - Class Info (Course, Date, etc). - Keywords. - Key Learnings. - Explanations: Detail, analysis, derivation. - Examples: Description of examples provided. - Assignments.`
-                },
-                'medical_soap': {
-                    es: `Genera nota SOAP (Subjetivo, Objetivo, Evaluación, Plan). Tono clínico profesional.`,
-                    en: `Generate SOAP note (Subjective, Objective, Assessment, Plan). Professional clinical tone.`
-                },
-                'legal': {
-                    es: `Abogado senior. Extrae: hechos relevantes, riesgos legales, estrategia/próximos pasos. Lenguaje jurídico.`,
-                    en: `Senior attorney. Extract: relevant facts, legal risks, strategy/next steps. Legal terminology.`
-                },
-                'hr_interview': {
-                    es: `Recrutador experto. Analiza: Perfil, Competencias, Ajuste Cultural, Recomendación.`,
-                    en: `Expert recruiter. Analyze: Profile, Competencies, Culture Fit, Recommendation.`
-                },
-                'product_ux': {
-                    es: `Product Manager. Analiza: Citas clave, Pain Points, Feature Requests, Sentimiento General.`,
-                    en: `Product Manager. Analyze: Key Quotes, Pain Points, Feature Requests, General Sentiment.`
-                },
-                'journalism': {
-                    es: `Periodista de investigación. Extrae: Titulares, Citas textuales (verbatim), Narrativa de hechos.`,
-                    en: `Investigative journalist. Extract: Headlines, Verbatim quotes, Facts narrative.`
-                },
-                'research': {
-                    es: `Investigador académico. Sintetiza: Hipótesis, Metodología, Hallazgos, Research Gaps.`,
-                    en: `Academic researcher. Synthesize: Hypotheses, Methodology, Findings, Research Gaps.`
-                },
+            // Basic fallback templates if systemPrompt is not provided by the frontend
+            const fallbackTemplates: Record<string, { es: string, en: string }> = {
                 'general': {
-                    es: `Eres un asistente ejecutivo experto. Analiza la siguiente transcripción y proporciona un resumen estructurado que incluya: 1. Resumen Ejecutivo, 2. Puntos Clave, 3. Conclusiones. Usa formato Markdown y responde en ESPAÑOL.`,
-                    en: `You are an expert executive assistant. Analyze the following transcript and provide a structured summary including: 1. Executive Summary, 2. Key Points, 3. Conclusions. Use Markdown formatting.`
+                    es: 'Eres un asistente experto en resumir reuniones. Proporciona un resumen detallado y estructurado de la siguiente transcripción. Responde SIEMPRE en ESPAÑOL.',
+                    en: 'You are an expert meeting assistant. Provide a detailed and structured summary of the following transcript. Always respond in ENGLISH.'
                 }
             };
 
-            const selectedTemplate = templates[template] || templates['general'];
-            const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
-            systemPrompt = language === 'es' ? selectedTemplate.es : selectedTemplate.en;
+            let systemPrompt = '';
+            if (systemPromptOverride) {
+                systemPrompt = systemPromptOverride;
+            } else {
+                const selected = fallbackTemplates[templateId] || fallbackTemplates['general'];
+                systemPrompt = language === 'es' ? selected.es : selected.en;
+            }
 
+            const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
             const finalPrompt = `${systemPrompt}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.models.generateContent({

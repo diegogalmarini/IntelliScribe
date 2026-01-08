@@ -1,4 +1,5 @@
 import { TranscriptSegment } from "../types";
+import { AI_TEMPLATES } from "../constants/templates";
 
 // Helper to call our secure backend
 const callAIEndpoint = async (action: string, payload: any, language: string) => {
@@ -22,9 +23,17 @@ const callAIEndpoint = async (action: string, payload: any, language: string) =>
   }
 };
 
-export const generateMeetingSummary = async (transcript: string, language: string = 'en', template: string = 'general'): Promise<string> => {
+export const generateMeetingSummary = async (transcript: string, language: string = 'en', templateId: string = 'general'): Promise<string> => {
   try {
-    const result = await callAIEndpoint('summary', { transcript, template }, language);
+    const templateObj = AI_TEMPLATES.find(t => t.id === templateId) || AI_TEMPLATES[0];
+    // Select the correct language prompt from the template
+    const systemPrompt = templateObj.systemPrompt[language as 'es' | 'en'] || templateObj.systemPrompt.en;
+
+    const result = await callAIEndpoint('summary', {
+      transcript,
+      template: templateId,
+      systemPrompt // Pass the specialized prompt
+    }, language);
     if (!result) throw new Error("No output from AI");
     return result;
   } catch (error: any) {
