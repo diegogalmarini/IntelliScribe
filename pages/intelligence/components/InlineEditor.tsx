@@ -385,20 +385,30 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             const targetLang = user.transcriptionLanguage || language || 'es';
 
             // Prepare attachments with relative timestamps
+            // Prepare attachments with relative timestamps AND SIGNED URLS
             let preparedAttachments: any[] = [];
             if (recording.metadata?.attachments && recording.date) {
                 const startTime = new Date(recording.date).getTime();
-                preparedAttachments = recording.metadata.attachments.map(att => {
+
+                preparedAttachments = await Promise.all(recording.metadata.attachments.map(async (att) => {
                     const diffMs = att.timestamp - startTime;
                     const diffSec = Math.max(0, Math.floor(diffMs / 1000));
                     const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
                     const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
                     const s = (diffSec % 60).toString().padStart(2, '0');
+
+                    // Sign the URL if path exists
+                    let finalUrl = att.url;
+                    if (att.path) {
+                        const signed = await getSignedAudioUrl(att.path);
+                        if (signed) finalUrl = signed;
+                    }
+
                     return {
                         time: `${h}:${m}:${s}`,
-                        url: att.url
+                        url: finalUrl
                     };
-                });
+                }));
             }
 
             const summaryText = await generateMeetingSummary(fullTranscript, targetLang, selectedTemplate, preparedAttachments);
