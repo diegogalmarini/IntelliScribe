@@ -388,7 +388,11 @@ const AppContent: React.FC = () => {
             }
 
             if (!isRecovery) {
-                if (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN) {
+                // Remove automatic redirection from LANDING/LOGIN
+                // if (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN) {
+                //     navigate(AppRoute.DASHBOARD);
+                // }
+                if (currentRoute === AppRoute.LOGIN) {
                     navigate(AppRoute.DASHBOARD);
                 }
             } else {
@@ -609,7 +613,7 @@ const AppContent: React.FC = () => {
         return (
             <>
                 <CrispWidget />
-                <Landing />
+                <Landing user={user} />
             </>
         );
     }
