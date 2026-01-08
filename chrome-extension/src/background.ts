@@ -76,12 +76,25 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true; // Keep channel open
 });
 
+// --- Keep-Alive Logic (Adrenaline) ---
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === 'keepAlive') {
+        console.log('[Background] Heartbeat - Staying alive...');
+        // Optional: Send a ping to offscreen to ensure full chain is live
+        chrome.runtime.sendMessage({ action: 'PING' }).catch(() => { });
+    }
+});
+
 async function startRecording(tabId: number) {
     console.log('[Background] Starting recording for tab:', tabId);
 
     // --- STEP 1: FORCE CLEANUP ---
     await closeOffscreenDocument();
     await new Promise(resolve => setTimeout(resolve, 500));
+
+    // --- START HEARTBEAT ---
+    chrome.alarms.create('keepAlive', { periodInMinutes: 0.5 }); // Every 30 seconds
+    console.log('[Background] Heartbeat started.');
 
     return new Promise<void>((resolve, reject) => {
         chrome.tabCapture.getMediaStreamId({
@@ -313,6 +326,10 @@ async function createOffscreenDocument() {
 
 async function closeOffscreenDocument() {
     try {
+        // Stop Heartbeat
+        await chrome.alarms.clear('keepAlive');
+        console.log('[Background] Heartbeat stopped.');
+
         const existingContexts = await (chrome.runtime as any).getContexts({
             contextTypes: ['OFFSCREEN_DOCUMENT']
         });
