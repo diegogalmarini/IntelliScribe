@@ -19,9 +19,9 @@ interface RecordingDetailViewProps {
     user: UserProfile;
     onGenerateTranscript?: () => Promise<void>;
     onRename?: (newTitle: string) => void;
-    onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string) => void;
+    onUpdateSpeaker?: (oldSpeaker: string, newSpeaker: string, currentSegments?: any[]) => void;
     onUpdateSummary?: (summary: string) => void;
-    onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>) => void;
+    onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>, currentSegments?: any[]) => void;
     onUpdateRecording?: (recordingId: string, updates: Partial<Recording>) => void;
     onAskDiktalo?: () => void;
 }
@@ -108,6 +108,39 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     }, [recording.audioUrl, fullRecording?.audioUrl]);
 
     // Update duration when saving to DB
+    React.useEffect(() => {
+        if (audioRef.current && recording.id && !recording.durationSeconds) {
+            const audio = audioRef.current;
+            const updateDuration = () => {
+                if (audio.duration && isFinite(audio.duration)) {
+                    databaseService.updateRecording(recording.id, {
+                        durationSeconds: Math.floor(audio.duration)
+                    }).catch(err => console.error("Failed to sync duration", err));
+                }
+            };
+            audio.addEventListener('loadedmetadata', updateDuration);
+            return () => audio.removeEventListener('loadedmetadata', updateDuration);
+        }
+    }, [recording.id, recording.durationSeconds]);
+
+    // CRITICAL: Sync local state when props update (to handle parent updates like speaker renames or title changes)
+    React.useEffect(() => {
+        if (recording.segments && recording.segments.length > 0) {
+            setSegments(recording.segments);
+        }
+    }, [recording.segments]);
+
+    React.useEffect(() => {
+        if (recording.summary) {
+            setSummary(recording.summary);
+        }
+    }, [recording.summary]);
+
+    React.useEffect(() => {
+        if (recording.title && !isEditingTitle) {
+            setEditedTitle(recording.title);
+        }
+    }, [recording.title, isEditingTitle]);
     React.useEffect(() => {
         const durationSource = fullRecording?.durationSeconds || recording.durationSeconds;
         if (durationSource) {
@@ -272,7 +305,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
     const handleSaveSpeaker = (oldName: string) => {
         if (onUpdateSpeaker && editedSpeakerName.trim() && editedSpeakerName !== oldName) {
-            onUpdateSpeaker(oldName, editedSpeakerName.trim());
+            onUpdateSpeaker(oldName, editedSpeakerName.trim(), segments);
         }
         setEditingSpeaker(null);
     };
@@ -288,8 +321,8 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     };
 
     const handleSaveSegment = (index: number) => {
-        if (onUpdateSegment && editedSegmentText.trim() !== recording.segments![index].text) {
-            onUpdateSegment(index, { text: editedSegmentText.trim() });
+        if (onUpdateSegment && segments && segments[index] && editedSegmentText.trim() !== segments[index].text) {
+            onUpdateSegment(index, { text: editedSegmentText.trim() }, segments);
         }
         setEditingSegmentIndex(null);
     };

@@ -516,10 +516,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     // --- RENAME SPEAKER Logic --- (Specific helper)
-    const handleUpdateSpeaker = async (oldSpeaker: string, newSpeaker: string) => {
-        if (!activeRecording || !activeRecording.segments) return;
+    const handleUpdateSpeaker = async (oldSpeaker: string, newSpeaker: string, currentSegments?: any[]) => {
+        const segmentsToUse = currentSegments || activeRecording?.segments;
+        if (!activeRecording || !segmentsToUse) {
+            console.warn("[Dashboard] Cannot update speaker: No segments available", { activeRecording: !!activeRecording, hasCurrentSegments: !!currentSegments });
+            return;
+        }
 
-        const updatedSegments = activeRecording.segments.map(s =>
+        const updatedSegments = segmentsToUse.map((s: any) =>
             s.speaker === oldSpeaker ? { ...s, speaker: newSpeaker } : s
         );
 
@@ -527,10 +531,14 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     // --- UPDATE SEGMENT Utility ---
-    const handleUpdateSegment = async (index: number, updates: Partial<{ speaker: string; text: string }>) => {
-        if (!activeRecording || !activeRecording.segments) return;
+    const handleUpdateSegment = async (index: number, updates: Partial<{ speaker: string; text: string }>, currentSegments?: any[]) => {
+        const segmentsToUse = currentSegments || activeRecording?.segments;
+        if (!activeRecording || !segmentsToUse) {
+            console.warn("[Dashboard] Cannot update segment: No segments available");
+            return;
+        }
 
-        const updatedSegments = [...activeRecording.segments];
+        const updatedSegments = [...segmentsToUse];
         updatedSegments[index] = { ...updatedSegments[index], ...updates };
 
         handleUpdateSegmentBatch(activeRecording.id, updatedSegments);
@@ -902,7 +910,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                                 onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
                                 onUpdateSpeaker={handleUpdateSpeaker}
                                 onUpdateSummary={(summary) => onUpdateRecording(activeRecording.id, { summary })}
-                                onUpdateSegment={(idx, updates) => handleUpdateSegment(idx, updates)}
+                                onUpdateSegment={(idx, updates, segs) => handleUpdateSegment(idx, updates, segs)}
                                 onUpdateRecording={onUpdateRecording}
                                 onAskDiktalo={() => handleAskDiktalo([activeRecording])}
                             />

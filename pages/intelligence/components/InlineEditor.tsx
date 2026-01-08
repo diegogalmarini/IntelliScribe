@@ -127,8 +127,24 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         };
     }, [initialRecording.id]);
 
-    // REMOVED: This useEffect was causing data loss by overwriting loaded state with incomplete props
-    // InlineEditor now manages its own state independently after initial load
+    // Sync local state when initialRecording prop updates (to handle parent updates like speaker renames or title changes)
+    useEffect(() => {
+        if (initialRecording.segments && initialRecording.segments.length > 0) {
+            setSegments(initialRecording.segments);
+        }
+    }, [initialRecording.segments]);
+
+    useEffect(() => {
+        if (initialRecording.summary) {
+            setSummary(initialRecording.summary);
+        }
+    }, [initialRecording.summary]);
+
+    useEffect(() => {
+        if (initialRecording.title && !isEditingTitle) {
+            setEditTitle(initialRecording.title);
+        }
+    }, [initialRecording.title, isEditingTitle]);
 
     // Audio Device Setup
     useEffect(() => {
