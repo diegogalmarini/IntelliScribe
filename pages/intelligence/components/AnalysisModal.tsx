@@ -207,15 +207,6 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 {/* Footer Controls */}
                 <div className="flex-shrink-0 px-4 md:px-6 py-4 bg-white dark:bg-[#1a1a1a] border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 z-20 pb-8 md:pb-4">
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        {/* AI Model - Hidden on very small screens to save space if needed, or kept compact */}
-                        <div className="flex flex-col hidden sm:flex">
-                            <span className="text-[10px] uppercase font-bold text-gray-400 mb-1">AI Model</span>
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-medium text-gray-700 dark:text-gray-200 cursor-not-allowed opacity-70">
-                                <Sparkles size={14} className="text-blue-500" />
-                                <span>Gemini 2.0 Flash</span>
-                            </div>
-                        </div>
-
                         {/* Language Selector */}
                         <div className="flex flex-col relative group flex-1 sm:flex-none">
                             <span className="text-[10px] uppercase font-bold text-gray-400 mb-1">Language</span>
