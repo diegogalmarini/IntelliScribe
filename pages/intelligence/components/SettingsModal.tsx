@@ -281,7 +281,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         { id: 'integrations' as Section, icon: Zap, label: t('settings_integrations') },
         { id: 'custom_vocabulary' as Section, icon: Database, label: t('settings_custom_vocab') },
         { id: 'private_cloud' as Section, icon: Cloud, label: t('settings_private_cloud') },
-        { id: 'developers' as Section, icon: Code, label: t('settings_developer') },
+        { id: 'developer' as Section, icon: Code, label: t('settings_developer') },
         // Security merged into Account
         { id: 'help' as Section, icon: HelpCircle, label: t('settings_help') },
         { id: 'about' as Section, icon: Info, label: t('settings_about') },
