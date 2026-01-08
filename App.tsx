@@ -827,10 +827,12 @@ const AppContent: React.FC = () => {
                     onNavigate={navigate}
                     onCallFinished={() => {
                         console.log("📞 Call finished. Refreshing recordings...");
-                        // Aggressive polling to ensure recording appears
+                        // Aggressive polling to ensure recording appears (backend processing might take time)
                         fetchData();
                         setTimeout(fetchData, 2000);
                         setTimeout(fetchData, 5000);
+                        setTimeout(fetchData, 8000);
+                        setTimeout(fetchData, 12000);
                     }}
                     onUserUpdated={async () => {
                         // Refresh user profile from database after verification

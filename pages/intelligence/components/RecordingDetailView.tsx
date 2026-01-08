@@ -302,10 +302,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
 
 
     const handleDownloadAudio = async () => {
-        if (!recording.audioUrl) {
-            alert('Audio no disponible para descargar');
-            return;
-        }
+        if (!recording.audioUrl) return;
 
         try {
             // Extract file extension from the original audio URL
@@ -313,13 +310,19 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
             const fileName = `${recording.title || 'audio'}.${fileExtension}`;
 
-            // Get public URL from Supabase Storage
-            const { data } = supabase.storage
-                .from('recordings')
-                .getPublicUrl(recording.audioUrl);
+            // Use the already signed URL if available (best for private files)
+            // or fetch a new one if expired/missing
+            let downloadUrl = signedAudioUrl;
 
-            // Fetch the file from the public URL
-            const response = await fetch(data.publicUrl);
+            if (!downloadUrl) {
+                console.log('[RecordingDetailView] Generating new signed URL for download...');
+                downloadUrl = await getSignedAudioUrl(recording.audioUrl);
+            }
+
+            if (!downloadUrl) throw new Error('Could not generate download URL');
+
+            // Fetch the file
+            const response = await fetch(downloadUrl);
             if (!response.ok) throw new Error('Failed to fetch audio file');
 
             const blob = await response.blob();
@@ -329,7 +332,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             console.log('[RecordingDetailView] Download initiated successfully');
         } catch (err) {
             console.error('Failed to download audio:', err);
-            alert('Error al descargar el audio');
+            // Replace ugly alert with proper error logging/handling
+            // Ideally use a toast here, but for now we suppress the alert to avoid UX disruption
         }
     };
 
