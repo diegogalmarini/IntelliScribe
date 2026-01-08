@@ -126,20 +126,8 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         };
     }, [initialRecording.id]);
 
-    // Sync local state when props change meaningfully (but preserve loaded data)
-    useEffect(() => {
-        setRecording(prev => ({
-            ...prev,
-            title: initialRecording.title,
-            date: initialRecording.date,
-            status: initialRecording.status,
-            // Preserve audioUrl and segments if they exist in prev state
-            audioUrl: prev.audioUrl || initialRecording.audioUrl,
-            segments: prev.segments || initialRecording.segments,
-            summary: prev.summary || initialRecording.summary
-        }));
-        setEditTitle(initialRecording.title);
-    }, [initialRecording.title, initialRecording.date, initialRecording.status]);
+    // REMOVED: This useEffect was causing data loss by overwriting loaded state with incomplete props
+    // InlineEditor now manages its own state independently after initial load
 
     // Audio Device Setup
     useEffect(() => {
