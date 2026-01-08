@@ -603,20 +603,20 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                     <div className="flex gap-2 items-center flex-shrink-0">
                         <div className="hidden sm:block"><ThemeToggle /></div>
 
-                        {/* Regenerate Transcription Button */}
+                        {/* Regenerate Transcription - Only when transcript exists */}
                         {segments.length > 0 && (
                             <button
                                 onClick={handleTranscribeAudio}
                                 disabled={isTranscribing || !signedAudioUrl}
-                                title="Regenerar transcripción con idioma actualizado"
-                                className="flex items-center h-8 px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50"
+                                title="Regenerar transcripción"
+                                className="flex items-center h-8 px-3 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-all gap-1.5 disabled:opacity-50 shadow-sm"
                             >
                                 {isTranscribing ? (
                                     <span className="material-symbols-outlined animate-spin text-base">sync</span>
                                 ) : (
                                     <span className="material-symbols-outlined text-base">refresh</span>
                                 )}
-                                <span className="hidden lg:inline">Regenerar</span>
+                                <span className="hidden md:inline">Regenerar</span>
                             </button>
                         )}
 
