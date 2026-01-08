@@ -14,26 +14,33 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
         let relativePath = path;
 
         if (path.startsWith('http')) {
-            // Check if it's a Supabase URL and extract the path after 'recordings/'
-            // Example: https://.../storage/v1/object/public/recordings/user/file.mp3
+            // Check if it's a Supabase URL and extract the relative path
             const match = path.match(/recordings\/(.*)$/);
             if (match && match[1]) {
                 relativePath = match[1];
             } else {
                 console.warn('[Storage] Could not extract relative path from legacy URL:', path);
-                // Fail safe: try to sign it anyway or return as is? 
-                // If bucket is private, returning as is won't work. 
-                // Let's assume the regex works for standard Supabase URLs.
-                // If not, we might be stuck, but better to fail signing than serve broken link.
+                // Can't sign a full http URL if we don't know the path relative to bucket
+                return path; // Return original as best effort
             }
         }
 
-        // Generate Public URL (bucket is public without RLS)
-        const { data } = supabase.storage
+        // Generate SIGNED URL for Private Bucket Access
+        // Expires in 1 hour (3600 seconds)
+        const { data, error } = await supabase.storage
             .from('recordings')
-            .getPublicUrl(relativePath);
+            .createSignedUrl(relativePath, 3600);
 
-        return data.publicUrl;
+        if (error) {
+            console.error('[Storage] Failed to generate signed URL:', error.message);
+            // Fallback to public URL in case bucket is actually public (backward compatibility)
+            const { data: publicData } = supabase.storage
+                .from('recordings')
+                .getPublicUrl(relativePath);
+            return publicData.publicUrl;
+        }
+
+        return data.signedUrl;
     } catch (err) {
         console.error('Unexpected error in getSignedAudioUrl:', err);
         return null;
