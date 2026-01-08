@@ -24,6 +24,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
     const [holdProgress, setHoldProgress] = useState(0);
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
     const holdSuccessRef = useRef(false);
+    const shouldSaveRef = useRef(false);
 
     // Session data
     const [sessionTitle, setSessionTitle] = useState(t('newSession') || 'Nueva Sesión');
@@ -146,6 +147,10 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
             };
 
             mediaRecorder.onstop = () => {
+                if (!shouldSaveRef.current) {
+                    console.log('Recording discarded (shouldSave=false)');
+                    return;
+                }
                 const type = mimeTypeRef.current || 'audio/webm';
                 const audioBlob = new Blob(audioChunksRef.current, { type });
                 onComplete(audioBlob, secondsRef.current, sessionTitle, notesRef.current, mediaItemsRef.current);
@@ -279,6 +284,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
     };
 
     const stopRecording = () => {
+        shouldSaveRef.current = true;
         setIsRecording(false);
         onStateChange?.('idle');
         if (mediaRecorderRef.current) mediaRecorderRef.current.stop();
