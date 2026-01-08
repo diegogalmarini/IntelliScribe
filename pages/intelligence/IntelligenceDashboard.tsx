@@ -323,7 +323,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    const handleAction = (type: 'record' | 'upload' | 'multiaudio') => {
+    const handleAction = (type: 'record' | 'upload' | 'multiaudio' | 'extension') => {
         if (type === 'record') {
             // Open inline recorder instead of navigating
             setIsRecording(true);
@@ -336,6 +336,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (type === 'multiaudio') {
             // Open multi-audio uploader for conversations
             setShowMultiAudioUploader(true);
+        }
+        if (type === 'extension') {
+            window.open('https://chromewebstore.google.com/category/extensions?utm_source=ext_sidebar&hl=es', '_blank');
         }
     };
 

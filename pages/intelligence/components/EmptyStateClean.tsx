@@ -1,10 +1,10 @@
 import React from 'react';
-import { Mic, Upload, MessageSquare, MessageCircle } from 'lucide-react';
+import { Mic, Upload, MessageSquare, MessageCircle, Chrome } from 'lucide-react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface EmptyStateCleanProps {
     userName: string;
-    onAction: (type: 'record' | 'upload' | 'multiaudio') => void;
+    onAction: (type: 'record' | 'upload' | 'multiaudio' | 'extension') => void;
 }
 
 export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
@@ -29,6 +29,11 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
             icon: MessageCircle,
             label: t('multi_audio_label'),
         },
+        {
+            type: 'extension' as const,
+            icon: Chrome,
+            label: 'Extensión Chrome',
+        },
     ];
 
     return (
@@ -43,20 +48,27 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
-                {actions.map((action, idx) => (
+                {actions.map((action) => (
                     <button
                         key={action.type}
                         onClick={() => onAction(action.type)}
                         className={`group flex flex-col items-center gap-4 p-6 rounded-2xl border transition-all duration-200
-                            ${idx === 2 ? 'col-span-2' : 'col-span-1'}
+                            col-span-1
                             bg-white dark:bg-transparent 
                             border-blue-100 dark:border-blue-500/20
                             hover:border-blue-500 hover:bg-blue-50/50 
                             dark:hover:bg-blue-500/10 dark:hover:border-blue-400/50
                             shadow-sm hover:shadow-md hover:shadow-blue-500/10
                             active:scale-[0.98]
+                            relative overflow-hidden
                         `}
                     >
+                        {action.type === 'extension' && (
+                            <div className="absolute top-2 right-2 flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-bold text-yellow-700 dark:text-yellow-400">CHROME ONLY</span>
+                            </div>
+                        )}
+
                         <div className="w-14 h-14 rounded-full bg-blue-100/50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500 group-hover:border-blue-600 transition-all duration-200">
                             <action.icon size={24} className="text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                         </div>
