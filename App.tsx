@@ -504,19 +504,22 @@ const AppContent: React.FC = () => {
     const handleUpdateUser = async (updatedUser: Partial<UserProfile>) => {
         setUser(prev => ({ ...prev, ...updatedUser }));
 
+        // Use supabaseUser.id if user.id is not yet available in state
+        const targetUserId = user.id || supabaseUser?.id;
+
         // Persist to LocalStorage as fallback
-        if (user.id) {
+        if (targetUserId) {
             if (updatedUser.timezone) {
-                localStorage.setItem(`diktalo_settings_timezone_${user.id}`, updatedUser.timezone);
+                localStorage.setItem(`diktalo_settings_timezone_${targetUserId}`, updatedUser.timezone);
             }
             if (updatedUser.notificationSettings) {
-                localStorage.setItem(`diktalo_settings_notifications_${user.id}`, JSON.stringify(updatedUser.notificationSettings));
+                localStorage.setItem(`diktalo_settings_notifications_${targetUserId}`, JSON.stringify(updatedUser.notificationSettings));
             }
             if (updatedUser.transcriptionLanguage) {
-                localStorage.setItem(`diktalo_settings_transcription_lang_${user.id}`, updatedUser.transcriptionLanguage);
+                localStorage.setItem(`diktalo_settings_transcription_lang_${targetUserId}`, updatedUser.transcriptionLanguage);
             }
             // Attempt DB update
-            await databaseService.updateUserProfile(user.id, updatedUser);
+            await databaseService.updateUserProfile(targetUserId, updatedUser);
         }
     };
 

@@ -143,10 +143,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             phone: user.phone || prev.phone,
             timezone: user.timezone || prev.timezone
         }));
-        setPreferences(prev => ({
-            ...prev,
-            transcriptionLanguage: user.transcriptionLanguage || prev.transcriptionLanguage
-        }));
+        // Update local state when user prop changes from above
+        setTranscriptionLang(user.transcriptionLanguage || 'es');
     }, [user.phone, user.timezone, user.transcriptionLanguage]);
 
     // EFFECT: Fetch API Token when Developer section is selected
@@ -198,6 +196,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         terms: [] as string[]
     });
     const [newTerm, setNewTerm] = useState('');
+
+    // Optimistic Transcription Language State
+    const [transcriptionLang, setTranscriptionLang] = useState(user.transcriptionLanguage || 'es');
 
     // Mobile Menu State
     const [showMenu, setShowMenu] = useState(true);
@@ -721,9 +722,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </div>
                                             <CustomSelect
                                                 className="w-40"
-                                                value={user.transcriptionLanguage || 'es'}
+                                                value={transcriptionLang}
                                                 onChange={(val) => {
-                                                    setPreferences({ ...preferences, transcriptionLanguage: val });
+                                                    setTranscriptionLang(val);
                                                     handleUpdateUser({ transcriptionLanguage: val });
                                                 }}
                                                 options={[
