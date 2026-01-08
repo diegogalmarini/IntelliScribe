@@ -10,22 +10,22 @@ interface AnalysisModalProps {
     defaultLanguage?: string;
 }
 
-const CATEGORIES = [
-    { id: 'all', label: 'All files', icon: LayoutGrid },
-    { id: 'recent', label: 'Recently used', icon: Clock },
+const CATEGORIES = (lang: string) => [
+    { id: 'all', label: lang === 'es' ? 'Todos los archivos' : 'All files', icon: LayoutGrid },
+    { id: 'recent', label: lang === 'es' ? 'Usados recientemente' : 'Recently used', icon: Clock },
     { type: 'divider' },
-    { id: 'General', label: 'General', icon: Wand2 },
-    { id: 'Business', label: 'Meeting & Business', icon: Building2 },
-    { id: 'Speech', label: 'Speech', icon: Mic },
-    { id: 'Call', label: 'Call', icon: Phone },
-    { id: 'Consulting', label: 'Consulting', icon: Briefcase },
-    { id: 'Education', label: 'Education', icon: GraduationCap },
-    { id: 'Medical', label: 'Medical', icon: Stethoscope },
-    { id: 'Legal', label: 'Legal', icon: Scale },
-    { id: 'HR', label: 'HR & Recruiting', icon: UsersIcon },
-    { id: 'Product', label: 'Product & UX', icon: Microscope },
-    { id: 'Periodismo', label: 'Journalism', icon: Radio },
-    { id: 'Research', label: 'Research', icon: PenTool },
+    { id: 'General', label: lang === 'es' ? 'General' : 'General', icon: Wand2 },
+    { id: 'Business', label: lang === 'es' ? 'Reuniones y Negocios' : 'Meeting & Business', icon: Building2 },
+    { id: 'Speech', label: lang === 'es' ? 'Discurso' : 'Speech', icon: Mic },
+    { id: 'Call', label: lang === 'es' ? 'Llamadas' : 'Call', icon: Phone },
+    { id: 'Consulting', label: lang === 'es' ? 'Consultoría' : 'Consulting', icon: Briefcase },
+    { id: 'Education', label: lang === 'es' ? 'Educación' : 'Education', icon: GraduationCap },
+    { id: 'Medical', label: lang === 'es' ? 'Médico' : 'Medical', icon: Stethoscope },
+    { id: 'Legal', label: lang === 'es' ? 'Legal' : 'Legal', icon: Scale },
+    { id: 'HR', label: lang === 'es' ? 'RRHH y Reclutamiento' : 'HR & Recruiting', icon: UsersIcon },
+    { id: 'Product', label: lang === 'es' ? 'Producto y UX' : 'Product & UX', icon: Microscope },
+    { id: 'Periodismo', label: lang === 'es' ? 'Periodismo' : 'Journalism', icon: Radio },
+    { id: 'Research', label: lang === 'es' ? 'Investigación' : 'Research', icon: PenTool },
 ];
 
 function UsersIcon(props: any) { return <Users {...props} /> }
@@ -59,8 +59,11 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
     // Filtering logic
     const filteredTemplates = useMemo(() => {
         return AI_TEMPLATES.filter(template => {
-            const matchesSearch = template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                template.description.toLowerCase().includes(searchQuery.toLowerCase());
+            const title = template.title[selectedLanguage as 'es' | 'en'] || template.title.es;
+            const description = template.description[selectedLanguage as 'es' | 'en'] || template.description.es;
+
+            const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                description.toLowerCase().includes(searchQuery.toLowerCase());
 
             if (!matchesSearch) return false;
 
@@ -91,7 +94,9 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
                 {/* Header */}
                 <div className="flex-shrink-0 px-4 md:px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#1a1a1a]">
-                    <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">Select a template</h2>
+                    <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
+                        {selectedLanguage === 'es' ? 'Selecciona una plantilla' : 'Select a template'}
+                    </h2>
                     <div className="flex items-center gap-2">
                         {/* Close Button */}
                         <button
@@ -111,7 +116,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                                 <input
                                     type="text"
-                                    placeholder='Try "Meeting"'
+                                    placeholder={selectedLanguage === 'es' ? 'Prueba "Reunión"' : 'Try "Meeting"'}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-400"
@@ -120,7 +125,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                         </div>
 
                         <div className="flex-1 px-2 space-y-0.5">
-                            {CATEGORIES.map((cat, idx) => (
+                            {CATEGORIES(selectedLanguage).map((cat: any, idx) => (
                                 cat.type === 'divider' ? (
                                     <div key={idx} className="my-2 border-t border-gray-200 dark:border-white/5 mx-2" />
                                 ) : (
@@ -148,7 +153,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                                 <input
                                     type="text"
-                                    placeholder='Search templates...'
+                                    placeholder={selectedLanguage === 'es' ? 'Buscar plantillas...' : 'Search templates...'}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 rounded-lg text-sm text-gray-900 dark:text-white"
@@ -192,10 +197,10 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                         </div>
 
                                         <h3 className="font-semibold text-gray-900 dark:text-white text-sm md:text-base mb-1.5">
-                                            {template.title}
+                                            {template.title[selectedLanguage as 'es' | 'en'] || template.title.es}
                                         </h3>
                                         <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
-                                            {template.description}
+                                            {template.description[selectedLanguage as 'es' | 'en'] || template.description.es}
                                         </p>
                                     </div>
                                 );
@@ -254,12 +259,12 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                         {isGenerating ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                Generating...
+                                {selectedLanguage === 'es' ? 'Generando...' : 'Generating...'}
                             </>
                         ) : (
                             <>
                                 <Sparkles size={16} />
-                                Generate now
+                                {selectedLanguage === 'es' ? 'Generar ahora' : 'Generate now'}
                             </>
                         )}
                     </button>
@@ -281,7 +286,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                         <previewTemplate.icon size={48} className={previewTemplate.color.split(' ')[0]} />
                                     </div>
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                                        {previewTemplate.title}
+                                        {previewTemplate.title[selectedLanguage as 'es' | 'en'] || previewTemplate.title.es}
                                     </h3>
                                     <div className="flex items-center gap-2 text-xs text-gray-400 font-medium uppercase tracking-wide">
                                         <span>{previewTemplate.category}</span>
@@ -292,16 +297,16 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
                                 <div className="space-y-6">
                                     <div>
-                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Description</h4>
+                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">{selectedLanguage === 'es' ? 'Descripción' : 'Description'}</h4>
                                         <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                            {previewTemplate.description}
+                                            {previewTemplate.description[selectedLanguage as 'es' | 'en'] || previewTemplate.description.es}
                                         </p>
                                     </div>
 
                                     <div>
-                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-xs">Outline</h4>
+                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 uppercase tracking-wider text-xs">{selectedLanguage === 'es' ? 'Esquema' : 'Outline'}</h4>
                                         <ul className="space-y-2">
-                                            {previewTemplate.outline.map((item, idx) => (
+                                            {(previewTemplate.outline[selectedLanguage as 'es' | 'en'] || previewTemplate.outline.es).map((item, idx) => (
                                                 <li key={idx} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
                                                     <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
                                                     {item}
@@ -320,7 +325,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                     }}
                                     className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
                                 >
-                                    Use this template
+                                    {selectedLanguage === 'es' ? 'Usar esta plantilla' : 'Use this template'}
                                 </button>
                             </div>
                         </div>
