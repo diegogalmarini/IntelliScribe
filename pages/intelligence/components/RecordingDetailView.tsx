@@ -347,16 +347,16 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-background-dark">
             {/* Header */}
-            <div className="px-8 py-4 border-b border-black/[0.05] dark:border-white/[0.05]">
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex-1 mr-4">
+            <div className="px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
                         {isEditingTitle ? (
                             <div className="flex items-center gap-2">
                                 <input
                                     type="text"
                                     value={editedTitle}
                                     onChange={(e) => setEditedTitle(e.target.value)}
-                                    className="text-2xl font-normal text-[#1f1f1f] dark:text-white bg-transparent border-b border-blue-500 focus:outline-none w-full"
+                                    className="text-xl font-medium text-[#1f1f1f] dark:text-white bg-transparent border-b border-blue-500 focus:outline-none w-full"
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') handleSaveTitle();
@@ -364,62 +364,55 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                                     }}
                                 />
                                 <button onClick={handleSaveTitle} className="p-1 hover:bg-green-500/10 rounded-md text-green-600">
-                                    <Check size={20} />
+                                    <Check size={18} />
                                 </button>
                                 <button onClick={handleCancelEdit} className="p-1 hover:bg-red-500/10 rounded-md text-red-600">
-                                    <X size={20} />
+                                    <X size={18} />
                                 </button>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2 group">
-                                <h1 className="text-2xl font-normal text-[#1f1f1f] dark:text-white truncate">
+                                <h1 className="text-xl font-medium text-[#1f1f1f] dark:text-white truncate" title={recording.title}>
                                     {recording.title || 'Grabación sin título'}
                                 </h1>
                                 {onRename && (
                                     <button
                                         onClick={handleStartEdit}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-md text-[#8e8e8e]"
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-md text-[#8e8e8e]"
                                     >
-                                        <Pencil size={16} />
+                                        <Pencil size={14} />
                                     </button>
                                 )}
                             </div>
                         )}
+                        <p className="text-[11px] text-[#8e8e8e] mt-1">
+                            {formatDate(recording.date)}
+                        </p>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                         {/* Analizar */}
                         <button
                             onClick={handleAnalyze}
-                            className="flex items-center gap-2 px-3 py-1.5 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
+                            title="Resumir con IA"
                         >
-                            <BarChart3 size={16} />
-                            <span>Crear Resumen</span>
-                        </button>
-
-                        {/* Preguntar a Diktalo */}
-                        <button
-                            onClick={handleAskDiktalo}
-                            className="flex items-center gap-2 px-3 py-1.5 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
-                        >
-                            <MessageCircle size={16} />
-                            <span>Preguntar a Diktalo</span>
+                            <Sparkles size={14} className="text-brand-purple" />
+                            <span className="hidden sm:inline">Resumir</span>
                         </button>
 
                         {/* Exportar */}
                         <button
                             onClick={handleExport}
-                            className="flex items-center gap-2 px-3 py-1.5 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
+                            title="Exportar archivo"
                         >
-                            <Share2 size={16} />
-                            <span>Exportar</span>
+                            <Share2 size={14} />
+                            <span className="hidden sm:inline">Exportar</span>
                         </button>
                     </div>
                 </div>
-                <p className="text-[12px] text-[#8e8e8e]">
-                    {formatDate(recording.date)}
-                </p>
             </div>
 
             {/* Content */}
