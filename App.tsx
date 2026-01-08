@@ -208,7 +208,7 @@ const AppContent: React.FC = () => {
                 phoneVerified: data.phone_verified || false,
                 // Fallback to localStorage if DB fields are missing
                 timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
-                transcriptionLanguage: data.transcription_language || prev.transcriptionLanguage,
+                transcriptionLanguage: data.transcription_language || localStorage.getItem(`diktalo_settings_transcription_lang_${supabaseUser.id}`) || prev.transcriptionLanguage,
                 notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
                 role: data.role || 'Member',
                 subscription: {
