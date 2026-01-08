@@ -425,9 +425,9 @@ async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, ex
     } catch (error: any) {
         console.warn('[Background] Upload flow failed, checking if 401/Refresh needed:', error);
 
-        // If error suggests auth failure (401), try refresh
-        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-            console.log('[Background] Attempting token refresh...');
+        // If error suggests auth failure (401 or 403), try refresh
+        if (error.message.includes('401') || error.message.includes('403') || error.message.includes('Unauthorized')) {
+            console.log('[Background] Attempting token refresh due to 401/403...');
             try {
                 const newToken = await refreshSession();
                 console.log('[Background] Token refreshed. Retrying flow...');
