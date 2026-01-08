@@ -347,7 +347,8 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-background-dark">
             {/* Header */}
-            <div className="px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
+            {/* Header */}
+            <div className="px-4 md:px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
                         {isEditingTitle ? (
@@ -372,7 +373,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
                             </div>
                         ) : (
                             <div className="flex items-center gap-2 group">
-                                <h1 className="text-xl font-medium text-[#1f1f1f] dark:text-white truncate" title={recording.title}>
+                                <h1 className="text-lg md:text-xl font-medium text-[#1f1f1f] dark:text-white truncate" title={recording.title}>
                                     {recording.title || 'Grabación sin título'}
                                 </h1>
                                 {onRename && (
@@ -416,7 +417,7 @@ export const RecordingDetailView = ({ recording, onGenerateTranscript, onRename,
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6">
                 <div className="max-w-4xl mx-auto space-y-8">
                     {/* Audio Player Card */}
                     <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">

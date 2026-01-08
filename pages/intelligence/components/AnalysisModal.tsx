@@ -77,13 +77,13 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
             onClick={onClose}
         >
             <div
-                className="bg-white dark:bg-[#1a1a1a] w-full max-w-6xl h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-gray-800"
+                className="bg-white dark:bg-[#1a1a1a] w-full md:max-w-6xl h-full md:h-[85vh] rounded-none md:rounded-2xl shadow-2xl overflow-hidden flex flex-col border-0 md:border border-gray-200 dark:border-gray-800"
                 onClick={(e) => e.stopPropagation()}
             >
 
                 {/* Header */}
-                <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#1a1a1a]">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Select a template</h2>
+                <div className="flex-shrink-0 px-4 md:px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#1a1a1a]">
+                    <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">Select a template</h2>
                     <div className="flex items-center gap-2">
                         {/* Close Button */}
                         <button
@@ -96,7 +96,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 </div>
 
                 <div className="flex-1 flex overflow-hidden">
-                    {/* Sidebar */}
+                    {/* Sidebar - Hidden on Mobile */}
                     <div className="w-64 bg-gray-50 dark:bg-[#141414] border-r border-gray-100 dark:border-white/5 flex flex-col py-4 overflow-y-auto hidden md:flex">
                         <div className="px-4 mb-4">
                             <div className="relative">
@@ -133,22 +133,36 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                     </div>
 
                     {/* Main Grid */}
-                    <div className="flex-1 bg-white dark:bg-[#1a1a1a] p-6 overflow-y-auto relative">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+                    <div className="flex-1 bg-white dark:bg-[#1a1a1a] p-4 md:p-6 overflow-y-auto relative scrollbar-hide">
+                        {/* Mobile Search - Visible only on mobile */}
+                        <div className="mb-4 md:hidden">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder='Search templates...'
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 rounded-lg text-sm text-gray-900 dark:text-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 pb-32">
                             {filteredTemplates.map((template) => {
                                 const isSelected = selectedTemplateId === template.id;
                                 return (
                                     <div
                                         key={template.id}
                                         onClick={() => setSelectedTemplateId(template.id)}
-                                        className={`group relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex flex-col h-full min-h-[180px] ${isSelected
+                                        className={`group relative p-4 md:p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex flex-col h-full min-h-[160px] ${isSelected
                                             ? 'border-blue-600 dark:border-blue-500 bg-gray-50 dark:bg-white/5 shadow-md'
                                             : 'border-transparent bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-white/5 hover:shadow-md border-gray-100 dark:border-white/5'
                                             }`}
                                     >
                                         <div className="flex items-start justify-between mb-3">
                                             <div className={`p-2.5 rounded-lg ${template.color} bg-opacity-10 dark:bg-opacity-20 text-opacity-100`}>
-                                                <template.icon size={24} className={template.color.split(' ')[0]} />
+                                                <template.icon size={20} className={template.color.split(' ')[0]} />
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <button
@@ -156,7 +170,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                                         e.stopPropagation();
                                                         setPreviewTemplate(template);
                                                     }}
-                                                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
                                                     title="Preview Template"
                                                 >
                                                     <Eye size={18} />
@@ -169,10 +183,10 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                             </div>
                                         </div>
 
-                                        <h3 className="font-semibold text-gray-900 dark:text-white text-base mb-2">
+                                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm md:text-base mb-1.5">
                                             {template.title}
                                         </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+                                        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
                                             {template.description}
                                         </p>
                                     </div>
@@ -183,10 +197,10 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                 </div>
 
                 {/* Footer Controls */}
-                <div className="flex-shrink-0 px-6 py-4 bg-white dark:bg-[#1a1a1a] border-t border-gray-100 dark:border-white/5 flex items-center justify-between z-20">
-                    <div className="flex items-center gap-4">
-                        {/* AI Model - Static for now */}
-                        <div className="flex flex-col">
+                <div className="flex-shrink-0 px-4 md:px-6 py-4 bg-white dark:bg-[#1a1a1a] border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 z-20 pb-8 md:pb-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        {/* AI Model - Hidden on very small screens to save space if needed, or kept compact */}
+                        <div className="flex flex-col hidden sm:flex">
                             <span className="text-[10px] uppercase font-bold text-gray-400 mb-1">AI Model</span>
                             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-medium text-gray-700 dark:text-gray-200 cursor-not-allowed opacity-70">
                                 <Sparkles size={14} className="text-blue-500" />
@@ -195,11 +209,11 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                         </div>
 
                         {/* Language Selector */}
-                        <div className="flex flex-col relative group">
+                        <div className="flex flex-col relative group flex-1 sm:flex-none">
                             <span className="text-[10px] uppercase font-bold text-gray-400 mb-1">Language</span>
                             <button
                                 onClick={() => setShowLangMenu(!showLangMenu)}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors min-w-[160px] justify-between"
+                                className="flex items-center gap-2 px-3 py-2 md:py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors w-full sm:min-w-[160px] justify-between"
                             >
                                 <div className="flex items-center gap-2">
                                     <Languages size={14} className="text-gray-500" />
@@ -215,7 +229,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                                         className="fixed inset-0 z-30"
                                         onClick={() => setShowLangMenu(false)}
                                     />
-                                    <div className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-[#252525] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-40 py-1">
+                                    <div className="absolute bottom-full left-0 mb-2 w-full sm:w-48 bg-white dark:bg-[#252525] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-40 py-1">
                                         {LANGUAGES.map(lang => (
                                             <button
                                                 key={lang.code}
@@ -241,7 +255,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
                     <button
                         onClick={handleGenerate}
                         disabled={!selectedTemplateId || isGenerating}
-                        className="px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black font-semibold rounded-lg shadow-lg shadow-gray-200 dark:shadow-none hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="w-full md:w-auto px-6 py-3 md:py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black font-semibold rounded-lg shadow-lg shadow-gray-200 dark:shadow-none hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-safe-area"
                     >
                         {isGenerating ? (
                             <>
