@@ -48,11 +48,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recor
     };
 
     const exportAsPDF = async () => {
-        await exportUtils.exportAsPDF(recording, () => setExporting(true), () => { setExporting(false); onClose(); });
+        await exportUtils.exportAsPDF(recording, { includeSummary: true, includeTranscript: true }, () => setExporting(true), () => { setExporting(false); onClose(); });
     };
 
     const exportAsDoc = () => {
-        exportUtils.exportAsDoc(recording, () => setExporting(true), () => { setExporting(false); onClose(); });
+        exportUtils.exportAsDoc(recording, { includeSummary: true, includeTranscript: true }, () => setExporting(true), () => { setExporting(false); onClose(); });
     };
 
     const downloadFile = (content: string, filename: string, type: string) => {
@@ -69,10 +69,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recor
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-full max-w-lg mx-4 bg-white dark:bg-[#2a2a2a] rounded-2xl shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4">
+            <div className="w-full h-full md:h-auto md:max-w-lg bg-white dark:bg-[#2a2a2a] rounded-none md:rounded-2xl shadow-2xl flex flex-col md:block overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-black/[0.05] dark:border-white/[0.05]">
+                <div className="flex items-center justify-between p-6 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
                     <div>
                         <h2 className="text-lg font-semibold text-[#0d0d0d] dark:text-white">
                             Exportar Grabación
@@ -90,7 +90,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recor
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-3">
+                <div className="flex-1 md:flex-none overflow-y-auto p-6 space-y-3">
                     <p className="text-[13px] text-[#8e8e8e] mb-4">
                         Selecciona el formato en el que deseas exportar esta grabación:
                     </p>
@@ -175,7 +175,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, recor
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-black/[0.05] dark:border-white/[0.05]">
+                <div className="p-6 pt-4 border-t border-black/[0.05] dark:border-white/[0.05] bg-white dark:bg-[#2a2a2a] shrink-0 pb-24 md:pb-6">
                     <button
                         onClick={onClose}
                         className="w-full px-4 py-3 bg-[#f7f7f8] dark:bg-[#33343d] hover:bg-[#ebebeb] dark:hover:bg-[#3a3b44] text-[#0d0d0d] dark:text-white rounded-xl font-medium transition-colors"
