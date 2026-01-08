@@ -341,7 +341,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             }
 
             // Transcribe using the signed URL
-            const result = await transcribeAudio(base64, mimeType, language, signedAudioUrl);
+            const result = await transcribeAudio(base64, mimeType, user.transcriptionLanguage || language || 'en', signedAudioUrl);
 
             const newSegments: TranscriptSegment[] = result.map((s, index) => ({
                 id: Date.now().toString() + index,
@@ -372,7 +372,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         setSummaryError(null);
         setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
         try {
-            const summaryText = await generateMeetingSummary(fullTranscript, language);
+            const summaryText = await generateMeetingSummary(fullTranscript, user.transcriptionLanguage || language || 'en');
             setSummary(summaryText);
             onUpdateRecording(recording.id, { summary: summaryText });
         } catch (error: any) {
@@ -602,6 +602,23 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                     {/* Right Actions - Slimmer but Functional */}
                     <div className="flex gap-2 items-center flex-shrink-0">
                         <div className="hidden sm:block"><ThemeToggle /></div>
+
+                        {/* Regenerate Transcription Button */}
+                        {segments.length > 0 && (
+                            <button
+                                onClick={handleTranscribeAudio}
+                                disabled={isTranscribing || !signedAudioUrl}
+                                title="Regenerar transcripción con idioma actualizado"
+                                className="flex items-center h-8 px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50"
+                            >
+                                {isTranscribing ? (
+                                    <span className="material-symbols-outlined animate-spin text-base">sync</span>
+                                ) : (
+                                    <span className="material-symbols-outlined text-base">refresh</span>
+                                )}
+                                <span className="hidden lg:inline">Regenerar</span>
+                            </button>
+                        )}
 
                         <div className="relative">
                             <button
@@ -927,7 +944,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                             <div className="mt-12 pt-8 border-t border-slate-200 dark:border-white/5">
                                 <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-primary">note</span>
-                                    {t('notesAndAttachments') || 'Notas y Adjuntos'}
+                                    {'Notas y Adjuntos'}
                                 </h3>
 
                                 {/* Notes */}
@@ -976,7 +993,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                                 {recording.media && recording.media.length > 0 && (
                                     <div className="space-y-3">
                                         <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
-                                            {t('mediaAttachments') || 'Archivos Adjuntos'}
+                                            {'Archivos Adjuntos'}
                                         </h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {recording.media.map((media) => (
