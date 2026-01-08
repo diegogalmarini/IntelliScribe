@@ -724,6 +724,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     onViewChange={setView}
                     isOpen={isSidebarOpen}
                     onToggle={() => setIsSidebarOpen(false)}
+                    isRecording={isRecording}
                 />
             </div>
 
@@ -773,6 +774,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         onViewChange={setView}
                         isOpen={isSidebarOpen}
                         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                        isRecording={isRecording}
                     />
                 </div>
             </div>

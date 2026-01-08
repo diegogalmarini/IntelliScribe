@@ -23,12 +23,13 @@ interface MinimalSidebarProps {
     onSelectFolder?: (folderId: string | null) => void;
 
     onLogoClick?: () => void;
-    currentView?: 'recordings' | 'subscription' | 'templates';
-    onViewChange?: (view: 'recordings' | 'subscription' | 'templates') => void;
+    currentView: 'recordings' | 'subscription' | 'templates';
+    onViewChange: (view: 'recordings' | 'subscription' | 'templates') => void;
 
     // New Mobile/Collapse Props
-    isOpen?: boolean;
-    onToggle?: () => void;
+    isOpen: boolean;
+    onToggle: () => void;
+    isRecording?: boolean; // NEW: Navigation Guard prop
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -52,8 +53,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onLogoClick,
     currentView,
     onViewChange,
-    isOpen = true,
-    onToggle
+    isOpen,
+    onToggle,
+    isRecording = false // Default to false
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
@@ -132,20 +134,29 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
         closeContextMenu();
     };
 
+    const handleLogoClick = () => {
+        if (isRecording) {
+            // Simple confirm for Beta. Can be upgraded to Custom Modal later.
+            if (!window.confirm("Recording in progress. Are you sure you want to leave?")) {
+                return;
+            }
+        }
+        if (onLogoClick) onLogoClick();
+    };
+
     return (
-        <div className="flex w-full md:w-64 h-full bg-white dark:bg-surface-dark flex-col border-r border-black/[0.05] dark:border-white/[0.05] overflow-x-hidden">
-            {/* Logo & Close Button */}
-            <div className="p-3 border-b border-black/[0.05] dark:border-white/[0.05] flex items-center justify-between">
-                <div
-                    className="flex items-center justify-center px-2 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={onLogoClick}
+        <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05]">
+            {/* Header / Logo */}
+            <div className="p-4 md:p-6 pb-2 flex items-center justify-between">
+                <button
+                    onClick={handleLogoClick}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
-                    <img
-                        src={document.documentElement.classList.contains('dark') ? '/logo-diktalo-b.svg' : '/logo-diktalo.svg'}
-                        alt="Diktalo"
-                        className="h-8 w-auto"
-                    />
-                </div>
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-600/20">
+                        D
+                    </div>
+                    <span className="font-bold text-xl text-gray-900 dark:text-white tracking-tight">Diktalo</span>
+                </button>
                 {/* Close Sidebar Button */}
                 {onToggle && (
                     <button
