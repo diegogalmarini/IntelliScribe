@@ -130,7 +130,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     const handleViewNotes = (id: string) => {
-        console.log('View notes for:', id);
+        onSelectRecording(id);
         closeContextMenu();
     };
 
