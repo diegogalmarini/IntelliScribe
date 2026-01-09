@@ -1061,18 +1061,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="max-w-2xl space-y-8 animate-in fade-in duration-300">
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
                                     <div className="w-20 h-20 mb-6 bg-slate-900 dark:bg-white rounded-2xl flex items-center justify-center shadow-xl">
-                                        <img src="/logo-diktalo-icon.svg" alt="Diktalo" className="w-12 h-12" onError={(e) => {
+                                        <img src="/logo-diktalo.svg" alt="Diktalo" className="w-12 h-12" onError={(e) => {
                                             // Fallback if logo not found
                                             e.currentTarget.style.display = 'none';
                                             e.currentTarget.parentElement!.innerHTML = '<span class="text-3xl font-bold text-white dark:text-black">D</span>';
                                         }} />
                                     </div>
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Diktalo Intelligence</h2>
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('about_header')}</h2>
                                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md">
-                                        Platform for recording, transcribing, and analyzing voice conversations powered by advanced Artificial Intelligence.
+                                        {t('about_desc')}
                                     </p>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-white/10 rounded-full text-xs font-medium text-slate-600 dark:text-slate-300">
-                                        <span>Version 1.2.0</span>
+                                        <span>{t('about_version')} 1.2.0</span>
                                         <span className="w-1 h-1 rounded-full bg-slate-400" />
                                         <span>Beta</span>
                                     </div>
@@ -1082,7 +1082,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <a
-                                        href="/legal/terms"
+                                        href="https://www.diktalo.com/terms"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-all group"
@@ -1091,14 +1091,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             <ShieldCheck size={20} className="text-slate-500 group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-blue-400" />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Términos de Servicio</h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">Reglas de uso y contratos</p>
+                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{t('about_terms')}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">{t('about_terms_desc')}</p>
                                         </div>
                                         <ExternalLink size={14} className="ml-auto text-slate-300 group-hover:text-blue-500" />
                                     </a>
 
                                     <a
-                                        href="/legal/privacy"
+                                        href="https://www.diktalo.com/privacy"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-500/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-all group"
