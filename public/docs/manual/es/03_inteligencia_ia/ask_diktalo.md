@@ -27,7 +27,7 @@ ASK Diktalo es un sistema de **3 niveles de inteligencia artificial** que opera 
 ## Nivel 1: MICRO (Grabación Individual)
 
 ### Acceder al Chat
-1. Abre cualquier grabación desde tu [dashboard](https://www.diktalo.com/intelligence)
+1. Accede desde cualquier grabación en tu dashboard.
 2. Haz clic en el botón **"Preguntar a Diktalo"** o **"ASK"**
 3. Se abre el panel de chat a la derecha
 
