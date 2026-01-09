@@ -220,7 +220,8 @@ export const Manual: React.FC = () => {
                     /* ARTICLE VIEW */
                     <div className="max-w-[1400px] mx-auto px-6">
                         {/* Minimal Breadcrumb */}
-                        <nav className="flex items-center gap-2 text-[13px] text-slate-500 mb-8">
+                        {/* Minimal Breadcrumb (Mobile Only) */}
+                        <nav className="md:hidden flex items-center gap-2 text-[13px] text-slate-500 mb-8 overflow-x-auto whitespace-nowrap">
                             <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Diktalo</button>
                             <span className="text-slate-300">/</span>
                             <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
@@ -232,6 +233,15 @@ export const Manual: React.FC = () => {
                             {/* Sidebar List */}
                             <aside className="hidden md:block w-64 shrink-0">
                                 <div className="sticky top-32">
+                                    {/* Desktop Sticky Breadcrumb */}
+                                    <nav className="flex flex-wrap items-center gap-2 text-[13px] text-slate-500 mb-8">
+                                        <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Diktalo</button>
+                                        <span className="text-slate-300">/</span>
+                                        <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
+                                        <span className="text-slate-300">/</span>
+                                        <span className="text-slate-900 dark:text-white font-medium">{currentSection?.title}</span>
+                                    </nav>
+
                                     <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">{currentSection?.category}</h3>
                                     <div className="flex flex-col border-l border-slate-200 dark:border-slate-800">
                                         {groupedSections.find(g => g.id === currentSection?.category)?.sections.map(s => (
