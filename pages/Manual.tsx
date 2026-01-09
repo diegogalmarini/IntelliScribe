@@ -107,7 +107,9 @@ export const Manual: React.FC = () => {
                 try {
                     const response = await fetch(section.path);
                     const text = await response.text();
-                    setContent(text);
+                    // Strip YAML frontmatter
+                    const cleanText = text.replace(/^---[\s\S]*?---\n/, '');
+                    setContent(cleanText);
                 } catch (error) {
                     console.error('Error loading manual section:', error);
                     setContent('# Error\n\nNo se pudo cargar esta sección del manual.');
@@ -254,7 +256,7 @@ export const Manual: React.FC = () => {
                                             rehypePlugins={[rehypeRaw]}
                                             components={{
                                                 img: ({ node, ...props }) => (
-                                                    <img {...props} className="rounded-lg border border-slate-100 dark:border-slate-800 my-8 shadow-sm" style={{ maxHeight: '500px' }} />
+                                                    <img {...props} className="rounded-xl border border-gray-200 dark:border-gray-800 my-8 shadow-md" style={{ maxHeight: '500px' }} />
                                                 ),
                                                 a: ({ node, ...props }) => (
                                                     <a {...props} className="text-slate-900 dark:text-white underline decoration-slate-300 hover:decoration-slate-900 dark:hover:decoration-white underline-offset-4 font-medium" />
