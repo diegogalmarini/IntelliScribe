@@ -397,7 +397,7 @@ const AppContent: React.FC = () => {
                 //     navigate(AppRoute.DASHBOARD);
                 // }
                 if (currentRoute === AppRoute.LOGIN) {
-                    navigate(AppRoute.DASHBOARD);
+                    window.location.href = '/dashboard';
                 }
             } else {
                 navigate(AppRoute.RESET_PASSWORD);
