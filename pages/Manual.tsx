@@ -150,7 +150,7 @@ export const Manual: React.FC = () => {
                         {/* Header: Title Left, Search Right */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 border-b border-transparent">
                             <div>
-                                <h6 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Diktalo > Manual</h6>
+                                <h6 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Diktalo &gt; Manual</h6>
                                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Manual de Usuario</h1>
                             </div>
 
@@ -232,8 +232,8 @@ export const Manual: React.FC = () => {
                                                 key={s.id}
                                                 onClick={() => setSelectedSectionId(s.id)}
                                                 className={`text-left px-4 py-2 text-sm border-l -ml-px transition-colors ${selectedSectionId === s.id
-                                                        ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white font-medium'
-                                                        : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                                                    ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white font-medium'
+                                                    : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
                                                     }`}
                                             >
                                                 {s.title}
