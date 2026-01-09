@@ -132,11 +132,18 @@ export const Manual: React.FC<ManualProps> = ({ onNavigate, user, onLogout, onUp
         <div className="flex h-screen bg-background dark:bg-background-dark overflow-hidden">
             {/* Sidebar - Same as IntelligenceDashboard */}
             <MinimalSidebar
-                onNavigate={onNavigate}
+                recordings={[]}
+                selectedId={null}
+                onSelectRecording={() => { }}
+                onNewRecording={() => { }}
+                userFirstName={user?.firstName || 'Usuario'}
                 user={user}
-                onLogout={onLogout}
-                onUpdateUser={onUpdateUser}
-                currentRoute={AppRoute.MANUAL}
+                folders={[]}
+                onLogoClick={() => onNavigate(AppRoute.INTELLIGENCE)}
+                currentView="recordings"
+                onViewChange={() => { }}
+                isOpen={true}
+                onToggle={() => { }}
             />
 
             {/* Main Content Area */}
