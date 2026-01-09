@@ -23,6 +23,7 @@ import { supabase } from './lib/supabase';
 import { databaseService } from './services/databaseService';
 import { notifyNewRecording } from './services/emailService';
 import CrispWidget from './components/CrispWidget';
+import { SupportBot } from './components/SupportBot/SupportBot';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
 import { Privacy } from './pages/legal/Privacy';
@@ -618,6 +619,7 @@ const AppContent: React.FC = () => {
         return (
             <>
                 <CrispWidget />
+                <SupportBot />
                 <Landing user={user} />
             </>
         );
@@ -834,12 +836,10 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.MANUAL && (
-                        <Manual
-                            onNavigate={navigate}
-                            user={user}
-                            onLogout={handleLogout}
-                            onUpdateUser={handleUpdateUser}
-                        />
+                        <>
+                            <SupportBot />
+                            <Manual />
+                        </>
                     )}
 
                     {currentRoute === AppRoute.RESET_PASSWORD && (
