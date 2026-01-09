@@ -838,7 +838,7 @@ const AppContent: React.FC = () => {
                             onNavigate={navigate}
                             user={user}
                             onLogout={handleLogout}
-                            onUpdateUser={handleUpdateUserProfile}
+                            onUpdateUser={handleUpdateUser}
                         />
                     )}
 
