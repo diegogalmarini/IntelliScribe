@@ -834,7 +834,12 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.MANUAL && (
-                        <ManualViewer />
+                        <Manual
+                            onNavigate={navigate}
+                            user={user}
+                            onLogout={logout}
+                            onUpdateUser={updateUserProfile}
+                        />
                     )}
 
                     {currentRoute === AppRoute.RESET_PASSWORD && (
