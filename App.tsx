@@ -837,10 +837,10 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.MANUAL && (
-                        <>
+                        <ScrollablePage>
                             <SupportBot />
                             <Manual />
-                        </>
+                        </ScrollablePage>
                     )}
 
                     {currentRoute === AppRoute.RESET_PASSWORD && (
