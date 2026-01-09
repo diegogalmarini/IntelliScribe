@@ -572,7 +572,27 @@ export const translations = {
 
     // Solutions Section
     solSectionTag: "Solutions",
-    solSectionTitle: "Built for Every Workflow"
+    solSectionTitle: "Built for Every Workflow",
+
+    // About
+    about_header: "About Diktalo",
+    about_desc: "Platform for recording, transcribing, and analyzing voice conversations powered by advanced Artificial Intelligence.",
+    about_version: "Version",
+    about_terms: "Terms of Service",
+    about_terms_desc: "Usage rules and contracts",
+    about_privacy: "Privacy Policy",
+    about_privacy_desc: "Data protection and rights",
+    about_copyright: "© 2026 Diktalo Inc. All rights reserved.",
+
+    // Change Password
+    change_password_title: "Change Password",
+    new_password_placeholder: "New password",
+    confirm_password_placeholder: "Confirm new password",
+    password_updated: "Password updated successfully",
+    password_mismatch: "Passwords do not match",
+    password_min_length: "Password must be at least 6 characters",
+    save_password: "Update Password",
+    cancel: "Cancel"
   },
   es: {
     // Auth
@@ -1167,6 +1187,26 @@ export const translations = {
 
     // Solutions Section
     solSectionTag: "Soluciones",
-    solSectionTitle: "Diseñado para cada Profesión"
+    solSectionTitle: "Diseñado para cada Profesión",
+
+    // Sobre
+    about_header: "Sobre Diktalo",
+    about_desc: "Plataforma para grabar, transcribir y analizar conversaciones de voz impulsada por Inteligencia Artificial avanzada.",
+    about_version: "Versión",
+    about_terms: "Términos de Servicio",
+    about_terms_desc: "Reglas de uso y contratos",
+    about_privacy: "Política de Privacidad",
+    about_privacy_desc: "Protección de datos y derechos",
+    about_copyright: "© 2026 Diktalo Inc. Reservados todos los derechos.",
+
+    // Change Password
+    change_password_title: "Cambiar Contraseña",
+    new_password_placeholder: "Nueva contraseña",
+    confirm_password_placeholder: "Confirmar nueva contraseña",
+    password_updated: "Contraseña actualizada correctamente",
+    password_mismatch: "Las contraseñas no coinciden",
+    password_min_length: "La contraseña debe tener al menos 6 caracteres",
+    save_password: "Actualizar Contraseña",
+    cancel: "Cancelar"
   }
 };
