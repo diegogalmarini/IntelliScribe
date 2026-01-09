@@ -417,7 +417,14 @@ const Popup: React.FC = () => {
                         Configura Token
                     </span>
                     <span className="divider">|</span>
-                    <a href="#" className="footer-link">Politica de Privacidad</a>
+                    <a
+                        href="https://www.diktalo.com/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="footer-link"
+                    >
+                        Politica de Privacidad
+                    </a>
                 </div>
             </div>
         </div>
