@@ -731,6 +731,7 @@ const AppContent: React.FC = () => {
                     currentRoute !== AppRoute.RESET_PASSWORD &&
                     currentRoute !== AppRoute.DASHBOARD &&
                     currentRoute !== AppRoute.SUBSCRIPTION &&
+                    currentRoute !== AppRoute.MANUAL &&
                     !currentRoute.startsWith('admin_') && ( // Generic check for admin routes to avoid type overlap errors
                         <Sidebar
                             currentRoute={currentRoute}
