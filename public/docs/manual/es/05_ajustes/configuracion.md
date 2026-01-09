@@ -1,210 +1,63 @@
----
-title: "Ajustes y Preferencias"
-category: "Ajustes"
-difficulty: "Principiante"
-tags: ["settings", "perfil", "preferencias", "configuración"]
-last_updated: "2026-01-09"
----
 
-# Ajustes y Preferencias
+# Panel de Control y Preferencias
 
-El modal de ajustes te permite personalizar tu cuenta y experiencia en Diktalo. Accede desde el **icono de perfil** en la esquina superior derecha del dashboard.
+Diktalo no es una herramienta estática; es un motor de inteligencia personalizable. En este panel configurarás cómo la IA interactúa contigo y procesa tus datos.
 
----
-
-## Acceder a Ajustes
-
-1. Haz clic en tu **foto de perfil** o el **icono de usuario** (arriba a la derecha)
-2. Se abrirá el modal de configuración con múltiples secciones
-
----
-
-## Sección: Cuenta
+Accede al centro de mando haciendo clic en tu **Avatar** (esquina superior derecha) → **Ajustes**.
 
 ![Ajustes - Cuenta](/docs/screenshots/es/settings/01_account.png)
 
-### Información Personal
+---
 
-**Nombre y Apellido**
-- Haz clic en el icono de **lápiz** para editar
-- Cambia tu nombre o apellido
-- Haz clic en **✓** para guardar
+## Identidad y Sesión
 
-**Email**
-- No editable (vinculado a tu cuenta de autenticación)
-- Si necesitas cambiar email, contacta soporte
+### Perfil Profesional
+Tu identidad en la plataforma asegura que, cuando colabores en equipos, tus acciones (comentarios, ediciones) sean correctamente atribuidas.
+*   **Nombre Visible:** Cómo te verán otros colaboradores.
+*   **Credenciales:** Gestión de seguridad de acceso (Contraseña, MFA próximamente).
 
-**Teléfono**
-- Añade o edita tu número de teléfono
-- Útil para verificación y notificaciones SMS (próximamente)
-
-### Zona Horaria
-- Selecciona tu zona horaria del menú desplegable
-- Afecta las marcas de tiempo en grabaciones y notificaciones
-- Recomendado: `Europe/Madrid` para España
-
-### Cambiar Contraseña
-
-> ⚠️ **Solo para cuentas con email/password**  
-> Si iniciaste sesión con Google, este botón no aplica.
-
-1. Haz clic en **"Cambiar contraseña"**
-2. Ingresa tu **nueva contraseña** (mínimo 6 caracteres)
-3. Confirma la **nueva contraseña**
-4. Haz clic en **"Actualizar Contraseña"**
-5. Recibirás confirmación al actualizar
-
-### Estado del Plan
-
-Verás tu plan actual:
-- **Free**: 24 min/mes, 7 días almacenamiento
-- **Personal**: 300 min/mes, 30 días almacenamiento  
-- **Business+**: 1200 min/mes, almacenamiento ilimitado
-
-[Comparar planes y actualizar →](../06_planes/comparativa.md)
+### Gestión de Planes
+Monitorea tu consumo de inteligencia en tiempo real.
+*   **Cuota de Minutos:** Visualiza cuánto procesamiento de IA te resta en el ciclo actual.
+*   **Almacenamiento:** Verifica el espacio ocupado por tus archivos de audio originales.
+> *¿Necesitas más potencia?* Escala tu cuenta a **Business+** instantáneamente desde esta sección.
 
 ---
 
-## Sección: Preferencias
+## Motor de Inteligencia (Preferencias)
+
+Aquí es donde ajustas el "cerebro" de Diktalo para que se adapte a tu contexto local.
 
 ![Ajustes - Preferencias](/docs/screenshots/es/settings/02_preferences.png)
 
-### Apariencia
+### Idioma de Transcripción (Input Language)
+Esta es la configuración **más crítica** para la calidad de los resultados.
+*   **Auto-Detectar:** Ideal si grabas conversaciones en distintos idiomas frecuentemente. La IA escuchará los primeros segundos y decidirá el modelo acústico.
+*   **Forzar Idioma (Ej. Español):** Recomendado si *sabes* que siempre hablarás en español. Elimina la posibilidad de errores de detección en ambientes ruidosos.
 
-**Tema**
-- **Claro**: Fondo blanco (mejor para ambientes luminosos)
-- **Oscuro**: Fondo negro (reduce fatiga visual)
-- **Sistema**: Sigue la configuración de tu OS
-
-> 💡 **Tip:** El tema oscuro ahorra batería en pantallas OLED
-
-### Idioma de Interfaz
-
-Selecciona tu idioma preferido para la aplicación:
-- 🇪🇸 **Español** (predeterminado)
-- 🇬🇧 **English**
-
-Todos los menús, botones y mensajes se mostrarán en el idioma seleccionado.
-
-### Idioma de Transcripción
-
-Elige el idioma predeterminado para transcribir tus grabaciones:
-- **Español** - Para reuniones y notas en español
-- **English** - Para contenido en inglés
-- **Auto-detectar** - La IA decide el idioma automáticamente
-
-> 📝 **Nota:** Puedes cambiar el idioma de transcripción por grabación individual después.
+### Interfaz de Usuario
+*   **Modo Oscuro (Dark Mode):** Optimizado para profesionales que trabajan largas jornadas frente a pantallas o en entornos de baja luz. Reduce la fatiga visual y el consumo energético en pantallas OLED.
 
 ---
 
-## Sección: Notificaciones *(Próximamente)*
+## Privacidad y Confianza
 
-Control de notificaciones por email y navegador:
-- Transcripción completada
-- Límite de minutos alcanzado
-- Nuevas funcionalidades
+### Control de Datos
+Diktalo opera bajo un principio de transparencia radical.
+*   **Exportación Total:** Tienes derecho a solicitar un volcado completo de tus datos en formato estándar (GDPR Compliance).
+*   **Derecho al Olvido:** Puedes ejecutar la eliminación permanente de tu cuenta. Esta acción purga tus audios y transcripciones de nuestros servidores de inferencia y almacenamiento en frío.
 
-**Estado actual:** Esta sección está en desarrollo.
-
----
-
-## Sección: Sobre Diktalo
-
-![Ajustes - Sobre Diktalo](/docs/screenshots/es/settings/03_about.png)
-
-### Información del Sistema
-
-**Versión Actual**
-- Muestra la versión de Diktalo (ej: `1.2.0 Beta`)
-- Útil para reportar bugs o comparar funcionalidades
-
-### Enlaces Legales
-
-**Términos de Servicio**
-- [Leer términos completos →](https://www.diktalo.com/terms)
-- Condiciones de uso de la plataforma
-
-**Política de Privacidad**
-- [Leer política →](https://www.diktalo.com/privacy)
-- Cómo manejamos tus datos personales y grabaciones
-
-### Copyright
-`© 2026 Diktalo. Todos los derechos reservados.`
+### Centro de Confianza (Trust Center)
+Acceso directo a nuestra documentación legal actualizada:
+*   [Términos de Servicio (SLA)](https://diktalo.com/terms)
+*   [Política de Privacidad de Datos](https://diktalo.com/privacy)
 
 ---
 
-## Gestión de Sesión
+## Solución de Problemas (Troubleshooting)
 
-### Cerrar Sesión
-1. Ve a la sección **Cuenta**
-2. Scroll hasta el final
-3. Haz clic en **"Cerrar Sesión"**
-4. Serás redirigido a la página principal
+**Zona Horaria Incorrecta**
+Las fechas de tus grabaciones se normalizan a UTC en el servidor, pero se muestran según la configuración de tu navegador. Si ves discrepancias, verifica la configuración de reloj de tu sistema operativo, no la de Diktalo.
 
-> 🔒 **Seguridad:** Siempre cierra sesión en computadoras compartidas.
-
----
-
-## Privacidad y Datos
-
-Diktalo respeta tu privacidad:
-- ✅ Tus grabaciones **nunca se comparten** sin tu consentimiento
-- ✅ Los datos se almacenan **encriptados** (AES-256)
-- ✅ Puedes **eliminar tu cuenta** y todos tus datos en cualquier momento
-
-[Más información en Trust Center →](https://www.diktalo.com/trust)
-
----
-
-## Consejos de Configuración
-
-### Para Mejor Experiencia
-1. **Configura tu zona horaria correctamente** - Las marcas de tiempo serán precisas
-2. **Selecciona idioma de transcripción** - Mejora la precisión automática
-3. **Prueba tema oscuro** - Más cómodo para sesiones largas
-
-### Para Privacidad Máxima
-1. Usa contraseña única y segura
-2. Activa autenticación de dos factores (próximamente)
-3. Cierra sesión en dispositivos no personales
-
----
-
-## Problemas Comunes
-
-### No puedo cambiar mi email
-**Solución:**
-- El email está vinculado a tu método de autenticación (Google)
-- Para cambiar, necesitas crear una nueva cuenta con el email deseado
-- Contacta soporte para migrar datos: contacto@diktalo.com
-
-### El tema no cambia
-**Solución:**
-- Refresca la página (Ctrl+R o Cmd+R)
-- Limpia caché del navegador si persiste
-- Prueba desde ventana de incógnito
-
-### Olvidé mi contraseña
-**Solución:**
-1. Ve a la [página de login](https://www.diktalo.com/login)
-2. Haz clic en **"¿Olvidaste tu contraseña?"**
-3. Ingresa tu email
-4. Sigue el enlace que recibirás por correo
-
----
-
-## Próximos Pasos
-
-✅ **Configuración completada!** Ahora puedes:
-
-1. 🎙️ [Hacer tu primera grabación](../02_metodos_grabacion/grabadora_web.md)
-2. 📁 [Organizar tus archivos](../04_organizacion/carpetas.md)
-3. 🤖 [Usar el chat con IA](../03_inteligencia_ia/chat_con_grabacion.md)
-
----
-
-## ¿Necesitas Ayuda?
-
-- 💬 **Chat en vivo:** Widget Crisp (esquina inferior derecha)
-- 📧 **Email:** contacto@diktalo.com
-- 📚 **Manual completo:** [Ver índice](../README.md)
+**Cambio de Correo Electrónico**
+Por razones de seguridad e integridad de los datos, el cambio de correo raíz no es autogestionable. Si tu empresa ha cambiado de dominio, contacta a *soporte@diktalo.com* para una migración asistida.
