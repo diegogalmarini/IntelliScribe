@@ -153,11 +153,6 @@ export const Manual: React.FC = () => {
                         {/* Header: Title Left, Search Right */}
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 pb-8 border-b border-slate-100 dark:border-slate-800">
                             <div>
-                                <nav className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-                                    <span className="hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors">Diktalo</span>
-                                    <span className="text-slate-300">/</span>
-                                    <span className="text-slate-900 dark:text-white font-medium">Manual</span>
-                                </nav>
                                 <h1 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Manual de Usuario</h1>
                             </div>
 
@@ -222,8 +217,6 @@ export const Manual: React.FC = () => {
                         {/* Minimal Breadcrumb */}
                         {/* Minimal Breadcrumb (Mobile Only) */}
                         <nav className="md:hidden flex items-center gap-2 text-[13px] text-slate-500 mb-8 overflow-x-auto whitespace-nowrap">
-                            <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Diktalo</button>
-                            <span className="text-slate-300">/</span>
                             <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
                             <span className="text-slate-300">/</span>
                             <span className="text-slate-900 dark:text-white font-medium">{currentSection?.title}</span>
@@ -235,8 +228,6 @@ export const Manual: React.FC = () => {
                                 <div className="sticky top-32">
                                     {/* Desktop Sticky Breadcrumb */}
                                     <nav className="flex flex-wrap items-center gap-2 text-[13px] text-slate-500 mb-8">
-                                        <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Diktalo</button>
-                                        <span className="text-slate-300">/</span>
                                         <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
                                         <span className="text-slate-300">/</span>
                                         <span className="text-slate-900 dark:text-white font-medium">{currentSection?.title}</span>
