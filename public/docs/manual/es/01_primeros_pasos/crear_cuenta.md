@@ -1,130 +1,71 @@
----
-title: "Crear tu Cuenta en Diktalo"
-category: "Primeros Pasos"
-difficulty: "Principiante"
-tags: ["onboarding", "cuenta", "registro", "login"]
-last_updated: "2026-01-09"
----
 
-# Crear tu Cuenta en Diktalo
+# Iniciar en Diktalo: Tu Cuenta Corporativa
 
-Diktalo es tu segundo cerebro corporativo para grabaciones de voz e inteligencia conversacional. Este manual te guiará paso a paso para comenzar.
+Bienvenido al ecosistema de inteligencia de voz de Diktalo. Configurar tu cuenta es el primer paso para desbloquear un "segundo cerebro" capaz de procesar, analizar y conectar todas tus conversaciones de negocios.
 
-## ¿Qué es Diktalo?
-
-Diktalo es una plataforma de inteligencia de voz con **grabación multi-origen** (Extensión Chrome, Marcador VoIP, Grabadora Web) e IA que conecta insights entre todas tus conversaciones - para que nunca tengas que volver a escuchar una reunión de 1 hora.
+Esta guía técnica te acompañará en el proceso de alta, autenticación segura y configuración inicial.
 
 ![Página Principal de Diktalo](/docs/screenshots/es/onboarding/01_landing_hero.png)
 
-## Crear tu Cuenta
+---
 
-### Paso 1: Accede a Diktalo
+## Métodos de Autenticación
 
-Visita [https://www.diktalo.com](https://www.diktalo.com) y haz clic en **"Login"** en la esquina superior derecha.
+Diktalo utiliza protocolos de seguridad de estándar bancario para gestionar tu identidad. Recomendamos encarecidamente el uso de proveedores de identidad (IdP) como Google para garantizar la máxima protección de tus datos.
 
-### Paso 2: Selecciona tu Método de Acceso
+### 1. Google Workspace (SSO) - Recomendado
+El método estándar para entornos corporativos. Permite el acceso sin contraseña (passwordless), reduciendo vectores de ataque y simplificando el acceso.
 
-Diktalo ofrece múltiples formas de autenticación para tu comodidad y seguridad:
+1.  En la pantalla de acceso, selecciona el botón **"Continuar con Google"**.
+2.  Selecciona tu cuenta corporativa (`@tuempresa.com`) o personal.
+3.  **Permisos:** Diktalo solicitará acceso básico al perfil (nombre, email, foto). *No accedemos a tus correos, drive ni calendario sin permiso explícito posterior.*
 
-![Página de Login](/docs/screenshots/es/onboarding/02_login_page.png)
-
-#### Opción A: Continuar con Google (Recomendado)
-
-La forma más rápida y segura de empezar:
-
-1. Haz clic en el botón **"Continuar con Google"**
-2. Selecciona tu cuenta de Google
-3. Autoriza los permisos necesarios
-4. ¡Listo! Serás redirigido automáticamente al dashboard
+**Ventajas de seguridad:**
+- Autenticación de dos factores (2FA) delegada en Google.
+- Revocación de acceso centralizada desde tu admin de Workspace.
 
 ![Botón de Google OAuth](/docs/screenshots/es/onboarding/03_login_google.png)
 
-**Ventajas:**
-- ✅ Sin contraseñas que recordar
-- ✅ Inicio de sesión con un clic
-- ✅ Seguridad de Google
-- ✅ Proceso en 10 segundos
+### 2. Autenticación por Correo (Magic Link)
+Si prefieres no vincular proveedores externos, puedes utilizar nuestro sistema de credenciales seguras.
 
-#### Opción B: Email y Contraseña
-
-Si prefieres un método tradicional:
-
-1. Haz clic en "Crear Cuenta" si es tu primera vez
-2. Ingresa tu **correo electrónico**
-3. Crea una **contraseña segura** (mínimo 6 caracteres)
-4. Completa tu **nombre** y **apellido**
-5. Acepta los **Términos de Servicio** y la **Política de Privacidad**
-6. Haz clic en **"Registrarse"**
-7. Recibirás un email de confirmación (revisa spam si no lo ves)
-8. Haz clic en el enlace del email para activar tu cuenta
-
-#### Opción C: Apple SSO (Próximamente)
-
-El inicio de sesión con Apple estará disponible pronto para usuarios de iOS/macOS.
+1.  Selecciona "Crear Cuenta".
+2.  Introduce tu correo profesional.
+3.  Define una contraseña de alta entropía (Mínimo 8 caracteres, al menos un número y símbolo).
+4.  **Verificación:** Recibirás un enlace de activación con validez de 15 minutos.
 
 ---
 
-## Después del Registro
+## Primeros Pasos en el Dashboard
 
-Una vez autenticado, serás redirigido automáticamente a:
+Una vez autenticado, aterrizarás en tu **Panel de Control (Dashboard)**. Este es tu centro de comando para la inteligencia de audio.
 
-**https://www.diktalo.com/dashboard**
+### Tu cuenta incluye (Plan Free)
+Todo usuario nuevo comienza con un nivel de servicio gratuito diseñado para pruebas de concepto y uso ligero:
+*   **Capacidad:** 24 minutos de procesamiento de IA mensual.
+*   **Retención:** Historial de grabaciones de 7 días.
+*   **Motor:** Transcripción estándar y Chat conversacional básico.
 
-Aquí encontrarás:
-- 📁 Tus grabaciones organizadas
-- 🎙️ Botón "Grabar Audio" para comenzar
-- 🤖 Chat inteligente con tus conversaciones
-- ⚙️ Configuración de perfil y preferencias
-
----
-
-## Plan Inicial: Free
-
-Tu cuenta comienza con el plan **Free** que incluye:
-
-- ✅ 24 minutos/mes de grabación
-- ✅ Almacenamiento de 7 días
-- ✅ Transcripción automática
-- ✅ Chat básico con IA
-- ✅ Exportar a TXT y PDF
-
-**¿Necesitas más?** Puedes actualizar a **Personal** (300 min) o **Business+** (1200 min) en cualquier momento desde [Planes](https://www.diktalo.com/plans).
+> **Nota para equipos:** Si perteneces a una organización Enterprise, contacta a tu administrador para que te envíe una invitación directa y te añada a la licencia corporativa.
 
 ---
 
-## Problemas Comunes
+## Solución de Problemas de Acceso
 
-### No recibo el email de confirmación
-- Revisa tu carpeta de **spam** o **promociones**
-- Espera hasta 5 minutos (puede haber retraso)
-- Solicita un nuevo email desde la página de login
+**"Este correo ya está registrado"**
+Es posible que hayas intentado iniciar sesión con Google y luego crear una cuenta manual (o viceversa). El sistema unifica la identidad por correo. Intenta iniciar sesión con el método original que utilizaste.
 
-### Error al autenticar con Google
-- Asegúrate de permitir ventanas emergentes en tu navegador
-- Verifica que estés usando una cuenta de Google activa
-- Intenta desde una ventana de incógnito si persiste el problema
-
-### Ya tengo cuenta pero olvidé mi contraseña
-1. Haz clic en **"¿Olvidaste tu contraseña?"**
-2. Ingresa tu email
-3. Sigue las instrucciones del correo de recuperación
+**No llega el correo de verificación**
+*   Verifica la carpeta de **Spam** o **Cuarentena** de tu servidor de correo corporativo.
+*   Asegúrate de permitir correos de `noreply@diktalo.com`.
+*   Si usas firewall corporativo (VPN), intenta acceder desde una red externa por primera vez.
 
 ---
 
-## Próximos Pasos
+## Siguiente Nivel
 
-✅ **¡Ya tienes tu cuenta!** Ahora puedes:
+Tu cuenta está activa. Es hora de capturar tu primera fuente de datos.
 
-1. 📖 [Realizar tu primera grabación](./primera_grabacion.md)
-2. 🎯 [Conocer el Dashboard](./tour_dashboard.md)
-3. ⚙️ [Configurar tus preferencias](../05_ajustes/preferencias.md)
-
----
-
-## ¿Necesitas Ayuda?
-
-- 💬 **Chat en vivo:** Usa el widget de Crisp en la esquina inferior derecha
--  📧 **Email:** contacto@diktalo.com
-- 📚 **Centro de Ayuda:** [Manual completo](../README.md)
-
-**Bienvenido a Diktalo** 🎉
+1.  🎙️ [Activar la Grabadora Web](../02_metodos_grabacion/grabadora_web.md)
+2.  📂 [Subir un archivo histórico](../02_metodos_grabacion/subir_archivos.md)
+3.  ⚙️ [Configurar tu perfil](../05_ajustes/configuracion.md)

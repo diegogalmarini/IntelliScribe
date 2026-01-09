@@ -1,205 +1,62 @@
----
-title: "Subir Archivos de Audio"
-category: "Métodos de Grabación"
-difficulty: "Principiante"
-tags: ["upload", "subir", "archivo", "mp3", "m4a", "multi-audio"]
-last_updated: "2026-01-09"
----
 
-# Subir Archivos de Audio
+# Ingesta de Archivos y Multi-Audio
 
-¿Tienes grabaciones existentes? Diktalo te permite **subir archivos de audio** para transcribir, analizar y chatear con tu IA sobre ellas.
+La funcionalidad de **Subida (Upload)** actúa como un puerto de entrada universal para tus datos históricos. Diktalo puede procesar grabaciones realizadas con otros dispositivos (grabadoras de mano, móviles, sistemas de VoIP antiguos) e inyectarles inteligencia moderna.
 
 ![Dashboard con opciones de subida](/docs/screenshots/es/upload/01_initial.png)
 
 ---
 
-## Formatos Soportados
+## Capacidades de Ingesta
 
-✅ **Formatos aceptados:**
-- MP3
-- M4A
-- WAV
-- WEBM
-- OGG
-- FLAC
+### Formatos Soportados (Universal Codec Support)
+Nuestro motor de transcodificación acepta la mayoría de los estándares de la industria. No necesitas convertir tus archivos antes de subirlos.
 
-📏 **Límites:**
-- Tamaño máximo: **2GB por archivo**
-- Sin límite de archivos (sujeto a tu cuota de minutos)
+*   **Audio Comprimido:** MP3, M4A, OGG (Ideal para cargas rápidas).
+*   **Alta Fidelidad:** WAV, FLAC (Ideal para máxima precisión en transcripción).
+*   **Web:** WEBM (Común en grabaciones de navegador).
 
----
-
-## Método 1: Subir Archivo Único
-
-### Paso 1: Acceder a Subida
-1. Desde tu dashboard
-2. Haz clic en el botón **"Subir Archivo"**
-
-### Paso 2: Seleccionar Archivo
-1. Se abrirá el selector de archivos de tu sistema
-2. Navega a tu archivo de audio
-3. Haz clic en **"Abrir"**
-
-### Paso 3: Procesamiento
-1. El archivo se **sube automáticamente**
-2. Aparecerá barra de progreso
-3. Una vez completo, se añade a tu lista de grabaciones
-4. La **transcripción comienza** automáticamente
-
-> ⏱️ **Tiempo de procesamiento:**  
-> - Archivo de 10 MB → ~30-60 segundos de subida
-> - Transcripción depende de duración (ver tiempos en [grabadora web](./grabadora_web.md))
+**Límites Técnicos:**
+*   Hasta **2 GB** por archivo individual.
+*   Duración ilimitada (sujeta a tu plan de minutos).
 
 ---
 
-## Método 2: Multi-Audio (Conversación)
+## Motor de Multi-Audio (Conversation Stitching)
 
-El **modo Multi-Audio** te permite subir **varios archivos** que representan una conversación completa.
+La verdadera potencia de Diktalo reside en su capacidad para entender que **una conversación puede estar fragmentada en varios archivos**.
+
+El modo **Multi-Audio** no simplemente sube archivos en lote; los **fusiona cronológica y semánticamente** para tratarlos como una única entidad de conocimiento.
 
 ![Interfaz Multi-Audio](/docs/screenshots/es/upload/02_multiaudio.png)
 
-### ¿Cuándo usar Multi-Audio?
+### Casos de Uso Avanzados
 
-Ideal para:
-- **Entrevistas con múltiples tomas** (ej: paré y reanudé la grabadora)
-- **Reuniones fragmentadas** (varios archivos de la misma sesión)
-- **Audios de diferentes participantes** (cada persona grabó su audio)
+#### A. Reconstrucción de Entrevistas
+Si grabaste una entrevista larga y la grabadora generó cortes automáticos cada 30 minutos (`REC_001.mp3`, `REC_002.mp3`...), súbelos juntos.
+*   **Resultado:** Diktalo entregará una sola transcripción contínua de 2 horas, sin cortes abruptos en el texto.
 
-### Paso 1: Activar Multi-Audio
-1. Desde el dashboard, haz clic en **"Multi-Audio"**
-2. Se abre el modal "Conversación Multi-Audio"
+#### B. Pistas de Audio Separadas (Podcasting)
+Para grabaciones profesionales donde cada orador tiene su propio micrófono y archivo (`pista_juan.wav`, `pista_ana.wav`).
+*   **Resultado:** El sistema mezcla las fuentes y utiliza los canales para una identificación de oradores (diarización) perfecta.
 
-### Paso 2: Subir Archivos
-![Área de arrastrar y soltar](/docs/screenshots/es/upload/03_drag_area.png)
-
-Tienes 2 opciones:
-
-**Opción A: Arrastrar y Soltar**
-1. Arrastra los archivos desde tu carpeta
-2. Suéltalos en el área que dice "**Selecciona audios de conversación**"
-3. Los archivos aparecerán listados
-
-**Opción B: Selector de Archivos**
-1. Haz clic en el área de selección
-2. En el selector, **selecciona múltiples archivos** (Ctrl+Clic o Cmd+Clic)
-3. Haz clic en "Abrir"
-
-### Paso 3: Ordenar Archivos
-Los archivos se ordenarán por:
-- **Nombre** (alfabético)
-- **Fecha de modificación**
-
-> 💡 **Tip:** Nombra tus archivos con números para control del orden:  
-> `01_introduccion.mp3`, `02_desarrollo.mp3`, `03_conclusion.mp3`
-
-### Paso 4: Procesar
-1. Haz clic en **"Procesar Conversación"**
-2. Diktalo unifica todos los audios en **una sola transcripción continua**
-3. El chat con IA tendrá contexto de **toda la conversación**
+#### C. Sesiones Fragmentadas
+Una negociación que se interrumpió por el almuerzo y continuó por la tarde.
+*   **Resultado:** Pregunta a la IA *"¿Qué cambió en la postura del cliente entre la sesión de la mañana y la de la tarde?"* y obtén una respuesta unificada.
 
 ---
 
-## Ventajas del Multi-Audio
+## Guía de Operación
 
-### ✅ Contexto Completo
-La IA entiende que todos los audios forman una sola conversación. Puedes preguntarle:
-- "¿Qué se dijo en la segunda parte sobre el presupuesto?"
-- "Resume toda la reunión"
+### 1. Carga de Archivos
+Arrastra tus activos digitales al área de carga ("Drop Zone"). La barra de progreso te indicará la velocidad de encriptación y subida a nuestra nube segura.
 
-### ✅ Navegación Unificada
-No tienes que abrir 5 grabaciones separadas. Todo está en un solo lugar.
+### 2. Ordenamiento Lógico (Solo Multi-Audio)
+Antes de procesar, verás una lista preliminar. Es **crítico** que el orden sea correcto para que la transcripción tenga sentido cronológico.
+*   El sistema intenta ordenar por *Timestamp* o *Nombre*.
+*   Arrastra las filas manualmente si necesitas corregir la secuencia.
 
-### ✅ Análisis Cruzado
-Los insights conectan información entre todos los archivos.
+### 3. Procesamiento Asíncrono
+Una vez confirmada la subida, puedes cerrar la pestaña. Nuestros servidores trabajarán en segundo plano. Recibirás una notificación (si están activadas) o verás el estado "Listo" en tu Dashboard cuando la IA haya terminado.
 
----
-
-## Usos Comunes
-
-### Entrevistas Largas
-Grabaste una entrevista de 2 horas pero la dividiste en 4 archivos de 30 minutos cada uno:
-- Sube los 4 archivos en Multi-Audio
-- Obtendrás una transcripción unificada
-- Pregunta a la IA sobre cualquier parte
-
-### Podcasts con Múltiples Pistas
-Cada participante grabó su audio localmente:
-- Sube las pistas separadas
-- Diktalo las procesa como una sola conversación
-- El chat entiende quién dijo qué
-
-### Reuniones Fragmentadas
-La reunión tuvo descansos y generaste 3 archivos:
-- Multi-Audio los une cronológicamente
-- El resumen cubre toda la sesión
-
----
-
-## Después de Subir
-
-Una vez procesados, tus archivos aparecen en el dashboard como cualquier otra grabación:
-
-1. **Ver Detalle** - Haz clic en la grabación
-2. **Chatear** - Usa ASK Diktalo para preguntas
-3. **Exportar** - Descarga transcripción o resumen
-4. **Organizar** - Asigna a carpetas o favoritos
-
----
-
-## Problemas Comunes
-
-### Archivo no se sube
-**Solución:**
-- Verifica el formato (debe ser MP3, M4A, WAV, WEBM, OGG)
-- Revisa el tamaño (<2GB)
-- Comprueba tu conexión a internet
-- Intenta con navegador actualizado
-
-### Transcripción vacía o incorrecta
-**Posibles causas:**
-- Audio de muy baja calidad o con mucho ruido
-- Idioma del audio no coincide con el configurado en Ajustes
-- Archivo corrupto
-
-**Solución:**
-1. Ve a Ajustes > Preferencias > Idioma de transcripción
-2. Cambia a "Auto-detectar" o selecciona el idioma correcto
-3. Vuelve a subir el archivo
-
-### Multi-Audio no respeta el orden
-**Solución:**
-- Renombra archivos con prefijos numéricos: `01_`, `02_`, `03_`
-- Borra y vuelve a arrastrar en el orden correcto
-
----
-
-## Límites y Cuotas
-
-Los archivos **consumen tus minutos mensuales**:
-
-- Un archivo de **30 minutos** consume **30 minutos** de tu cuota
-- Plan Free: 24 min/mes → Solo un archivo de 20 min aprox.
-- Plan Personal: 300 min/mes → Hasta 10 archivos de 30 min
-- Plan Business+: 1200 min/mes → ~40 archivos de 30 min
-
-[Ver planes y precios →](https://www.diktalo.com/plans)
-
----
-
-## Próximos Pasos
-
-✅ **Ya sabes subir archivos!** Ahora puedes:
-
-1. 🤖 [Chatear con tus audios](../03_inteligencia_ia/chat_con_grabacion.md)
-2. 📊 [Generar resúmenes](../03_inteligencia_ia/resumenes_plantillas.md)
-3. 📥 [Exportar transcripciones](../03_inteligencia_ia/exportar.md)
-4. 📁 [Organizar en carpetas](../04_organizacion/carpetas.md)
-
----
-
-## ¿Necesitas Ayuda?
-
-- 💬 **Chat en vivo:** Widget Crisp (esquina inferior derecha)
-- 📧 **Email:** contacto@diktalo.com
-- 📚 **Manual completo:** [Ver índice](../README.md)
+> **Consejo Pro:** Si tienes archivos antiguos con nombres genéricos (`Audio 1`, `Audio 2`), renómbralos a algo descriptivo **antes** de subir (`Q1_Planning_2024.mp3`). Ese nombre se convertirá en el título de tu sesión en Diktalo, facilitando la búsqueda futura.
