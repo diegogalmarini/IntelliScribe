@@ -173,6 +173,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const [editName, setEditName] = useState({ firstName: '', lastName: '' });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    // Password Change State
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
     // Preferences State
     const [preferences, setPreferences] = useState({
         autoLabelSpeakers: false,
@@ -267,6 +273,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }));
     };
 
+    const handleChangePassword = async () => {
+        if (!newPassword || !confirmPassword) return;
+
+        if (newPassword.length < 6) {
+            alert(t('password_min_length')); // Ideally use a toast, but this matches current non-toast style
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert(t('password_mismatch'));
+            return;
+        }
+
+        setIsUpdatingPassword(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+
+            alert(t('password_updated'));
+            setIsChangingPassword(false);
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (error: any) {
+            console.error('Error updating password:', error);
+            alert(error.message || 'Failed to update password');
+        } finally {
+            setIsUpdatingPassword(false);
+        }
+    };
+
     if (!isOpen) return null;
 
     const formatPlanName = (planId: string) => {
@@ -285,7 +321,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         { id: 'notifications' as Section, icon: Bell, label: t('settings_notifications') },
         { id: 'integrations' as Section, icon: Zap, label: t('settings_integrations') },
         { id: 'custom_vocabulary' as Section, icon: Database, label: t('settings_custom_vocab') },
-        { id: 'private_cloud' as Section, icon: Cloud, label: t('settings_private_cloud') },
+        // Private Cloud removed
         { id: 'developer' as Section, icon: Code, label: t('settings_developer') },
         // Security merged into Account
         { id: 'help' as Section, icon: HelpCircle, label: t('settings_help') },
@@ -1071,8 +1107,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             <Lock size={20} className="text-slate-500 group-hover:text-purple-600 dark:text-slate-400 dark:group-hover:text-purple-400" />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Política de Privacidad</h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">Protección de datos y derechos</p>
+                                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{t('about_privacy')}</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">{t('about_privacy_desc')}</p>
                                         </div>
                                         <ExternalLink size={14} className="ml-auto text-slate-300 group-hover:text-purple-500" />
                                     </a>
@@ -1080,14 +1116,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className="text-center pt-8">
                                     <p className="text-xs text-slate-400 dark:text-slate-600">
-                                        © 2026 Diktalo Inc. All rights reserved.
+                                        {t('about_copyright')}
                                     </p>
                                 </div>
                             </div>
                         )}
 
-                        {/* --- PLACEHOLDER SECTIONS --- */}
-                        {(selectedSection === 'private_cloud' || selectedSection === 'help') && (
+                        {/* --- PLACEHOLDER SECTIONS - REMOVED PRIVATE CLOUD --- */}
+                        {(selectedSection === 'help') && (
                             <div className="flex flex-col items-center justify-center h-full text-center animate-in fade-in duration-300">
                                 <div className="w-16 h-16 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
                                     <Puzzle size={24} className="text-slate-300 dark:text-slate-600" />
