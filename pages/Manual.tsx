@@ -198,8 +198,8 @@ export const Manual: React.FC<ManualProps> = ({ onNavigate, user, onLogout, onUp
                                                 key={section.id}
                                                 onClick={() => setSelectedSection(section.id)}
                                                 className={`w-full text-left px-3 py-2.5 rounded-xl transition-all ${selectedSection === section.id
-                                                        ? 'bg-primary/20 text-primary font-medium'
-                                                        : 'text-slate-300 hover:bg-white/5'
+                                                    ? 'bg-primary/20 text-primary font-medium'
+                                                    : 'text-slate-300 hover:bg-white/5'
                                                     }`}
                                             >
                                                 <div className="flex items-center justify-between">
@@ -319,7 +319,7 @@ export const Manual: React.FC<ManualProps> = ({ onNavigate, user, onLogout, onUp
                                             ),
                                         }}
                                     >
-                                        {content}
+                                        {content || '# Cargando...\n\nPor favor espera mientras cargamos el contenido del manual.'}
                                     </ReactMarkdown>
                                 </article>
                             )}
