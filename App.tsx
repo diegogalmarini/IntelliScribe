@@ -837,8 +837,8 @@ const AppContent: React.FC = () => {
                         <Manual
                             onNavigate={navigate}
                             user={user}
-                            onLogout={logout}
-                            onUpdateUser={updateUserProfile}
+                            onLogout={handleLogout}
+                            onUpdateUser={handleUpdateUserProfile}
                         />
                     )}
 
