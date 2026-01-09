@@ -150,22 +150,27 @@ export const Manual: React.FC = () => {
                     <div className="max-w-[1400px] mx-auto px-6">
 
                         {/* Header: Title Left, Search Right */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 border-b border-transparent">
+                        {/* Header: Title Left, Search Right */}
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 pb-8 border-b border-slate-100 dark:border-slate-800">
                             <div>
-                                <h6 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Diktalo &gt; Manual</h6>
-                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Manual de Usuario</h1>
+                                <nav className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+                                    <span className="hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors">Diktalo</span>
+                                    <span className="text-slate-300">/</span>
+                                    <span className="text-slate-900 dark:text-white font-medium">Manual</span>
+                                </nav>
+                                <h1 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Manual de Usuario</h1>
                             </div>
 
-                            <div className="relative w-full md:w-96">
-                                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <span className="material-symbols-outlined text-slate-400 text-lg">search</span>
+                            <div className="relative w-full md:w-80">
+                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="material-symbols-outlined text-slate-400 text-[18px]">search</span>
                                 </span>
                                 <input
                                     type="text"
-                                    placeholder="Buscar en el manual..."
+                                    placeholder="Buscar"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent transition-all"
+                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm placeholder:text-slate-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-white focus:border-slate-900 dark:focus:border-white transition-all shadow-sm hover:shadow-md"
                                 />
                                 {/* Search Dropdown */}
                                 {searchQuery && (
