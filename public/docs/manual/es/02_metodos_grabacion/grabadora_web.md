@@ -20,7 +20,7 @@ La **Grabadora Web** es la forma más rápida de capturar audio directamente des
 
 ## Paso 1: Acceder a la Grabadora
 
-Desde tu dashboard en [https://www.diktalo.com/intelligence](https://www.diktalo.com/intelligence):
+Desde tu dashboard:
 
 1. Haz clic en el botón **"Grabar Audio"**
 2. Se abrirá el panel de grabación con 4 modos disponibles

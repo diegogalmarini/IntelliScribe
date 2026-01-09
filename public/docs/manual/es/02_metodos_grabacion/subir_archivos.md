@@ -33,7 +33,7 @@ last_updated: "2026-01-09"
 ## Método 1: Subir Archivo Único
 
 ### Paso 1: Acceder a Subida
-1. Ve a tu [dashboard](https://www.diktalo.com/intelligence)
+1. Desde tu dashboard
 2. Haz clic en el botón **"Subir Archivo"**
 
 ### Paso 2: Seleccionar Archivo

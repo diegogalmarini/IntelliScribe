@@ -256,7 +256,7 @@ export const Manual: React.FC = () => {
                                             rehypePlugins={[rehypeRaw]}
                                             components={{
                                                 img: ({ node, ...props }) => (
-                                                    <img {...props} className="rounded-xl border border-gray-200 dark:border-gray-800 my-8 shadow-md" style={{ maxHeight: '500px' }} />
+                                                    <img {...props} className="rounded-xl my-8" style={{ maxHeight: '500px' }} />
                                                 ),
                                                 a: ({ node, ...props }) => (
                                                     <a {...props} className="text-slate-900 dark:text-white underline decoration-slate-300 hover:decoration-slate-900 dark:hover:decoration-white underline-offset-4 font-medium" />

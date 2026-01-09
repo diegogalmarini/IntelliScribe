@@ -98,10 +98,8 @@ export const SupportBot: React.FC = () => {
                                     <span className="material-symbols-outlined text-white">smart_toy</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">Nati Pol - Asistente Diktalo</h3>
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                                        <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">En línea</span>
+                                    <div>
+                                        <h3 className="font-bold text-sm">Nati Pol - Asistente Diktalo</h3>
                                     </div>
                                 </div>
                             </div>
@@ -115,8 +113,8 @@ export const SupportBot: React.FC = () => {
                             {messages.map((m, i) => (
                                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
-                                            ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
-                                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
+                                        ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
+                                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
                                         }`}>
                                         {m.content.split('\n').map((line, idx) => (
                                             <p key={idx} className={line.trim() ? 'mb-2' : 'h-2'}>{line}</p>
