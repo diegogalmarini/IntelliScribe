@@ -1,124 +1,61 @@
-# 📁 Estructura de Carpetas - Manual de Usuario
+# Manual de Usuario - Diktalo
 
-Esta carpeta contiene toda la documentación orientada al usuario final de Diktalo.
+Bienvenido al manual de usuario de **Diktalo**, tu segundo cerebro corporativo para inteligencia de voz.
 
----
+## 📚 Índice General
 
-## 🎯 Propósito
+### 01. Primeros Pasos
+- [Crear tu Cuenta](./es/01_primeros_pasos/crear_cuenta.md)
+- Primera Grabación *(próximamente)*
+- Tour del Dashboard *(próximamente)*
 
-El manual de usuario está diseñado para:
-- Nuevos usuarios aprendiendo la plataforma
-- Usuarios existentes buscando funcionalidades específicas
-- Material de onboarding para clientes empresariales
-- Base de conocimiento para soporte al cliente
+### 02. Métodos de Grabación
+- Grabadora Web *(próximamente)*
+- Extensión Chrome *(próximamente)*
+- Marcador VoIP *(próximamente)*
+- Subir Archivos *(próximamente)*
 
----
+### 03. Inteligencia IA
+- Chat con Grabación *(próximamente)*
+- Análisis e Insights *(próximamente)*
+- Búsqueda Avanzada *(próximamente)*
 
-## 📂 Subcarpetas
+### 04. Organización
+- Carpetas *(próximamente)*
+- Etiquetas *(próximamente)*
+- Favoritos *(próximamente)*
 
-### `/grabacion/` 
-Todo relacionado con la captura de audio.
+### 05. Ajustes
+- Perfil *(próximamente)*
+- Preferencias *(próximamente)*
+- Notificaciones *(próximamente)*
 
-**Documentos:**
-- ✅ [Modos de Grabación](./grabacion/modos-grabacion.md) - Reunión, Llamada, Altavoz
-- 📝 Notas y Adjuntos *(próximamente)*
-- 📝 Configuración de Dispositivos *(próximamente)*
-- 📝 Calidad de Audio *(próximamente)*
+### 06. Planes y Facturación
+- Comparativa de Planes *(próximamente)*
+- Actualizar Plan *(próximamente)*
 
----
-
-### `/transcripcion/` *(En desarrollo)*
-Generación y edición de transcripciones.
-
-**Documentos planeados:**
-- Generar Transcripción
-- Editar Nombres de Hablantes
-- Revisar y Corregir Texto
-- Idiomas Soportados
-
----
-
-### `/exportacion/` *(En desarrollo)*
-Exportar datos en diferentes formatos.
-
-**Documentos planeados:**
-- Exportar PDF/DOC
-- Formatos Disponibles (TXT, JSON, SRT)
-- Compartir Transcripciones
-- Descargar Audio Original
+### 07. Solución de Problemas
+- Problemas Comunes *(próximamente)*
+- Calidad de Audio *(próximamente)*
 
 ---
 
-### `/organizacion/`
-Herramientas para ordenar y gestionar tu contenido.
+## 🚀 Inicio Rápido
 
-**Documentos:**
-- ✅ [Carpetas y Chat Inteligente](./organizacion/carpetas-y-chat.md) - Gestión de carpetas y Ask Diktalo Multi-Nivel
-
----
-
-### `/suscripciones/` *(En desarrollo)*
-Planes, facturación y límites.
-
-**Documentos planeados:**
-- Comparativa de Planes
-- Actualizar/Cancelar Suscripción
-- Límites de Uso
-- Facturación y Pagos
+1. **[Crea tu cuenta](./es/01_primeros_pasos/crear_cuenta.md)** - Regístrate en 30 segundos con Google
+2. **Graba tu primera nota** - Usa la grabadora web del dashboard
+3. **Pregunta a la IA** - Chatea con tus grabaciones
+4. **Explora** - Descubre todas las funcionalidades
 
 ---
 
-## ✍️ Estilo de Escritura
+## 🆘 Soporte
 
-Todos los documentos del manual deben seguir estas guías:
-
-### Tono
-- ✅ Amigable y accesible
-- ✅ Claro y directo
-- ✅ Profesional sin ser corporativo
-- ❌ Evitar jerga técnica innecesaria
-
-### Formato
-- Usar emojis para secciones (📝 🎯 ⚠️ 💡)
-- Incluir ejemplos visuales cuando sea posible
-- Tablas comparativas para opciones
-- Listas numeradas para procedimientos paso a paso
-- Alerts para información crítica
-
-### Estructura
-1. **Introducción** - ¿Qué es y para qué sirve?
-2. **Cuándo usar** - Casos de uso específicos
-3. **Cómo usar** - Instrucciones paso a paso
-4. **Consejos** - Tips profesionales
-5. **FAQ** - Preguntas frecuentes
+- **Chat en vivo:** Widget Crisp (esquina inferior derecha)
+- **Email:** contacto@diktalo.com
+- **Centro de Ayuda:** Este manual
 
 ---
 
-## 📊 Roadmap de Documentación
-
-### Q1 2026
-- [x] Modos de Grabación
-- [ ] Notas y Adjuntos
-- [ ] Transcripción Básica
-- [ ] Exportación PDF
-
-### Q2 2026
-- [ ] Edición Avanzada
-- [ ] Integrations
-- [ ] Mobile Apps
-- [ ] API para Usuarios
-
----
-
-## 🤝 Contribuir
-
-Para añadir o mejorar documentación:
-
-1. Crea el archivo `.md` en la carpeta correspondiente
-2. Sigue la estructura y estilo establecidos
-3. Actualiza el README de la carpeta padre
-4. Commit con mensaje descriptivo: `docs: add [tema]`
-
----
-
-**Última actualización:** 2 de enero, 2026
+**Última actualización:** 2026-01-09  
+**Versión:** 1.0.0
