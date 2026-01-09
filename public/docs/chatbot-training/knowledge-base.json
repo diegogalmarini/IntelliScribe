@@ -1,0 +1,178 @@
+{
+    "version": "1.0.0",
+    "last_updated": "2026-01-09",
+    "language": "es",
+    "intents": [
+        {
+            "intent_id": "how_to_create_account",
+            "category": "onboarding",
+            "patterns": [
+                "cómo crear una cuenta",
+                "cómo registrarme",
+                "quiero una cuenta nueva",
+                "proceso de registro",
+                "cómo empiezo en diktalo",
+                "crear mi cuenta en diktalo"
+            ],
+            "response_template": "Para crear tu cuenta en Diktalo:\n\n1. Ve a https://www.diktalo.com\n2. Haz clic en 'Login' (esquina superior derecha)\n3. Selecciona 'Continuar con Google' (recomendado) o registra con email/contraseña\n4. ¡Listo! Serás redirigido automáticamente a tu dashboard\n\nTu cuenta comienza con el plan Free (24 min/mes).\n\n📖 [Ver guía completa con screenshots](file:///docs/manual/es/01_primeros_pasos/crear_cuenta.md)",
+            "related_intents": [
+                "what_is_free_plan",
+                "forgot_password_help"
+            ],
+            "confidence_threshold": 0.7
+        },
+        {
+            "intent_id": "how_to_record_web",
+            "category": "recording",
+            "patterns": [
+                "cómo grabar audio",
+                "cómo hacer una grabación",
+                "usar la grabadora web",
+                "grabar con el navegador",
+                "primera grabación",
+                "iniciar una sesión de audio"
+            ],
+            "response_template": "Para hacer tu primera grabación:\n\n1. Ve a tu dashboard (https://www.diktalo.com/intelligence)\n2. Haz clic en 'Grabar Audio'\n3. Selecciona modo 'Reunión Presencial'\n4. Permite el acceso al micrófono\n5. Haz clic en el botón rojo para iniciar\n6. Mantén presionado el botón cuadrado 3 segundos para detener\n\n✅ Tu grabación se transcribirá automáticamente en 2-5 minutos.\n\n📖 [Guía completa con imágenes](file:///docs/manual/es/02_metodos_grabacion/grabadora_web.md)",
+            "related_intents": [
+                "add_notes_during_recording",
+                "recording_not_transcribing"
+            ],
+            "confidence_threshold": 0.8
+        },
+        {
+            "intent_id": "add_notes_during_recording",
+            "category": "recording",
+            "patterns": [
+                "cómo añadir notas",
+                "tomar notas mientras grabo",
+                "agregar marcadores",
+                "anotar durante grabación",
+                "notas en tiempo real"
+            ],
+            "response_template": "Sí, puedes añadir notas durante la grabación:\n\n1. Mientras grabas, ve al panel 'Notas' (parte inferior derecha)\n2. Escribe tu nota en el campo de texto\n3. Haz clic en 'Añadir nota'\n4. La nota quedará sincronizada con el marcador de tiempo\n\nIdeal para:\n✓ Marcar decisiones importantes\n✓ Recordar tareas pendientes\n✓ Anotar nombres clave\n\n📸 [Ver screenshot del panel de notas](file:///docs/screenshots/es/grabadora_web/04_notes.png)",
+            "related_intents": [
+                "how_to_record_web"
+            ],
+            "confidence_threshold": 0.75
+        },
+        {
+            "intent_id": "change_password",
+            "category": "account",
+            "patterns": [
+                "cambiar contraseña",
+                "actualizar password",
+                "modificar mi contraseña",
+                "olvidé mi contraseña",
+                "resetear password"
+            ],
+            "response_template": "Para cambiar tu contraseña:\n\n1. Haz clic en tu foto de perfil (arriba derecha)\n2. Ve a la sección 'Cuenta'\n3. Haz clic en 'Cambiar contraseña'\n4. Ingresa nueva contraseña (mínimo 6 caracteres)\n5. Confírmala y haz clic en 'Actualizar Contraseña'\n\n⚠️ Solo aplica si te registraste con email/password (no con Google).\n\nSi olvidaste tu contraseña: usa el enlace '¿Olvidaste tu contraseña?' en /login\n\n📖 [Ver guía de ajustes](file:///docs/manual/es/05_ajustes/configuracion.md)",
+            "related_intents": [
+                "access_settings",
+                "forgot_password_help"
+            ],
+            "confidence_threshold": 0.9
+        },
+        {
+            "intent_id": "access_settings",
+            "category": "account",
+            "patterns": [
+                "dónde están los ajustes",
+                "abrir configuración",
+                "cambiar preferencias",
+                "ver mi perfil",
+                "configurar mi cuenta"
+            ],
+            "response_template": "Para acceder a Ajustes:\n\n1. Haz clic en tu **foto de perfil** o icono de usuario (esquina superior derecha del dashboard)\n2. Se abrirá el modal con estas secciones:\n   - Cuenta (nombre, email, contraseña, plan)\n   - Preferencias (tema, idiomas)\n   - Sobre Diktalo (versión, legal)\n\nDesde ahí puedes editar tu perfil, cambiar el tema oscuro/claro, y configurar idiomas.\n\n📸 [Ver screenshots de ajustes](file:///docs/screenshots/es/settings/01_account.png)",
+            "related_intents": [
+                "change_password",
+                "change_theme",
+                "change_language"
+            ],
+            "confidence_threshold": 0.7
+        },
+        {
+            "intent_id": "change_theme",
+            "category": "preferences",
+            "patterns": [
+                "cambiar a modo oscuro",
+                "tema claro",
+                "dark mode",
+                "cambiar apariencia",
+                "modo nocturno"
+            ],
+            "response_template": "Para cambiar el tema:\n\n1. Abre Ajustes (clic en tu foto de perfil)\n2. Ve a la sección 'Preferencias'\n3. En 'Apariencia', selecciona:\n   - **Claro** - Fondo blanco\n   - **Oscuro** - Fondo negro (ahorra batería, reduce fatiga)\n   - **Sistema** - Sigue tu configuración del OS\n\nEl cambio es instantáneo.\n\n💡 Tip: El modo oscuro es ideal para sesiones largas.\n\n📸 [Ver preferencias](file:///docs/screenshots/es/settings/02_preferences.png)",
+            "related_intents": [
+                "access_settings",
+                "change_language"
+            ],
+            "confidence_threshold": 0.85
+        },
+        {
+            "intent_id": "what_is_free_plan",
+            "category": "plans",
+            "patterns": [
+                "qué incluye el plan free",
+                "cuánto grabo gratis",
+                "límites del plan gratuito",
+                "plan free características",
+                "cuántos minutos tengo"
+            ],
+            "response_template": "El plan **Free** incluye:\n\n✅ 24 minutos/mes de grabación\n✅ Almacenamiento de 7 días\n✅ Transcripción automática\n✅ Chat básico con IA\n✅ Exportar a TXT y PDF\n\nSi necesitas más, puedes actualizar a:\n- **Personal**: 300 min/mes, 30 días almacenamiento\n- **Business+**: 1200 min/mes, almacenamiento ilimitado\n\n📊 [Comparar todos los planes](https://www.diktalo.com/plans)\n\n📖 [Más sobre planes](file:///docs/manual/es/06_planes/comparativa.md)",
+            "related_intents": [
+                "how_to_upgrade_plan",
+                "how_to_create_account"
+            ],
+            "confidence_threshold": 0.8
+        },
+        {
+            "intent_id": "recording_not_transcribing",
+            "category": "troubleshooting",
+            "patterns": [
+                "transcripción no disponible",
+                "mi grabación no se transcribe",
+                "dónde está la transcripción",
+                "por qué no aparece el texto",
+                "tarda mucho en transcribir"
+            ],
+            "response_template": "Si tu transcripción no aparece:\n\n1. **Espera 5-10 minutos adicionales** - puede haber carga en servidores\n2. **Verifica tu conexión a internet** - debe estar activa durante la grabación\n3. **Refresca la página** (Ctrl+R o Cmd+R)\n4. **Revisa el idioma de transcripción** - en Ajustes > Preferencias\n\n⏱️ Tiempos normales:\n- 5 min de audio → ~1 min\n- 30 min de audio → ~3-5 min\n- 1 hora → ~10 min\n\nSi persiste >30 min, contacta soporte.\n\n📧 contacto@diktalo.com",
+            "related_intents": [
+                "how_to_record_web",
+                "change_language"
+            ],
+            "confidence_threshold": 0.75
+        }
+    ],
+    "entities": [
+        {
+            "entity_name": "recording_mode",
+            "values": [
+                "reunión presencial",
+                "altavoz",
+                "multi-audio",
+                "extensión chrome"
+            ]
+        },
+        {
+            "entity_name": "plan_tier",
+            "values": [
+                "free",
+                "personal",
+                "business+",
+                "business plus"
+            ]
+        },
+        {
+            "entity_name": "settings_section",
+            "values": [
+                "cuenta",
+                "preferencias",
+                "notificaciones",
+                "sobre diktalo"
+            ]
+        }
+    ],
+    "fallback_responses": [
+        "No estoy seguro de cómo ayudarte con eso. ¿Podrías reformular tu pregunta?",
+        "Hmm, no tengo información específica sobre eso. Puedes:\n- 📖 [Ver el manual completo](file:///docs/manual/README.md)\n- 💬 Usar el chat en vivo (widget Crisp)\n- 📧 Escribir a contacto@diktalo.com"
+    ]
+}
