@@ -576,7 +576,7 @@ export const translations = {
 
     // About
     about_header: "About Diktalo",
-    about_desc: "Platform for recording, transcribing, and analyzing voice conversations powered by advanced Artificial Intelligence.",
+    about_desc: "Voice intelligence platform with multi-source recording (Chrome Extension, VoIP Dialer, Web Recorder) and AI that connects insights across all your conversations - so you never have to listen to a 1-hour meeting again.",
     about_version: "Version",
     about_terms: "Terms of Service",
     about_terms_desc: "Usage rules and contracts",
@@ -1191,7 +1191,7 @@ export const translations = {
 
     // Sobre
     about_header: "Sobre Diktalo",
-    about_desc: "Plataforma para grabar, transcribir y analizar conversaciones de voz impulsada por Inteligencia Artificial avanzada.",
+    about_desc: "Plataforma de inteligencia de voz con grabación multi-origen (Extensión Chrome, Marcador VoIP, Grabadora Web) e IA que conecta insights entre todas tus conversaciones - para que nunca tengas que volver a escuchar una reunión de 1 hora.",
     about_version: "Versión",
     about_terms: "Términos de Servicio",
     about_terms_desc: "Reglas de uso y contratos",

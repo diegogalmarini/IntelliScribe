@@ -1060,13 +1060,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         {selectedSection === 'about' && (
                             <div className="max-w-2xl space-y-8 animate-in fade-in duration-300">
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <div className="w-20 h-20 mb-6 bg-slate-900 dark:bg-white rounded-2xl flex items-center justify-center shadow-xl">
-                                        <img src="/logo-diktalo.svg" alt="Diktalo" className="w-12 h-12" onError={(e) => {
-                                            // Fallback if logo not found
-                                            e.currentTarget.style.display = 'none';
-                                            e.currentTarget.parentElement!.innerHTML = '<span class="text-3xl font-bold text-white dark:text-black">D</span>';
-                                        }} />
-                                    </div>
                                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('about_header')}</h2>
                                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md">
                                         {t('about_desc')}
