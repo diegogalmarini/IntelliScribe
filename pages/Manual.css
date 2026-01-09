@@ -1,145 +1,91 @@
-/* Manual-specific typography and layout adjustments */
-
-/* Main article typography */
-.manual-article p {
-    margin: 0.75rem 0;
-    font-size: 0.8rem;
-    line-height: 1.7;
-    color: #64748b;
-    /* slate-500 */
-}
-
-:global(.dark) .manual-article p {
-    color: #94a3b8;
-    /* slate-400 */
+/* Manual Directory Style Typography */
+.manual-article {
+    max-width: 800px;
 }
 
 .manual-article h1 {
-    font-size: 2.25rem;
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    font-weight: 700;
     color: #0f172a;
-    /* slate-900 */
+    /* Slate 900 */
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
 }
 
 :global(.dark) .manual-article h1 {
-    color: #f8fafc;
-    /* slate-50 */
+    color: #ffffff;
 }
 
 .manual-article h2 {
     font-size: 1.5rem;
-    font-weight: 700;
-    margin-top: 2.5rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-top: 3rem;
     margin-bottom: 1rem;
-    color: #1e293b;
-    /* slate-800 */
+    letter-spacing: -0.01em;
 }
 
 :global(.dark) .manual-article h2 {
-    color: #f1f5f9;
-    /* slate-100 */
+    color: #f8fafc;
 }
 
 .manual-article h3 {
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 600;
+    color: #1e293b;
+    /* Slate 800 */
     margin-top: 2rem;
     margin-bottom: 0.75rem;
-    color: #334155;
-    /* slate-700 */
 }
 
 :global(.dark) .manual-article h3 {
     color: #e2e8f0;
-    /* slate-200 */
 }
 
-.manual-article ul,
-.manual-article ol {
-    font-size: 0.8rem;
-    line-height: 1.7;
-    margin: 1rem 0;
-    padding-left: 1.5rem;
-    color: #64748b;
+.manual-article p {
+    font-size: 0.95rem;
+    /* Slightly larger for reading comfort like Plaud */
+    line-height: 1.75;
+    color: #475569;
+    /* Slate 600 */
+    margin-bottom: 1.5rem;
 }
 
-:global(.dark) .manual-article ul,
-:global(.dark) .manual-article ol {
-    color: #94a3b8;
+:global(.dark) .manual-article p {
+    color: #cbd5e1;
+    /* Slate 300 */
 }
 
 .manual-article li {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: #475569;
     margin-bottom: 0.5rem;
 }
 
-.manual-article b,
-.manual-article strong {
-    color: #0f172a;
-    font-weight: 700;
+:global(.dark) .manual-article li {
+    color: #cbd5e1;
 }
 
-:global(.dark) .manual-article b,
+.manual-article strong {
+    font-weight: 600;
+    color: #0f172a;
+}
+
 :global(.dark) .manual-article strong {
     color: #ffffff;
 }
 
+/* Plaud-like Blockquote styling */
 .manual-article blockquote {
-    font-size: 0.8rem;
-    font-style: italic;
-    padding: 1rem 1.5rem;
-    border-left: 4px solid var(--color-primary);
-    background: rgba(var(--color-primary-rgb), 0.05);
-    margin: 2rem 0;
-    border-radius: 0 0.75rem 0.75rem 0;
+    border-left: 2px solid #e2e8f0;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: normal;
+    color: #64748b;
 }
 
-.manual-article code {
-    font-size: 0.75rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    background: #f1f5f9;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.375rem;
-    color: #e11d48;
-}
-
-:global(.dark) .manual-article code {
-    background: #1e293b;
-    color: #fda4af;
-}
-
-.manual-article pre {
-    background: #1e293b;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    margin: 2rem 0;
-    overflow-x: auto;
-}
-
-.manual-article pre code {
-    background: transparent;
-    padding: 0;
-    color: #f8fafc;
-}
-
-.manual-article img {
-    border-radius: 1rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    margin: 2.5rem 0;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-:global(.dark) .manual-article img {
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Category grid cards */
-.category-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.category-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+:global(.dark) .manual-article blockquote {
+    border-color: #334155;
+    color: #94a3b8;
 }

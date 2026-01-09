@@ -17,7 +17,7 @@ interface KB {
 export const SupportBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([
-        { role: 'bot', content: '¡Hola! Soy Eva, la asistente de Diktalo. ¿En qué puedo ayudarte hoy?' }
+        { role: 'bot', content: '¡Hola! Soy Nati Pol, la asistente de Diktalo. ¿En qué puedo ayudarte hoy?' }
     ]);
     const [input, setInput] = useState('');
     const [kb, setKb] = useState<KB | null>(null);
@@ -98,7 +98,7 @@ export const SupportBot: React.FC = () => {
                                     <span className="material-symbols-outlined text-white">smart_toy</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">Eva - Asistente Diktalo</h3>
+                                    <h3 className="font-bold text-sm">Nati Pol - Asistente Diktalo</h3>
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
                                         <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">En línea</span>
@@ -156,7 +156,7 @@ export const SupportBot: React.FC = () => {
                                 </button>
                             </div>
                             <p className="text-[10px] text-center text-slate-400 mt-2">
-                                Eva usa inteligencia artificial para ayudarte.
+                                Nati Pol usa inteligencia artificial para ayudarte.
                             </p>
                         </form>
                     </motion.div>

@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Manual.css';
+import { SupportBot } from '../components/SupportBot/SupportBot';
 
 interface ManualSection {
     id: string;
@@ -76,11 +77,11 @@ const MANUAL_SECTIONS: ManualSection[] = [
 ];
 
 const CATEGORIES = [
-    { id: 'Primeros Pasos', icon: 'auto_awesome', color: 'blue' },
-    { id: 'Métodos de Grabación', icon: 'graphic_eq', color: 'purple' },
-    { id: 'Inteligencia IA', icon: 'bolt', color: 'amber' },
-    { id: 'Productividad', icon: 'task_alt', color: 'green' },
-    { id: 'Ajustes', icon: 'manage_accounts', color: 'slate' }
+    { id: 'Primeros Pasos' },
+    { id: 'Métodos de Grabación' },
+    { id: 'Inteligencia IA' },
+    { id: 'Productividad' },
+    { id: 'Ajustes' }
 ];
 
 export const Manual: React.FC = () => {
@@ -90,14 +91,12 @@ export const Manual: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Handle section selection
     const handleSelectSection = (id: string) => {
         setSelectedSectionId(id);
         setView('article');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Load markdown content
     useEffect(() => {
         if (view === 'article' && selectedSectionId) {
             const loadContent = async () => {
@@ -114,11 +113,9 @@ export const Manual: React.FC = () => {
                     setContent('# Error\n\nNo se pudo cargar esta sección del manual.');
                 } finally {
                     setIsLoading(false);
-                    // Wait a bit for ReactMarkdown to render, then scroll to top
                     setTimeout(() => window.scrollTo({ top: 0 }), 100);
                 }
             };
-
             loadContent();
         }
     }, [view, selectedSectionId]);
@@ -142,72 +139,68 @@ export const Manual: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB] dark:bg-background-dark flex flex-col font-sans transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans text-slate-900 dark:text-white">
             <Navbar />
 
             <div className="flex-grow pt-32 pb-24">
                 {view === 'hub' ? (
-                    /* HUB VIEW */
-                    <div className="max-w-5xl mx-auto px-6">
-                        <div className="text-center mb-16">
-                            <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
-                                ¿En qué podemos ayudarte?
-                            </h1>
-                            <div className="max-w-2xl mx-auto relative group">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                    <span className="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                                </div>
+                    /* HUB VIEW - DIRECTORY STYLE */
+                    <div className="max-w-[1400px] mx-auto px-6">
+
+                        {/* Header: Title Left, Search Right */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 border-b border-transparent">
+                            <div>
+                                <h6 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Diktalo > Manual</h6>
+                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Manual de Usuario</h1>
+                            </div>
+
+                            <div className="relative w-full md:w-96">
+                                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <span className="material-symbols-outlined text-slate-400 text-lg">search</span>
+                                </span>
                                 <input
                                     type="text"
-                                    placeholder="Busca manuales, funciones, planes..."
+                                    placeholder="Buscar en el manual..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="block w-full pl-14 pr-5 py-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-slate-900 dark:text-white placeholder-slate-400"
+                                    className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-sm focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent transition-all"
                                 />
-
-                                {/* Instant Search Results */}
+                                {/* Search Dropdown */}
                                 {searchQuery && (
-                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden max-h-96 overflow-y-auto">
+                                    <div className="absolute top-full right-0 left-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
                                         {filteredSections.length > 0 ? (
                                             filteredSections.map(s => (
                                                 <button
                                                     key={s.id}
                                                     onClick={() => handleSelectSection(s.id)}
-                                                    className="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-white/5 border-b border-slate-100 dark:border-white/5 last:border-0 flex items-center gap-4 group"
+                                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 flex flex-col"
                                                 >
-                                                    <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-500 group-hover:bg-primary group-hover:text-white transition-all">
-                                                        <span className="material-symbols-outlined text-xl">{s.icon}</span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-bold text-slate-900 dark:text-white text-sm">{s.title}</p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">{s.category}</p>
-                                                    </div>
+                                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{s.title}</span>
+                                                    <span className="text-xs text-slate-500">{s.category}</span>
                                                 </button>
                                             ))
                                         ) : (
-                                            <div className="p-8 text-center text-slate-500">No hay resultados para "{searchQuery}"</div>
+                                            <div className="p-4 text-center text-sm text-slate-500">No hay resultados.</div>
                                         )}
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Categories Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Directory Grid - Text Only */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
                             {groupedSections.map((cat) => (
-                                <div key={cat.id} className="category-card bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-white/5 rounded-3xl p-8 flex flex-col h-full">
-                                    <div className={`h-14 w-14 rounded-2xl bg-${cat.color}-500/10 flex items-center justify-center text-${cat.color}-500 mb-6`}>
-                                        <span className="material-symbols-outlined text-3xl">{cat.icon}</span>
-                                    </div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{cat.id}</h2>
-                                    <div className="space-y-3 flex-grow">
+                                <div key={cat.id} className="flex flex-col">
+                                    <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                        {cat.id}
+                                    </h2>
+                                    <div className="flex flex-col gap-3">
                                         {cat.sections.map(section => (
                                             <button
                                                 key={section.id}
                                                 onClick={() => handleSelectSection(section.id)}
-                                                className="w-full text-left text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-colors flex items-center gap-2 group"
+                                                className="text-left text-[15px] text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors py-1"
                                             >
-                                                <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 group-hover:bg-primary group-hover:scale-150 transition-all"></span>
                                                 {section.title}
                                             </button>
                                         ))}
@@ -219,136 +212,59 @@ export const Manual: React.FC = () => {
                 ) : (
                     /* ARTICLE VIEW */
                     <div className="max-w-[1400px] mx-auto px-6">
-                        <div className="flex flex-col md:flex-row gap-12">
-                            {/* Sidebar Hierarchy */}
-                            <aside className="hidden md:block w-72 shrink-0">
-                                <div className="sticky top-28 space-y-10">
-                                    <button
-                                        onClick={() => setView('hub')}
-                                        className="flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all"
-                                    >
-                                        <span className="material-symbols-outlined text-base">arrow_back</span>
-                                        Volver al inicio
-                                    </button>
+                        {/* Minimal Breadcrumb */}
+                        <nav className="flex items-center gap-2 text-[13px] text-slate-500 mb-8">
+                            <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Diktalo</button>
+                            <span className="text-slate-300">/</span>
+                            <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
+                            <span className="text-slate-300">/</span>
+                            <span className="text-slate-900 dark:text-white font-medium">{currentSection?.title}</span>
+                        </nav>
 
-                                    <nav className="space-y-8">
-                                        {groupedSections.map(cat => (
-                                            currentSection?.category === cat.id && (
-                                                <div key={cat.id} className="space-y-4">
-                                                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 pl-4 border-l-2 border-slate-100 dark:border-white/5">
-                                                        {cat.id}
-                                                    </h3>
-                                                    <div className="space-y-1">
-                                                        {cat.sections.map(section => (
-                                                            <button
-                                                                key={section.id}
-                                                                onClick={() => setSelectedSectionId(section.id)}
-                                                                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${selectedSectionId === section.id
-                                                                        ? 'bg-primary/10 text-primary'
-                                                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
-                                                                    }`}
-                                                            >
-                                                                {section.title}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )
+                        <div className="flex flex-col md:flex-row gap-16">
+                            {/* Sidebar List */}
+                            <aside className="hidden md:block w-64 shrink-0">
+                                <div className="sticky top-32">
+                                    <h3 className="font-bold text-slate-900 dark:text-white mb-4 text-sm">{currentSection?.category}</h3>
+                                    <div className="flex flex-col border-l border-slate-200 dark:border-slate-800">
+                                        {groupedSections.find(g => g.id === currentSection?.category)?.sections.map(s => (
+                                            <button
+                                                key={s.id}
+                                                onClick={() => setSelectedSectionId(s.id)}
+                                                className={`text-left px-4 py-2 text-sm border-l -ml-px transition-colors ${selectedSectionId === s.id
+                                                        ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white font-medium'
+                                                        : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                                                    }`}
+                                            >
+                                                {s.title}
+                                            </button>
                                         ))}
-
-                                        {/* Other Categories Mini List */}
-                                        <div className="pt-8 border-t border-slate-100 dark:border-white/5">
-                                            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 pl-4">Más categorías</h3>
-                                            <div className="space-y-2">
-                                                {CATEGORIES.filter(c => c.id !== currentSection?.category).map(cat => (
-                                                    <button
-                                                        key={cat.id}
-                                                        onClick={() => {
-                                                            const firstSection = MANUAL_SECTIONS.find(s => s.category === cat.id);
-                                                            if (firstSection) handleSelectSection(firstSection.id);
-                                                        }}
-                                                        className="w-full text-left px-4 py-2 text-[13px] text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
-                                                    >
-                                                        <span className="material-symbols-outlined text-base">{cat.icon}</span>
-                                                        {cat.id}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </nav>
+                                    </div>
                                 </div>
                             </aside>
 
-                            {/* Main Article Content */}
+                            {/* Content */}
                             <main className="flex-1 min-w-0">
-                                {/* Breadcrumbs */}
-                                <nav className="flex items-center gap-2 mb-8 text-[12px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <button onClick={() => setView('hub')} className="hover:text-primary transition-colors">Manual</button>
-                                    <span className="material-symbols-outlined text-xs">chevron_right</span>
-                                    <span className="text-slate-300 dark:text-slate-600">{currentSection?.category}</span>
-                                    <span className="material-symbols-outlined text-xs">chevron_right</span>
-                                    <span className="text-primary">{currentSection?.title}</span>
-                                </nav>
-
-                                <div className="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 md:p-12 lg:p-16">
-                                    {isLoading ? (
-                                        <div className="flex flex-col items-center justify-center py-24 gap-4">
-                                            <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                            <p className="text-sm font-bold text-slate-400">Cargando contenido...</p>
-                                        </div>
-                                    ) : (
-                                        <article className="manual-article">
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm]}
-                                                rehypePlugins={[rehypeRaw]}
-                                                components={{
-                                                    img: ({ node, ...props }) => (
-                                                        <div className="relative group">
-                                                            <img
-                                                                {...props}
-                                                                className="cursor-zoom-in group-hover:opacity-90 transition-opacity"
-                                                                onClick={() => window.open(props.src, '_blank')}
-                                                                alt={props.alt || 'Diktalo Guide'}
-                                                            />
-                                                        </div>
-                                                    ),
-                                                    a: ({ node, ...props }) => (
-                                                        <a
-                                                            {...props}
-                                                            className="text-primary font-bold hover:underline"
-                                                            target={props.href?.startsWith('http') ? '_blank' : undefined}
-                                                            rel={props.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                                                        />
-                                                    ),
-                                                }}
-                                            >
-                                                {content}
-                                            </ReactMarkdown>
-                                        </article>
-                                    )}
-
-                                    {/* Article Footer / Feedback */}
-                                    <div className="mt-24 pt-12 border-t border-slate-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
-                                        <div className="flex items-center gap-4">
-                                            <p className="text-sm font-bold text-slate-900 dark:text-white">¿Te ha servido de ayuda?</p>
-                                            <div className="flex gap-2">
-                                                <button className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-green-500/10 hover:text-green-500 transition-all flex items-center justify-center border border-slate-100 dark:border-white/5">
-                                                    <span className="material-symbols-outlined text-xl">thumb_up</span>
-                                                </button>
-                                                <button className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all flex items-center justify-center border border-slate-100 dark:border-white/5">
-                                                    <span className="material-symbols-outlined text-xl">thumb_down</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                                            className="text-xs font-bold text-slate-400 hover:text-primary flex items-center gap-2"
+                                {isLoading ? (
+                                    <div className="py-12 text-center text-sm text-slate-400">Cargando...</div>
+                                ) : (
+                                    <article className="manual-article prose-slate dark:prose-invert">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeRaw]}
+                                            components={{
+                                                img: ({ node, ...props }) => (
+                                                    <img {...props} className="rounded-lg border border-slate-100 dark:border-slate-800 my-8 shadow-sm" style={{ maxHeight: '500px' }} />
+                                                ),
+                                                a: ({ node, ...props }) => (
+                                                    <a {...props} className="text-slate-900 dark:text-white underline decoration-slate-300 hover:decoration-slate-900 dark:hover:decoration-white underline-offset-4 font-medium" />
+                                                )
+                                            }}
                                         >
-                                            Volver arriba
-                                            <span className="material-symbols-outlined text-base">expand_less</span>
-                                        </button>
-                                    </div>
-                                </div>
+                                            {content}
+                                        </ReactMarkdown>
+                                    </article>
+                                )}
                             </main>
                         </div>
                     </div>
@@ -356,6 +272,7 @@ export const Manual: React.FC = () => {
             </div>
 
             <Footer />
+            {/* Bot is now injected via App.tsx, but kept here for fallback in case App.tsx routing fails */}
         </div>
     );
 };
