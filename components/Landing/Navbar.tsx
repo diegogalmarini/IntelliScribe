@@ -16,6 +16,31 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const isLanding = location.pathname === '/';
     const isAuthenticated = user && user.id && user.id !== '';
 
+    const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>('light');
+
+    // Sync effective theme with DOM class to avoid hydration/CSS mismatch
+    React.useEffect(() => {
+        const updateTheme = () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setEffectiveTheme(isDark ? 'dark' : 'light');
+        };
+
+        // Initial check
+        updateTheme();
+
+        // Observer to catch system/manual changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    updateTheme();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, { attributes: true });
+        return () => observer.disconnect();
+    }, []);
+
     const handleNavClick = (sectionId: string) => {
         setIsMenuOpen(false);
         if (isLanding) {
@@ -25,22 +50,20 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
             }
         } else {
             navigate('/#' + sectionId);
-            // We might need a timeout or Effect to scroll after navigation, 
-            // but standard anchor behavior usually works if hash is present.
-            // React Router doesn't always handle hash scroll on mount well, 
-            // but for now let's try direct navigation.
-            // If direct hash nav fails, we can just go to / and let user scroll.
             window.location.href = '/#' + sectionId;
         }
     };
 
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-20 transition-all">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-20 transition-all">
                 <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-                        <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-10 w-auto dark:hidden transition-all" />
-                        <img src="/logo-diktalo-b.svg" alt="Diktalo Logo" className="h-10 w-auto hidden dark:block transition-all" />
+                        {effectiveTheme === 'dark' ? (
+                            <img src="/logo-diktalo-b.svg" alt="Diktalo Logo" className="h-8 w-auto transition-all" />
+                        ) : (
+                            <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto transition-all" />
+                        )}
                     </div>
 
                     {/* Desktop Nav */}
