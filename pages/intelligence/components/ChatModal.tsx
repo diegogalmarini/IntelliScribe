@@ -132,12 +132,16 @@ return (
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <div
-                                            className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${msg.role === 'user'
+                                            className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-sm overflow-hidden ${msg.role === 'user'
                                                 ? 'bg-blue-600 text-white rounded-br-none'
                                                 : 'bg-white dark:bg-[#2a2a2a] text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-800 rounded-bl-none'
                                                 }`}
                                         >
-                                            {cleanContent}
+                                            <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert' : 'dark:prose-invert'} [&>p]:mb-0 [&>ul]:mb-0`}>
+                                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                    {cleanContent}
+                                                </ReactMarkdown>
+                                            </div>
                                         </div>
                                         {actionId && onOpenRecording && (
                                             localRecordings.some(r => r.id === actionId) ? (
