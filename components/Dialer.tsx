@@ -11,19 +11,20 @@ interface DialerProps {
     onUserUpdated?: () => void;
     // NEW: Callback when call finishes to refresh recordings
     onCallFinished?: () => void;
+    // NEW: Control visibility of the floating button
+    showMinimized?: boolean;
 }
 
-export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated, onCallFinished }) => {
+export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated, onCallFinished, showMinimized = true }) => {
     const { t } = useLanguage();
+    // ... (rest of state)
     const [isOpen, setIsOpen] = useState(false);
     const [number, setNumber] = useState('');
     const [status, setStatus] = useState('Idle');
     const [activeCall, setActiveCall] = useState<any>(null);
     const [isMuted, setIsMuted] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-    const [isPasting, setIsPasting] = useState(false); // UI State for feedback
-
-    // Estado para el modal de verificación
+    const [isPasting, setIsPasting] = useState(false);
     const [showVerification, setShowVerification] = useState(false);
 
     useEffect(() => {
@@ -79,7 +80,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
     };
 
-    // ... (Resto de funciones: handleHangup, toggleMute, handleDigit igual que antes)
     const handleDigit = (digit: string) => {
         setNumber(prev => prev + digit);
         if (activeCall) activeCall.sendDigits(digit);
@@ -98,8 +98,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             setIsMuted(!isMuted);
         }
     };
-
     if (!isOpen) {
+        // If hidden explicitly by parent
+        if (!showMinimized) return null;
+
         // If user is not verified, show ORANGE button that opens verification modal
         if (!user.phoneVerified) {
             return (

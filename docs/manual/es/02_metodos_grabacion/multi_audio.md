@@ -8,7 +8,11 @@ category: Métodos de Grabación
 La función **Multi-Audio** es ideal para cuando tienes **varias grabaciones de la misma sesión** (por ejemplo, notas de voz de WhatsApp reenviadas, audios divididos en partes) o cuando quieres combinar voces de diferentes fuentes.
 
 ### Cómo funciona
+
 1.  En la sección "Subir", activa el modo **"Multi-Audio"**.
+
+![Modo Multi-Audio](/docs/screenshots/es/upload/02_multiaudio.png)
+
 2.  **Arrastra y suelta** todos los archivos de audio juntos.
 3.  Verás una lista con todos los archivos cargados.
 4.  **Ordena:** Arrastra los elementos de la lista para establecer el orden cronológico correcto.

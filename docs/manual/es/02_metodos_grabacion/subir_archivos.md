@@ -12,8 +12,15 @@ Si ya tienes una grabación realizada con otro dispositivo (móvil, grabadora ex
 *   **Video:** .mp4, .mov, .avi, .webm (extraeremos el audio automáticamente)
 
 ### Pasos
+
 1.  Ve a **"+ Nueva Sesión"** > Pestaña **"Subir"**.
+
+![Pantalla de Subida](/docs/screenshots/es/upload/01_initial.png)
+
 2.  Arrastra tu archivo al área designada o haz clic para explorar.
+
+![Área de Arrastrar](/docs/screenshots/es/upload/03_drag_area.png)
+
 3.  Selecciona el idioma original del audio (o déjalo en Auto).
 4.  Pulsa **"Transcribir"**.
 

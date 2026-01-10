@@ -856,6 +856,14 @@ const AppContent: React.FC = () => {
             {user && user.subscription?.planId === 'business_plus' && (
                 <Dialer
                     user={user}
+                    showMinimized={(
+                        // Show only on Dashboard "Home" (no specific recording, no active action, etc.)
+                        (currentRoute === AppRoute.DASHBOARD ||
+                            currentRoute === AppRoute.INTELLIGENCE ||
+                            currentRoute === AppRoute.SUBSCRIPTION) &&
+                        !new URLSearchParams(location.search).has('recordingId') &&
+                        !new URLSearchParams(location.search).has('action')
+                    )}
                     onNavigate={navigate}
                     onCallFinished={() => {
                         console.log("📞 Call finished. Refreshing recordings...");

@@ -1,9 +1,9 @@
 ---
-title: Grabadora Web (Extension)
+title: Grabar desde Extensión de Chrome
 category: Métodos de Grabación
 ---
 
-# Grabadora Web (Chrome Extension)
+# Grabar desde Extensión de Chrome
 
 Para grabar el audio de tus reuniones virtuales (Google Meet, Teams, Zoom) o conferencias en Youtube, utiliza nuestra **Extensión de Chrome**.
 
@@ -12,19 +12,20 @@ Esta herramienta captura el audio **directamente del sistema**, garantizando una
 ### 1. Panel de la Extensión
 Accede a Diktalo desde cualquier pestaña del navegador pulsando el icono en la barra de extensiones.
 
-![Panel de la Extensión](/docs/screenshots/es/extension/01_extension.png)
+![Panel de la Extensión](/docs/screenshots/es/grabadora_web/01_initial.png)
 
-### 2. Ventana Flotante y Grabación
-Al iniciar la grabación, la ventana se convertirá en un "widget" flotante. Puedes **arrastrarlos desde la cabecera** para colocarlo donde no te moleste (por ejemplo, para ver el video o la presentación).
+### 2. Permisos y Activación
+La primera vez, la extensión te pedirá permiso para acceder al audio de la pestaña.
 
-![Grabando en ventana móvil](/docs/screenshots/es/extension/02_extension_record.png)
+![Permisos](/docs/screenshots/es/grabadora_web/02_permission.png)
 
-### 3. Captura de Pantalla (Snapshot)
-Durante la grabación, si ves una diapositiva o momento importante en el video, pulsa el botón de **Cámara (FOTO)**. Diktalo guardará esa imagen y la asociará al momento exacto de la transcripción.
+### 3. Grabación Activa
+Una vez iniciada, verás el tiempo transcurrido y la onda de audio. Puedes minimizar la ventana flotante si te molesta.
 
-![Tomando una captura](/docs/screenshots/es/extension/03_extension_imagen.png)
+![Grabando](/docs/screenshots/es/grabadora_web/03_active.png)
 
-### 4. Resumen Visual
-Al finalizar, obtendrás una transcripción completa enriquecida. Las imágenes que capturaste aparecerán insertadas en el resumen, permitiéndote tener un contexto visual perfecto de lo que se habló.
+### 4. Notas y Capturas
+Añade notas rápidas durante la reunión para marcar momentos clave.
 
-![Resumen con capturas](/docs/screenshots/es/extension/04_extension_capturas.png)
+![Notas](/docs/screenshots/es/grabadora_web/04_notes.png)
+

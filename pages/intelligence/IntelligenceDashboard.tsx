@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
@@ -61,6 +62,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const { t } = useLanguage();
     const [view, setView] = useState<'recordings' | 'subscription' | 'templates'>(initialView); // View state
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     // Sync view with prop changes (e.g. navigation trigger)
     useEffect(() => {
@@ -231,6 +233,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
         // Open inline recorder instead of navigating to old LiveRecording page
         setIsRecording(true);
+        setSearchParams({ action: 'record' }); // Sync URL for App.tsx visibility check
         setSelectedId(null); // Clear any selected recording
         if (isMobile) setIsSidebarOpen(false);
     };
@@ -261,7 +264,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setIsRecording(false); // EXIT RECORDER
         setShowMultiAudioUploader(false); // EXIT MULTI-AUDIO
         // Clean deep link params if any
-        window.history.replaceState({}, '', window.location.pathname);
+        setSearchParams({});
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -378,6 +381,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (type === 'record') {
             // Open inline recorder instead of navigating
             setIsRecording(true);
+            setSearchParams({ action: 'record' });
             setSelectedId(null); // Clear any selected recording
         }
         if (type === 'upload') {
@@ -570,6 +574,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const handleCancelRecording = () => {
         setIsRecording(false);
+        setSearchParams({});
     };
 
     const handleCloseEditor = () => {
