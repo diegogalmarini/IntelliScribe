@@ -163,6 +163,25 @@ const AppContent: React.FC = () => {
         window.location.href = '/';
     };
 
+    // Track detailed state from Dashboard to control Dialer visibility
+    const [dashboardState, setDashboardState] = useState({
+        isRecording: false,
+        isViewingRecording: false,
+        isUploading: false
+    });
+
+    const handleAppStateChange = (state: { isRecording: boolean; isViewingRecording: boolean; isUploading: boolean }) => {
+        // Only update if changed to avoid loops
+        setDashboardState(prev => {
+            if (prev.isRecording === state.isRecording &&
+                prev.isViewingRecording === state.isViewingRecording &&
+                prev.isUploading === state.isUploading) {
+                return prev;
+            }
+            return state;
+        });
+    };
+
     // --- AUTO LOGOUT PROTECTION ---
     // 30 minutes = 30 * 60 * 1000 = 1,800,000 ms
     // Only active if user is logged in
@@ -831,7 +850,8 @@ const AppContent: React.FC = () => {
                             onSearch={handleSearch}
                             onRecordingComplete={handleRecordingComplete}
                             onUpdateRecording={handleUpdateRecording}
-                            initialView="subscription"
+                            initialView={currentRoute === AppRoute.SUBSCRIPTION ? "subscription" : undefined}
+                            onAppStateChange={handleAppStateChange}
                         />
                     )}
 
@@ -857,11 +877,14 @@ const AppContent: React.FC = () => {
                 <Dialer
                     user={user}
                     showMinimized={(
-                        // Show only on Dashboard "Home" (no specific recording, no active action, etc.)
+                        // Show only on Dashboard "Home"
                         (currentRoute === AppRoute.DASHBOARD ||
                             currentRoute === AppRoute.INTELLIGENCE ||
                             currentRoute === AppRoute.SUBSCRIPTION) &&
-                        !new URLSearchParams(location.search).has('recordingId') &&
+                        // HIDDEN if active task:
+                        !dashboardState.isRecording &&
+                        !dashboardState.isViewingRecording &&
+                        !dashboardState.isUploading &&
                         !new URLSearchParams(location.search).has('action')
                     )}
                     onNavigate={navigate}
