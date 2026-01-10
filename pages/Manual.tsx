@@ -36,10 +36,10 @@ const MANUAL_SECTIONS: ManualSection[] = [
     },
     {
         id: 'grabadora-web',
-        title: 'Grabadora Web',
+        title: 'Grabar desde Extensión de Chrome',
         category: 'Métodos de Grabación',
         path: '/docs/manual/es/02_metodos_grabacion/grabadora_web.md',
-        icon: 'language', // Changed icon to distinguish
+        icon: 'extension', // Changed icon to extension
         description: 'Captura el audio de tus pestañas (Meet, Youtube) con nuestra Extensión.'
     },
     {
