@@ -63,9 +63,10 @@ export const Footer: React.FC = () => {
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                         Sistema activo
                     </span>
-                    <span className="px-2 py-0.5 border border-slate-200 dark:border-white/10 rounded-md">v2.1.1</span>
+                    <span className="px-2 py-0.5 border border-slate-200 dark:border-white/10 rounded-md">v2.1.2</span>
                 </div>
             </div>
+            {/* Version bump to force refresh */}
         </footer>
     );
 };
