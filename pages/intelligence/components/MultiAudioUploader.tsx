@@ -57,8 +57,10 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
         });
     };
 
-    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
+    const [isDragging, setIsDragging] = useState(false);
+
+    // Common file processor
+    const processFiles = async (files: File[]) => {
         const processedFiles = await Promise.all(
             files.map(async (file, index) => {
                 const duration = await getAudioDuration(file);
@@ -71,14 +73,38 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
                     duration,
                     size: file.size,
                     extractedDate,
-                    assignedSpeaker:
-                        '',
+                    assignedSpeaker: '',
                     order: index,
                     audioUrl
                 };
             })
         );
         setAudioFiles(prev => [...prev, ...processedFiles]);
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        await processFiles(files);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('audio/'));
+        if (files.length > 0) {
+            await processFiles(files);
+        }
     };
 
     const sortByDate = () => {
@@ -223,12 +249,25 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
                 {step === 'upload' ? (
                     <>
                         {audioFiles.length === 0 ? (
-                            <label className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:border-primary dark:hover:border-primary transition-colors">
-                                <Upload size={48} className="text-slate-400 dark:text-slate-500 mb-4" />
-                                <p className="text-lg font-medium text-slate-900 dark:text-white mb-2">Selecciona audios de conversación</p>
+                            <label
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                className={`flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
+                                        ? 'border-primary bg-blue-50 dark:bg-blue-900/20 scale-[1.02]'
+                                        : 'border-slate-300 dark:border-slate-700 hover:border-primary dark:hover:border-primary'
+                                    }`}
+                            >
+                                <Upload size={48} className={`mb-4 transition-colors ${isDragging ? 'text-primary' : 'text-slate-400 dark:text-slate-500'}`} />
+                                <p className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                                    {isDragging ? '¡Suelta los audios aquí!' : 'Selecciona audios de conversación'}
+                                </p>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Soporta .ogg, .mp3, .m4a, .wav</p>
                                 <input type="file" multiple accept="audio/*" onChange={handleFileSelect} className="hidden" />
-                                <div className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">Explorar archivos</div>
+                                <div className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDragging ? 'bg-blue-600 text-white shadow-lg' : 'bg-primary text-white'
+                                    }`}>
+                                    Explorar archivos
+                                </div>
                             </label>
                         ) : (
                             <div className="space-y-6">
