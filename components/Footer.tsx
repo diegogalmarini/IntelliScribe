@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
 
     return (
         <footer className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-t border-slate-200/50 dark:border-white/10 py-16 px-4 transition-colors duration-200">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
                 {/* Logo & Tagline Area */}
                 <div className="lg:col-span-1">
                     <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
                     </p>
                 </div>
 
-                {/* Column 1: Product */}
+                {/* Column 2: Product */}
                 <div className="flex flex-col gap-4">
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('navFeatures')}</h4>
                     <a href="#features" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('feat1Title')}</a>
@@ -26,7 +26,17 @@ export const Footer: React.FC = () => {
                     <a href="#pricing" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('navPricing')}</a>
                 </div>
 
-                {/* Column 2: Legal */}
+                {/* Column 3: Recording Methods */}
+                <div className="flex flex-col gap-4">
+                    <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">Métodos de Grabación</h4>
+                    <a href="/manual?id=grabadora-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Grabadora de Audio</a>
+                    <a href="/manual?id=grabadora-web" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Extensión de Chrome</a>
+                    <a href="/manual?id=subir-archivos" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Subir Archivos</a>
+                    <a href="/manual?id=multi-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Multi-Audio</a>
+                    <a href="/manual?id=grabadora-llamada" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Grabadora de Llamada</a>
+                </div>
+
+                {/* Column 4: Legal */}
                 <div className="flex flex-col gap-4">
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">Legal</h4>
                     <a href="/terms" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footerTerms')}</a>
@@ -34,7 +44,7 @@ export const Footer: React.FC = () => {
                     <a href="/trust" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Trust Center</a>
                 </div>
 
-                {/* Column 3: Contact */}
+                {/* Column 5: Contact */}
                 <div className="flex flex-col gap-4">
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">Contacto</h4>
                     <a href="mailto:hello@diktalo.com" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">hello@diktalo.com</a>

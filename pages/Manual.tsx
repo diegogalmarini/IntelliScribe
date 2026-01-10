@@ -119,7 +119,20 @@ export const Manual: React.FC = () => {
         setSelectedSectionId(id);
         setView('article');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Update URL without reload
+        const newUrl = `${window.location.pathname}?id=${id}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
     };
+
+    // Deep linking support
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (id && MANUAL_SECTIONS.some(s => s.id === id)) {
+            setSelectedSectionId(id);
+            setView('article');
+        }
+    }, []);
 
     useEffect(() => {
         if (view === 'article' && selectedSectionId) {
