@@ -388,39 +388,17 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                         <p className="text-[#8e8e8e] text-sm mt-1">{new Date().toLocaleDateString()}</p>
                     </div>
 
-                    {/* Mode Tabs */}
-                    <div className="flex gap-2 bg-[#f5f5f5] dark:bg-[#2f2f2f] rounded-lg p-1">
-                        <button
-                            onClick={() => setRecordingMode('meeting')}
-                            disabled={isRecording}
-                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${recordingMode === 'meeting'
-                                ? 'bg-white dark:bg-[#444746] text-[#1f1f1f] dark:text-white shadow-sm'
-                                : 'text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white'
-                                }`}
-                        >
-                            Reunión Presencial
-                        </button>
-                        <button
-                            onClick={() => setRecordingMode('call')}
-                            disabled={isRecording}
-                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${recordingMode === 'call'
-                                ? 'bg-white dark:bg-[#444746] text-[#1f1f1f] dark:text-white shadow-sm'
-                                : 'text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white'
-                                }`}
-                        >
-                            Llamada Telefónica
-                        </button>
-                        <button
-                            onClick={() => setRecordingMode('speaker')}
-                            disabled={isRecording}
-                            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${recordingMode === 'speaker'
-                                ? 'bg-white dark:bg-[#444746] text-[#1f1f1f] dark:text-white shadow-sm'
-                                : 'text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white'
-                                }`}
-                        >
-                            Altavoz
-                        </button>
-                    </div>
+                    {/* Close Button (Replaces Modes & Footer Cancel) */}
+                    <button
+                        onClick={onCancel}
+                        className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors"
+                        title="Cerrar grabadora"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -582,15 +560,6 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                             </p>
                                         </div>
                                     </>
-                                )}
-
-                                {!isRecording && (
-                                    <button
-                                        onClick={onCancel}
-                                        className="px-4 py-2 text-sm text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors"
-                                    >
-                                        Cancelar
-                                    </button>
                                 )}
                             </div>
                         </div>
