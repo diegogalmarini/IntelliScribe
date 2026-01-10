@@ -212,6 +212,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
         onSelectRecording(id);
         setIsEditorOpen(false); // Show RecordingDetailView by default
+        setIsRecording(false); // Close recorder since we are navigating to an existing recording
         console.log(`[Dashboard] View state: isEditorOpen=false, activeId=${id}`);
 
         // Auto-close sidebar on mobile when selecting
