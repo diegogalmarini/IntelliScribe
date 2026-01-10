@@ -39,6 +39,7 @@ interface IntelligenceDashboardProps {
     onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
     initialView?: 'recordings' | 'subscription'; // Added prop
     onSelectFolder?: (folderId: string | null) => void;
+    onAppStateChange?: (state: { isRecording: boolean; isViewingRecording: boolean; isUploading: boolean }) => void;
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -57,7 +58,8 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onRecordingComplete,
     onUpdateRecording,
     initialView = 'recordings', // Default value
-    onSelectFolder
+    onSelectFolder,
+    onAppStateChange
 }) => {
     const { t } = useLanguage();
     const [view, setView] = useState<'recordings' | 'subscription' | 'templates'>(initialView); // View state
@@ -89,6 +91,15 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     // editorRecording removed - using activeRecording source of truth
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
+
+    // Sync Dashboard State to Parent (App.tsx) for Dialer visibility
+    useEffect(() => {
+        onAppStateChange?.({
+            isRecording: isRecording,
+            isViewingRecording: !!selectedId && !isRecording, // Viewing detail or editor
+            isUploading: showMultiAudioUploader || isProcessingMultiAudio
+        });
+    }, [isRecording, selectedId, showMultiAudioUploader, isProcessingMultiAudio]);
     const [isSearching, setIsSearching] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
