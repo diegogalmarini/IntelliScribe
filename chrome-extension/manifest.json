@@ -12,12 +12,21 @@
         "alarms",
         "notifications"
     ],
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
     "host_permissions": [
         "https://www.diktalo.com/*",
         "https://diktalo.com/*"
     ],
     "action": {
-        "default_popup": "popup.html",
         "default_icon": {
             "16": "icons/diktalo.png",
             "48": "icons/diktalo.png",
@@ -35,5 +44,15 @@
     },
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
-    }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "icons/*.png"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
 }

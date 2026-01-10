@@ -411,6 +411,20 @@ const Popup: React.FC = () => {
                 <div className="footer-links">
                     <span
                         className="footer-link"
+                        onClick={() => {
+                            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                                if (tabs[0]?.id) {
+                                    chrome.tabs.sendMessage(tabs[0].id, { action: 'TOGGLE_OVERLAY' });
+                                    window.close(); // Close popup
+                                }
+                            });
+                        }}
+                    >
+                        Modo Flotante
+                    </span>
+                    <span className="divider">|</span>
+                    <span
+                        className="footer-link"
                         onClick={() => !isRecording && setIsConfigExpanded(!isConfigExpanded)}
                         style={{ cursor: isRecording ? 'default' : 'pointer', opacity: isRecording ? 0.5 : 1 }}
                     >

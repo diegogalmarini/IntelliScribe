@@ -28,7 +28,7 @@ interface RecordingDetailViewProps {
 }
 
 // Subcomponent to handle individual image signing
-const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick }: { attachment: any, timeLabel: string, onTimestampClick: (t: string) => void }) => {
+const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageClick }: { attachment: any, timeLabel: string, onTimestampClick: (t: string) => void, onImageClick?: (e: React.MouseEvent, url: string) => void }) => {
     const [signedUrl, setSignedUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -51,9 +51,30 @@ const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick }: { atta
     return (
         <div className="group relative rounded-lg overflow-hidden border border-black/10 dark:border-white/10 cursor-pointer" onClick={() => onTimestampClick(timeLabel)}>
             <img src={signedUrl} alt={`Screenshot at ${timeLabel}`} className="w-full h-32 object-cover hover:scale-105 transition-transform duration-300" />
+
+            {/* Overlay on hover with "View" action */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                {/* Pointer events auto for the icon/button if we wanted a separate button, 
+                 but for now we are making the whole card click seek, and we need a way to VIEW.
+                 Let's split user intent: Click card -> Seek. Click "Eye" icon -> Open Modal.
+                 */}
+                <button
+                    onClick={(e) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        if (onImageClick) onImageClick(e, signedUrl);
+                    }}
+                    className="pointer-events-auto p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/40 text-white transition-colors"
+                    title="Ver imagen completa"
+                >
+                    <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[20px]">visibility</span>
+                    </div>
+                </button>
+            </div>
+
             <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-1 px-2 flex items-center justify-between">
                 <span>{timeLabel}</span>
-                {/* <span className="material-symbols-outlined text-[10px]">open_in_new</span> */}
             </div>
         </div>
     );
@@ -78,6 +99,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
     const [analysisOpen, setAnalysisOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null); // For Image Modal
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
     const [isTranscribing, setIsTranscribing] = useState(false);
 
@@ -542,8 +564,36 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
 
 
+    const handleImageClick = (e: React.MouseEvent, url: string | null) => {
+        e.stopPropagation(); // Prevent timestamp seek if clicked on specific view button
+        if (url) setSelectedImage(url);
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-background-dark">
+            {/* Image Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <div className="relative max-w-5xl max-h-[90vh] w-full flex flex-col items-center">
+                        <button
+                            onClick={() => setSelectedImage(null)}
+                            className="absolute -top-10 right-0 text-white/70 hover:text-white transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                        <img
+                            src={selectedImage}
+                            alt="Full View"
+                            className="rounded-lg shadow-2xl max-w-full max-h-[85vh] object-contain"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             {/* Header */}
             <div className="px-4 md:px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
@@ -756,6 +806,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                             attachment={att}
                                             timeLabel={timeLabel}
                                             onTimestampClick={handleTimestampClick}
+                                            onImageClick={handleImageClick}
                                         />
                                     );
                                 })}

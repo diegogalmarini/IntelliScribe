@@ -27,20 +27,44 @@ const MANUAL_SECTIONS: ManualSection[] = [
         description: 'Aprende a registrarte y dar tus primeros pasos en Diktalo.'
     },
     {
+        id: 'grabadora-audio',
+        title: 'Grabadora de Audio',
+        category: 'Métodos de Grabación',
+        path: '/docs/manual/es/02_metodos_grabacion/grabadora_audio.md',
+        icon: 'mic',
+        description: 'Graba tu voz directamente desde la plataforma (Reuniones presenciales, notas).'
+    },
+    {
         id: 'grabadora-web',
         title: 'Grabadora Web',
         category: 'Métodos de Grabación',
         path: '/docs/manual/es/02_metodos_grabacion/grabadora_web.md',
-        icon: 'mic',
-        description: 'Domina el uso de nuestra grabadora inteligente en el navegador.'
+        icon: 'language', // Changed icon to distinguish
+        description: 'Captura el audio de tus pestañas (Meet, Youtube) con nuestra Extensión.'
     },
     {
         id: 'subir-archivos',
-        title: 'Subir Archivos y Multi-Audio',
+        title: 'Subir Archivos',
         category: 'Métodos de Grabación',
         path: '/docs/manual/es/02_metodos_grabacion/subir_archivos.md',
         icon: 'upload_file',
-        description: 'Cómo procesar archivos de audio existentes y usar el modo multi-voz.'
+        description: 'Importa archivos de audio o video existentes para transcribir.'
+    },
+    {
+        id: 'multi-audio',
+        title: 'Multi-Audio',
+        category: 'Métodos de Grabación',
+        path: '/docs/manual/es/02_metodos_grabacion/multi_audio.md',
+        icon: 'group_work',
+        description: 'Sube múltiples archivos y asígnalos a diferentes hablantes.'
+    },
+    {
+        id: 'grabadora-llamada',
+        title: 'Grabadora de Llamada',
+        category: 'Métodos de Grabación',
+        path: '/docs/manual/es/02_metodos_grabacion/grabadora_llamada.md',
+        icon: 'call',
+        description: 'Registra tus llamadas telefónicas importantes.'
     },
     {
         id: 'ask-diktalo',

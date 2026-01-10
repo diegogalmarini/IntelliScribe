@@ -29,6 +29,16 @@ async function clearState() {
 }
 
 // Listen for messages from popup
+// Toggle Overlay on Icon Click
+chrome.action.onClicked.addListener((tab) => {
+    if (tab.id) {
+        // Ensure content script is ready or inject it if needed (optional optimization, but we rely on manifest injection for now)
+        chrome.tabs.sendMessage(tab.id, { action: 'TOGGLE_OVERLAY' }).catch(err => {
+            console.warn('Could not send toggle message, specific tab might not support content scripts', err);
+        });
+    }
+});
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     console.log('[Background] Received message:', message);
 

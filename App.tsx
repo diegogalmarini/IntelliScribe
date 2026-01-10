@@ -12,7 +12,6 @@ import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { Manual } from './pages/Manual';
 import { ResetPassword } from './pages/ResetPassword';
-import { ManualViewer } from './components/Manual';
 import { AppRoute, Recording, IntegrationState, UserProfile, NoteItem, MediaItem, Folder } from './types';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
