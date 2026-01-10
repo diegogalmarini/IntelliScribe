@@ -425,9 +425,9 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
                 {/* Left: Recording Area */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col min-h-[450px] lg:min-h-0">
                     {/* Device Selector */}
                     <div className="px-8 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                         <div className="relative inline-block">
@@ -597,8 +597,8 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                     </div>
                 </div>
 
-                {/* Right: Notes Panel */}
-                <div className="w-80 border-l border-black/[0.05] dark:border-white/[0.05] flex flex-col">
+                {/* Right: Notes Panel - Stacks on bottom on mobile */}
+                <div className="w-full lg:w-80 h-[400px] lg:h-auto flex-shrink-0 border-t lg:border-t-0 lg:border-l border-black/[0.05] dark:border-white/[0.05] flex flex-col bg-white dark:bg-[#1a1a1a]">
                     <div className="px-4 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                         <h3 className="text-sm font-medium text-[#1f1f1f] dark:text-white">Notas</h3>
                     </div>
