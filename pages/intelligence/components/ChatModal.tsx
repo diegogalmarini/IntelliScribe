@@ -22,6 +22,11 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [localRecordings, setLocalRecordings] = useState<Recording[]>(recordings);
 
+    // Sync local state when props change (CRITICAL for updates like renamed speakers)
+    useEffect(() => {
+        setLocalRecordings(recordings);
+    }, [recordings]);
+
     // Helper to parse message content and extract action
     const parseMessage = (content: string) => {
         // Regex to match [OPEN_RECORDING: id] at end of string or anywhere
