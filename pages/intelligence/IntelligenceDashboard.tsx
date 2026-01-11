@@ -817,6 +817,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     isOpen={isSidebarOpen}
                     onToggle={() => setIsSidebarOpen(false)}
                     isRecording={isRecording}
+                    onAddFolder={onAddFolder}
+                    onRenameFolder={onRenameFolder}
+                    onDeleteFolder={onDeleteFolder}
                 />
             </div>
 

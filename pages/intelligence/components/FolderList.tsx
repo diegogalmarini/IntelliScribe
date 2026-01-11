@@ -129,7 +129,7 @@ export const FolderList: React.FC<FolderListProps> = ({
                     <span className="truncate">{t('allFiles')}</span>
                 </button>
 
-                {folders.map(folder => (
+                {(folders || []).map(folder => (
                     <div
                         key={folder.id}
                         className={`group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${selectedFolderId === folder.id
