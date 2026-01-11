@@ -472,7 +472,7 @@ export const databaseService = {
     async checkUsageLimit(userId: string): Promise<{ allowed: boolean; message?: string }> {
         const { data, error } = await supabase
             .from('profiles')
-            .select('minutes_used, minutes_limit')
+            .select('minutes_used, minutes_limit, subscription_status')
             .eq('id', userId)
             .single();
 
@@ -481,8 +481,57 @@ export const databaseService = {
             return { allowed: false, message: 'Error verifying account limits.' };
         }
 
+        // Check if account is paused/banned
+        if (data.subscription_status !== 'active') {
+            return { allowed: false, message: 'Your account is paused. Please update your payment method.' };
+        }
+
         if ((data.minutes_used || 0) >= (data.minutes_limit || 0)) {
             return { allowed: false, message: 'You have reached your monthly limit. Please upgrade your plan.' };
+        }
+
+        return { allowed: true };
+    },
+
+    /**
+     * Check if user has storage quota available
+     * @param userId - User ID
+     * @param fileSize - Size of file to upload in bytes
+     * @returns allowed boolean and optional message
+     */
+    async checkStorageLimit(userId: string, fileSize: number): Promise<{ allowed: boolean; message?: string }> {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('storage_used, storage_limit, plan_id')
+            .eq('id', userId)
+            .single();
+
+        if (error || !data) {
+            console.error('Error checking storage limits:', error);
+            return { allowed: false, message: 'Error verifying storage limits.' };
+        }
+
+        // Free plan doesn't have storage limit (uses 7-day retention)
+        if (data.plan_id === 'free') {
+            return { allowed: true };
+        }
+
+        const currentUsage = data.storage_used || 0;
+        const limit = data.storage_limit || 0;
+
+        if (limit === 0) {
+            return { allowed: true }; // No limit set
+        }
+
+        const wouldExceed = (currentUsage + fileSize) > limit;
+
+        if (wouldExceed) {
+            const usedGB = (currentUsage / 1073741824).toFixed(2);
+            const limitGB = (limit / 1073741824).toFixed(2);
+            return {
+                allowed: false,
+                message: `Storage limit reached (${usedGB}/${limitGB} GB). Please delete old recordings or upgrade your plan.`
+            };
         }
 
         return { allowed: true };

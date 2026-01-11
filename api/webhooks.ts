@@ -97,7 +97,8 @@ export default async function handler(req: any, res: any) {
 
                     // Aplicar límites dinámicos leídos de la tabla plans_configuration
                     minutes_limit: limits.transcription_minutes,
-                    storage_limit: (limits.storage_gb || 0) * 1024 * 1024 * 1024,
+                    storage_limit: (limits.storage_gb || 0) * 1073741824,  // GB to bytes
+                    call_limit: limits.call_minutes || 0,
 
                     // Sincronizar fecha de reseteo: Hoy + 1 mes
                     usage_reset_date: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),

@@ -583,6 +583,20 @@ const AppContent: React.FC = () => {
         const success = await databaseService.deleteRecording(id);
 
         if (success) {
+            // Return minutes to user's quota
+            if (recording.durationSeconds && recording.durationSeconds > 0) {
+                await databaseService.decrementUsage(supabaseUser.id, recording.durationSeconds);
+
+                // Update local user state to reflect returned minutes
+                setUser(prev => ({
+                    ...prev,
+                    subscription: {
+                        ...prev.subscription,
+                        minutesUsed: Math.max(0, prev.subscription.minutesUsed - Math.ceil(recording.durationSeconds / 60))
+                    }
+                }));
+            }
+
             setRecordings(prev => prev.filter(r => r.id !== id));
             if (activeRecordingId === id) setActiveRecordingId(null);
         } else {
