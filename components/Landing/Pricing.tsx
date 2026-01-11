@@ -93,7 +93,7 @@ export const Pricing: React.FC = () => {
                         />
                     </button>
                     <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
-                        Anual <span className="text-green-600 font-bold ml-1">-30%</span>
+                        Anual <span className="text-green-600 font-bold ml-1">-25%</span>
                     </span>
                 </div>
             </div>
@@ -109,11 +109,7 @@ export const Pricing: React.FC = () => {
                     return (
                         <div key={plan.id} className={`relative p-6 bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-sm border transition-all hover:shadow-md flex flex-col ${isHighlight ? 'border-blue-500 ring-1 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800'
                             }`}>
-                            {plan.badge_text && (
-                                <span className="absolute top-0 right-0 -mt-2.5 mr-4 px-2.5 py-0.5 bg-blue-600 text-white text-[10px] uppercase font-bold rounded-full tracking-wide">
-                                    {plan.badge_text}
-                                </span>
-                            )}
+
 
                             <div className="mb-4">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{plan.name}</h3>
@@ -167,16 +163,7 @@ export const Pricing: React.FC = () => {
                 })}
             </div>
 
-            {/* Comparison Button */}
-            <div className="text-center mb-16">
-                <a
-                    href="/pricing"
-                    className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                >
-                    Ver comparativa completa
-                    <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </a>
-            </div>
+
 
             {/* Comparison Table */}
             <div className="mb-16">
