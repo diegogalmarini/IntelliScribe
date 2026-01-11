@@ -35,7 +35,7 @@ export default async function handler(req: any, res: any) {
         const { data, error } = await resend.emails.send({
             from: fromAddress,
             to: [to],
-            reply_to: replyTo,
+            replyTo: replyTo,
             subject: subject,
             html: html,
         });
