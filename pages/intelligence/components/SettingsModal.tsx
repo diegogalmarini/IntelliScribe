@@ -136,6 +136,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         timezone: user.timezone || 'Europe/Madrid'
     });
 
+    // Save Feedback State
+    const [showSaved, setShowSaved] = useState(false);
+    const triggerSaveFeedback = () => {
+        setShowSaved(true);
+        setTimeout(() => setShowSaved(false), 2000);
+    };
+
     // EFFECT: Sync local state with User prop updates involves
     useEffect(() => {
         setPersonalInfo(prev => ({
@@ -437,6 +444,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <X size={20} />
                         </button>
                     )}
+
+                    {/* Save Indicator */}
+                    <div className={`absolute top-6 right-16 flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full transition-opacity duration-300 ${showSaved ? 'opacity-100' : 'opacity-0'}`}>
+                        <Check size={14} />
+                        <span>{t('saved')}</span>
+                    </div>
 
                     <div className="flex-1 overflow-y-auto px-6 py-6 md:px-12 md:py-10">
                         {/* --- ACCOUNT SECTION --- */}
@@ -743,6 +756,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     setLanguage(val as 'en' | 'es');
                                                     // Sync with user profile for persistence
                                                     handleUpdateUser({ language: val as 'en' | 'es' });
+                                                    triggerSaveFeedback();
                                                 }}
                                                 options={[
                                                     { value: 'en', label: 'English' },
@@ -762,6 +776,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 onChange={(val) => {
                                                     setTranscriptionLang(val);
                                                     handleUpdateUser({ transcriptionLanguage: val });
+                                                    triggerSaveFeedback();
                                                 }}
                                                 options={[
                                                     { value: 'es', label: 'Español' },

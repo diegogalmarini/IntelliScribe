@@ -593,7 +593,8 @@ export const translations = {
     password_updated: "Password updated successfully",
     password_mismatch: "Passwords do not match",
     password_min_length: "Password must be at least 6 characters",
-    save_password: "Update Password"
+    save_password: "Update Password",
+    saved: "Saved"
   },
   es: {
     // Auth
@@ -1208,6 +1209,7 @@ export const translations = {
     confirm_password_placeholder: "Confirmar nueva contraseña",
     password_updated: "Contraseña actualizada correctamente",
     password_mismatch: "Las contraseñas no coinciden",
-    password_min_length: "La contraseña debe tener al menos 6 caracteres"
+    password_min_length: "La contraseña debe tener al menos 6 caracteres",
+    saved: "Guardado"
   }
 };
