@@ -26,6 +26,7 @@ import { SupportBot } from './components/SupportBot/SupportBot';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
 import { Privacy } from './pages/legal/Privacy';
+import { PricingComparison } from './pages/PricingComparison'; // NEW
 import { TrustCenter } from './pages/legal/TrustCenter';
 import { Cookies } from './pages/legal/Cookies';
 import { useIdleTimer } from './hooks/useIdleTimer';
@@ -60,6 +61,7 @@ const AppContent: React.FC = () => {
         if (path === '/trust') return AppRoute.TRUST;
         if (path === '/cookies') return AppRoute.COOKIES;
         if (path === '/login') return AppRoute.LOGIN;
+        if (path === '/pricing') return AppRoute.PRICING_COMPARISON; // NEW
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         if (path === '/intelligence') return AppRoute.INTELLIGENCE;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
@@ -78,6 +80,7 @@ const AppContent: React.FC = () => {
         if (isResetPassword) newRoute = AppRoute.RESET_PASSWORD;
         else if (path === '/terms') newRoute = AppRoute.TERMS;
         else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
+        else if (path === '/pricing') newRoute = AppRoute.PRICING_COMPARISON; // NEW
         else if (path === '/trust') newRoute = AppRoute.TRUST;
         else if (path === '/cookies') newRoute = AppRoute.COOKIES;
         else if (path === '/login') newRoute = AppRoute.LOGIN;
@@ -469,6 +472,7 @@ const AppContent: React.FC = () => {
             [AppRoute.TERMS]: '/terms',
             [AppRoute.PRIVACY]: '/privacy',
             [AppRoute.TRUST]: '/trust',
+            [AppRoute.PRICING_COMPARISON]: '/pricing', // NEW
             [AppRoute.COOKIES]: '/cookies',
             [AppRoute.RESET_PASSWORD]: '/reset-password',
             [AppRoute.ADMIN_OVERVIEW]: '/admin',
@@ -866,6 +870,12 @@ const AppContent: React.FC = () => {
                         <div className="flex-1 flex flex-col items-center justify-center p-4">
                             <ResetPassword onNavigate={navigate} />
                         </div>
+                    )}
+
+                    {currentRoute === AppRoute.PRICING_COMPARISON && (
+                        <ScrollablePage>
+                            <PricingComparison />
+                        </ScrollablePage>
                     )}
 
 
