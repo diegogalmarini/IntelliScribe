@@ -145,7 +145,8 @@ export enum AppRoute {
   ADMIN_PLANS = 'admin-plans', // <--- NUEVA RUTA AGREGADA
   INTELLIGENCE = 'intelligence', // NEW: Intelligence Dashboard (testing)
   TRUST = 'trust',
-  COOKIES = 'cookies'
+  COOKIES = 'cookies',
+  PRICING_COMPARISON = 'pricing-comparison' // NEW
 }
 
 // ========== ADMIN TYPES ==========

@@ -108,34 +108,44 @@ export const Pricing: React.FC = () => {
                 ) */}
             </div>
 
-            {/* Grid de Planes Dinámico */}
-            <div className="grid md:grid-cols-3 gap-8">
+            {/* Grid de Planes Dinámico - 4 Columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                 {plans.map((plan) => {
                     const monthlyPrice = plan.price_monthly;
                     const annualPrice = plan.price_annual;
                     // Precio mensual equivalente al pagar anual
                     const annualMonthlyEquiv = annualPrice > 0 ? Math.round(annualPrice / 12) : 0;
 
+                    // Determine button style based on highlight
+                    const isHighlight = plan.highlight;
+
                     return (
-                        <div key={plan.id} className={`relative p-8 bg-white rounded-2xl shadow-lg border ${plan.highlight ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'}`}>
+                        <div key={plan.id} className={`relative p-6 bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-sm border transition-all hover:shadow-md flex flex-col ${isHighlight ? 'border-blue-500 ring-1 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800'
+                            }`}>
                             {plan.badge_text && (
-                                <span className="absolute top-0 right-0 -mt-3 mr-3 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
+                                <span className="absolute top-0 right-0 -mt-2.5 mr-4 px-2.5 py-0.5 bg-blue-600 text-white text-[10px] uppercase font-bold rounded-full tracking-wide">
                                     {plan.badge_text}
                                 </span>
                             )}
-                            <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
-                            <p className="text-sm text-slate-500 mt-2 h-10">{plan.description}</p>
 
-                            <div className="my-6">
-                                <span className="text-4xl font-extrabold text-slate-900">
+                            <div className="mb-4">
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{plan.name}</h3>
+                                {/* Short Description Line */}
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 h-8">
+                                    {plan.description}
+                                </p>
+                            </div>
+
+                            <div className="mb-6">
+                                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
                                     {billingInterval === 'annual' && annualPrice > 0
                                         ? `${annualMonthlyEquiv}€`
                                         : `${monthlyPrice}€`
                                     }
                                 </span>
-                                <span className="text-slate-500">/mes</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-500 font-medium">/mes</span>
                                 {billingInterval === 'annual' && annualPrice > 0 && (
-                                    <p className="text-xs text-green-600 mt-1 font-semibold">
+                                    <p className="text-[10px] text-green-600 mt-1 font-bold">
                                         Facturado {annualPrice}€ anualmente
                                     </p>
                                 )}
@@ -143,25 +153,27 @@ export const Pricing: React.FC = () => {
 
                             <a
                                 href="/login"
-                                className={`block w-full py-3 px-4 rounded-lg text-center font-bold transition-all ${plan.highlight
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                                className={`mt-auto block w-full py-2.5 px-4 rounded-lg text-center text-sm font-bold transition-all ${isHighlight
+                                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-500/20'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                                     }`}
                             >
-                                {plan.id === 'free' ? 'Empezar Gratis' : plan.id === 'pro' ? 'Empezar con Pro' : plan.id === 'business' ? 'Ir a Business' : 'Obtener Business +'}
+                                {plan.id === 'free' ? 'Empezar Gratis' : 'Elegir Plan'}
                             </a>
-
-                            <ul className="mt-8 space-y-4">
-                                {(plan.features || []).map((feature, i) => (
-                                    <li key={i} className="flex items-start">
-                                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                                        <span className="text-sm text-slate-600">{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
                         </div>
                     );
                 })}
+            </div>
+
+            {/* Comparison Button */}
+            <div className="text-center">
+                <a
+                    href="/pricing"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                >
+                    Ver comparativa completa
+                    <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </a>
             </div>
         </div>
     );
