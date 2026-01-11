@@ -114,49 +114,97 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
             doc.setTextColor(50);
             doc.setFont("helvetica", "normal");
 
-            // Clean markdown and formatting using regex replacement for bullets
-            let summaryText = recording.summary
-                .replace(/\*\*/g, '') // remove bold markers
-                .replace(/###/g, '') // remove header markers
-                .replace(/^\s*-\s/gm, '• ') // replace "- " with bullet at start of line
-                .replace(/^\s*\*\s/gm, '• ') // replace "* " with bullet at start of line
-                .replace(/\n\n/g, '\n'); // Remove excessive gaps
+            // Define regex for images: ![alt](url)
+            const imageRegex = /!\[(.*?)\]\((.*?)\)/g;
+            let lastIndex = 0;
+            let match;
 
-            // Split into paragraphs to handle indentation per logical block
-            const paragraphs = summaryText.split('\n');
+            // We need to process sequentially to respect layout (Text -> Image -> Text)
+            // Since we need to await getBase64, we can't just use a simple loop.
+            // We'll build a list of operations.
+            const parts: { type: 'text' | 'image', content: string, url?: string }[] = [];
 
-            paragraphs.forEach(para => {
-                let currentIndent = margin;
-                let currentWidth = contentWidth;
-
-                // Logic for indentation
-                if (/^\d+\./.test(para)) {
-                    // Numbered list (e.g. "1.")
-                    currentIndent += 5;
-                    currentWidth -= 5;
-                } else if (para.trim().startsWith('•')) {
-                    // Bullet point
-                    currentIndent += 10;
-                    currentWidth -= 10;
+            while ((match = imageRegex.exec(recording.summary)) !== null) {
+                // Text before image
+                if (match.index > lastIndex) {
+                    parts.push({ type: 'text', content: recording.summary.substring(lastIndex, match.index) });
                 }
+                // Image
+                parts.push({ type: 'image', content: match[1], url: match[2] });
+                lastIndex = match.index + match[0].length;
+            }
+            // Retaining text
+            if (lastIndex < recording.summary.length) {
+                parts.push({ type: 'text', content: recording.summary.substring(lastIndex) });
+            }
 
-                const lines = doc.splitTextToSize(para, currentWidth);
+            for (const part of parts) {
+                if (part.type === 'text') {
+                    // Clean markdown and formatting using regex replacement for bullets
+                    let summaryText = part.content
+                        .replace(/\*\*/g, '') // remove bold markers
+                        .replace(/###/g, '') // remove header markers
+                        .replace(/^\s*-\s/gm, '• ') // replace "- " with bullet at start of line
+                        .replace(/^\s*\*\s/gm, '• ') // replace "* " with bullet at start of line
+                    // .replace(/\n\n/g, '\n'); // Keep gaps for now logic
 
-                doc.setFontSize(bodyFontSize);
-                lines.forEach((line: string) => {
-                    if (y > pageHeight - margin - 10) {
-                        doc.addPage();
-                        y = margin;
+                    // Split into paragraphs to handle indentation per logical block
+                    const paragraphs = summaryText.split('\n');
+
+                    paragraphs.forEach(para => {
+                        if (!para.trim()) return; // Skip empty lines if double newline
+
+                        let currentIndent = margin;
+                        let currentWidth = contentWidth;
+
+                        // Logic for indentation
+                        if (/^\d+\./.test(para)) {
+                            currentIndent += 5;
+                            currentWidth -= 5;
+                        } else if (para.trim().startsWith('•')) {
+                            currentIndent += 10;
+                            currentWidth -= 10;
+                        }
+
+                        const lines = doc.splitTextToSize(para, currentWidth);
+
+                        doc.setFontSize(bodyFontSize);
+                        lines.forEach((line: string) => {
+                            if (y > pageHeight - margin - 10) {
+                                doc.addPage();
+                                y = margin;
+                            }
+                            doc.text(line, currentIndent, y);
+                            y += lineHeight;
+                        });
+                        y += 2; // Paragraph gap
+                    });
+                } else if (part.type === 'image' && part.url) {
+                    try {
+                        // Check pagination
+                        if (y > pageHeight - margin - 60) {
+                            doc.addPage();
+                            y = margin;
+                        }
+
+                        // Fetch image
+                        const base64 = await getBase64ImageFromUrl(part.url);
+                        if (base64) {
+                            // Max width constrained
+                            const imgWidth = 100; // Fixed width for screenshots
+                            const imgHeight = 60; // Approximate 16:9
+
+                            // Centered
+                            const xPos = (pageWidth - imgWidth) / 2;
+                            doc.addImage(base64, 'PNG', xPos, y, imgWidth, imgHeight);
+                            y += imgHeight + 5;
+                        }
+                    } catch (err) {
+                        console.error('Error rendering image in PDF', err);
                     }
-                    doc.text(line, currentIndent, y);
-                    y += lineHeight;
-                });
-
-                // Extra space after logical segments? Maybe just standard line height is fine.
-                // y += 1; 
-            });
-
-            y += 10;
+                }
+            }
+            y += 5;
         }
 
         // --- TRANSCRIPT SECTION ---
@@ -290,6 +338,7 @@ export const exportAsDoc = (recording: Recording, options: ExportOptions = { inc
             // Let's rely on simple <p>• content</p> which Word handles perfectly as a bullet visual
 
             summaryHtml = recording.summary
+                .replace(/!\[(.*?)\]\((.*?)\)/g, '<br/><img src="$2" alt="$1" width="450" style="display:block; margin: 10px auto;" /><br/>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/### (.*?)/g, '<h3>$1</h3>')
                 .replace(/^\s*[-*]\s(.*)$/gm, '<p style="margin-left: 20px;">• $1</p>'); // Bullet emulation

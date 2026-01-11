@@ -193,8 +193,25 @@ const DraggableOverlay: React.FC = () => {
                 setStatus('success');
                 setTimeout(() => setStatus('idle'), 3000);
             } else {
-                setError(response?.error);
-                setStatus('error');
+                // Check if we have backup data to save
+                if (response?.backupAudioData) {
+                    console.warn('Upload failed but audio saved. Offering download.');
+
+                    // Trigger download
+                    const link = document.createElement('a');
+                    link.href = response.backupAudioData; // Data URL
+                    link.download = `diktalo-recording-${Date.now()}.webm`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    setError(`${response.error}\n\nSE HA GUARDADO EN TU PC.`);
+                    setStatus('error');
+                    setIsRecording(false);
+                } else {
+                    setError(response?.error);
+                    setStatus('error');
+                }
             }
         });
     };
@@ -229,11 +246,38 @@ const DraggableOverlay: React.FC = () => {
     };
 
     const handleSaveToken = () => {
-        const val = authToken.trim();
-        // Simple save for now
-        chrome.storage.local.set({ authToken: val }, () => {
+        let val = authToken.trim();
+        let refreshVal = '';
+
+        try {
+            // Smart Parse: If user pastes JSON, extract the tokens
+            if (val.startsWith('{') || val.includes('access_token')) {
+                const json = JSON.parse(val);
+                if (json.access_token) val = json.access_token;
+                if (json.refresh_token) refreshVal = json.refresh_token;
+
+                // Also handle Supervisor/GoTrue format just in case
+                if (json.session) {
+                    if (json.session.access_token) val = json.session.access_token;
+                    if (json.session.refresh_token) refreshVal = json.session.refresh_token;
+                }
+            }
+        } catch (e) {
+            // Not valid JSON, assume it's just the raw token string
+            console.log('Token input is raw string');
+        }
+
+        const updates: any = { authToken: val };
+        if (refreshVal) updates.refreshToken = refreshVal;
+
+        chrome.storage.local.set(updates, () => {
             setError(null);
             setIsConfigExpanded(false);
+
+            // Visual feedback
+            const originalStatus = status;
+            setStatus('success');
+            setTimeout(() => setStatus(originalStatus), 1000);
         });
     };
 
