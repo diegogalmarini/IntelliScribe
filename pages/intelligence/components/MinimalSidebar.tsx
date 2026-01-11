@@ -200,6 +200,10 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     onSelectFolder={onSelectFolder}
                     selectedFolderId={selectedFolderId || null}
                     userId={user?.id}
+                    folders={folders}
+                    onCreateFolder={onAddFolder}
+                    onRenameFolder={onRenameFolder}
+                    onDeleteFolder={onDeleteFolder}
                 />
             )}
 
