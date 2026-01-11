@@ -40,6 +40,10 @@ interface IntelligenceDashboardProps {
     initialView?: 'recordings' | 'subscription'; // Added prop
     onSelectFolder?: (folderId: string | null) => void;
     onAppStateChange?: (state: { isRecording: boolean; isViewingRecording: boolean; isUploading: boolean }) => void;
+    // Folder Actions
+    onAddFolder?: (name: string) => Promise<void>;
+    onRenameFolder?: (id: string, name: string) => Promise<void>;
+    onDeleteFolder?: (id: string) => Promise<void>;
 }
 
 export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -59,7 +63,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onUpdateRecording,
     initialView = 'recordings', // Default value
     onSelectFolder,
-    onAppStateChange
+    onAppStateChange,
+    onAddFolder,
+    onRenameFolder,
+    onDeleteFolder
 }) => {
     const { t } = useLanguage();
     const [view, setView] = useState<'recordings' | 'subscription' | 'templates'>(initialView); // View state

@@ -22,6 +22,11 @@ interface MinimalSidebarProps {
     selectedFolderId?: string | null;
     onSelectFolder?: (folderId: string | null) => void;
 
+    // Folder Actions
+    onAddFolder?: (name: string) => Promise<void>;
+    onRenameFolder?: (id: string, name: string) => Promise<void>;
+    onDeleteFolder?: (id: string) => Promise<void>;
+
     onLogoClick?: () => void;
     currentView: 'recordings' | 'subscription' | 'templates';
     onViewChange: (view: 'recordings' | 'subscription' | 'templates') => void;
@@ -49,6 +54,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     folders = [],
     selectedFolderId = null,
     onSelectFolder,
+    onAddFolder,
+    onRenameFolder,
+    onDeleteFolder,
 
     onLogoClick,
     currentView,
