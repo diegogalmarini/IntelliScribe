@@ -238,7 +238,7 @@ const AppContent: React.FC = () => {
                 phoneVerified: data.phone_verified || false,
                 // Fallback to localStorage if DB fields are missing
                 timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
-                language: data.language || 'es', // Persist in state
+                language: (data.language || localStorage.getItem(`diktalo_settings_language_${supabaseUser.id}`) || 'es') as 'en' | 'es', // Persist in state with LS fallback
                 transcriptionLanguage: data.transcription_language || localStorage.getItem(`diktalo_settings_transcription_lang_${supabaseUser.id}`) || prev.transcriptionLanguage,
                 notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
                 role: data.role || 'Member',
@@ -556,6 +556,9 @@ const AppContent: React.FC = () => {
             }
             if (updatedUser.transcriptionLanguage) {
                 localStorage.setItem(`diktalo_settings_transcription_lang_${targetUserId}`, updatedUser.transcriptionLanguage);
+            }
+            if (updatedUser.language) {
+                localStorage.setItem(`diktalo_settings_language_${targetUserId}`, updatedUser.language);
             }
             // Attempt DB update
             await databaseService.updateUserProfile(targetUserId, updatedUser);
