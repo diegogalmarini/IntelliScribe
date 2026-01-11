@@ -1000,11 +1000,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         <div className="h-full pt-12 md:pt-0">
                             <EmptyStateClean
                                 userName={user?.firstName || 'Usuario'}
-                                onAction={(type) => {
-                                    if (type === 'record') handleNewRecording();
-                                    if (type === 'upload') fileInputRef.current?.click();
-                                    if (type === 'multiaudio') setShowMultiAudioUploader(true);
-                                }}
+                                onAction={handleAction}
                             />
                         </div>
                     )}
