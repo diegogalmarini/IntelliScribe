@@ -150,7 +150,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                             </div>
                             {billingInterval === 'annual' && (
                                 <span className="text-[12px] font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded">
-                                    {t('billing_save')}
+                                    Ahorra 25%
                                 </span>
                             )}
                         </div>
