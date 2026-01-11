@@ -378,6 +378,13 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
     const handleSummarize = async () => {
         if (segments.length === 0) return;
+
+        // Plan gating: Free users cannot generate summaries
+        if (user.subscription.planId === 'free') {
+            setShowLimitModal(true);
+            return;
+        }
+
         setIsSummarizing(true);
         setSummaryError(null);
         setShowSummaryModal(true); // Abrir modal de inmediato para mostrar estado de carga
@@ -426,6 +433,13 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     // Chat Logic
     const handleAskDiktalo = async () => {
         if (!query.trim()) return;
+
+        // Plan gating: Free users cannot use Ask Diktalo
+        if (user.subscription.planId === 'free') {
+            setShowLimitModal(true);
+            setQuery('');
+            return;
+        }
 
         const newMsg: ChatMessage = { id: Date.now().toString(), role: 'user', text: query, timestamp: new Date() };
         setChatHistory(prev => [...prev, newMsg]);
