@@ -336,7 +336,7 @@ export const translations = {
     plans_header: "Choose Your Plan",
     billing_monthly: "Monthly",
     billing_annual: "Annual billing",
-    billing_save: "Save 40%",
+    billing_save: "Save 25%",
     plan_month_suffix: "/month",
     plan_annual_suffix: "billed annually",
     plan_current: "Current Plan",
