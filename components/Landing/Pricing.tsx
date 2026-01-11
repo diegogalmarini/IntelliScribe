@@ -56,8 +56,13 @@ export const Pricing: React.FC = () => {
                     .eq('key', 'legal_footer_text')
                     .single();
 
+                console.log('[Pricing] Legal footer fetch:', { settingsData, settingsError });
+
                 if (!settingsError && settingsData) {
+                    console.log('[Pricing] Setting legal footer:', settingsData.value);
                     setLegalFooter(settingsData.value);
+                } else {
+                    console.warn('[Pricing] No legal footer found or error:', settingsError);
                 }
             } catch (err) {
                 console.error('Error loading landing data:', err);
