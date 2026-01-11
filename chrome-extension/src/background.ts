@@ -2,6 +2,18 @@
 // Handles tab audio capture and communication with popup
 
 // --- State Management Helpers ---
+// Import GA
+import { fireEvent } from './utils/google-analytics';
+
+// GA Lifecycle Events
+chrome.runtime.onInstalled.addListener(() => {
+    fireEvent('app_install');
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    fireEvent('session_start');
+});
+
 async function saveState(state: any) {
     await chrome.storage.session.set(state);
 }

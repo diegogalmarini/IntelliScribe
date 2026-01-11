@@ -411,7 +411,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             setShowMultiAudioUploader(true);
         }
         if (type === 'extension') {
-            window.open('https://chromewebstore.google.com/category/extensions?utm_source=ext_sidebar&hl=es', '_blank');
+            window.open('https://chromewebstore.google.com/detail/gamgfdgjlmnohikeicknbdplagigoeml?utm_source=item-share-cb', '_blank');
         }
     };
 

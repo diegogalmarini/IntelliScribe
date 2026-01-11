@@ -1,7 +1,8 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import * as React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import './Popup.css';
+import { fireEvent } from './utils/google-analytics';
 
 // Lucide-like icons (simple SVG components for the extension)
 const MicIcon = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /><line x1="8" x2="16" y1="22" y2="22" /></svg>;
@@ -25,6 +26,12 @@ const Popup: React.FC = () => {
 
     // Poll current status on mount
     useEffect(() => {
+        // GA Tracking
+        fireEvent('page_view', {
+            page_title: 'Diktalo Popup',
+            page_location: 'popup.html'
+        });
+
         chrome.runtime.sendMessage({ action: 'GET_STATUS' }, (response) => {
             if (response && response.isRecording) {
                 setIsRecording(true);
@@ -78,8 +85,6 @@ const Popup: React.FC = () => {
             }
         });
     };
-
-    // ... (Timer logic omitted for brevity, it's unchanged) ...
 
     // Timer logic
     useEffect(() => {
