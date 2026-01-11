@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Diktalo - AI Voice Recorder & Transcriber",
-    "version": "1.0.3",
+    "version": "1.0.6",
     "description": "Graba, transcribe y resume tus reuniones y notas de voz con Inteligencia Artificial.",
     "permissions": [
         "tabCapture",
@@ -24,7 +24,8 @@
     ],
     "host_permissions": [
         "https://www.diktalo.com/*",
-        "https://diktalo.com/*"
+        "https://diktalo.com/*",
+        "https://www.google-analytics.com/*"
     ],
     "action": {
         "default_icon": {
