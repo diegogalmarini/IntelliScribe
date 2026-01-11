@@ -1,16 +1,9 @@
 import { Resend } from 'resend';
 
-// -----------------------------------------------------------------------------
-// CONFIGURATION & TYPES
-// -----------------------------------------------------------------------------
-
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Definimos los canales de comunicación oficiales de Diktalo
 type EmailChannel = 'system' | 'support' | 'legal' | 'security';
 
-// Mapeo de identidades de envío (Domain Sending Identities)
-// NOTA: Asegúrate de que el dominio 'diktalo.com' esté verificado en el dashboard de Resend.
 const SENDERS: Record<EmailChannel, string> = {
     system: 'Diktalo System <noreply@diktalo.com>',
     support: 'Diktalo Support <support@diktalo.com>',
@@ -18,79 +11,43 @@ const SENDERS: Record<EmailChannel, string> = {
     security: 'Diktalo Security <security@diktalo.com>',
 };
 
-interface EmailPayload {
-    to: string;
-    subject: string;
-    html: string;
-    channel?: EmailChannel; // Opcional, defecto: 'system'
-    replyTo?: string;       // Crucial para la estrategia "Lean" (Gmail forwarding)
-}
-
-// -----------------------------------------------------------------------------
-// MAIN HANDLER
-// -----------------------------------------------------------------------------
-
-export default async function handler(request: Request) {
+export default async function handler(req: any, res: any) {
     // 1. Validación de Método
-    if (request.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-            status: 405,
-            headers: { 'Content-Type': 'application/json' },
-        });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // 2. Validación de Entorno
+    // 2. Validación de Clave API
     if (!process.env.RESEND_API_KEY) {
-        console.error('❌ CRITICAL: RESEND_API_KEY is missing in environment variables.');
-        return new Response(JSON.stringify({ error: 'Server configuration error' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        console.error('❌ Missing RESEND_API_KEY');
+        return res.status(500).json({ error: 'Server configuration error' });
     }
 
     try {
-        // 3. Parseo y Validación de Payload
-        // Nota: Usamos request.json() estándar de Fetch API (Vercel Edge/Node compat)
-        const body = await request.json() as EmailPayload;
-        const { to, subject, html, channel = 'system', replyTo } = body;
+        const { to, subject, html, channel = 'system', replyTo } = req.body;
 
         if (!to || !subject || !html) {
-            return new Response(JSON.stringify({ error: 'Missing required fields: to, subject, or html' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        // 4. Selección de Identidad
-        const fromAddress = SENDERS[channel] || SENDERS.system;
+        const fromAddress = SENDERS[channel as EmailChannel] || SENDERS.system;
 
-        console.log(`📧 Dispatching email via [${channel}] to: ${to}`);
-
-        // 5. Ejecución (Resend API)
-        const data = await resend.emails.send({
+        const { data, error } = await resend.emails.send({
             from: fromAddress,
             to: [to],
-            reply_to: replyTo, // Permite que Diego responda directamente al usuario
+            reply_to: replyTo,
             subject: subject,
             html: html,
         });
 
-        if (data.error) {
-            throw new Error(data.error.message);
+        if (error) {
+            return res.status(400).json({ error: error.message });
         }
 
-        console.log('✅ Email delivered to gateway:', data.data?.id);
-
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return res.status(200).json({ success: true, id: data?.id });
 
     } catch (error: any) {
         console.error('❌ Email Dispatch Error:', error);
-        return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 }
