@@ -18,6 +18,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
     const [loading, setLoading] = useState<string | null>(null);
     const [plans, setPlans] = useState<PlanConfig[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [legalFooter, setLegalFooter] = useState<string>('');
 
     // FAQ State
     const [openFaqId, setOpenFaqId] = useState<number | null>(null);
@@ -34,8 +35,19 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
                 if (plansError) throw plansError;
                 setPlans(plansData || []);
+
+                // Fetch legal footer
+                const { data: settingsData, error: settingsError } = await supabase
+                    .from('app_settings')
+                    .select('value')
+                    .eq('key', 'legal_footer_text')
+                    .single();
+
+                if (!settingsError && settingsData) {
+                    setLegalFooter(settingsData.value);
+                }
             } catch (error) {
-                console.error('Error loading plans:', error);
+                console.error('Error loading subscription data:', error);
             } finally {
                 setIsLoadingData(false);
             }
@@ -55,41 +67,9 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
     const currentLevel = getPlanLevel(currentPlanId);
 
-    // Helper to get translated plan details
-    const getPlanDetails = (planId: string) => {
-        switch (planId) {
-            case 'free':
-                return {
-                    name: t('planFree') || 'Free',
-                    description: t('freeDesc'),
-                    features: [t('freeF1'), t('freeF2'), t('freeF3'), t('freeF4')]
-                };
-            case 'pro':
-                return {
-                    name: t('planPro') || 'Pro',
-                    description: t('proDesc'),
-                    features: [t('proF1'), t('proF2'), t('proF3'), t('proF4')]
-                };
-            case 'business':
-                return {
-                    name: t('planBiz') || 'Business',
-                    description: t('bizDesc'),
-                    features: [t('bizF1'), t('bizF2'), t('bizF3'), t('bizF4')]
-                };
-            case 'business_plus':
-                return {
-                    name: t('planBizPlus') || 'Business +',
-                    description: t('bizPlusDesc'),
-                    features: [t('bizPlusF1'), t('bizPlusF2'), t('bizPlusF3'), t('bizPlusF4')]
-                };
-            default:
-                return { name: planId, description: '', features: [] };
-        }
-    };
-
     const handleSubscribe = async (priceId: string, planId: string) => {
         if (!user) return;
-        if (planId === 'free') return; // Downgrades usually handled via portal or support for now
+        if (planId === 'free') return; // Downgrades handled via portal
 
         if (!priceId) {
             alert('Error: Configuration missing for this plan.');
@@ -115,7 +95,6 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
             const { url, error } = await response.json();
             if (error) throw new Error(error);
 
-            // Use direct redirect instead of deprecated redirectToCheckout
             if (url) window.location.href = url;
         } catch (error: any) {
             console.error('Error:', error);
@@ -186,8 +165,21 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                 ? Math.round(plan.price_annual / 12)
                                 : plan.price_monthly;
 
-                            const isBestValue = plan.id === 'business'; // Example logic
-                            const translated = getPlanDetails(plan.id);
+                            const isBestValue = plan.highlight;
+
+                            // Contextual Button Text
+                            let buttonText = '';
+                            let buttonDisabled = false;
+                            if (isCurrent) {
+                                buttonText = 'Plan Actual';
+                                buttonDisabled = true;
+                            } else if (planLevel > currentLevel) {
+                                buttonText = `Actualizar a ${plan.name}`;
+                            } else if (planLevel < currentLevel) {
+                                buttonText = `Downgrade a ${plan.name}`;
+                            } else {
+                                buttonText = plan.id === 'free' ? 'Activar' : 'Suscribirse';
+                            }
 
                             return (
                                 <div
@@ -207,20 +199,28 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
                                     <div className="mb-4">
                                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                            {translated.name}
+                                            {plan.name}
                                         </h3>
+                                        {/* Subtitle from description */}
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                            {plan.description}
+                                        </p>
                                     </div>
 
                                     <div className="mb-6">
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                {price === 0 ? t('planFree') : `€${price}`}
-                                            </span>
-                                            {price > 0 && (
-                                                <div className="flex flex-col text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
-                                                    <span>{t('plan_month_suffix')}</span>
-                                                    {billingInterval === 'annual' && <span>{t('plan_annual_suffix')}</span>}
-                                                </div>
+                                            {plan.id === 'free' ? (
+                                                <span className="text-3xl font-bold text-slate-900 dark:text-white">Gratis</span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-3xl font-bold text-slate-900 dark:text-white">
+                                                        €{price}
+                                                    </span>
+                                                    <div className="flex flex-col text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
+                                                        <span>{t('plan_month_suffix')}</span>
+                                                        {billingInterval === 'annual' && <span>{t('plan_annual_suffix')}</span>}
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -230,28 +230,24 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                             billingInterval === 'annual' ? plan.stripe_price_id_annual : plan.stripe_price_id_monthly,
                                             plan.id
                                         )}
-                                        disabled={loading === plan.id || isCurrent || (plan.id === 'free' && currentLevel > 0)}
-                                        className={`w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors mb-6 ${isCurrent
+                                        disabled={loading === plan.id || buttonDisabled}
+                                        className={`w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors mb-6 ${buttonDisabled
                                             ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-default'
                                             : isBestValue
                                                 ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20'
                                                 : 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
                                             }`}
                                     >
-                                        {isCurrent ? t('plan_current') : (plan.id === 'free' ? t('plan_activate') : t('plan_subscribe'))}
+                                        {buttonText}
                                     </button>
 
+                                    {/* Features from Backend - NO ICONS */}
                                     <div className="space-y-3">
-                                        {(translated.features.length > 0 ? translated.features : (plan.features || [])).slice(0, 4).map((feature, i) => (
-                                            <div key={i} className="flex items-start gap-2.5 text-[13px] text-slate-600 dark:text-slate-300">
-                                                <Check size={16} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                                                <span className="leading-snug">{feature}</span>
+                                        {plan.features?.slice(0, 4).map((feature, i) => (
+                                            <div key={i} className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
+                                                • {feature}
                                             </div>
                                         ))}
-                                    </div>
-
-                                    <div className="mt-auto pt-6 text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-                                        {translated.description || plan.description}
                                     </div>
                                 </div>
                             );
@@ -271,49 +267,33 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                 <thead>
                                     <tr>
                                         <th className="p-4 border-b border-slate-200 dark:border-slate-800 w-1/4"></th>
-                                        {plans.map(p => {
-                                            const translated = getPlanDetails(p.id);
-                                            return (
-                                                <th key={p.id} className="p-4 border-b border-slate-200 dark:border-slate-800 text-center min-w-[140px]">
-                                                    <div className="text-sm font-semibold text-slate-900 dark:text-white mb-2">{translated.name}</div>
-                                                    <button
-                                                        onClick={() => handleSubscribe(
-                                                            billingInterval === 'annual' ? p.stripe_price_id_annual : p.stripe_price_id_monthly,
-                                                            p.id
-                                                        )}
-                                                        disabled={p.id === currentPlanId || (p.id === 'free' && currentLevel > 0)}
-                                                        className={`w-full py-1.5 px-3 rounded text-xs font-medium transition-colors ${p.id === 'business'
-                                                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                                            } ${p.id === currentPlanId ? 'opacity-50 cursor-default' : ''}`}
-                                                    >
-                                                        {p.id === currentPlanId ? t('comp_active') : t('comp_select')}
-                                                    </button>
-                                                </th>
-                                            );
-                                        })}
+                                        {plans.map(p => (
+                                            <th key={p.id} className="p-4 border-b border-slate-200 dark:border-slate-800 text-center min-w-[140px]">
+                                                <div className="text-sm font-semibold text-slate-900 dark:text-white mb-2">{p.name}</div>
+                                            </th>
+                                        ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {/* Transcription Group */}
                                     <tr className="bg-slate-50 dark:bg-slate-800/50">
                                         <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            {t('comp_transcription')}
+                                            TRANSCRIPCIÓN
                                         </td>
                                     </tr>
                                     <tr>
                                         <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            {t('comp_minutes')}
+                                            Minutos Mensuales
                                         </td>
                                         {plans.map(p => (
                                             <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center text-sm font-medium text-slate-900 dark:text-white">
-                                                {p.limits?.transcription_minutes == -1 ? t('comp_unlimited') : p.limits?.transcription_minutes}
+                                                {p.limits?.transcription_minutes == -1 ? '∞' : p.limits?.transcription_minutes}
                                             </td>
                                         ))}
                                     </tr>
                                     <tr>
                                         <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            {t('comp_speaker_labels')}
+                                            Etiquetas de Orador
                                         </td>
                                         {plans.map(p => (
                                             <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
@@ -327,12 +307,12 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                     {/* AI Features Group */}
                                     <tr className="bg-slate-50 dark:bg-slate-800/50">
                                         <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            {t('comp_ai_features')}
+                                            FUNCIONES IA
                                         </td>
                                     </tr>
                                     <tr>
                                         <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            {t('comp_ask_diktalo')}
+                                            Preguntar a Diktalo (Chat)
                                         </td>
                                         {plans.map(p => (
                                             <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
@@ -344,12 +324,12 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                     </tr>
                                     <tr>
                                         <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            {t('comp_advanced_summaries')}
+                                            Resúmenes Avanzados
                                         </td>
                                         {plans.map(p => (
                                             <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
                                                 <div className="flex justify-center">
-                                                    <Check size={18} className="text-blue-600 dark:text-blue-400" />
+                                                    {p.id !== 'free' ? <Check size={18} className="text-blue-600 dark:text-blue-400" /> : <span className="text-xs text-slate-400">-</span>}
                                                 </div>
                                             </td>
                                         ))}
@@ -358,17 +338,31 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                     {/* Integration Group */}
                                     <tr className="bg-slate-50 dark:bg-slate-800/50">
                                         <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            {t('comp_integration')}
+                                            INTEGRACIÓN
                                         </td>
                                     </tr>
                                     <tr>
                                         <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            {t('comp_zapier')}
+                                            Integración Zapier
                                         </td>
                                         {plans.map(p => (
                                             <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
                                                 <div className="flex justify-center">
                                                     {p.id === 'business' || p.id === 'business_plus'
+                                                        ? <Check size={18} className="text-blue-600 dark:text-blue-400" />
+                                                        : <span className="text-xs text-slate-400">-</span>}
+                                                </div>
+                                            </td>
+                                        ))}
+                                    </tr>
+                                    <tr>
+                                        <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
+                                            Llamadas
+                                        </td>
+                                        {plans.map(p => (
+                                            <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
+                                                <div className="flex justify-center">
+                                                    {p.id === 'business_plus'
                                                         ? <Check size={18} className="text-blue-600 dark:text-blue-400" />
                                                         : <span className="text-xs text-slate-400">-</span>}
                                                 </div>
@@ -440,12 +434,12 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                         </div>
                     </div>
 
-                    {/* Footer Links */}
-                    <div className="flex justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-8 pb-4">
-                        <a href="/faq" target="_blank" className="hover:text-slate-900 dark:hover:text-white transition-colors">{t('footer_faq')}</a>
-                        <span className="text-slate-300">|</span>
-                        <a href="/terms" target="_blank" className="hover:text-slate-900 dark:hover:text-white transition-colors">{t('footer_terms')}</a>
-                    </div>
+                    {/* Legal Footer from Admin */}
+                    {legalFooter && (
+                        <div className="text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-8 pb-4">
+                            {legalFooter}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
