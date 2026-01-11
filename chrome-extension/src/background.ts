@@ -108,11 +108,30 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 let isRefreshing = false;
 let refreshQueue: ((token: string) => void)[] = [];
 
+// INJECTED CONSTANTS - DO NOT EDIT MANUALLY
+const INJECTED_SUPABASE_URL = 'https://qnvzofpdrfzchsegooic.supabase.co';
+const INJECTED_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFudnpvZnBkcmZ6Y2hzZWdvb2ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0NjUwNDUsImV4cCI6MjA4MjA0MTA0NX0.wVS8xk2r86SS6CD0t221RI1VLJ3roG1BepGtznDZinA';
+
+async function getSupabaseConfig() {
+    const { supabaseUrl, supabaseKey } = await chrome.storage.local.get(['supabaseUrl', 'supabaseKey']);
+
+    // cleanup placeholders if they exist (just in case)
+    const url = (supabaseUrl && supabaseUrl !== 'undefined') ? supabaseUrl : INJECTED_SUPABASE_URL;
+    const key = (supabaseKey && supabaseKey !== 'undefined') ? supabaseKey : INJECTED_SUPABASE_KEY;
+
+    if (url.startsWith('%%') || key.startsWith('%%')) {
+        console.warn('[Background] Credentials not injected or configured!');
+    }
+
+    return { supabaseUrl: url, supabaseKey: key };
+}
+
 async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-    const { authToken, supabaseKey } = await chrome.storage.local.get(['authToken', 'supabaseKey']);
+    const { authToken } = await chrome.storage.local.get(['authToken']);
+    const { supabaseKey } = await getSupabaseConfig();
 
     if (!authToken || !supabaseKey) {
-        throw new Error('401: Unauthorized - No authentication token found.');
+        throw new Error('401: Unauthorized - No authentication token or key found.');
     }
 
     const headers = new Headers(options.headers || {});
@@ -137,7 +156,8 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
             return await fetch(url, { ...options, headers });
         } catch (refreshError: any) {
             console.error('[Background] Could not recover from auth failure:', refreshError.message);
-            throw new Error(`Session expired and auto-refresh failed: ${refreshError.message}`);
+            // Friendly error message
+            throw new Error('Tu sesión ha expirado. Por favor actualiza tu token desde el Dashboard.');
         }
     }
 
@@ -156,10 +176,11 @@ async function getOrRefreshAccessToken(): Promise<string> {
 
     isRefreshing = true;
     try {
-        const { refreshToken, supabaseUrl, supabaseKey } = await chrome.storage.local.get(['refreshToken', 'supabaseUrl', 'supabaseKey']);
+        const { refreshToken } = await chrome.storage.local.get(['refreshToken']);
+        const { supabaseUrl, supabaseKey } = await getSupabaseConfig();
 
         if (!refreshToken || !supabaseUrl || !supabaseKey) {
-            throw new Error('No refresh token available.');
+            throw new Error('No refresh token or config available.');
         }
 
         const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
@@ -322,7 +343,7 @@ async function captureAndUploadScreenshot() {
 
     // 2. Prepare Upload
     const blob = base64ToBlob(dataUrl, 'image/png');
-    const { supabaseUrl } = await chrome.storage.local.get(['supabaseUrl']);
+    const { supabaseUrl } = await getSupabaseConfig();
     if (!supabaseUrl) throw new Error('Supabase URL not configured.');
 
     // 3. Perform Authenticated Flow
@@ -407,14 +428,21 @@ async function stopRecording() {
                     await closeOffscreenDocument();
                     resolve({ success: true, recordingId: uploadResult.recordingId });
                 } catch (error: any) {
+                    console.error('[Background] Upload failed, returning manual backup data:', error);
+                    // CRITICAL: Return audioData to UI for manual save if upload fails
+                    // Do NOT lose the data.
                     await clearState();
                     await closeOffscreenDocument();
-                    resolve({ success: false, error: error.message });
+                    resolve({
+                        success: false,
+                        error: error.message,
+                        backupAudioData: response.audioData // <--- Return data for fallback
+                    });
                 }
             } else {
                 await clearState();
                 await closeOffscreenDocument();
-                resolve({ success: false, error: response?.error || 'No audio data' });
+                resolve({ success: false, error: response?.error || 'No audio data received' });
             }
         });
     });
@@ -509,8 +537,8 @@ async function uploadAudioToDiktalo(audioBlob: Blob, durationSeconds: number, ex
 // --- Auth Protected Resource Helpers ---
 
 async function getUserDetails() {
-    const { supabaseUrl } = await chrome.storage.local.get(['supabaseUrl']);
-    if (!supabaseUrl) throw new Error('Supabase URL missing');
+    const { supabaseUrl } = await getSupabaseConfig();
+    if (!supabaseUrl || supabaseUrl.startsWith('%%')) throw new Error('Supabase URL missing');
 
     const response = await authenticatedFetch(`${supabaseUrl}/auth/v1/user`);
     if (!response.ok) {
@@ -520,7 +548,7 @@ async function getUserDetails() {
 }
 
 async function uploadToSupabaseStorage(userId: string, blob: Blob): Promise<string> {
-    const { supabaseUrl } = await chrome.storage.local.get(['supabaseUrl']);
+    const { supabaseUrl } = await getSupabaseConfig();
     if (!supabaseUrl) throw new Error('Supabase URL missing');
 
     const timestamp = Date.now();
