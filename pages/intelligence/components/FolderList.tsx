@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Folder, Plus, MoreVertical, Edit2, Trash2, FolderOpen } from 'lucide-react';
-import { databaseService } from '../../../services/databaseService';
 import { Folder as FolderType } from '../../../types';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -9,44 +8,47 @@ interface FolderListProps {
     onSelectFolder: (folderId: string | null) => void;
     selectedFolderId: string | null;
     userId?: string;
+    folders: FolderType[];
+    // Handlers from Parent (App)
+    onCreateFolder?: (name: string) => Promise<void>;
+    onRenameFolder?: (id: string, name: string) => Promise<void>;
+    onDeleteFolder?: (id: string) => Promise<void>;
+    onAction?: (id: string, action: string) => void; // Legacy or future usage
 }
 
 import { useLanguage } from '../../../contexts/LanguageContext';
 
-export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selectedFolderId, userId }) => {
+export const FolderList: React.FC<FolderListProps> = ({
+    onSelectFolder,
+    selectedFolderId,
+    userId,
+    folders,
+    onCreateFolder,
+    onRenameFolder,
+    onDeleteFolder
+}) => {
     const { t } = useLanguage();
-    const [folders, setFolders] = useState<FolderType[]>([]);
+    // Removed internal folders state - now using prop
     const [isCreating, setIsCreating] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
-    const [loading, setLoading] = useState(true);
+    // Removed loading state - driven by parent
     const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editName, setEditName] = useState('');
 
-    useEffect(() => {
-        if (userId) {
-            loadFolders();
-        } else {
-            setLoading(false);
-        }
-    }, [userId]);
-
-    const loadFolders = async () => {
-        if (!userId) return;
-        const data = await databaseService.getFolders(userId);
-        setFolders(data);
-        setLoading(false);
-    };
+    // Removed useEffect loadFolders - parent handles data fetching
 
     const handleCreateFolder = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newFolderName.trim()) return;
+        if (!newFolderName.trim() || !onCreateFolder) return;
 
-        const newFolder = await databaseService.createFolder(newFolderName);
-        if (newFolder) {
-            setFolders([newFolder, ...folders]);
+        try {
+            await onCreateFolder(newFolderName);
             setNewFolderName('');
             setIsCreating(false);
+        } catch (error) {
+            console.error("Create folder failed:", error);
+            alert("Error creating folder");
         }
     };
 
@@ -58,42 +60,29 @@ export const FolderList: React.FC<FolderListProps> = ({ onSelectFolder, selected
 
     const handleRenameFolder = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editName.trim() || !editingFolderId) return;
+        if (!editName.trim() || !editingFolderId || !onRenameFolder) return;
 
-        const originalFolders = [...folders];
-        const folderIdToRename = editingFolderId;
-        const newName = editName.trim();
-
-        // 1. Optimistic Update
-        setFolders(folders.map(f => f.id === folderIdToRename ? { ...f, name: newName } : f));
-        setEditingFolderId(null);
-        setEditName('');
-
-        // 2. Background DB Update
         try {
-            const { success, error } = await databaseService.renameFolder(folderIdToRename, newName);
-            if (!success) {
-                // Log and Alert detailed error
-                console.error('Rename failed DB response:', error);
-                const errorMsg = error?.message || JSON.stringify(error) || 'Unknown DB Error';
-                alert(`Error al renombrar: ${errorMsg}`);
-                setFolders(originalFolders); // Revert on failure
-            }
-        } catch (error: any) {
-            console.error('Rename failed exception:', error);
-            alert(`Error inesperado: ${error.message || error}`);
-            setFolders(originalFolders); // Revert on failure
+            await onRenameFolder(editingFolderId, editName.trim());
+            setEditingFolderId(null);
+            setEditName('');
+        } catch (error) {
+            console.error("Rename folder failed:", error);
+            alert("Error renaming folder");
         }
     };
 
     const confirmDeleteFolder = async () => {
-        if (folderToDelete) {
-            const success = await databaseService.deleteFolder(folderToDelete);
-            if (success) {
-                setFolders(folders.filter(f => f.id !== folderToDelete));
-                if (selectedFolderId === folderToDelete) onSelectFolder(null);
+        if (folderToDelete && onDeleteFolder) {
+            try {
+                await onDeleteFolder(folderToDelete);
+                // Selection logic handled by parent or effect
+                if (selectedFolderId === folderToDelete) onSelectFolder(null); // Local optim
+                setFolderToDelete(null);
+            } catch (error) {
+                console.error("Delete folder failed:", error);
+                alert("Error deleting folder");
             }
-            setFolderToDelete(null);
         }
     };
 
