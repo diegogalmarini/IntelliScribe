@@ -223,7 +223,11 @@ const AppContent: React.FC = () => {
             console.log("Profile loaded from DB:", data);
 
             // Sync UI Language
-            if (data.language) {
+            // PRIORITY: LocalStorage (Most recent) > DB > Default
+            const storedLang = localStorage.getItem(`diktalo_settings_language_${supabaseUser.id}`);
+            if (storedLang) {
+                setLanguage(storedLang as 'en' | 'es');
+            } else if (data.language) {
                 setLanguage(data.language as 'en' | 'es');
             }
 
@@ -532,6 +536,13 @@ const AppContent: React.FC = () => {
         setFolders(prev => prev.filter(f => f.id !== id));
         if (selectedFolderId === id) setSelectedFolderId('ALL');
         await databaseService.deleteFolder(id);
+    };
+
+    const handleRenameFolder = async (id: string, newName: string) => {
+        // Optimistic update
+        setFolders(prev => prev.map(f => f.id === id ? { ...f, name: newName } : f));
+        // DB update
+        await databaseService.renameFolder(id, newName);
     };
 
     const handleToggleIntegration = (id: string) => {
