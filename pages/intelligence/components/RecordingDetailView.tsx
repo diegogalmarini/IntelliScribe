@@ -29,6 +29,7 @@ interface RecordingDetailViewProps {
 
 // Subcomponent to handle individual image signing
 const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageClick }: { attachment: any, timeLabel: string, onTimestampClick: (t: string) => void, onImageClick?: (e: React.MouseEvent, url: string) => void }) => {
+    const { t } = useLanguage();
     const [signedUrl, setSignedUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -65,7 +66,7 @@ const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageC
                         if (onImageClick) onImageClick(e, signedUrl);
                     }}
                     className="pointer-events-auto p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/40 text-white transition-colors"
-                    title="Ver imagen completa"
+                    title={t('viewImage')}
                 >
                     <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[20px]">visibility</span>
@@ -81,7 +82,7 @@ const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageC
 };
 
 export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -321,12 +322,12 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     };
 
     const formatDate = (dateString: string) => {
-        if (!dateString) return 'Fecha no disponible';
+        if (!dateString) return t('no_date_label');
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
-            return 'Fecha no disponible';
+            return t('no_date_label');
         }
-        return date.toLocaleString('es-ES', {
+        return date.toLocaleString(language === 'es' ? 'es-ES' : 'en-US', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -622,7 +623,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                         ) : (
                             <div className="flex items-center gap-2 group">
                                 <h1 className="text-lg md:text-xl font-medium text-[#1f1f1f] dark:text-white truncate" title={recording.title}>
-                                    {recording.title || 'Grabación sin título'}
+                                    {recording.title || t('untitledRecording')}
                                 </h1>
                                 {onRename && (
                                     <button
@@ -653,27 +654,27 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             ) : (
                                 <RefreshCw size={14} className="text-brand-purple" />
                             )}
-                            <span className="hidden sm:inline">{isTranscribing ? 'Procesando...' : 'Regenerar'}</span>
+                            <span className="hidden sm:inline">{isTranscribing ? 'Procesando...' : t('regenerate')}</span>
                         </button>
 
                         {/* Analizar */}
                         <button
                             onClick={handleAnalyze}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
-                            title="Resumir con IA"
+                            title={t('summarize')}
                         >
                             <Sparkles size={14} className="text-brand-purple" />
-                            <span className="hidden sm:inline">Resumir</span>
+                            <span className="hidden sm:inline">{t('summarize')}</span>
                         </button>
 
                         {/* Exportar */}
                         <button
                             onClick={handleExport}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
-                            title="Exportar archivo"
+                            title={t('export')}
                         >
                             <Share2 size={14} />
-                            <span className="hidden sm:inline">Exportar</span>
+                            <span className="hidden sm:inline">{t('export')}</span>
                         </button>
                     </div>
                 </div>
@@ -769,7 +770,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                     className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
                                 >
                                     <Download size={14} />
-                                    Descargar Audio
+                                    {t('downloadAudio')}
                                 </button>
                             </div>
                         ) : (

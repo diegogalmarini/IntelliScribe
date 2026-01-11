@@ -560,6 +560,7 @@ export const databaseService = {
         if (updates.phoneVerified !== undefined) dbUpdates.phone_verified = updates.phoneVerified;
         if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
         if (updates.timezone !== undefined) dbUpdates.timezone = updates.timezone;
+        if (updates.language !== undefined) dbUpdates.language = updates.language; // Display language persistence
         if (updates.transcriptionLanguage !== undefined) dbUpdates.transcription_language = updates.transcriptionLanguage;
         if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
         if (updates.subscription?.planId !== undefined) dbUpdates.plan_id = updates.subscription.planId;

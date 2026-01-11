@@ -203,6 +203,8 @@ export const translations = {
     readyToTranscribe: "Ready to Transcribe",
     readyToTranscribeDesc: "Your audio is ready for processing. Click the button below to generate a transcript using Gemini AI.",
     genTranscript: "Generate Transcript",
+    regenerate: "Regenerate", // NEW
+    viewImage: "View Image", // NEW
     generateTranscript: "Generate Transcript",
     noTranscript: "No Transcript",
     transcribing: "Transcribing...",
@@ -591,8 +593,7 @@ export const translations = {
     password_updated: "Password updated successfully",
     password_mismatch: "Passwords do not match",
     password_min_length: "Password must be at least 6 characters",
-    save_password: "Update Password",
-    cancel: "Cancel"
+    save_password: "Update Password"
   },
   es: {
     // Auth
@@ -752,6 +753,8 @@ export const translations = {
     recordAudio: "Grabar Audio",
     makeCall: "Hacer Llamada",
     uploadFile: "Subir Archivo",
+    regenerate: "Regenerar", // NEW
+    viewImage: "Ver Imagen", // NEW
     inPersonMeetings: "Reuniones presenciales",
     integratedVoIP: "Telefonía IP integrada",
 
@@ -1205,8 +1208,6 @@ export const translations = {
     confirm_password_placeholder: "Confirmar nueva contraseña",
     password_updated: "Contraseña actualizada correctamente",
     password_mismatch: "Las contraseñas no coinciden",
-    password_min_length: "La contraseña debe tener al menos 6 caracteres",
-    save_password: "Actualizar Contraseña",
-    cancel: "Cancelar"
+    password_min_length: "La contraseña debe tener al menos 6 caracteres"
   }
 };
