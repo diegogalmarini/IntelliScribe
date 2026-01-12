@@ -25,7 +25,7 @@ const useRealScarcity = (code: string) => {
 };
 
 export const Pricing: React.FC = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
 
     // Estados Dinámicos
@@ -49,10 +49,10 @@ export const Pricing: React.FC = () => {
                 if (plansError) throw plansError;
                 if (plansData) setPlans(plansData);
 
-                // Fetch legal footer
+                // Fetch legal footer with language suffix
                 const { data: settingsData, error: settingsError } = await supabase
                     .from('app_settings')
-                    .select('value')
+                    .select(language === 'en' ? 'value_en as value' : 'value')
                     .eq('key', 'legal_footer_text')
                     .single();
 
@@ -71,7 +71,7 @@ export const Pricing: React.FC = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [language]); // Re-fetch when language changes
 
     if (loading) return <div className="py-24 text-center">Cargando ofertas...</div>;
 
@@ -118,9 +118,9 @@ export const Pricing: React.FC = () => {
 
                             <div className="mb-4">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{plan.name}</h3>
-                                {/* Subtitle Description */}
+                                {/* Subtitle Description - Use language-specific field */}
                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 h-8">
-                                    {plan.description}
+                                    {language === 'en' && plan.description_en ? plan.description_en : plan.description}
                                 </p>
                             </div>
 
@@ -155,9 +155,9 @@ export const Pricing: React.FC = () => {
                                 {plan.id === 'free' ? 'Empezar Gratis' : 'Elegir Plan'}
                             </a>
 
-                            {/* Features from Backend - No Icons */}
+                            {/* Features from Backend - Use language-specific field */}
                             <div className="mt-6 space-y-2">
-                                {plan.features?.slice(0, 4).map((feature, i) => (
+                                {(language === 'en' && plan.features_en ? plan.features_en : plan.features)?.slice(0, 4).map((feature, i) => (
                                     <div key={i} className="text-xs text-slate-600 dark:text-slate-300 leading-snug">
                                         • {feature}
                                     </div>

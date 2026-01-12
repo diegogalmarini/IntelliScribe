@@ -13,7 +13,7 @@ interface SubscriptionViewProps {
 }
 
 export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [loading, setLoading] = useState<string | null>(null);
     const [plans, setPlans] = useState<PlanConfig[]>([]);
@@ -36,10 +36,10 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                 if (plansError) throw plansError;
                 setPlans(plansData || []);
 
-                // Fetch legal footer
+                // Fetch legal footer with language
                 const { data: settingsData, error: settingsError } = await supabase
                     .from('app_settings')
-                    .select('value')
+                    .select(language === 'en' ? 'value_en as value' : 'value')
                     .eq('key', 'legal_footer_text')
                     .single();
 
@@ -58,7 +58,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
             }
         };
         fetchData();
-    }, []);
+    }, [language]); // Re-fetch when language changes
 
     const currentPlanId = user?.subscription?.planId || 'free';
 
@@ -206,9 +206,9 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                                             {plan.name}
                                         </h3>
-                                        {/* Subtitle from description */}
+                                        {/* Subtitle from description - language-specific */}
                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                            {plan.description}
+                                            {language === 'en' && plan.description_en ? plan.description_en : plan.description}
                                         </p>
                                     </div>
 
@@ -246,9 +246,9 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                         {buttonText}
                                     </button>
 
-                                    {/* Features from Backend - NO ICONS */}
+                                    {/* Features from Backend - language-specific */}
                                     <div className="space-y-3">
-                                        {plan.features?.slice(0, 4).map((feature, i) => (
+                                        {(language === 'en' && plan.features_en ? plan.features_en : plan.features)?.slice(0, 4).map((feature, i) => (
                                             <div key={i} className="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
                                                 • {feature}
                                             </div>

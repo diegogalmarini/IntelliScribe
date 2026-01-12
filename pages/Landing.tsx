@@ -78,8 +78,8 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-4xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
-                            <p className="text-xs font-bold text-slate-500 mb-3">Preguntas frecuentes</p>
-                            <h3 className="h2 text-slate-900 dark:text-white">Preguntas frecuentes</h3>
+                            <p className="text-xs font-bold text-slate-500 mb-3">{t('landing_faq_title')}</p>
+                            <h3 className="h2 text-slate-900 dark:text-white">{t('landing_faq_title')}</h3>
                         </div>
                         <div className="space-y-4">
                             {[
@@ -103,10 +103,10 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                             <div>
-                                <p className="text-xs font-bold text-slate-500 mb-3">Blog</p>
-                                <h3 className="h2 text-slate-900 dark:text-white">Últimas noticias</h3>
+                                <p className="text-xs font-bold text-slate-500 mb-3">{t('landing_blog_tag')}</p>
+                                <h3 className="h2 text-slate-900 dark:text-white">{t('landing_blog_latest')}</h3>
                             </div>
-                            <button className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Ver todas</button>
+                            <button className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">{t('landing_blog_view_all')}</button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {[

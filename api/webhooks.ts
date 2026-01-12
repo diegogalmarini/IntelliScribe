@@ -142,6 +142,31 @@ export default async function handler(req: any, res: any) {
             return sendJson(res, 200, { received: true, action: 'monthly_usage_reset' });
         }
 
+        // Manejar pago fallido - PAUSAR cuenta automáticamente
+        if (event.type === 'invoice.payment_failed') {
+            const invoice = event.data.object;
+            const customerId = invoice.customer;
+
+            console.log(`[Webhook] ⚠️ Payment failed for customer: ${customerId}`);
+
+            // Pausar la cuenta del usuario hasta que resuelva el pago
+            const { error } = await supabaseAdmin
+                .from('profiles')
+                .update({
+                    subscription_status: 'paused',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('stripe_customer_id', customerId);
+
+            if (error) {
+                console.error('[Webhook] Error pausing user account:', error);
+                return sendJson(res, 500, { error: 'Failed to pause account' });
+            }
+
+            console.log(`[Webhook] ✅ Account paused for customer: ${customerId}`);
+            return sendJson(res, 200, { received: true, action: 'account_paused' });
+        }
+
         // Manejar cancelación (opcional, para volver a free automáticamente al terminar periodo)
         if (event.type === 'customer.subscription.deleted') {
             const subscription = event.data.object;

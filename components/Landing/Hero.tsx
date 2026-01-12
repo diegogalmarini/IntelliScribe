@@ -28,8 +28,7 @@ export const Hero: React.FC = () => {
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="h1 text-slate-900 dark:text-white mb-6"
                 >
-                    Tu Segundo Cerebro <br className="hidden md:block" />
-                    Corporativo.
+                    {t('hero_main_title')} <br className="hidden md:block" />
                 </motion.h1>
 
                 {/* 4. Subtítulo Aspiracional */}
@@ -40,7 +39,7 @@ export const Hero: React.FC = () => {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="text-center text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed px-4"
                     >
-                        Graba en el móvil, decide en la web. <span className="font-semibold text-slate-900 dark:text-white">Diktalo</span> unifica llamadas, grabaciones y tareas en un solo sistema operativo de inteligencia.
+                        {t('hero_subtitle')}
                     </motion.p>
                 </div>
 
@@ -55,7 +54,7 @@ export const Hero: React.FC = () => {
                         to="/login"
                         className="w-full sm:w-auto px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-semibold text-lg transition-all shadow-xl hover:shadow-2xl dark:hover:bg-slate-200 flex items-center justify-center gap-2 group rounded-xl"
                     >
-                        Empezar gratis
+                        {t('hero_cta_start')}
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
 
@@ -64,7 +63,7 @@ export const Hero: React.FC = () => {
                         className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-white/5 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 btn-owner"
                     >
                         <Play className="w-5 h-5 fill-current" />
-                        Ver demo
+                        {t('hero_cta_demo')}
                     </button>
                 </motion.div>
 
@@ -77,15 +76,15 @@ export const Hero: React.FC = () => {
                 >
                     <div className="flex items-center gap-2">
                         <ShieldCheck className="w-4 h-4" />
-                        <span>SOC2 & GDPR Ready</span>
+                        <span>{t('hero_badge_compliance')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Smartphone className="w-4 h-4" />
-                        <span>iOS & Android PWA</span>
+                        <span>{t('hero_badge_mobile')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Monitor className="w-4 h-4" />
-                        <span>Web Desktop</span>
+                        <span>{t('hero_badge_desktop')}</span>
                     </div>
                 </motion.div>
 
