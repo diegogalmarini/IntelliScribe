@@ -614,10 +614,62 @@ export const translations = {
     // Login/Auth (NEW)
     auth_separator: "OR",
 
+
     // Navbar (NEW)
     nav_solutions: "Solutions",
     nav_plans: "Plans",
-    nav_contact: "Contact"
+    nav_contact: "Contact",
+
+    // Pricing Section - Landing Page
+    pricing_title: "Flexible and transparent pricing",
+    pricing_subtitle: "No hidden costs. Cancel anytime.",
+    pricing_monthly: "Monthly",
+    pricing_annual: "Annual",
+    pricing_discount: "-25%",
+    pricing_free: "Free",
+    pricing_start_free: "Start Free",
+    pricing_choose_plan: "Choose Plan",
+    pricing_billed_annually: "Billed €{amount} annually",
+    pricing_per_month: "/month",
+
+    // Comparison Table
+    table_transcription: "TRANSCRIPTION",
+    table_monthly_minutes: "Monthly Minutes",
+    table_speaker_labels: "Speaker Labels",
+    table_ai_features: "AI FEATURES",
+    table_ask_diktalo: "Ask Diktalo (Chat)",
+    table_advanced_summaries: "Advanced Summaries",
+    table_integration: "INTEGRATION",
+    table_zapier: "Zapier Integration",
+    table_calls: "Calls",
+
+    // Hero/How It Works Section
+    hero_automate_title: "Automate your success",
+    hero_automate_subtitle: "in 4 simple steps.",
+    step_label: "STEP",
+    step1_capture: "Omnichannel Capture",
+    step2_ai: "Artificial Intelligence",
+    step3_sync: "Automatic Sync",
+    step4_memory: "Eternal Memory",
+    hero_capture: "Capture",
+
+    // Solutions Section
+    sol_sales_bant: "Sales (BANT)",
+    sol_medical_soap: "Medical (SOAP Note)",
+    sol_legal: "Legal & Compliance",
+    sol_hr: "Human Resources",
+    sol_product_ux: "Product & UX",
+    sol_education: "Education & Research",
+    sol_medical_title: "More time with the patient.",
+    sol_medical_desc: "I used to spend 2 hours transcribing SOAP notes. With Diktalo, I record the consultation (with permission) and have the report in the EHR in seconds. It's pure magic.",
+
+    // Footer
+    footer_recording_methods: "Recording Methods",
+    footer_audio_recorder: "Audio Recorder",
+    footer_chrome_ext: "Chrome Extension",
+    footer_upload: "Upload Files",
+    footer_call_recorder: "Call Recorder",
+    footer_contact: "Contact"
   },
   es: {
     // Auth
@@ -1257,6 +1309,57 @@ export const translations = {
     // Navbar (NEW)
     nav_solutions: "Soluciones",
     nav_plans: "Planes",
-    nav_contact: "Contacto"
+    nav_contact: "Contacto",
+
+    // Pricing Section - Landing Page
+    pricing_title: "Planes flexibles y trasparentes",
+    pricing_subtitle: "Sin costes ocultos. Cancela cuando quieras.",
+    pricing_monthly: "Mensual",
+    pricing_annual: "Anual",
+    pricing_discount: "-25%",
+    pricing_free: "Gratis",
+    pricing_start_free: "Empezar Gratis",
+    pricing_choose_plan: "Elegir Plan",
+    pricing_billed_annually: "Facturado {amount}€ anualmente",
+    pricing_per_month: "/mes",
+
+    // Comparison Table
+    table_transcription: "TRANSCRIPCIÓN",
+    table_monthly_minutes: "Minutos Mensuales",
+    table_speaker_labels: "Etiquetas de Orador",
+    table_ai_features: "FUNCIONES IA",
+    table_ask_diktalo: "Preguntar a Diktalo (Chat)",
+    table_advanced_summaries: "Resúmenes Avanzados",
+    table_integration: "INTEGRACIÓN",
+    table_zapier: "Integración Zapier",
+    table_calls: "Llamadas",
+
+    // Hero/How It Works Section
+    hero_automate_title: "Automatiza tu éxito",
+    hero_automate_subtitle: "en 4 pasos simples.",
+    step_label: "PASO",
+    step1_capture: "Captura Omnicanal",
+    step2_ai: "Inteligencia Artificial",
+    step3_sync: "Sync Automático",
+    step4_memory: "Memoria Eterna",
+    hero_capture: "Captura",
+
+    // Solutions Section
+    sol_sales_bant: "Ventas (BANT)",
+    sol_medical_soap: "Médico (Nota SOAP)",
+    sol_legal: "Legal & Jurídico",
+    sol_hr: "Recursos Humanos",
+    sol_product_ux: "Producto & UX",
+    sol_education: "Educación & Research",
+    sol_medical_title: "Más tiempo con el paciente.",
+    sol_medical_desc: "Antes pasaba 2 horas transcribiendo notas SOAP. Con Diktalo, grabo la consulta (con permiso) y tengo el reporte en el EHR en segundos. Es magia pura.",
+
+    // Footer
+    footer_recording_methods: "Métodos de Grabación",
+    footer_audio_recorder: "Grabadora de Audio",
+    footer_chrome_ext: "Extensión de Chrome",
+    footer_upload: "Subir Archivos",
+    footer_call_recorder: "Grabadora de Llamada",
+    footer_contact: "Contacto"
   }
 };

@@ -77,15 +77,15 @@ export const Pricing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-24 relative" id="pricing">
             <div className="text-center mb-16">
                 <h2 className="h2 text-slate-900 dark:text-white mb-4">
-                    Planes flexibles y trasparentes
+                    {t('pricing_title')}
                 </h2>
                 <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400">
-                    Sin costes ocultos. Cancela cuando quieras.
+                    {t('pricing_subtitle')}
                 </p>
 
                 {/* Toggle Anual */}
                 <div className="mt-8 flex justify-center items-center gap-4">
-                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>Mensual</span>
+                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>{t('pricing_monthly')}</span>
                     <button
                         onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
                         className={`relative w-14 h-8 rounded-full transition-colors ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-slate-300'}`}
@@ -96,7 +96,7 @@ export const Pricing: React.FC = () => {
                         />
                     </button>
                     <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
-                        Anual <span className="text-green-600 font-bold ml-1">-25%</span>
+                        {t('pricing_annual')} <span className="text-green-600 font-bold ml-1">{t('pricing_discount')}</span>
                     </span>
                 </div>
             </div>
@@ -124,7 +124,7 @@ export const Pricing: React.FC = () => {
 
                             <div className="mb-6">
                                 {plan.id === 'free' ? (
-                                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white">Gratis</span>
+                                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{t('pricing_free')}</span>
                                 ) : (
                                     <>
                                         <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
@@ -133,10 +133,10 @@ export const Pricing: React.FC = () => {
                                                 : `${monthlyPrice}€`
                                             }
                                         </span>
-                                        <span className="text-xs text-slate-500 dark:text-slate-500 font-medium">/mes</span>
+                                        <span className="text-xs text-slate-500 dark:text-slate-500 font-medium">{t('pricing_per_month')}</span>
                                         {billingInterval === 'annual' && annualPrice > 0 && (
                                             <p className="text-[10px] text-green-600 mt-1 font-bold">
-                                                Facturado {annualPrice}€ anualmente
+                                                {t('pricing_billed_annually').replace('{amount}', annualPrice.toString())}
                                             </p>
                                         )}
                                     </>
@@ -150,7 +150,7 @@ export const Pricing: React.FC = () => {
                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                                     }`}
                             >
-                                {plan.id === 'free' ? 'Empezar Gratis' : 'Elegir Plan'}
+                                {plan.id === 'free' ? t('pricing_start_free') : t('pricing_choose_plan')}
                             </a>
 
                             {/* Features from Backend - Use language-specific field */}
@@ -186,12 +186,12 @@ export const Pricing: React.FC = () => {
                             {/* TRANSCRIPCIÓN Group */}
                             <tr className="bg-slate-50 dark:bg-slate-800/50">
                                 <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    TRANSCRIPCIÓN
+                                    {t('table_transcription')}
                                 </td>
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Minutos Mensuales
+                                    {t('table_monthly_minutes')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center text-sm font-medium text-slate-900 dark:text-white">
@@ -201,7 +201,7 @@ export const Pricing: React.FC = () => {
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Etiquetas de Orador
+                                    {t('table_speaker_labels')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
@@ -213,12 +213,12 @@ export const Pricing: React.FC = () => {
                             {/* FUNCIONES IA Group */}
                             <tr className="bg-slate-50 dark:bg-slate-800/50">
                                 <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    FUNCIONES IA
+                                    {t('table_ai_features')}
                                 </td>
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Preguntar a Diktalo (Chat)
+                                    {t('table_ask_diktalo')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
@@ -228,7 +228,7 @@ export const Pricing: React.FC = () => {
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Resúmenes Avanzados
+                                    {t('table_advanced_summaries')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
@@ -240,12 +240,12 @@ export const Pricing: React.FC = () => {
                             {/* INTEGRACIÓN Group */}
                             <tr className="bg-slate-50 dark:bg-slate-800/50">
                                 <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    INTEGRACIÓN
+                                    {t('table_integration')}
                                 </td>
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Integración Zapier
+                                    {t('table_zapier')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
@@ -255,7 +255,7 @@ export const Pricing: React.FC = () => {
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Llamadas
+                                    {t('table_calls')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
