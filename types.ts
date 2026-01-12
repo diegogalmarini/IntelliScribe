@@ -205,11 +205,13 @@ export interface PlanConfig {
   id: string;
   name: string;
   description: string;
+  description_en?: string | null; // Multilingual support
   price_monthly: number;
   price_annual: number;
   stripe_price_id_monthly: string;
   stripe_price_id_annual: string;
   features: string[];
+  features_en?: string[] | null; // Multilingual support
   limits: PlanLimits;
   highlight: boolean;
   badge_text?: string | null;
@@ -220,5 +222,6 @@ export interface PlanConfig {
 export interface AppSetting {
   key: string;
   value: string;
+  value_en?: string | null; // Multilingual support
   description?: string;
 }
