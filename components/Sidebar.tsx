@@ -231,11 +231,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Usage Stats (Freemium Feature) */}
-          <div className="mx-3 mt-2 mb-4 bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl p-4">
+          <div className="mx-3 mt-2 mb-4 bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 group relative">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('usage')}</span>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                {t('usage')}
+                <span className="ml-1 text-[10px] opacity-60 cursor-help">ⓘ</span>
+              </span>
               <span className="text-xs font-mono text-slate-900 dark:text-white">{user.subscription.minutesUsed}/{user.subscription.minutesLimit}m</span>
             </div>
+
+            {/* Tooltip */}
+            <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-[11px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 shadow-2xl border border-slate-700">
+              <p className="font-semibold mb-2 text-blue-400">📊 Minutos Mensuales</p>
+              <p className="mb-1.5 leading-relaxed">✓ Se resetean cada mes al pagar</p>
+              <p className="mb-1.5 leading-relaxed">✗ NO se acumulan si no usas</p>
+              <p className="leading-relaxed">✗ Borrar audios NO devuelve minutos</p>
+              <div className="mt-2 pt-2 border-t border-slate-700">
+                <p className="font-semibold mb-1.5 text-green-400">💾 Almacenamiento</p>
+                <p className="mb-1 leading-relaxed">✓ Borrar audios SÍ libera espacio</p>
+                <p className="leading-relaxed">✗ NO se resetea mensualmente</p>
+              </div>
+            </div>
+
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-3">
               <div
                 className={`h-1.5 rounded-full transition-all ${usagePercent > 90
