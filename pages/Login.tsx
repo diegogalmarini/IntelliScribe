@@ -79,7 +79,8 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 });
 
                 if (signInError) throw signInError;
-                // AuthContext in App.tsx will detect session change and redirect
+                // Redirect to Dashboard after successful login
+                window.location.href = '/dashboard';
             }
         } catch (err: any) {
             console.error("Auth error:", err);
