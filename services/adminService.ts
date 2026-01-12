@@ -444,24 +444,33 @@ export const adminService = {
         console.log(`[adminService] Actualizando plan ${planId} con traducción automática...`);
 
         try {
-            // Si se actualizan description o features, traducir automáticamente
             let finalUpdates = { ...updates };
 
+            // FIXED: Check if description or features are being updated
+            // and trigger automatic translation
             if (updates.description || updates.features) {
-                console.log('[adminService] Traduciendo con IA...');
-                const translations = await autoTranslatePlan({
-                    description_es: updates.description || '',
-                    features_es: updates.features || []
-                });
+                console.log('[adminService] 🤖 Traduciendo con IA...');
 
-                finalUpdates = {
-                    ...finalUpdates,
-                    description_en: translations.description_en,
-                    features_en: translations.features_en
-                };
+                try {
+                    const translations = await autoTranslatePlan({
+                        description_es: updates.description || '',
+                        features_es: updates.features || []
+                    });
+
+                    finalUpdates = {
+                        ...finalUpdates,
+                        description_en: translations.description_en,
+                        features_en: translations.features_en
+                    };
+
+                    console.log('[adminService] ✅ Traducción IA completada');
+                } catch (translateError) {
+                    console.error('[adminService] ⚠️ Error en traducción IA (guardando solo ES):', translateError);
+                    // Continue saving even if translation fails
+                }
             }
 
-            // Guardar con ambas versiones
+            // Guardar con ambas versiones (o solo ES si la traducción falló)
             const { error } = await supabase
                 .from('plans_configuration')
                 .update(finalUpdates)
@@ -473,10 +482,10 @@ export const adminService = {
                 return false;
             }
 
-            console.log('[adminService] ✅ Plan guardado en ES + EN');
+            console.log('[adminService] ✅ Plan guardado correctamente');
             return true;
         } catch (error) {
-            console.error('[adminService] Error en traducción:', error);
+            console.error('[adminService] Error general:', error);
             return false;
         }
     },
