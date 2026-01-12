@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Cpu, Share2, Search } from 'lucide-react';
+import { Mic, Cpu, FileText, Search } from 'lucide-react';
 
 const features = [
     {
@@ -10,25 +10,25 @@ const features = [
         fullTitle: 'Captura Omnicanal',
         description: 'Graba desde el navegador, sube archivos o usa el Dialer. Todo tu audio centralizado.',
         icon: Mic,
-        image: '/images/hero-mobile.png'
+        image: '/images/feature-step1-capture.png'
     },
     {
         id: 1,
         number: '02',
         title: 'Procesamiento',
         fullTitle: 'Inteligencia Artificial',
-        description: 'Detecta hablantes y extrae tareas críticas automáticamente. Tu secretaria virtual perfecta.',
+        description: 'Transcribe con IA multilingüe, detecta hablantes y genera resúmenes inteligentes en segundos.',
         icon: Cpu,
-        image: '/images/hero-desktop.png'
+        image: '/images/feature-step2-ai.png'
     },
     {
         id: 2,
         number: '03',
-        title: 'Sincronización',
-        fullTitle: 'Sync Automático',
-        description: 'Envía resúmenes a tu CRM (Salesforce, HubSpot) o Notion con un solo clic.',
-        icon: Share2,
-        image: '/images/features-sales-real.png'
+        title: 'Análisis',
+        fullTitle: 'Análisis Inteligente',
+        description: 'Genera informes SOAP, BANT o personalizados con un clic. Exporta a PDF, Word o copia directamente.',
+        icon: FileText,
+        image: '/images/feature-step3-analysis.png'
     },
     {
         id: 3,
@@ -37,7 +37,7 @@ const features = [
         fullTitle: 'Memoria Eterna',
         description: 'Pregunta a Diktalo: "¿Qué precio pactamos?" y obtén la respuesta exacta en segundos.',
         icon: Search,
-        image: '/images/hero-desktop.png'
+        image: '/images/feature-step4-chat.png'
     }
 ];
 
