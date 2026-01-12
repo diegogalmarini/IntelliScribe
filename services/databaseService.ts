@@ -372,7 +372,7 @@ export const databaseService = {
                 segments: rec.segments,
                 notes: rec.notes || [],
                 media: rec.media || [],
-                metadata: rec.metadata || {} // Store metadata
+                metadata: rec.metadata || {} // Store metadata (includes audioFileSize)
             })
             .select()
             .single();
@@ -383,6 +383,11 @@ export const databaseService = {
         }
 
         const newId = data.id;
+
+        // Increment storage if audio file size is known
+        if (rec.metadata?.audioFileSize) {
+            await this.incrementStorage(user.id, rec.metadata.audioFileSize);
+        }
 
         // Notes and Media are now stored as JSONB in the recordings table
         // No need for separate inserts
@@ -442,6 +447,13 @@ export const databaseService = {
     },
 
     async deleteRecording(id: string): Promise<boolean> {
+        // Get recording metadata to retrieve file size before deleting
+        const { data: recording } = await supabase
+            .from('recordings')
+            .select('user_id, metadata')
+            .eq('id', id)
+            .single();
+
         const { error } = await supabase
             .from('recordings')
             .delete()
@@ -451,6 +463,12 @@ export const databaseService = {
             console.error('Error deleting recording:', error);
             return false;
         }
+
+        // Decrement storage if file size was tracked
+        if (recording?.metadata?.audioFileSize && recording.user_id) {
+            await this.decrementStorage(recording.user_id, recording.metadata.audioFileSize);
+        }
+
         return true;
     },
 
@@ -592,6 +610,63 @@ export const databaseService = {
 
         if (error) {
             logger.error('Error decrementing usage', { userId, minutes, error: error.message });
+            return false;
+        }
+
+        return true;
+    },
+
+    /**
+     * Increment user's storage_used when uploading audio
+     * Storage is cumulative and does NOT reset monthly
+     */
+    async incrementStorage(userId: string, fileSize: number): Promise<boolean> {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('storage_used')
+            .eq('id', userId)
+            .single();
+
+        if (!profile) return false;
+
+        const newStorage = (profile.storage_used || 0) + fileSize;
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({ storage_used: newStorage })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error incrementing storage:', error);
+            return false;
+        }
+
+        return true;
+    },
+
+    /**
+     * Decrement user's storage_used when deleting recording
+     * Frees up storage space for new uploads
+     */
+    async decrementStorage(userId: string, fileSize: number): Promise<boolean> {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('storage_used')
+            .eq('id', userId)
+            .single();
+
+        if (!profile) return false;
+
+        // Never go below 0
+        const newStorage = Math.max(0, (profile.storage_used || 0) - fileSize);
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({ storage_used: newStorage })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error decrementing storage:', error);
             return false;
         }
 
