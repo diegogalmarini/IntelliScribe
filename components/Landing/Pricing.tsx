@@ -39,15 +39,23 @@ export const Pricing: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch plans
+                console.log('[Pricing] Fetching plans for language:', language);
+
+                // Fetch plans - EXPLICITLY select multilingual columns
                 const { data: plansData, error: plansError } = await supabase
                     .from('plans_configuration')
-                    .select('*')
+                    .select('id, name, description, description_en, price_monthly, price_annual, stripe_price_id_monthly, stripe_price_id_annual, features, features_en, limits, highlight, badge_text, is_active')
                     .eq('is_active', true)
                     .order('price_monthly', { ascending: true });
 
                 if (plansError) throw plansError;
-                if (plansData) setPlans(plansData);
+
+                if (plansData) {
+                    console.log('[Pricing] ✅ Plans fetched. First plan:', plansData[0]);
+                    console.log('[Pricing] First plan has description_en?', plansData[0]?.description_en);
+                    console.log('[Pricing] First plan has features_en?', plansData[0]?.features_en);
+                    setPlans(plansData);
+                }
 
                 // Fetch legal footer with language suffix
                 const { data: settingsData, error: settingsError } = await supabase
@@ -110,6 +118,10 @@ export const Pricing: React.FC = () => {
                     const annualPrice = plan.price_annual;
                     const annualMonthlyEquiv = annualPrice > 0 ? Math.round(annualPrice / 12) : 0;
                     const isHighlight = plan.highlight;
+
+                    // DEBUG: Log what we're rendering
+                    const descriptionToShow = language === 'en' && plan.description_en ? plan.description_en : plan.description;
+                    console.log(`[Pricing] Rendering ${plan.id}: language='${language}', has_en=${!!plan.description_en}, showing='${descriptionToShow}'`);
 
                     return (
                         <div key={plan.id} className={`relative p-6 bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-sm border transition-all hover:shadow-md flex flex-col ${isHighlight ? 'border-blue-500 ring-1 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800'
