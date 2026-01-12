@@ -129,7 +129,7 @@ export const Solutions: React.FC = () => {
                             className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
                         >
                             {/* Lado L: Texto Humanizado */}
-                            <div className="order-2 lg:order-1">
+                            <div className="order-2 lg:order-1 py-[5%]">
                                 <h3 className="h2 text-slate-900 dark:text-white mb-8">
                                     {activeContent.title}
                                 </h3>
