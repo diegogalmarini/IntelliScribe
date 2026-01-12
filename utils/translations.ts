@@ -594,7 +594,30 @@ export const translations = {
     password_mismatch: "Passwords do not match",
     password_min_length: "Password must be at least 6 characters",
     save_password: "Update Password",
-    saved: "Saved"
+    saved: "Saved",
+
+    // Hero Section (NEW)
+    hero_main_title: "Your Corporate Second Brain",
+    hero_subtitle: "Record on mobile, decide on web. Diktalo unifies calls, recordings, and tasks into a single operating system of intelligence.",
+    hero_cta_start: "Start for Free",
+    hero_cta_demo: "Watch Demo",
+    hero_badge_compliance: "SOC2 & GDPR Ready",
+    hero_badge_mobile: "iOS & Android PWA",
+    hero_badge_desktop: "Web Desktop",
+
+    // Landing Page (NEW)
+    landing_faq_title: "Frequently Asked Questions",
+    landing_blog_tag: "Blog",
+    landing_blog_latest: "Latest News",
+    landing_blog_view_all: "View All",
+
+    // Login/Auth (NEW)
+    auth_separator: "OR",
+
+    // Navbar (NEW)
+    nav_solutions: "Solutions",
+    nav_plans: "Plans",
+    nav_contact: "Contact"
   },
   es: {
     // Auth
@@ -1210,6 +1233,30 @@ export const translations = {
     password_updated: "Contraseña actualizada correctamente",
     password_mismatch: "Las contraseñas no coinciden",
     password_min_length: "La contraseña debe tener al menos 6 caracteres",
-    saved: "Guardado"
+    save_password: "Actualizar Contraseña",
+    saved: "Guardado",
+
+    // Hero Section (NEW)
+    hero_main_title: "Tu Segundo Cerebro Corporativo",
+    hero_subtitle: "Graba en el móvil, decide en la web. Diktalo unifica llamadas, grabaciones y tareas en un solo sistema operativo de inteligencia.",
+    hero_cta_start: "Empezar gratis",
+    hero_cta_demo: "Ver demo",
+    hero_badge_compliance: "SOC2 & GDPR Ready",
+    hero_badge_mobile: "iOS & Android PWA",
+    hero_badge_desktop: "Web Desktop",
+
+    // Landing Page (NEW)
+    landing_faq_title: "Preguntasfrecuentes",
+    landing_blog_tag: "Blog",
+    landing_blog_latest: "Últimas noticias",
+    landing_blog_view_all: "Ver todas",
+
+    // Login/Auth (NEW)
+    auth_separator: "O",
+
+    // Navbar (NEW)
+    nav_solutions: "Soluciones",
+    nav_plans: "Planes",
+    nav_contact: "Contacto"
   }
 };

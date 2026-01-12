@@ -457,14 +457,27 @@ const AppContent: React.FC = () => {
     }, [supabaseUser, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Polling for Auto-Refresh (every 30s)
+    // CRITICAL FIX: Disable polling on admin routes to prevent state conflicts
     useEffect(() => {
         if (!supabaseUser) return;
+
+        // Don't poll if user is on admin panel (prevents overwriting local edits)
+        const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW ||
+            currentRoute === AppRoute.ADMIN_USERS ||
+            currentRoute === AppRoute.ADMIN_FINANCIALS ||
+            currentRoute === AppRoute.ADMIN_PLANS;
+
+        if (isAdminRoute) {
+            console.log('[POLLING] Disabled on admin route to preserve local state');
+            return;
+        }
+
         const intervalId = setInterval(() => {
             fetchData();
         }, 30000); // 30 seconds
 
         return () => clearInterval(intervalId);
-    }, [supabaseUser, fetchData]);
+    }, [supabaseUser, fetchData, currentRoute]);
 
 
     // --- HANDLERS ---

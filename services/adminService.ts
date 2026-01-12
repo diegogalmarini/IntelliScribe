@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting } from '../types';
+import { autoTranslatePlan, autoTranslateSetting } from './aiTranslationService';
 
 /**
  * Admin Service
@@ -437,25 +438,47 @@ export const adminService = {
 
     /**
      * Actualizar un plan específico
+     * NUEVO: Auto-traduce con IA al actualizar
      */
     async updatePlanConfig(planId: string, updates: Partial<PlanConfig>): Promise<boolean> {
-        console.log(`[adminService] Actualizando plan ${planId} (Fire & Forget)...`);
+        console.log(`[adminService] Actualizando plan ${planId} con traducción automática...`);
 
-        // No usamos .select() para evitar errores de lectura por permisos
-        const { error } = await supabase
-            .from('plans_configuration')
-            .update(updates)
-            .eq('id', planId);
+        try {
+            // Si se actualizan description o features, traducir automáticamente
+            let finalUpdates = { ...updates };
 
-        if (error) {
-            console.error('[adminService] Error de DB:', error.message);
-            alert(`Error de Base de Datos: ${error.message}`);
+            if (updates.description || updates.features) {
+                console.log('[adminService] Traduciendo con IA...');
+                const translations = await autoTranslatePlan({
+                    description_es: updates.description || '',
+                    features_es: updates.features || []
+                });
+
+                finalUpdates = {
+                    ...finalUpdates,
+                    description_en: translations.description_en,
+                    features_en: translations.features_en
+                };
+            }
+
+            // Guardar con ambas versiones
+            const { error } = await supabase
+                .from('plans_configuration')
+                .update(finalUpdates)
+                .eq('id', planId);
+
+            if (error) {
+                console.error('[adminService] Error de DB:', error.message);
+                alert(`Error de Base de Datos: ${error.message}`);
+                return false;
+            }
+
+            console.log('[adminService] ✅ Plan guardado en ES + EN');
+            return true;
+        } catch (error) {
+            console.error('[adminService] Error en traducción:', error);
             return false;
         }
-
-        // Si no hay error, asumimos éxito. No verificamos filas para evitar bloqueos.
-        console.log('[adminService] Plan guardado correctamente.');
-        return true;
     },
 
     /**
@@ -472,19 +495,32 @@ export const adminService = {
 
     /**
      * Actualizar una configuración global
+     * NUEVO: Auto-traduce con IA al actualizar
      */
     async updateAppSetting(key: string, value: string): Promise<boolean> {
-        // No usamos .select() para evitar errores de lectura
-        const { error } = await supabase
-            .from('app_settings')
-            .update({ value, updated_at: new Date() })
-            .eq('key', key);
+        try {
+            // Traducir automáticamente a inglés
+            const valueEn = await autoTranslateSetting(value);
 
-        if (error) {
-            console.error('[adminService] Error updating setting:', error);
+            const { error } = await supabase
+                .from('app_settings')
+                .update({
+                    value,  // Español (original)
+                    value_en: valueEn,  // Inglés (automatizado)
+                    updated_at: new Date()
+                })
+                .eq('key', key);
+
+            if (error) {
+                console.error('[adminService] Error updating setting:', error);
+                return false;
+            }
+
+            console.log('[adminService] ✅ Setting guardado en ES + EN');
+            return true;
+        } catch (error) {
+            console.error('[adminService] Error en traducción:', error);
             return false;
         }
-
-        return true;
     }
 };

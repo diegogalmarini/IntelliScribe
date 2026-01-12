@@ -80,7 +80,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                 if (signInError) throw signInError;
                 // Redirect to Dashboard after successful login
-                window.location.href = '/dashboard';
+                onNavigate(AppRoute.DASHBOARD);
             }
         } catch (err: any) {
             console.error("Auth error:", err);
