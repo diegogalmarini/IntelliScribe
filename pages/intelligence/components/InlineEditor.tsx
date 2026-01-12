@@ -447,8 +447,26 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         setIsTyping(true);
         setShowChat(true);
 
-        const context = segments.length > 0 ? fullTranscript : "No transcript available yet.";
-        const response = await chatWithTranscript(context, chatHistory, newMsg.text, language);
+        // BUILD ENRICHED CONTEXT with recording metadata
+        let enrichedContext = '';
+
+        if (segments.length > 0) {
+            // Extract unique speakers
+            const uniqueSpeakers = Array.from(new Set(segments.map(s => s.speaker)));
+
+            enrichedContext = `Información de la grabación:
+- Título: ${recording.title}
+- Fecha: ${recording.date || 'No especificada'}
+- Participantes detectados: ${uniqueSpeakers.join(', ')}
+- Duración: ${recording.duration || formatTime(recording.durationSeconds)}
+
+Transcripción completa:
+${fullTranscript}`;
+        } else {
+            enrichedContext = `Recording "${recording.title}" (${recording.date}) - No transcript available yet.`;
+        }
+
+        const response = await chatWithTranscript(enrichedContext, chatHistory, newMsg.text, language);
 
         setIsTyping(false);
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'model', text: response, timestamp: new Date() }]);
