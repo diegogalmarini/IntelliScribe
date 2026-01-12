@@ -32,6 +32,7 @@ export interface RecordingMetadata {
     timestamp: number;
     url: string;
   }>;
+  audioFileSize?: number; // Size in bytes for storage tracking
 }
 
 export interface Folder {
