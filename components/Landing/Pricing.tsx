@@ -52,15 +52,21 @@ export const Pricing: React.FC = () => {
                     setPlans(plansData);
                 }
 
-                // Fetch legal footer with language suffix
+
+                // Fetch legal footer - get BOTH fields and choose in JavaScript
                 const { data: settingsData, error: settingsError } = await supabase
                     .from('app_settings')
-                    .select(language === 'en' ? 'value_en as value' : 'value')
+                    .select('value, value_en')
                     .eq('key', 'legal_footer_text')
                     .single();
 
                 if (!settingsError && settingsData) {
-                    setLegalFooter(settingsData.value);
+                    // Choose the appropriate field based on language, fallback to Spanish
+                    const footerText = language === 'en' && settingsData.value_en
+                        ? settingsData.value_en
+                        : settingsData.value;
+                    setLegalFooter(footerText);
+                    console.log('[Pricing] Legal footer loaded:', { language, hasEnglish: !!settingsData.value_en, textLength: footerText?.length });
                 }
             } catch (err) {
                 console.error('Error loading landing data:', err);
