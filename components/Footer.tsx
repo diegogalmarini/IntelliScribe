@@ -28,12 +28,12 @@ export const Footer: React.FC = () => {
 
                 {/* Column 3: Recording Methods */}
                 <div className="flex flex-col gap-4">
-                    <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">Métodos de Grabación</h4>
-                    <a href="/manual?id=grabadora-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Grabadora de Audio</a>
-                    <a href="/manual?id=grabadora-web" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Extensión de Chrome</a>
-                    <a href="/manual?id=subir-archivos" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Subir Archivos</a>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('footer_recording_methods')}</h4>
+                    <a href="/manual?id=grabadora-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_audio_recorder')}</a>
+                    <a href="/manual?id=grabadora-web" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_chrome_ext')}</a>
+                    <a href="/manual?id=subir-archivos" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_upload')}</a>
                     <a href="/manual?id=multi-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Multi-Audio</a>
-                    <a href="/manual?id=grabadora-llamada" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Grabadora de Llamada</a>
+                    <a href="/manual?id=grabadora-llamada" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_call_recorder')}</a>
                 </div>
 
                 {/* Column 4: Legal */}
@@ -46,7 +46,7 @@ export const Footer: React.FC = () => {
 
                 {/* Column 5: Contact */}
                 <div className="flex flex-col gap-4">
-                    <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">Contacto</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('footer_contact')}</h4>
                     <a href="mailto:hello@diktalo.com" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">hello@diktalo.com</a>
                     <div className="flex items-center gap-3 mt-2">
                         <a href="https://x.com/diktalo" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-all">
