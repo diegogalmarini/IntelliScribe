@@ -130,15 +130,15 @@ export const Solutions: React.FC = () => {
                         >
                             {/* Lado L: Texto Humanizado */}
                             <div className="order-2 lg:order-1">
-                                <h3 className="h2 text-slate-900 dark:text-white mb-6">
+                                <h3 className="h2 text-slate-900 dark:text-white mb-8">
                                     {activeContent.title}
                                 </h3>
 
-                                <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 leading-relaxed font-medium">
+                                <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 leading-relaxed font-medium">
                                     "{activeContent.desc}"
                                 </p>
 
-                                <div className="space-y-4">
+                                <div className="space-y-5">
                                     {activeContent.features.map((feature, i) => (
                                         <div key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 font-bold">
                                             <div className={`p-1 rounded-full ${activeContent.bg}`}>
