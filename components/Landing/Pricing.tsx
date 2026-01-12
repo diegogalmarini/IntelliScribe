@@ -39,8 +39,6 @@ export const Pricing: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log('[Pricing] Fetching plans for language:', language);
-
                 // Fetch plans - EXPLICITLY select multilingual columns
                 const { data: plansData, error: plansError } = await supabase
                     .from('plans_configuration')
@@ -51,9 +49,6 @@ export const Pricing: React.FC = () => {
                 if (plansError) throw plansError;
 
                 if (plansData) {
-                    console.log('[Pricing] ✅ Plans fetched. First plan:', plansData[0]);
-                    console.log('[Pricing] First plan has description_en?', plansData[0]?.description_en);
-                    console.log('[Pricing] First plan has features_en?', plansData[0]?.features_en);
                     setPlans(plansData);
                 }
 
@@ -64,13 +59,8 @@ export const Pricing: React.FC = () => {
                     .eq('key', 'legal_footer_text')
                     .single();
 
-                console.log('[Pricing] Legal footer fetch:', { settingsData, settingsError });
-
                 if (!settingsError && settingsData) {
-                    console.log('[Pricing] Setting legal footer:', settingsData.value);
                     setLegalFooter(settingsData.value);
-                } else {
-                    console.warn('[Pricing] No legal footer found or error:', settingsError);
                 }
             } catch (err) {
                 console.error('Error loading landing data:', err);
@@ -118,10 +108,6 @@ export const Pricing: React.FC = () => {
                     const annualPrice = plan.price_annual;
                     const annualMonthlyEquiv = annualPrice > 0 ? Math.round(annualPrice / 12) : 0;
                     const isHighlight = plan.highlight;
-
-                    // DEBUG: Log what we're rendering
-                    const descriptionToShow = language === 'en' && plan.description_en ? plan.description_en : plan.description;
-                    console.log(`[Pricing] Rendering ${plan.id}: language='${language}', has_en=${!!plan.description_en}, showing='${descriptionToShow}'`);
 
                     return (
                         <div key={plan.id} className={`relative p-6 bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-sm border transition-all hover:shadow-md flex flex-col ${isHighlight ? 'border-blue-500 ring-1 ring-blue-500/20' : 'border-slate-200 dark:border-slate-800'
