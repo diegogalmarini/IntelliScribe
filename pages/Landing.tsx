@@ -130,18 +130,18 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-24 md:py-32 bg-slate-900 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div>
+                <section className="py-24 md:py-32 bg-primary overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10"></div>
                     <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
                         <h2 className="h2 text-white mb-8">
                             {t('ctaTitle')}
                         </h2>
-                        <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium text-center line-height-relaxed">
+                        <p className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium text-center line-height-relaxed">
                             {t('ctaDesc')}
                         </p>
                         <a
                             href="/login"
-                            className="inline-block px-12 py-5 bg-white text-slate-900 text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-2xl active:scale-95"
+                            className="inline-block px-12 py-5 bg-white text-primary text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl active:scale-95"
                         >
                             {t('ctaButton')}
                         </a>

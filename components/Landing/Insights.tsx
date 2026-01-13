@@ -8,9 +8,9 @@ export const Insights: React.FC = () => {
     return (
         <section id="insights" className="py-24 bg-white dark:bg-background-dark transition-colors duration-200 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col lg:flex-row items-center gap-16">
-                    {/* Left Column: Premium Typography (Owner.com inspired) */}
-                    <div className="flex-1 text-left">
+                <div className="flex flex-col items-center gap-16 text-center">
+                    {/* Centered Header: Premium Typography (Owner.com inspired) */}
+                    <div className="w-full max-w-4xl">
                         <motion.h2
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -25,12 +25,12 @@ export const Insights: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 font-medium max-w-xl line-height-relaxed"
+                            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 font-medium max-w-xl mx-auto line-height-relaxed"
                         >
                             {t('insightsSubtitle')}
                         </motion.p>
 
-                        <div className="space-y-6">
+                        <div className="flex justify-center gap-6 flex-wrap">
                             {[
                                 { key: 'insightsFeature1', icon: 'lyrics' },
                                 { key: 'insightsFeature2', icon: 'history_edu' },
@@ -38,13 +38,13 @@ export const Insights: React.FC = () => {
                             ].map((feature, idx) => (
                                 <motion.div
                                     key={feature.key}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.2 + idx * 0.1 }}
-                                    className="flex items-center gap-4 text-slate-700 dark:text-slate-200 font-bold italic"
+                                    className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold italic bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-full border border-slate-100 dark:border-white/5"
                                 >
-                                    <span className="material-symbols-outlined text-brand-green">{feature.icon}</span>
+                                    <span className="material-symbols-outlined text-primary">{feature.icon}</span>
                                     {t(feature.key as any)}
                                 </motion.div>
                             ))}
@@ -52,7 +52,7 @@ export const Insights: React.FC = () => {
                     </div>
 
                     {/* Right Column: High-Fidelity App Mockup */}
-                    <div className="flex-1 w-full relative">
+                    <div className="w-full max-w-4xl relative">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.98 }}
                             whileInView={{ opacity: 1, scale: 1 }}
