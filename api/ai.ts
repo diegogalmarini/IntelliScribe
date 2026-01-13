@@ -198,97 +198,75 @@ Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'spe
 
         // --- Action 4: Support Chatbot (Nati Pol) ---
         else if (action === 'support') {
-            const { message, history, knowledgeBasePath } = payload;
+            const { message, history } = payload;
 
-            // Load knowledge base from file system with fallback
-            let knowledgeBase = `Diktalo es tu Segundo Cerebro Corporativo.
+            // Hardcoded "Truths" to avoid hallucination regardless of JSON loading
+            const coreTruths = `
+Diktalo FEATURES:
+1. Grabadora Web: Graba audio directamente desde el navegador.
+2. Extensión de Chrome: Graba videollamadas en Google Meet, Zoom y Teams.
+3. Subida de Archivos: Transcribe archivos MP3/WAV/etc.
+4. DIALER INTEGRADO (CRÍTICO): Diktalo PERMITE grabar llamadas telefónicas en tiempo real. Escribes un número, llamas desde la web, y la llamada se graba y transcribe. Esto SÍ existe y es una función estrella.
 
-Es una plataforma de IA que te ayuda a:
-- Grabar reuniones, llamadas y conversaciones
-- Transcribir automáticamente a texto
-- Analizar con IA para extraer insights
-- Exportar a múltiples formatos (PDF, Word, TXT)
+PRECIOS:
+- Plan Free: 24 min/semana gratis.
+- Plan Pro: Desde 9€/mes.
 
-MÉTODOS DE GRABACIÓN:
-1. Grabadora Web: Desde el panel de control.
-2. Extensión de Chrome: Para Google Meet, Zoom y Microsoft Teams.
-3. Subida de Archivos: MP3, WAV, etc.
-4. LLAMADAS TELEFÓNICAS: Diktalo tiene un Dialer integrado. Puedes marcar un número desde la plataforma y la conversación se grabará y transcribirá automáticamente. Es ideal para ventas (análisis BANT) o entrevistas telefónicas.
+CONTACTO: contacto@diktalo.com`;
 
-PÚBLICO OBJETIVO:
-- Médicos: Notas SOAP automáticas.
-- Vendedores: Análisis de llamadas comerciales.
-- Abogados: Documentación de testimonios y casos.
-
-PLANES:
-- Gratis: 24 minutos al mes.
-- Pro: Desde 9€/mes.
-
-Para crear cuenta: clic en "Crear Mi Cuenta" en la home.
-Soporte: contacto@diktalo.com`;
+            let knowledgeBase = coreTruths;
 
             try {
                 const fs = await import('fs');
                 const path = await import('path');
-                const kbPath = path.join(process.cwd(), 'public', knowledgeBasePath || 'docs/chatbot-training/knowledge-base.json');
+                // Use absolute path relative to process.cwd()
+                const kbPath = path.join(process.cwd(), 'public/docs/chatbot-training/knowledge-base.json');
 
                 if (fs.existsSync(kbPath)) {
                     const kbContent = fs.readFileSync(kbPath, 'utf-8');
                     const kbData = JSON.parse(kbContent);
-
-                    // Format knowledge base for AI
                     const intents = kbData.intents.map((intent: any) => {
-                        return `TEMA: ${intent.category}\nPATTERNS: ${intent.patterns.join(', ')}\nRESPUESTA: ${intent.response_template}`;
-                    }).join('\n\n---\n\n');
-
-                    knowledgeBase = `KNOWLEDGE BASE DE DIKTALO:\n\n${intents}\n\nDETALLE IMPORTANTE: También permitimos grabar LLAMADAS TELEFÓNICAS mediante nuestro Dialer integrado.`;
-                    console.log('[AI_API] Knowledge base loaded successfully');
-                } else {
-                    console.warn('[AI_API] Knowledge base file not found, using fallback');
+                        return `TEMA: ${intent.category}\nRESPUESTA: ${intent.response_template}`;
+                    }).join('\n\n');
+                    knowledgeBase = `${coreTruths}\n\nKNOWLEDGE BASE ADICIONAL:\n${intents}`;
                 }
             } catch (err) {
-                console.error('[AI_API] Failed to load knowledge base:', err);
-                console.log('[AI_API] Using fallback knowledge base');
+                console.warn('[AI_API] Using coreTruths as fallback');
             }
 
             const systemInstruction = language === 'es'
-                ? `Eres Nati Pol, asistente virtual de Diktalo. Tu ÚNICA fuente de verdad es el CONTEXTO proporcionado abajo.
+                ? `Eres Nati Pol, asistente de Diktalo. NO ERES UN AI GENÉRICO. Eres una experta en Diktalo.
 
-REGLA CRÍTICA NÚMERO 1: Diktalo SÍ permite grabar llamadas telefónicas en tiempo real usando nuestro Dialer integrado. Si dices que no tenemos esta función, estarás dando información falsa.
+REGLAS DE ORO (INCUMPLIRLAS ES UN ERROR GRAVE):
+1. Diktalo SÍ permite grabar LLAMADAS TELEFÓNICAS reales con el DIALER integrado. Nunca digas que no tenemos esta función.
+2. Responde SIEMPRE en TEXTO PLANO. Prohibido usar negritas (**), cursivas (*), o emojis. 
+3. Usa guiones simples (-) para listas.
+4. Tono: Súper profesional, corto y ultra-directo. No des rodeos.
+5. Si no sabes algo según el contexto, di: "Por favor escribe a contacto@diktalo.com para ayudarte con ese detalle".
 
-CONTEXTO DE DIKTALO:
+DATOS DE DIKTALO:
 ${knowledgeBase}
 
-REGLAS DE RESPUESTA:
-1. Responde de forma profesional, corta y directa.
-2. NO uses emojis ni negritas (**). Texto plano solamente.
-3. Si te preguntan cómo grabar, DEBES mencionar estas 4 opciones:
-   - Grabadora Web (presencial)
-   - Extensión de Chrome (videollamadas Meet/Zoom)
-   - Subida de archivos (MP3/WAV)
-   - Dialer Integrado (para llamadas telefónicas directas)
-4. Si el usuario pregunta algo que no está en el CONTEXTO, di: "No tengo esa información específica. Por favor, contacta con soporte en contacto@diktalo.com".
-5. SIEMPRE responde en ESPAÑOL.
-6. Nunca digas que eres un bot ni menciones el "knowledge base".`
-                : `You are Nati Pol, Diktalo's virtual assistant. Your ONLY source of truth is the CONTEXT provided below.
+Responde al usuario basándote ÚNICAMENTE en estos datos.`
+                : `You are Nati Pol, Diktalo specialist. 
 
-CRITICAL RULE: Diktalo DOES allow recording real-time phone calls using our integrated Dialer. Saying we don't have this feature is strictly forbidden as it is false information.
+GOLDEN RULES:
+1. Diktalo DOES allow recording phone calls via our integrated DIALER.
+2. Respond in PLAIN TEXT ONLY. No bold (**), no italics, no emojis.
+3. Use simple dashes (-) for lists.
+4. Tone: Extremely professional and direct.
+5. If unknown, redirect to contacto@diktalo.com.
 
-CONTEXT:
+DIKTALO DATA:
 ${knowledgeBase}
 
-STRICT RULES:
-1. Be professional, short, and direct.
-2. NO emojis. NO bolding (**). Plain text only.
-3. When asked about recording, you MUST mention: Web Recorder, Chrome Extension, File Upload, and Integrated Dialer.
-4. If it's not in the CONTEXT, say: "I don't have that information. Please contact support at contacto@diktalo.com".
-5. ALWAYS respond in ENGLISH.`;
+Answer ONLY based on this data.`;
 
             const chat = genAI.chats.create({
                 model: 'gemini-2.0-flash-exp',
                 config: {
                     systemInstruction,
-                    temperature: 0.3
+                    temperature: 0.0 // Zero temperature for zero hallucinations
                 },
                 history: history.map((h: any) => ({
                     role: h.role === 'user' ? 'user' : 'model',
