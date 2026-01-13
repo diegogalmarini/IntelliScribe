@@ -90,7 +90,7 @@ export const Solutions: React.FC = () => {
 
     return (
 
-    return (
+
         <section id="solutions" className="py-20 md:py-32 bg-white dark:bg-[#0b0f17] transition-colors duration-300">
             <div className="container mx-auto px-6 max-w-7xl">
 

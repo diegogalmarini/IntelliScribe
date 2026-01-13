@@ -84,7 +84,6 @@ export const Features: React.FC = () => {
             number: '04',
             title: t('comp_ask_diktalo').split('(')[0].trim(), // "Ask Diktalo"
             fullTitle: t('step4_memory'),
-            description: t('man_edit_body').split('*')[3] || "Ask Diktalo questions.", // Fallback? 
             // Actually, simpler to use `t('carousel9_desc')` "What did the client say...?" matches "Pregunta a Diktalo..."
             description: t('carousel9_desc'),
             icon: Search,
