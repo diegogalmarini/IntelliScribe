@@ -24,6 +24,7 @@ import { notifyNewRecording } from './services/emailService';
 import CrispWidget from './components/CrispWidget';
 import { SupportBot } from './components/SupportBot/SupportBot';
 import { Navbar } from './components/Landing/Navbar';
+import { Footer } from './components/Footer';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
 import { Privacy } from './pages/legal/Privacy';
@@ -729,7 +730,7 @@ const AppContent: React.FC = () => {
                 <CrispWidget />
                 <Navbar user={user} onNavigate={navigate} />
                 <Contact />
-                {/* Footer would go here if available */}
+                <Footer />
             </>
         );
     }
