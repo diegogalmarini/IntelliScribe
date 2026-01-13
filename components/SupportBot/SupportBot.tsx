@@ -33,9 +33,10 @@ export const SupportBot: React.FC = () => {
             setMessages(prev => [...prev, { role: 'bot', content: response }]);
         } catch (error) {
             console.error('Support chat error:', error);
+            console.error('Error details:', error instanceof Error ? error.message : String(error));
             setMessages(prev => [...prev, {
                 role: 'bot',
-                content: 'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?'
+                content: `Error: ${error instanceof Error ? error.message : 'No pude procesar tu mensaje'}. Por favor, intenta de nuevo.`
             }]);
         } finally {
             setIsTyping(false);
