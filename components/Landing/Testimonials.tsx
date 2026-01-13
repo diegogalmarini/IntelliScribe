@@ -31,7 +31,7 @@ export const Testimonials: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16">
                     <p className="text-xs font-bold text-slate-500 mb-3">Testimonios</p>
-                    <h2 className="h2 text-slate-900 dark:text-white">
+                    <h2 className="h2 home text-slate-900 dark:text-white">
                         {t('heroReview')}
                     </h2>
                 </div>

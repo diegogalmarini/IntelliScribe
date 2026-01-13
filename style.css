@@ -132,13 +132,35 @@
 
 /* TYPOGRAPHY SYSTEM - NAMESPACED */
 
+/* HOME PAGE - Large, dramatic typography */
+.landing-page h1.home,
+.landing-page .h1.home {
+    font-family: var(--suisse);
+    letter-spacing: -.02em;
+    font-weight: 500;
+    line-height: 1.1;
+    font-size: 4rem;
+    margin: 0;
+}
+
+.landing-page h2.home,
+.landing-page .h2.home {
+    font-family: var(--suisse);
+    letter-spacing: -.01em;
+    font-weight: 500;
+    line-height: 1.25;
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+/* LEGAL & MANUAL PAGES - Compact, readable typography */
 .landing-page h1,
 .landing-page .h1 {
     font-family: var(--suisse);
     letter-spacing: -.02em;
     font-weight: 500;
     line-height: 1.1;
-    font-size: 4rem;
+    font-size: 2rem;
     margin: 0;
 }
 
@@ -148,13 +170,57 @@
     letter-spacing: -.01em;
     font-weight: 500;
     line-height: 1.25;
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     margin: 0;
+    color: #0f172a;
+}
+
+.landing-page h3,
+.landing-page .h3 {
+    font-family: var(--suisse);
+    letter-spacing: -.01em;
+    font-weight: 500;
+    line-height: 1.25;
+    font-size: 1.1rem;
+    margin: 0;
+    color: #0f172a;
+    margin-top: 1.5rem;
+}
+
+.landing-page h4,
+.landing-page .h4 {
+    font-family: var(--suisse);
+    letter-spacing: -.01em;
+    font-weight: 400;
+    line-height: 1.25;
+    font-size: 1rem;
+    margin: 0;
+    color: #0f172a;
+    opacity: 1;
 }
 
 .landing-page p {
+    margin-top: 1rem;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.landing-page a {
+    line-height: 1.6;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.landing-page li,
+.landing-page .li {
     margin: 0;
     line-height: 1.6;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #0f172a;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .landing-page img {
@@ -192,22 +258,37 @@
 /* SMALL SCREENS FALLBACKS */
 @media (max-width: 768px) {
 
+    .landing-page h1.home,
+    .landing-page .h1.home {
+        font-size: 3rem !important;
+    }
+
+    .landing-page h2.home,
+    .landing-page .h2.home {
+        font-size: 1.75rem !important;
+    }
+
     .landing-page h1,
     .landing-page .h1 {
-        font-size: 3rem !important;
+        font-size: 1.75rem !important;
     }
 
     .landing-page h2,
     .landing-page .h2 {
-        font-size: 1.75rem !important;
+        font-size: 1.25rem !important;
     }
 }
 
 @media (max-width: 480px) {
 
+    .landing-page h1.home,
+    .landing-page .h1.home {
+        font-size: 2.375rem !important;
+    }
+
     .landing-page h1,
     .landing-page .h1 {
-        font-size: 2.375rem !important;
+        font-size: 1.5rem !important;
     }
 }
 

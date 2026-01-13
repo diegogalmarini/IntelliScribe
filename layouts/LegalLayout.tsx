@@ -9,8 +9,6 @@ interface LegalLayoutProps {
     lastUpdated?: string;
 }
 
-// ... imports
-
 export const LegalLayout: React.FC<LegalLayoutProps> = ({ children, title, lastUpdated }) => {
     return (
         <div className="landing-page bg-white dark:bg-background-dark min-h-screen font-sans transition-colors duration-300 flex flex-col">
@@ -23,21 +21,19 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({ children, title, lastU
                         <LegalSidebar />
 
                         {/* Content */}
-                        <main className="flex-1 min-w-0 legal-page">
+                        <main className="flex-1 min-w-0">
                             {title && (
                                 <div className="mb-12">
-                                    <h1 className="text-slate-900 dark:text-white mb-4">
+                                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
                                         {title}
                                     </h1>
                                     {lastUpdated && (
-                                        <p className="text-slate-500 text-sm mt-0!">{/* override legal-p margin-top */}
-                                            Updated: {lastUpdated}
-                                        </p>
+                                        <p className="text-slate-500 text-sm">Updated: {lastUpdated}</p>
                                     )}
                                 </div>
                             )}
 
-                            <div>
+                            <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-primary hover:prose-a:text-primary-dark prose-img:rounded-xl">
                                 {children}
                             </div>
                         </main>

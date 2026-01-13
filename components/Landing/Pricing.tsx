@@ -82,7 +82,7 @@ export const Pricing: React.FC = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 py-24 relative" id="pricing">
             <div className="text-center mb-16">
-                <h2 className="h2 text-slate-900 dark:text-white mb-4">
+                <h2 className="h2 home text-slate-900 dark:text-white mb-4">
                     {t('pricing_title')}
                 </h2>
                 <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400">
