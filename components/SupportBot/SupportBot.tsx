@@ -1,36 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Intent {
-    intent_id: string;
-    category: string;
-    patterns: string[];
-    response_template: string;
-    related_intents?: string[];
-}
-
-interface KB {
-    intents: Intent[];
-    fallback_responses: string[];
-}
-
 export const SupportBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([
         { role: 'bot', content: '¡Hola! Soy Nati Pol, la asistente de Diktalo. ¿En qué puedo ayudarte hoy?' }
     ]);
     const [input, setInput] = useState('');
-    const [kb, setKb] = useState<KB | null>(null);
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
-
-    // Load Knowledge Base
-    useEffect(() => {
-        fetch('/docs/chatbot-training/knowledge-base.json')
-            .then(res => res.json())
-            .then(data => setKb(data))
-            .catch(err => console.error('Error loading KB:', err));
-    }, []);
 
     // Auto-scroll
     useEffect(() => {
@@ -48,36 +26,19 @@ export const SupportBot: React.FC = () => {
         setInput('');
         setIsTyping(true);
 
-        // Simulate AI thinking
-        setTimeout(() => {
-            findResponse(userMsg);
+        try {
+            // Call real Gemini AI instead of pattern matching
+            const { supportChat } = await import('../services/geminiService');
+            const response = await supportChat(userMsg, messages, 'es');
+            setMessages(prev => [...prev, { role: 'bot', content: response }]);
+        } catch (error) {
+            console.error('Support chat error:', error);
+            setMessages(prev => [...prev, {
+                role: 'bot',
+                content: 'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?'
+            }]);
+        } finally {
             setIsTyping(false);
-        }, 1000);
-    };
-
-    const findResponse = (query: string) => {
-        if (!kb) return;
-
-        const normalizedQuery = query.toLowerCase();
-
-        // Simple intent matching
-        let bestMatch: Intent | null = null;
-        let maxScare = 0;
-
-        kb.intents.forEach(intent => {
-            intent.patterns.forEach(pattern => {
-                if (normalizedQuery.includes(pattern.toLowerCase())) {
-                    bestMatch = intent;
-                    maxScare = 1;
-                }
-            });
-        });
-
-        if (bestMatch) {
-            setMessages(prev => [...prev, { role: 'bot', content: (bestMatch as Intent).response_template }]);
-        } else {
-            const fallback = kb.fallback_responses[Math.floor(Math.random() * kb.fallback_responses.length)];
-            setMessages(prev => [...prev, { role: 'bot', content: fallback }]);
         }
     };
 

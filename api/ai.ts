@@ -196,6 +196,71 @@ Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'spe
             result = JSON.parse(response.text || "[]");
         }
 
+        // --- Action 4: Support Chatbot (Nati Pol) ---
+        else if (action === 'support') {
+            const { message, history, knowledgeBasePath } = payload;
+
+            // Load knowledge base from file system
+            let knowledgeBase = '';
+            try {
+                const fs = await import('fs');
+                const path = await import('path');
+                const kbPath = path.join(process.cwd(), 'public', knowledgeBasePath || 'docs/chatbot-training/knowledge-base.json');
+                const kbContent = fs.readFileSync(kbPath, 'utf-8');
+                const kbData = JSON.parse(kbContent);
+
+                // Format knowledge base for AI
+                const intents = kbData.intents.map((intent: any) => {
+                    return `TEMA: ${intent.category}\nPATTERNS: ${intent.patterns.join(', ')}\nRESPUESTA: ${intent.response_template}`;
+                }).join('\n\n---\n\n');
+
+                knowledgeBase = `KNOWLEDGE BASE DE DIKTALO:\n\n${intents}`;
+            } catch (err) {
+                console.error('[AI_API] Failed to load knowledge base:', err);
+                knowledgeBase = 'Diktalo es una plataforma de IA para transcribir y analizar conversaciones.';
+            }
+
+            const systemInstruction = language === 'es'
+                ? `Eres Nati Pol, la asistente virtual de Diktalo. Tu personalidad es amigable, profesional y servicial.
+
+CONTEXTO DE DIKTALO:
+${knowledgeBase}
+
+INSTRUCCIONES:
+1. Responde basándote en el knowledge base proporcionado
+2. Si no sabes algo, sugiere contactar a soporte (contacto@diktalo.com)
+3. Sé concise pero completa
+4. Usa emojis moderadamente (máximo 2-3 por respuesta)
+5. SIEMPRE responde en ESPAÑOL
+6. Si mencionas enlaces internos, usa el formato file:// del knowledge base`
+                : `You are Nati Pol, Diktalo's virtual assistant.
+
+CONTEXT:
+${knowledgeBase}
+
+INSTRUCTIONS:
+1. Answer based on the provided knowledge base
+2. If uncertain, suggest contacting support
+3. Be concise but complete
+4. Use emojis moderately
+5. ALWAYS respond in ENGLISH`;
+
+            const chat = genAI.chats.create({
+                model: 'gemini-2.0-flash-exp',
+                config: {
+                    systemInstruction,
+                    temperature: 0.7  // Slightly more creative for friendly chat
+                },
+                history: history.map((h: any) => ({
+                    role: h.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: h.content }]
+                }))
+            });
+
+            const response = await chat.sendMessage({ message });
+            result = response.text;
+        }
+
         else {
             throw new Error('Invalid action');
         }
