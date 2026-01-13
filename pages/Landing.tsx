@@ -139,7 +139,7 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         <h2 className="h2 text-white mb-8">
                             {t('ctaTitle')}
                         </h2>
-                        <p className="text-white/80 text-lg md:text-xl max-w-2xl !mx-auto mb-12 font-medium text-center">
+                        <p className="text-white/80 text-lg md:text-xl max-w-2xl !mx-auto mb-12 font-medium text-center" style={{ lineHeight: '1.8' }}>
                             {t('ctaDesc')}
                         </p>
                         <a
