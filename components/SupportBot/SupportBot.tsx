@@ -142,4 +142,3 @@ export const SupportBot: React.FC = () => {
         </div>
     );
 };
-```
