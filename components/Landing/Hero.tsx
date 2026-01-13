@@ -37,7 +37,7 @@ export const Hero: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="text-center text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed px-4"
+                        className="text-center text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl font-medium px-4 line-height-relaxed"
                     >
                         {t('hero_subtitle')}
                     </motion.p>
