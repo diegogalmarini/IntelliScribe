@@ -132,19 +132,14 @@ export const SupportBot: React.FC = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform overflow-hidden ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
+                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
                     }`}
             >
-                {isOpen ? (
-                    <span className="material-symbols-outlined text-3xl">close</span>
-                ) : (
-                    <img
-                        src="/images/nati-pol.png"
-                        alt="Chat"
-                        className="w-full h-full object-cover"
-                    />
-                )}
+                <span className="material-symbols-outlined text-3xl">
+                    {isOpen ? 'close' : 'chat_bubble'}
+                </span>
             </motion.button>
         </div>
     );
 };
+```
