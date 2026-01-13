@@ -18,7 +18,7 @@
                 "función de diktalo",
                 "para que es diktalo"
             ],
-            "response_template": "¡Hola! 👋 Diktalo es tu **Segundo Cerebro Corporativo**.\n\nEs una plataforma de IA que te ayuda a:\n✅ Grabar reuniones, llamadas y conversaciones\n✅ Transcribir automáticamente a texto\n✅ Analizar con IA para extraer insights\n✅ Exportar a múltiples formatos (PDF, Word, TXT)\n\nPerfecto para:\n🩺 Médicos (notas SOAP automáticas)\n💼 Vendedores (análisis BANT)\n⚖️ Abogados (documentación de casos)\n👔 Profesionales en general\n\n💡 **Empieza gratis** con 24 min/mes\n\n¿Quieres saber cómo crear tu cuenta o hacer tu primera grabación?",
+            "response_template": "Hola. Diktalo es tu Segundo Cerebro Corporativo.\n\nEs una plataforma de IA que te ayuda a:\n- Grabar reuniones, llamadas y conversaciones\n- Transcribir automáticamente a texto\n- Analizar con IA para extraer insights\n- Exportar a múltiples formatos (PDF, Word, TXT)\n\nPerfecto para:\n- Médicos (notas SOAP automáticas)\n- Vendedores (análisis BANT)\n- Abogados (documentación de casos)\n- Profesionales en general\n\nEmpieza gratis con 24 min al mes.\n\n¿Quieres saber cómo crear tu cuenta o hacer tu primera grabación?",
             "related_intents": [
                 "how_to_create_account",
                 "what_is_free_plan",
@@ -55,12 +55,32 @@
                 "primera grabación",
                 "iniciar una sesión de audio"
             ],
-            "response_template": "Para hacer tu primera grabación:\n\n1. Ve a tu dashboard (https://www.diktalo.com/intelligence)\n2. Haz clic en 'Grabar Audio'\n3. Selecciona modo 'Reunión Presencial'\n4. Permite el acceso al micrófono\n5. Haz clic en el botón rojo para iniciar\n6. Mantén presionado el botón cuadrado 3 segundos para detener\n\n✅ Tu grabación se transcribirá automáticamente en 2-5 minutos.\n\n📖 [Guía completa con imágenes](file:///docs/manual/es/02_metodos_grabacion/grabadora_web.md)",
+            "response_template": "Para hacer tu primera grabación:\n\n1. Ve a tu dashboard (https://www.diktalo.com/intelligence)\n2. Haz clic en 'Grabar Audio'\n3. Selecciona modo 'Reunión Presencial'\n4. Permite el acceso al micrófono\n5. Haz clic en el botón rojo para iniciar\n6. Mantén presionado el botón cuadrado 3 segundos para detener\n\nTu grabación se transcribirá automáticamente en 2-5 minutos.\n\n📖 [Guía completa con imágenes](file:///docs/manual/es/02_metodos_grabacion/grabadora_web.md)",
             "related_intents": [
                 "add_notes_during_recording",
-                "recording_not_transcribing"
+                "recording_not_transcribing",
+                "how_to_record_calls"
             ],
             "confidence_threshold": 0.8
+        },
+        {
+            "intent_id": "how_to_record_calls",
+            "category": "recording",
+            "patterns": [
+                "cómo grabar llamadas",
+                "grabar llamadas telefónicas",
+                "grabar un llamado",
+                "usar el dialer",
+                "marcar un número",
+                "llamadas en tiempo real",
+                "grabar llamadas de celular"
+            ],
+            "response_template": "Diktalo tiene un Dialer integrado para grabar llamadas telefónicas directamente:\n\n1. Ve a la sección 'Dialer' en tu dashboard.\n2. Ingresa el número de teléfono con el código de país.\n3. Haz clic en el botón de llamar.\n4. La llamada se grabará y transcribirá automáticamente al finalizar.\n\nEs ideal para entrevistas telefónicas y gestión de ventas (análisis BANT).",
+            "related_intents": [
+                "how_to_record_web",
+                "how_to_record_extension"
+            ],
+            "confidence_threshold": 0.85
         },
         {
             "intent_id": "add_notes_during_recording",
@@ -140,7 +160,7 @@
                 "plan free características",
                 "cuántos minutos tengo"
             ],
-            "response_template": "El plan **Free** incluye:\n\n✅ 24 minutos/mes de grabación\n✅ Almacenamiento de 7 días\n✅ Transcripción automática\n✅ Chat básico con IA\n✅ Exportar a TXT y PDF\n\nSi necesitas más, puedes actualizar a:\n- **Personal**: 300 min/mes, 30 días almacenamiento\n- **Business+**: 1200 min/mes, almacenamiento ilimitado\n\n📊 [Comparar todos los planes](https://www.diktalo.com/plans)\n\n📖 [Más sobre planes](file:///docs/manual/es/06_planes/comparativa.md)",
+            "response_template": "El plan Free incluye:\n\n- 24 minutos al mes de grabación\n- Almacenamiento de 7 días\n- Transcripción automática\n- Chat básico con IA\n- Exportar a TXT y PDF\n\nSi necesitas más, puedes actualizar a:\n- Personal: 300 min/mes, 30 días almacenamiento\n- Business+: 1200 min/mes, almacenamiento ilimitado\n\nComparar todos los planes: https://www.diktalo.com/plans",
             "related_intents": [
                 "how_to_upgrade_plan",
                 "how_to_create_account"
