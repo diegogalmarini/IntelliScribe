@@ -114,7 +114,7 @@
 :root {
     --landing-bg: #f1f1f2;
     --landing-content-primary: #181f1f;
-    --landing-brand-blue: #015bf8;
+    --landing-brand-blue: #0055FF;
     --suisse: 'Suisseintl', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -135,9 +135,8 @@
 .landing-page h1,
 .landing-page .h1 {
     font-family: var(--suisse);
-    letter-spacing: -.027em !important;
-    font-size: 4.5rem !important;
-    font-weight: 500 !important;
+    letter-spacing: -.02em;
+    font-weight: 500;
     line-height: 1.1;
     margin: 0;
 }
@@ -145,10 +144,9 @@
 .landing-page h2,
 .landing-page .h2 {
     font-family: var(--suisse);
-    letter-spacing: -.01em !important;
-    font-size: 2.25rem !important;
-    font-weight: 500 !important;
-    line-height: 1.3;
+    letter-spacing: -.01em;
+    font-weight: 500;
+    line-height: 1.25;
     margin: 0;
 }
 
