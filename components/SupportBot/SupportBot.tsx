@@ -56,8 +56,12 @@ export const SupportBot: React.FC = () => {
                         {/* Header */}
                         <div className="bg-primary p-6 text-white flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                                    <span className="material-symbols-outlined text-white">smart_toy</span>
+                                <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
+                                    <img
+                                        src="/images/nati-pol.png"
+                                        alt="Nati Pol"
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                                 <div>
                                     <div>
@@ -128,12 +132,18 @@ export const SupportBot: React.FC = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
+                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform overflow-hidden ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
                     }`}
             >
-                <span className="material-symbols-outlined text-3xl">
-                    {isOpen ? 'close' : 'chat_bubble'}
-                </span>
+                {isOpen ? (
+                    <span className="material-symbols-outlined text-3xl">close</span>
+                ) : (
+                    <img
+                        src="/images/nati-pol.png"
+                        alt="Chat"
+                        className="w-full h-full object-cover"
+                    />
+                )}
             </motion.button>
         </div>
     );
