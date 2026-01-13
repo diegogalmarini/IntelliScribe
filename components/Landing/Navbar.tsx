@@ -73,7 +73,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                             <button onClick={() => handleNavClick('pricing')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_plans')}</button>
                             <button onClick={() => handleNavClick('faq')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</button>
                             <button onClick={() => handleNavClick('blog')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Blog</button>
-                            <a href="mailto:hello@diktalo.com" className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_contact')}</a>
+                            <button onClick={() => navigate('/contact')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_contact')}</button>
                         </nav>
 
                         <div className="flex items-center gap-6 border-l border-slate-200 dark:border-white/10 pl-10">
@@ -141,6 +141,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                             <button onClick={() => handleNavClick('solutions')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('solSectionTag')}</button>
                             <button onClick={() => handleNavClick('pricing')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_plans')}</button>
                             <button onClick={() => handleNavClick('faq')} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
+                            <button onClick={() => { setIsMenuOpen(false); navigate('/contact'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_contact')}</button>
 
                             {isAuthenticated ? (
                                 <button
