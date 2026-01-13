@@ -147,7 +147,8 @@ export enum AppRoute {
   INTELLIGENCE = 'intelligence', // NEW: Intelligence Dashboard (testing)
   TRUST = 'trust',
   COOKIES = 'cookies',
-  PRICING_COMPARISON = 'pricing-comparison' // NEW
+  PRICING_COMPARISON = 'pricing-comparison', // NEW
+  CONTACT = 'contact' // NEW
 }
 
 // ========== ADMIN TYPES ==========

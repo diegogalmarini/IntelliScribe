@@ -48,6 +48,24 @@ export const translations = {
     emailAddressPlaceholder: "Email address", // NEW
     passwordPlaceholder: "Password", // NEW
 
+    // Contact Page
+    contactTitle: "Contact Us",
+    contactSubtitle: "We are here to help. Send us your questions or feedback.",
+    contactFormName: "Your Name",
+    contactFormEmail: "Email Address",
+    contactFormTopic: "Topic",
+    contactFormSubject: "Subject",
+    contactFormMessage: "How can we help you?",
+    contactSendBtn: "Send Message",
+    contactSending: "Sending...",
+    contactSuccessTitle: "Message Sent",
+    contactSuccessDesc: "We have received your message and will get back to you shortly.",
+    contactTopicSupport: "Support",
+    contactTopicSales: "Sales",
+    contactTopicPartnership: "Partnership",
+    contactTopicFeedback: "Feedback",
+    contactTopicOther: "Other",
+
     // Sidebar
     dashboard: "Dashboard",
     integrations: "Integrations",
@@ -669,9 +687,45 @@ export const translations = {
     footer_chrome_ext: "Chrome Extension",
     footer_upload: "Upload Files",
     footer_call_recorder: "Call Recorder",
-    footer_contact: "Contact"
+    footer_contact: "Contact",
+
+    // Contact Page
+    contactTitle: "Contact Us",
+    contactSubtitle: "We're here to help. Send us your questions or feedback.",
+    contactFormName: "Your Name",
+    contactFormEmail: "Email Address",
+    contactFormTopic: "Topic",
+    contactFormSubject: "Subject",
+    contactFormMessage: "How can we help you?",
+    contactSendBtn: "Send Message",
+    contactSending: "Sending...",
+    contactSuccessTitle: "Message Sent",
+    contactSuccessDesc: "We have received your message and will get back to you shortly.",
+    contactTopicSupport: "Support",
+    contactTopicSales: "Sales",
+    contactTopicPartnership: "Partnership",
+    contactTopicFeedback: "Feedback",
+    contactTopicOther: "Other"
   },
   es: {
+    // Contact Page
+    contactTitle: "Contáctanos",
+    contactSubtitle: "Estamos aquí para ayudar. Envíanos tus preguntas o comentarios.",
+    contactFormName: "Tu Nombre",
+    contactFormEmail: "Correo Electrónico",
+    contactFormTopic: "Asunto / Tema",
+    contactFormSubject: "Asunto",
+    contactFormMessage: "¿Cómo podemos ayudarte?",
+    contactSendBtn: "Enviar Mensaje",
+    contactSending: "Enviando...",
+    contactSuccessTitle: "Mensaje Enviado",
+    contactSuccessDesc: "Hemos recibido tu mensaje y te responderemos a la brevedad.",
+    contactTopicSupport: "Soporte",
+    contactTopicSales: "Ventas",
+    contactTopicPartnership: "Alianzas",
+    contactTopicFeedback: "Feedback",
+    contactTopicOther: "Otro",
+
     // Auth
     welcomeBack: "Bienvenido de nuevo",
     createAccount: "Crear Cuenta", // NEW
