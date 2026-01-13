@@ -97,7 +97,7 @@ export const Solutions: React.FC = () => {
                 {/* Header de Sección */}
                 <div className="text-center mb-16 md:mb-24">
                     <p className="text-xs font-semibold tracking-[0.15em] text-slate-500 mb-4 uppercase">{t('solSectionTag')}</p>
-                    <h2 className="text-3xl md:text-5xl font-medium text-slate-900 dark:text-white tracking-tight">
+                    <h2 className="h2 home text-slate-900 dark:text-white">
                         {t('solSectionTitle')}
                     </h2>
                 </div>

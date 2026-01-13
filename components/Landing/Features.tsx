@@ -104,7 +104,7 @@ export const Features: React.FC = () => {
 
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
+                    <h2 className="h2 home text-slate-900 dark:text-white mb-6">
                         {t('hero_automate_title')} <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                             {t('hero_automate_subtitle')}
