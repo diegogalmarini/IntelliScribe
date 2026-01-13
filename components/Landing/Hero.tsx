@@ -14,8 +14,8 @@ export const Hero: React.FC = () => {
             {/* 1. Fondo Técnico (Grid Sutil) */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
             <div className="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 pointer-events-none">
-                <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" />
-                <div className="absolute bottom-20 right-10 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] animate-pulse delay-1000" />
+                <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute bottom-20 right-10 w-[400px] h-[400px] bg-brand-violet/20 rounded-full blur-[100px] animate-pulse delay-1000" />
             </div>
 
             <div className="container mx-auto px-4 relative z-10 text-center">
@@ -52,7 +52,7 @@ export const Hero: React.FC = () => {
                 >
                     <Link
                         to="/login"
-                        className="w-full sm:w-auto px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-semibold text-lg transition-all shadow-xl hover:shadow-2xl dark:hover:bg-slate-200 flex items-center justify-center gap-2 group rounded-xl"
+                        className="w-full sm:w-auto px-10 py-5 bg-primary text-white font-semibold text-lg transition-all shadow-xl hover:shadow-2xl hover:bg-primary-hover flex items-center justify-center gap-2 group rounded-xl"
                     >
                         {t('hero_cta_start')}
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

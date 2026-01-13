@@ -22,8 +22,8 @@ export const Solutions: React.FC = () => {
             id: 'sales',
             label: t('sol_sales_bant'),
             icon: Briefcase,
-            color: 'text-blue-500',
-            bg: 'bg-blue-500/10',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             title: 'Cerrar tratos, no transcribir audios.',
             desc: 'Antes pasaba horas pasando las notas de mis llamadas a Salesforce. Ahora Diktalo extrae el presupuesto y las objeciones por mí mientras hablo.',
             features: ['Sincronización con CRM', 'Detección de Objeciones', 'Análisis BANT'],
@@ -33,8 +33,8 @@ export const Solutions: React.FC = () => {
             id: 'medical',
             label: t('sol_medical_soap'),
             icon: Stethoscope,
-            color: 'text-emerald-500',
-            bg: 'bg-emerald-500/10',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             title: t('sol_medical_title'),
             desc: t('sol_medical_desc'),
             features: ['SOAP Notes', 'Patient Privacy', 'EHR Ready'],
@@ -44,8 +44,8 @@ export const Solutions: React.FC = () => {
             id: 'legal',
             label: t('sol_legal'),
             icon: Scale,
-            color: 'text-amber-500',
-            bg: 'bg-amber-500/10',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             title: 'Precisión absoluta en cada acta.',
             desc: 'En mi despacho, cada detalle cuenta. Diktalo me permite grabar las deposiciones y obtener un acta estructurada con marcas de tiempo críticas al instante.',
             features: ['Actas Verbatim', 'Marcas de Tiempo', 'Búsqueda Semántica'],
@@ -55,8 +55,8 @@ export const Solutions: React.FC = () => {
             id: 'hr',
             label: t('sol_hr'),
             icon: Users,
-            color: 'text-pink-500',
-            bg: 'bg-pink-500/10',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             title: 'Entrevistas que revelan talento.',
             desc: 'Me permite centrarme al 100% en el lenguaje no verbal del candidato. La IA resume las fortalezas y debilidades de la entrevista automáticamente.',
             features: ['Resumen de Candidato', 'Culture Fit Insight', 'Extracción de Skills'],
@@ -66,8 +66,8 @@ export const Solutions: React.FC = () => {
             id: 'product',
             label: t('sol_product_ux'),
             icon: Code2,
-            color: 'text-purple-500',
-            bg: 'bg-purple-500/10',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             title: 'Del feedback al roadmap.',
             desc: 'Grabo las sesiones de testing y Diktalo agrupa los dolores de los usuarios. Es como tener un investigador de UX trabajando 24/7.',
             features: ['User Pain Points', 'Clustering de Feedback', 'Export a Jira/Linear'],
@@ -77,8 +77,8 @@ export const Solutions: React.FC = () => {
             id: 'edu',
             label: t('sol_education'),
             icon: GraduationCap,
-            color: 'text-indigo-500',
-            bg: 'bg-indigo-500/10',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             title: 'Captura el conocimiento real.',
             desc: 'Para mis investigaciones de campo, Diktalo es vital. Convierte horas de entrevistas y clases en apuntes perfectos y citas citables en un clic.',
             features: ['Resumen por Temas', 'Extracción de Citas', 'Soporte Multilingüe'],
@@ -107,7 +107,7 @@ export const Solutions: React.FC = () => {
                             key={workflow.id}
                             onClick={() => setActiveTab(workflow.id)}
                             className={`px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${activeTab === workflow.id
-                                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl scale-105'
+                                ? 'bg-primary text-white shadow-xl scale-105'
                                 : 'bg-slate-100 dark:bg-white/5 text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10'
                                 }`}
                         >
