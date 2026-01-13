@@ -33,14 +33,14 @@ export const Hero: React.FC = () => {
 
                 {/* 4. Subtítulo Aspiracional */}
                 <div className="flex justify-center w-full mt-4 mb-14">
-                    <motion.p
+                    <motion.h5
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="text-center text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl font-medium px-4 line-height-relaxed"
+                        className="h5 home text-center text-slate-600 dark:text-slate-400 max-w-2xl font-medium px-4"
                     >
                         {t('hero_subtitle')}
-                    </motion.p>
+                    </motion.h5>
                 </div>
 
                 {/* 5. CTAs de Conversión */}
