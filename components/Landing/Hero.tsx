@@ -26,7 +26,7 @@ export const Hero: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="h1 text-slate-900 dark:text-white mb-6"
+                    className="h1 home text-slate-900 dark:text-white mb-6"
                 >
                     {t('hero_main_title')} <br className="hidden md:block" />
                 </motion.h1>

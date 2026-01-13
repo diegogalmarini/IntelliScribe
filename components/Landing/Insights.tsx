@@ -15,7 +15,7 @@ export const Insights: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="h2 text-slate-900 dark:text-white mb-6"
+                            className="h2 home text-slate-900 dark:text-white mb-6"
                         >
                             {t('insightsTitlePre')}{t('insightsTitleHighlight')}{t('insightsTitlePost')}
                         </motion.h2>
