@@ -477,3 +477,9 @@
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
+/* Text size utilities */
+.text-sm {
+    font-size: .75rem;
+    line-height: 1.25rem;
+}
