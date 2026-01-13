@@ -130,11 +130,11 @@ export const Solutions: React.FC = () => {
                         >
                             {/* Lado L: Texto Humanizado */}
                             <div className="order-2 lg:order-1 py-[5%]">
-                                <h3 className="h2 text-slate-900 dark:text-white mb-8 leading-tight">
+                                <h3 className="h2 text-slate-900 dark:text-white mb-8 line-height-relaxed">
                                     {activeContent.title}
                                 </h3>
 
-                                <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 leading-relaxed font-medium" style={{ lineHeight: '1.8' }}>
+                                <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 leading-relaxed font-medium line-height-relaxed">
                                     "{activeContent.desc}"
                                 </p>
 
