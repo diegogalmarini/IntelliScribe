@@ -5,6 +5,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../components/Toast';
 
 interface LoginProps {
     onNavigate: (route: AppRoute) => void;
@@ -14,6 +15,7 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     const { t } = useLanguage();
     const { session } = useAuth(); // Use auth context if needed
+    const { showToast } = useToast();
 
     // State for toggling between Login and Sign Up
     const [isSignUp, setIsSignUp] = useState(false);
@@ -68,7 +70,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 if (signUpError) throw signUpError;
 
                 // Success
-                alert("Check your email for the confirmation link!");
+                showToast("Check your email for the confirmation link!", 'success');
                 // In a real flow, we might wait or show a message.
                 // For now, if auto-confirm is on in Supabase, user might be logged in.
             } else {
@@ -91,10 +93,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     };
 
     const handleSocialClick = async (provider: 'google' | 'azure') => {
-        // Azure is usually 'azure' or 'workos' in Supabase, Google is 'google'
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: provider,
+                options: {
+                    redirectTo: `${window.location.origin}/dashboard`
+                }
             });
             if (error) throw error;
         } catch (err: any) {
@@ -310,12 +314,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                         <button
                             type="submit"
                             disabled={isLoggingIn || (!email || !password)}
-                            className="mt-2 w-full h-10 bg-[#1A73E8] hover:bg-[#1557B0] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/30 backdrop-blur-md"
+                            className="mt-2 w-full h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-[15px] shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoggingIn ? (
                                 <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
                             ) : (
-                                <span>{isSignUp ? t('signUpForDiktalo') : t('loginBtn')}</span>
+                                <span>{isSignUp ? t('signUpForDiktalo') : (isSignUp ? t('signUpBtn') : t('loginBtn'))}</span>
                             )}
                         </button>
 

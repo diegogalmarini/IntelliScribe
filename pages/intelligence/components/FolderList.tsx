@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Folder, Plus, MoreVertical, Edit2, Trash2, FolderOpen } from 'lucide-react';
 import { Folder as FolderType } from '../../../types';
 import { ConfirmModal } from './ConfirmModal';
+import { useToast } from '../../../components/Toast';
 
 interface FolderListProps {
     onSelectFolder: (folderId: string | null) => void;
@@ -28,6 +29,7 @@ export const FolderList: React.FC<FolderListProps> = ({
     onDeleteFolder
 }) => {
     const { t } = useLanguage();
+    const { showToast } = useToast();
     // Removed internal folders state - now using prop
     const [isCreating, setIsCreating] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
@@ -48,7 +50,7 @@ export const FolderList: React.FC<FolderListProps> = ({
             setIsCreating(false);
         } catch (error) {
             console.error("Create folder failed:", error);
-            alert("Error creating folder");
+            showToast("Error creating folder", 'error');
         }
     };
 
@@ -68,7 +70,7 @@ export const FolderList: React.FC<FolderListProps> = ({
             setEditName('');
         } catch (error) {
             console.error("Rename folder failed:", error);
-            alert("Error renaming folder");
+            showToast("Error renaming folder", 'error');
         }
     };
 
@@ -81,7 +83,7 @@ export const FolderList: React.FC<FolderListProps> = ({
                 setFolderToDelete(null);
             } catch (error) {
                 console.error("Delete folder failed:", error);
-                alert("Error deleting folder");
+                showToast("Error deleting folder", 'error');
             }
         }
     };
@@ -126,7 +128,7 @@ export const FolderList: React.FC<FolderListProps> = ({
                         }`}
                 >
                     <FolderOpen className="w-4 h-4" />
-                    <span className="truncate">{t('allFiles')}</span>
+                    <span className="truncate">{t('allRecordings') || 'Todas las Grabaciones'}</span>
                 </button>
 
                 {(folders || []).map(folder => (

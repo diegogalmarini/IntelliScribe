@@ -13,6 +13,7 @@ import { databaseService } from '../../../services/databaseService';
 import { uploadAvatar } from '../../../services/storageService';
 import { PhoneVerificationModal } from '../../../components/PhoneVerificationModal';
 import { supabase } from '../../../lib/supabase'; // Import Supabase client
+import { useToast } from '../../../components/Toast';
 
 interface SettingsModalProps {
     user: UserProfile;
@@ -121,6 +122,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const { theme, setTheme } = useTheme();
     const { language, setLanguage, t } = useLanguage();
+    const { showToast } = useToast();
 
     // Features State
     const [showPhoneVerify, setShowPhoneVerify] = useState(false);
@@ -284,12 +286,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         if (!newPassword || !confirmPassword) return;
 
         if (newPassword.length < 6) {
-            alert(t('password_min_length')); // Ideally use a toast, but this matches current non-toast style
+            showToast(t('password_min_length'), 'error');
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert(t('password_mismatch'));
+            showToast(t('password_mismatch'), 'error');
             return;
         }
 
@@ -298,13 +300,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             const { error } = await supabase.auth.updateUser({ password: newPassword });
             if (error) throw error;
 
-            alert(t('password_updated'));
+            showToast(t('password_updated'), 'success');
             setIsChangingPassword(false);
             setNewPassword('');
             setConfirmPassword('');
         } catch (error: any) {
             console.error('Error updating password:', error);
-            alert(error.message || 'Failed to update password');
+            showToast(error.message || 'Failed to update password', 'error');
         } finally {
             setIsUpdatingPassword(false);
         }
@@ -355,7 +357,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     const handleDeleteAccount = () => {
         console.log('Deleting account for:', user.id);
-        alert('Account deleted successfully (Mock)');
+        // We log out immediately to respect "eliminarlas YA" and avoid ugly alerts
         onLogout();
         onClose();
     };
@@ -636,7 +638,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             </div>
                                             <button
                                                 className="w-full md:w-auto px-4 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-                                                onClick={() => alert("Change password flow would open here")}
+                                                onClick={() => setIsChangingPassword(true)}
                                             >
                                                 {t('account_change_password')}
                                             </button>

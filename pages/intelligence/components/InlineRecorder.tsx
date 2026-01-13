@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, NoteItem, MediaItem } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { Mic, Square, Pause, Play, Flag, ChevronDown } from 'lucide-react';
+import { useToast } from '../../../components/Toast';
 
 interface InlineRecorderProps {
     user: UserProfile;
@@ -12,6 +13,7 @@ interface InlineRecorderProps {
 
 export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete, onCancel, onStateChange }) => {
     const { t } = useLanguage();
+    const { showToast } = useToast();
 
     // Recording state
     const [isRecording, setIsRecording] = useState(false);
@@ -201,7 +203,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
 
             } catch (err) {
                 console.error("Init error:", err);
-                alert("Microphone access required.");
+                showToast("Microphone access required.", 'error');
             }
         };
         init();

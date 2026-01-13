@@ -71,7 +71,7 @@ export const translations = {
     contactSidebarManual: "Check the Manual",
 
     // Manual Page
-    manualTitle: "User Manual",
+
     manualSearch: "Search",
     manualNoResults: "No results found.",
     manualLoading: "Loading...",
@@ -155,7 +155,7 @@ export const translations = {
     step2Desc: "Our AI converts speech to text with speaker labels in seconds.",
     step3Title: "3. Analyze",
     step3Desc: "Ask Diktalo questions or use templates like **Sales BANT** or **Medical SOAP**.",
-    allRecordings: "Recent Recordings",
+    allRecordings: "All Recordings",
     manageRecordings: "Manage and analyze your recordings.",
     searchPlaceholder: "Search transcripts...",
     colConversation: "Conversation",
@@ -970,7 +970,7 @@ export const translations = {
     contactSidebarManual: "Ver el Manual",
 
     // Manual Page
-    manualTitle: "Manual de Usuario",
+
     manualSearch: "Buscar",
     manualNoResults: "No hay resultados.",
     manualLoading: "Cargando...",
