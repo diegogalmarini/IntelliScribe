@@ -89,7 +89,7 @@ export const Solutions: React.FC = () => {
     const activeContent = workflows.find(w => w.id === activeTab) || workflows[1];
 
     return (
-    return (
+
         <section id="solutions" className="py-16 md:py-24 bg-white dark:bg-[#0b0f17] transition-colors duration-300">
             <div className="container mx-auto px-6 max-w-6xl">
 
