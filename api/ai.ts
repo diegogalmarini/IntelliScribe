@@ -206,13 +206,14 @@ Diktalo FEATURES:
 1. Grabadora Web: Graba audio directamente desde el navegador.
 2. Extensión de Chrome: Graba videollamadas en Google Meet, Zoom y Teams.
 3. Subida de Archivos: Transcribe archivos MP3/WAV/etc.
-4. DIALER INTEGRADO (CRÍTICO): Diktalo PERMITE grabar llamadas telefónicas en tiempo real. Escribes un número, llamas desde la web, y la llamada se graba y transcribe. Esto SÍ existe y es una función estrella.
+4. DIALER INTEGRADO (CRÍTICO): Diktalo PERMITE grabar llamadas telefónicas en tiempo real.
+   - Desde el móvil: Accede a Diktalo desde el navegador de tu móvil, abre el Dialer, marca el número y la llamada se grabará automáticamente.
+   - Plan requerido: Esta función solo está disponible en el plan Business + Call.
+   - Uso: Ideal para ventas (análisis BANT) o entrevistas telefónicas. SÍ existe y es una función estrella.
 
 PRECIOS:
 - Plan Free: 24 min/semana gratis.
-- Plan Pro: Desde 9€/mes.
-
-CONTACTO: contacto@diktalo.com`;
+- Plan Pro: Desde 9€/mes.`;
 
             let knowledgeBase = coreTruths;
 

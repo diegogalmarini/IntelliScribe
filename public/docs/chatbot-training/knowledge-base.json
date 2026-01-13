@@ -75,7 +75,7 @@
                 "llamadas en tiempo real",
                 "grabar llamadas de celular"
             ],
-            "response_template": "Diktalo tiene un Dialer integrado para grabar llamadas telefónicas directamente:\n\n1. Ve a la sección 'Dialer' en tu dashboard.\n2. Ingresa el número de teléfono con el código de país.\n3. Haz clic en el botón de llamar.\n4. La llamada se grabará y transcribirá automáticamente al finalizar.\n\nEs ideal para entrevistas telefónicas y gestión de ventas (análisis BANT).",
+            "response_template": "Para grabar llamadas desde el movil, solo entra a Diktalo desde el navegador de tu movil y veras el Dialer. Lo abres, marcas el numero y ya se guarda la llamada automaticamente.\n\nRecuerda que las llamadas solo estan disponibles en el plan Business + Call.",
             "related_intents": [
                 "how_to_record_web",
                 "how_to_record_extension"
