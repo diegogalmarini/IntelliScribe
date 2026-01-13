@@ -124,8 +124,8 @@ export const Features: React.FC = () => {
                             {/* Contenido del Tab */}
                             <div className={`flex flex-col items-center md:items-start p-4 transition-opacity duration-300 w-full ${activeTab === index ? 'opacity-100' : 'opacity-40 hover:opacity-70'
                                 }`}>
-                                <span className="text-xs font-bold tracking-widest text-slate-400 mb-2">{t('step_label')} {feature.number}</span>
-                                <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white text-center md:text-left">
+                                <span className="text-[10px] font-semibold tracking-widest text-slate-400 mb-2 uppercase">{t('step_label')} {feature.number}</span>
+                                <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white text-center md:text-left leading-snug">
                                     {feature.fullTitle}
                                 </h3>
                             </div>

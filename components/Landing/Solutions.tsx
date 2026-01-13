@@ -90,59 +90,60 @@ export const Solutions: React.FC = () => {
 
     return (
 
-        <section id="solutions" className="py-16 md:py-24 bg-white dark:bg-[#0b0f17] transition-colors duration-300">
-            <div className="container mx-auto px-6 max-w-6xl">
+    return (
+        <section id="solutions" className="py-20 md:py-32 bg-white dark:bg-[#0b0f17] transition-colors duration-300">
+            <div className="container mx-auto px-6 max-w-7xl">
 
                 {/* Header de Sección */}
-                <div className="text-center mb-12">
-                    <p className="text-xs font-bold tracking-[0.1em] text-slate-500 mb-3 uppercase">{t('solSectionTag')}</p>
-                    <h2 className="h2 text-slate-900 dark:text-white">
+                <div className="text-center mb-16 md:mb-24">
+                    <p className="text-xs font-semibold tracking-[0.15em] text-slate-500 mb-4 uppercase">{t('solSectionTag')}</p>
+                    <h2 className="text-3xl md:text-5xl font-medium text-slate-900 dark:text-white tracking-tight">
                         {t('solSectionTitle')}
                     </h2>
                 </div>
 
-                {/* Tabs Horizontales (Cápsulas) */}
-                <div className="flex justify-center gap-2 md:gap-3 mb-12 md:mb-16 flex-wrap">
+                {/* Tabs Horizontales (Cápsulas Minimalistas) */}
+                <div className="flex justify-center gap-2 md:gap-4 mb-16 md:mb-24 flex-wrap">
                     {workflows.map((workflow) => (
                         <button
                             key={workflow.id}
                             onClick={() => setActiveTab(workflow.id)}
-                            className={`px-5 py-2.5 rounded-full text-[13px] md:text-sm font-bold transition-all flex items-center gap-2 border ${activeTab === workflow.id
-                                ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25 scale-100'
+                            className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2.5 border ${activeTab === workflow.id
+                                ? 'bg-slate-900 border-slate-900 dark:bg-white dark:border-white text-white dark:text-slate-900 shadow-xl scale-100'
                                 : 'bg-transparent border-slate-200 dark:border-white/10 text-slate-500 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5'
                                 }`}
                         >
-                            <workflow.icon className="w-3.5 h-3.5" />
+                            <workflow.icon className="w-4 h-4" />
                             {workflow.label}
                         </button>
                     ))}
                 </div>
 
                 {/* Área de Contenido: Split Layout */}
-                <div className="max-w-5xl mx-auto relative min-h-[450px]">
+                <div className="max-w-6xl mx-auto relative min-h-[450px]">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ duration: 0.3 }}
-                            className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center"
                         >
                             {/* Lado L: Texto Humanizado */}
                             <div className="order-2 lg:order-1 lg:py-4">
-                                <h3 className="h2 text-slate-900 dark:text-white mb-6">
+                                <h3 className="text-3xl md:text-4xl font-medium text-slate-900 dark:text-white mb-8 leading-tight">
                                     {activeContent.title}
                                 </h3>
 
-                                <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 font-medium leading-loose line-height-relaxed">
+                                <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 font-normal leading-loose antialiased">
                                     "{activeContent.desc}"
                                 </p>
 
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     {activeContent.features.map((feature, i) => (
-                                        <div key={i} className="flex items-center gap-4 text-slate-700 dark:text-slate-300 font-bold text-sm md:text-base">
-                                            <div className={`p-1.5 rounded-full ${activeContent.bg}`}>
+                                        <div key={i} className="flex items-center gap-4 text-slate-700 dark:text-slate-300 font-medium text-base">
+                                            <div className={`p-1 rounded-full ${activeContent.bg}`}>
                                                 <CheckCircle2 className={`w-4 h-4 ${activeContent.color}`} />
                                             </div>
                                             {feature}
