@@ -1,71 +1,38 @@
+# Record from Chrome Extension
 
-# Web Recorder: Your Capture Center
+Bring the power of Diktalo to any tab in your browser. Our official extension allows you to capture Google Meet meetings, Zoom Web calls, or any audio content without leaving the page you are visiting.
 
-The **Web Recorder** is not just a button; it is a high-fidelity audio capture suite integrated directly into your browser. Designed to eliminate friction between having an idea and preserving it forever.
-
-Access instantly from any device without installing additional software.
-
-![Web Recorder - Initial State](/docs/screenshots/es/grabadora_web/01_initial.png)
+![Chrome Extension](/docs/screenshots/es/extension/01_extension.png)
 
 ---
 
-## Specialized Capture Modes
+## Installation and Access
 
-Diktalo adapts its recording engine to the context of your conversation. Selecting the correct mode ensures maximum precision in transcription.
-
-### 🎙️ In-Person Meeting (Microphone)
-**The standard for direct human interactions.**
-Uses echo cancellation algorithms to capture voices in a meeting room, a face-to-face interview, or your own voice notes.
-*   **Ideal for:** Brainstorming, 1-on-1s, personal dictation.
-
-### 🔊 Speaker (System)
-**Capture what you hear.**
-Channels your computer's internal audio directly to the AI engine. Perfect for digitizing content you are consuming.
-*   **Ideal for:** Webinars, streaming conferences, YouTube videos.
-
-### 📞 Multi-source (Hybrid)
-**The bridge between physical and digital.**
-Simultaneously records your microphone and system audio. It is the solution for VoIP calls (Skype, Slack Huddle) where you need to record both parties of the conversation without complex integrations.
-
-### 🌐 Extension Bridge
-A shortcut to our [Chrome Extension](./extension_chrome.md) for when you need native integration with Google Meet or Zoom.
+Once installed from the **Chrome Web Store**, you will see the Diktalo icon in your extensions bar. Clicking it opens the lightweight side panel that gives you full control over recording without interfering with your browsing.
 
 ---
 
-## Professional Workflow
+## Recording Flow
 
-### 1. Input Configuration
-Before recording, the system performs a **Latency and Gain Check**.
-*   Select your input device (Supports USB microphones, Bluetooth, and integrated arrays).
-*   Verify the **Waveform Visualization**: If the bars react to your voice, the system is ready.
+### 1. Start Capture
+The extension automatically detects the audio source of the active tab.
+*   **Record Tab:** Captures system audio (ideal for videos, podcasts).
+*   **Record Meeting:** Optimized for platforms like Meet/Teams.
 
-![Active Recording](/docs/screenshots/es/grabadora_web/03_active.png)
+![Recording](/docs/screenshots/es/extension/02_extension_record.png)
 
-### 2. Contextual Markers (Live Notes)
-Don't wait until the end. During the recording, use the **"Quick Notes"** panel to mark key moments in real time.
-*   *Example:* Write "Budget Agreement" at minute 14:20.
-*   **Result:** The AI will link that note to the exact timestamp in the final transcript.
+### 2. Visual Management
+While recording, you will have visual feedback that Diktalo is listening. You can pause or stop the recording at any time from the popup.
 
-### 3. Session Control
-*   **Smart Pause:** Stop recording without cutting the file. Ideal for breaks or off-the-record information.
-*   **Safeguard:** If you accidentally close the tab, Diktalo will ensure to recover the temporary audio block on your next visit (depending on browser cache).
+![Recording Interface](/docs/screenshots/es/extension/03_extension_imagen.png)
 
----
+### 3. Visual Snapshots
+In addition to audio, the extension allows you to take **Visual Snapshots** of the meeting. These images will be automatically attached to the final note in your Dashboard, giving you visual context of what was being presented at that moment.
 
-## Post-Capture Processing
-
-Upon completion, your audio enters our neural processing pipeline:
-
-1.  **Normalization:** We level the volume of voices.
-2.  **Diarization:** We identify "who said what" (Speaker A, Speaker B).
-3.  **Transcription:** We convert phonemes to text with contextual dictionaries.
-
-> **Reference Times:** Processing is asynchronous. A 1-hour meeting is usually ready for analysis in less than 8 minutes.
+![Snapshots and Notes](/docs/screenshots/es/extension/04_extension_capturas.png)
 
 ---
 
-## Best Practices
+## Automatic Synchronization
 
-*   **Environment:** Although our AI filters noise, a controlled environment drastically improves the score.
-*   **Microphone:** A basic headset always outperforms a laptop's integrated microphone due to proximity.
-*   **Pauses:** Speak with natural cadence. It is not necessary to dictate punctuation marks; the AI infers commas and periods from intonation and context.
+Upon completion, the recording is immediately uploaded to your Diktalo cloud. In seconds, you will receive the transcript and analysis in your Dashboard, ready to be reviewed along with any notes or snapshots you took during the session.

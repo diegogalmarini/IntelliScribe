@@ -1,71 +1,38 @@
+# Grabar desde Extensión de Chrome
 
-# Grabadora Web: Tu Centro de Captura
+Lleva el poder de Diktalo a cualquier pestaña de tu navegador. Nuestra extensión oficial te permite capturar reuniones de Google Meet, llamadas de Zoom Web, o cualquier contenido de audio sin salir de la página que estás visitando.
 
-La **Grabadora Web** no es solo un botón; es una suite de captura de audio de alta fidelidad integrada directamente en tu navegador. Diseñada para eliminar la fricción entre tener una idea y preservarla para siempre.
-
-Accede instantáneamente desde cualquier dispositivo sin instalar software adicional.
-
-![Grabadora Web - Estado Inicial](/docs/screenshots/es/grabadora_web/01_initial.png)
+![Extensión de Chrome](/docs/screenshots/es/extension/01_extension.png)
 
 ---
 
-## Modos de Captura Especializados
+## Instalación y Acceso
 
-Diktalo adapta su motor de grabación al contexto de tu conversación. Seleccionar el modo correcto asegura la máxima precisión en la transcripción.
-
-### 🎙️ Reunión Presencial (Micrófono)
-**El estándar para interacciones humanas directas.**
-Utiliza algoritmos de cancelación de eco para capturar voces en una sala de reuniones, una entrevista cara a cara o tus propias notas de voz.
-*   **Ideal para:** Brainstorming, 1-on-1s, dictados personales.
-
-### 🔊 Altavoz (Sistema)
-**Captura lo que escuchas.**
-Canaliza el audio interno de tu ordenador directamente al motor de IA. Perfecto para digitalizar contenido que estás consumiendo.
-*   **Ideal para:** Webinars, conferencias en streaming, videos de YouTube.
-
-### 📞 Multi-origen (Híbrido)
-**El puente entre lo físico y lo digital.**
-Graba simultáneamente tu micrófono y el audio del sistema. Es la solución para llamadas de VoIP (Skype, Slack Huddle) donde necesitas registrar ambas partes de la conversación sin integraciones complejas.
-
-### 🌐 Extension Bridge
-Un acceso directo a nuestra [Extensión de Chrome](./extension_chrome.md) para cuando necesitas la integración nativa con Google Meet o Zoom.
+Una vez instalada desde la **Chrome Web Store**, verás el icono de Diktalo en tu barra de extensiones. Al hacer clic, se abrirá el panel lateral ligero que te da control total sobre la grabación sin interferir con tu navegación.
 
 ---
 
-## Flujo de Trabajo Profesional
+## Flujo de Grabación
 
-### 1. Configuración de Entrada
-Antes de grabar, el sistema realiza un **Check de Latencia y Ganancia**.
-*   Selecciona tu dispositivo de entrada (Soporta micrófonos USB, Bluetooth y arrays integrados).
-*   Verifica la **Visualización de Onda**: Si las barras reaccionan a tu voz, el sistema está listo.
+### 1. Iniciar Captura
+La extensión detecta automáticamente la fuente de audio de la pestaña activa.
+*   **Grabar Pestaña:** Captura el audio del sistema (ideal para videos, podcasts).
+*   **Grabar Reunión:** Optimizado para plataformas como Meet/Teams.
 
-![Grabación Activa](/docs/screenshots/es/grabadora_web/03_active.png)
+![Grabando](/docs/screenshots/es/extension/02_extension_record.png)
 
-### 2. Marcadores Contextuales (Live Notes)
-No esperes al final. Durante la grabación, utiliza el panel de **"Notas Rápidas"** para marcar momentos clave en tiempo real.
-*   *Ejemplo:* Escribe "Acuerdo de Presupuesto" en el minuto 14:20.
-*   **Resultado:** La IA vinculará esa nota al timestamp exacto en la transcripción final.
+### 2. Gestión Visual
+Mientras grabas, tendrás feedback visual de que Diktalo está escuchando. Puedes pausar o detener la grabación en cualquier momento desde el popup.
 
-### 3. Control de Sesión
-*   **Pausa Inteligente:** Detén la grabación sin cortar el archivo. Ideal para recesos o información off-the-record.
-*   **Salvaguarda:** Si cierras la pestaña accidentalmente, Diktalo intentará recuperar el bloqué de audio temporal en tu próxima visita (dependiendo de la caché del navegador).
+![Interfaz de Grabación](/docs/screenshots/es/extension/03_extension_imagen.png)
 
----
+### 3. Capturas de Pantalla (Snapshots)
+Además de audio, la extensión te permite tomar **Capturas Visuales** de la reunión. Estas imágenes se adjuntarán automáticamente a la nota final en tu Dashboard, dándote contexto visual de lo que se estaba presentando en ese momento.
 
-## Procesamiento Post-Captura
-
-Al finalizar, tu audio entra en nuestro pipeline de procesamiento neuronal:
-
-1.  **Normalización:** Nivelamos el volumen de las voces.
-2.  **Diarización:** Identificamos "quién dijo qué" (Orador A, Orador B).
-3.  **Transcripción:** Convertimos fonemas a texto con diccionarios contextuales.
-
-> **Tiempos de Referencia:** El procesamiento es asíncrono. Una reunión de 1 hora suele estar lista para análisis en menos de 8 minutos.
+![Capturas y Notas](/docs/screenshots/es/extension/04_extension_capturas.png)
 
 ---
 
-## Mejores Prácticas
+## Sincronización Automática
 
-*   **Entorno:** Aunque nuestra IA filtra ruido, un entorno controlado mejora drásticamente la puntuación.
-*   **Micrófono:** Un headset básico supera siempre al micrófono integrado de una laptop debido a la proximidad.
-*   **Pausas:** Habla con cadencia natural. No es necesario dictar signos de puntuación; la IA infiere comas y puntos por la entonación y contexto.
+Al finalizar, la grabación se sube inmediatamente a tu nube de Diktalo. En segundos, recibirás la transcripción y el análisis en tu Dashboard, listo para ser revisado junto con cualquier nota o captura que hayas tomado durante la sesión.
