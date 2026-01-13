@@ -87,9 +87,6 @@ export const supportChat = async (
     return result;
   } catch (error: any) {
     console.error("Support chat error:", error);
-    return language === 'es'
-      ? "Lo siento, no puedo procesar tu mensaje en este momento. ¿Podrías intentarlo de nuevo?"
-      : "Sorry, I can't process your message right now. Could you try again?";
+    throw error; // Propagate error to see what's happening
   }
 };
-
