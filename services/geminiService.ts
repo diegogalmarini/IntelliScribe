@@ -71,3 +71,25 @@ export const transcribeAudio = async (
     return []; // Return empty for legacy compatibility or allow UI to handle
   }
 };
+
+export const supportChat = async (
+  userMessage: string,
+  history: { role: 'user' | 'bot', content: string }[],
+  language: string = 'es'
+): Promise<string> => {
+  try {
+    const result = await callAIEndpoint('support', {
+      message: userMessage,
+      history,
+      knowledgeBasePath: '/docs/chatbot-training/knowledge-base.json'
+    }, language);
+    if (!result) throw new Error("No output from AI");
+    return result;
+  } catch (error: any) {
+    console.error("Support chat error:", error);
+    return language === 'es'
+      ? "Lo siento, no puedo procesar tu mensaje en este momento. ¿Podrías intentarlo de nuevo?"
+      : "Sorry, I can't process your message right now. Could you try again?";
+  }
+};
+
