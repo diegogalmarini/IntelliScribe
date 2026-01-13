@@ -141,7 +141,8 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         </h5>
                         <a
                             href="/login"
-                            className="inline-block px-12 py-5 bg-white text-primary text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl active:scale-95 mx-auto"
+                            className="inline-block px-12 py-5 bg-white text-primary text-sm rounded-full hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl active:scale-95 mx-auto"
+                            style={{ fontWeight: 500, marginTop: '1rem', fontSize: '.9rem' }}
                         >
                             {t('ctaButton')}
                         </a>
