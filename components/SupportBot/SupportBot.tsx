@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const SupportBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([
-        { role: 'bot', content: '¡Hola! Soy Nati Pol, la asistente de Diktalo. ¿En qué puedo ayudarte hoy?' }
+        { role: 'bot', content: '¡Hola! Soy Nati Pol. Me pillas planeando mi próxima ruta de senderismo por los fiordos, pero dime, ¿en qué puedo ayudarte con Diktalo hoy?' }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
