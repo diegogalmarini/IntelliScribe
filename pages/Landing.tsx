@@ -79,7 +79,7 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     <div className="max-w-4xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
                             <p className="text-xs font-bold text-slate-500 mb-3">{t('landing_faq_title')}</p>
-                            <h3 className="h2 text-slate-900 dark:text-white">{t('landing_faq_title')}</h3>
+                            <h3 className="h2 home text-slate-900 dark:text-white">{t('landing_faq_title')}</h3>
                         </div>
                         <div className="space-y-4">
                             {[
@@ -104,7 +104,7 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                             <div>
                                 <p className="text-xs font-bold text-slate-500 mb-3">{t('landing_blog_tag')}</p>
-                                <h3 className="h2 text-slate-900 dark:text-white">{t('landing_blog_latest')}</h3>
+                                <h3 className="h2 home text-slate-900 dark:text-white">{t('landing_blog_latest')}</h3>
                             </div>
                             <button className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">{t('landing_blog_view_all')}</button>
                         </div>
@@ -133,7 +133,7 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                 <section className="py-24 md:py-32 bg-primary overflow-hidden relative flex flex-col items-center justify-center text-center">
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 pointer-events-none"></div>
                     <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center">
-                        <h2 className="h2 text-white mb-8 w-full text-center mx-auto">
+                        <h2 className="h2 home text-white mb-8 w-full text-center mx-auto">
                             {t('ctaTitle')}
                         </h2>
                         <p className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium text-center line-height-relaxed">
