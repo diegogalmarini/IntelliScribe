@@ -110,12 +110,12 @@ export const Contact: React.FC = () => {
                         </div>
 
                         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-2xl shadow-lg text-white">
-                            <h3 className="font-medium text-lg mb-2">Omnichannel Capture</h3>
+                            <h3 className="font-medium text-lg mb-2">{t('contactSidebarTitle')}</h3>
                             <p className="text-white/80 text-sm mb-4">
-                                Need help configuring the dialer or recording permissions?
+                                {t('contactSidebarDesc')}
                             </p>
                             <a href="/manual" className="inline-flex items-center text-sm font-medium hover:underline text-white">
-                                Check the Manual <HelpCircle className="w-4 h-4 ml-1" />
+                                {t('contactSidebarManual')} <HelpCircle className="w-4 h-4 ml-1" />
                             </a>
                         </div>
                     </div>

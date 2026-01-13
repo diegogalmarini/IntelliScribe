@@ -726,6 +726,10 @@ export const translations = {
     contactTopicFeedback: "Feedback",
     contactTopicOther: "Otro",
 
+    contactSidebarTitle: "Captura Omnicanal",
+    contactSidebarDesc: "¿Necesitas ayuda configurando el marcador o los permisos de grabación?",
+    contactSidebarManual: "Ver el Manual",
+
     // Auth
     welcomeBack: "Bienvenido de nuevo",
     createAccount: "Crear Cuenta", // NEW
