@@ -66,6 +66,10 @@ export const translations = {
     contactTopicFeedback: "Feedback",
     contactTopicOther: "Other",
 
+    contactSidebarTitle: "Omnichannel Capture",
+    contactSidebarDesc: "Need help configuring the dialer or recording permissions?",
+    contactSidebarManual: "Check the Manual",
+
     // Sidebar
     dashboard: "Dashboard",
     integrations: "Integrations",
