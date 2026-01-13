@@ -76,17 +76,44 @@ export const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose, recording
 
             if (localRecordings.length === 1) {
                 const r = localRecordings[0];
-                // Hide ID in a structured header, less likely to be quoted by AI
-                fullTranscript = `[Current Document: "${r.title}" | Date: ${r.date} | ID: ${r.id}]\n` + (r.segments && r.segments.length > 0
-                    ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
-                    : "No transcript available.");
+
+                // Extract unique speakers/participants
+                const uniqueSpeakers = r.segments && r.segments.length > 0
+                    ? Array.from(new Set(r.segments.map(s => s.speaker)))
+                    : [];
+
+                // Format duration
+                const durationText = r.duration || (r.durationSeconds ? `${Math.floor(r.durationSeconds / 60)}:${(r.durationSeconds % 60).toString().padStart(2, '0')}` : 'Unknown');
+
+                // Build enriched context header
+                fullTranscript = `Información de la grabación:
+- Título: ${r.title}
+- Fecha: ${r.date}
+- Participantes: ${uniqueSpeakers.length > 0 ? uniqueSpeakers.join(', ') : 'No detectados'}
+- Duración: ${durationText}
+- ID: ${r.id}
+
+Transcripción completa:
+` + (r.segments && r.segments.length > 0
+                        ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
+                        : "No transcript available.");
             } else {
                 fullTranscript = localRecordings.map((r, index) => {
                     const segments = r.segments && r.segments.length > 0
                         ? r.segments.map(s => `${s.speaker}: ${s.text}`).join('\n')
                         : "No transcript available.";
+
+                    // Extract speakers for multi-recording view
+                    const uniqueSpeakers = r.segments && r.segments.length > 0
+                        ? Array.from(new Set(r.segments.map(s => s.speaker)))
+                        : [];
+
+                    const durationText = r.duration || (r.durationSeconds ? `${Math.floor(r.durationSeconds / 60)}:${(r.durationSeconds % 60).toString().padStart(2, '0')}` : 'Unknown');
+
                     // Use numbering to help AI reference "Document 1", "Document 2" etc.
-                    return `[Document #${index + 1}: "${r.title}" | Date: ${r.date} | ID: ${r.id}]\n${segments}\n--- End of Document ${index + 1} ---`;
+                    return `[Document #${index + 1}: "${r.title}" | Date: ${r.date} | Participantes: ${uniqueSpeakers.join(', ')} | Duración: ${durationText} | ID: ${r.id}]
+${segments}
+--- End of Document ${index + 1} ---`;
                 }).join('\n\n');
             }
 
