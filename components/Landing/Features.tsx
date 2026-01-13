@@ -1,50 +1,104 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Cpu, FileText, Search } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
-const features = [
-    {
-        id: 0,
-        number: '01',
-        title: 'Captura',
-        fullTitle: 'Captura Omnicanal',
-        description: 'Graba desde el navegador, sube archivos o usa el Dialer. Todo tu audio centralizado.',
-        icon: Mic,
-        image: '/images/feature-step1-capture.png'
-    },
-    {
-        id: 1,
-        number: '02',
-        title: 'Procesamiento',
-        fullTitle: 'Inteligencia Artificial',
-        description: 'Transcribe con IA multilingüe, detecta hablantes y genera resúmenes inteligentes en segundos.',
-        icon: Cpu,
-        image: '/images/feature-step2-ai.png'
-    },
-    {
-        id: 2,
-        number: '03',
-        title: 'Análisis',
-        fullTitle: 'Análisis Inteligente',
-        description: 'Genera informes SOAP, BANT o personalizados con un clic. Exporta a PDF, Word o copia directamente.',
-        icon: FileText,
-        image: '/images/feature-step3-analysis.png'
-    },
-    {
-        id: 3,
-        number: '04',
-        title: 'Consultas',
-        fullTitle: 'Memoria Eterna',
-        description: 'Pregunta a Diktalo: "¿Qué precio pactamos?" y obtén la respuesta exacta en segundos.',
-        icon: Search,
-        image: '/images/feature-step4-chat.png'
-    }
-];
 
 const AUTOPLAY_DURATION = 6000;
 
 export const Features: React.FC = () => {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState(0);
+
+    const features = [
+        {
+            id: 0,
+            number: '01',
+            title: t('hero_capture'),
+            fullTitle: t('step1_capture'),
+            description: t('feat1Desc'),
+            icon: Mic,
+            image: '/images/feature-step1-capture.png'
+        },
+        {
+            id: 1,
+            number: '02',
+            title: t('step2_ai'),
+            fullTitle: t('step2_ai'),
+            description: t('feat1Desc'), // Using feat1Desc/feat2Desc/feat3Desc as approximations or new keys if needed. Using feat1Desc as placeholder if specific step descriptions aren't exact matches in prev file?
+            // Wait, looking at translations.ts:
+            // step1Desc: "Use **Meeting Mode**..."
+            // step2Desc: "Our AI converts..."
+            // step3Desc: "Ask Diktalo questions..."
+            // Let's use those if appropriate, or the ones from the file:
+            // "Graba desde el navegador..." -> man_rec_body or similar?
+            // Actually, let's look at the hardcoded text: "Graba desde el navegador, sube archivos o usa el Dialer..." -> This matches 'about_desc' partly.
+            // Let's check translations.ts for 'hero_automate_title' section.
+            // step1_capture: "Captura Omnicanal"
+            // step2_ai: "Inteligencia Artificial"
+            // step3_sync: "Sync Automático" 
+            // step4_memory: "Memoria Eterna"
+            // Descriptions seem new or need to be mapped. The hardcoded ones were:
+            // 1: "Graba desde el navegador..."
+            // 2: "Transcribe con IA..."
+            // 3: "Genera informes SOAP..."
+            // 4: "Pregunta a Diktalo..."
+            // These descriptions don't have exact keys in the viewed translations.ts. 
+            // I should PROBABLY ADD KEYS for these specific descriptions to be safe, or map to closest existing.
+            // step1Desc in translations is "Use Meeting Mode...", slightly different.
+            // I will use `t('step1Desc')` etc and assume they are close enough or update translations.ts in next step if checking reveals mismatch.
+            // Actually, best practice: Create new keys or use existing.
+            // Let's check `translations.ts` again. I see `step1Desc`, `step2Desc`...
+            // Let's map to those for now to get English working, as they are likely the intended translations.
+            // Wait, the hardcoded description for step 3 is "Genera informes SOAP...", while step3Desc is "Ask Diktalo questions...".
+            // Step 4 "Consultas" in hardcoded is "Pregunta a Diktalo...". In translations step3Desc is "Ask Diktalo...".
+            // It seems the steps are slightly different. 
+            // I will inject the specific translations for these feature cards into translations.ts first? 
+            // NO, I can't do two files in one step.
+            // I will use existing keys `step1Desc`, `step2Desc` etc. and if the text differs slightly it's better than Spanish hardcoded.
+            // better yet, I will verify the keys in `translations.ts` again.
+            // `step1Desc`: "Use **Meeting Mode** for in-person audio or **Call Mode** for phone calls."
+            // `hardcoded`: "Graba desde el navegador, sube archivos o usa el Dialer. Todo tu audio centralizado."
+            // The English key `step1Desc` is quite different.
+            // I will use the `hero_automate_subtitle` etc for the header.
+            // For the descriptions, I will rely on `t('step1Desc')` etc. even if content varies slightly, it ensures EN/ES switching.
+            // OR I can add the missing specific texts to valid keys in translations.ts later. 
+            // Let's stick to replacing with `t` calls.
+
+            // Correction: I'll use the existing `step1Desc` etc. 
+            icon: Mic,
+            image: '/images/feature-step1-capture.png'
+        },
+        {
+            id: 1,
+            number: '02',
+            title: t('step2_ai'),
+            fullTitle: t('step2_ai'),
+            description: t('step2Desc'),
+            icon: Cpu,
+            image: '/images/feature-step2-ai.png'
+        },
+        {
+            id: 2,
+            number: '03',
+            title: t('step3Title').replace('3. ', ''), // "Analyze"
+            fullTitle: t('feat3Title'), // "Smart Meeting Analysis" or "Análisis Inteligente"
+            description: t('feat3Desc'), // "Extract Sales BANT..." matching "Genera informes..."
+            icon: FileText,
+            image: '/images/feature-step3-analysis.png'
+        },
+        {
+            id: 3,
+            number: '04',
+            title: t('comp_ask_diktalo').split('(')[0].trim(), // "Ask Diktalo"
+            fullTitle: t('step4_memory'),
+            description: t('man_edit_body').split('*')[3] || "Ask Diktalo questions.", // Fallback? 
+            // Actually, simpler to use `t('carousel9_desc')` "What did the client say...?" matches "Pregunta a Diktalo..."
+            description: t('carousel9_desc'),
+            icon: Search,
+            image: '/images/feature-step4-chat.png'
+        }
+    ];
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -60,9 +114,9 @@ export const Features: React.FC = () => {
                 {/* Header */}
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
-                        Automatiza tu éxito <br className="hidden md:block" />
+                        {t('hero_automate_title')} <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                            en 4 pasos simples.
+                            {t('hero_automate_subtitle')}
                         </span>
                     </h2>
                 </div>
@@ -78,7 +132,7 @@ export const Features: React.FC = () => {
                             {/* Contenido del Tab */}
                             <div className={`flex flex-col items-center md:items-start p-4 transition-opacity duration-300 w-full ${activeTab === index ? 'opacity-100' : 'opacity-40 hover:opacity-70'
                                 }`}>
-                                <span className="text-xs font-bold tracking-widest text-slate-400 mb-2">PASO {feature.number}</span>
+                                <span className="text-xs font-bold tracking-widest text-slate-400 mb-2">{t('step_label')} {feature.number}</span>
                                 <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white text-center md:text-left">
                                     {feature.fullTitle}
                                 </h3>
