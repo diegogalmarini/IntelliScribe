@@ -1,160 +1,157 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { LegalLayout } from '../../layouts/LegalLayout';
 
 export const Privacy: React.FC = () => {
+    const { t, language } = useLanguage();
+
+    const lastUpdated = language === 'es' ? '05 de Enero de 2026' : 'January 5, 2026';
+
     return (
-        <LegalLayout title="Política de Privacidad" lastUpdated="05 de Enero de 2026">
+        <LegalLayout title={t('privacy_title')} lastUpdated={lastUpdated}>
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-12 text-slate-600 dark:text-slate-300 leading-relaxed font-medium"
             >
                 <section>
-                    <p>
-                        Bienvenido a Diktalo ("nosotros", "nos" o "nuestro"). Diktalo proporciona una plataforma de inteligencia de voz impulsada por IA, que incluye nuestra aplicación web, la extensión de navegador "Diktalo Ghostwire" y otros servicios relacionados (colectivamente, el "Servicio").
-                    </p>
-                    <p className="mt-4">
-                        Nos tomamos muy en serio su privacidad y la seguridad de sus datos de voz. Esta Política de Privacidad explica cómo recopilamos, usamos, compartimos y protegemos su información personal.
-                    </p>
+                    <p>{t('privacy_intro_1')}</p>
+                    <p className="mt-4">{t('privacy_intro_2')}</p>
                 </section>
 
                 <section>
-                    <h2>1. Información que Recopilamos</h2>
-                    <p className="mb-3">Recopilamos información para proporcionar, mejorar y proteger nuestros Servicios.</p>
+                    <h2>{t('privacy_s1_title')}</h2>
+                    <p className="mb-3">{t('privacy_s1_desc')}</p>
 
-                    <h3 className="font-bold text-slate-900 dark:text-white mt-6 mb-2">1.1 Información que usted nos proporciona</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-white mt-6 mb-2">{t('privacy_s1_sub1_title')}</h3>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Información de la cuenta:</strong> Cuando se registra, recopilamos su nombre, dirección de correo electrónico, contraseña (encriptada) y, opcionalmente, su número de teléfono y foto de perfil.</li>
-                        <li><strong>Contenido de Usuario (Datos de Voz y Texto):</strong> Esto incluye:
+                        <li><strong>{t('privacy_s1_sub1_li1').split(':')[0]}:</strong> {t('privacy_s1_sub1_li1').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s1_sub1_li2').split(':')[0]}:</strong> {t('privacy_s1_sub1_li2').split(':')[1]}
                             <ul className="list-disc list-inside ml-8 mt-2 space-y-1 text-sm">
-                                <li>Grabaciones de audio que usted crea usando el micrófono, sube manualmente o graba a través de nuestra Extensión de Chrome.</li>
-                                <li>Llamadas telefónicas realizadas o recibidas a través de nuestro Dialer integrado.</li>
-                                <li>Transcripciones, resúmenes, notas y chats generados por nuestra IA a partir de sus grabaciones.</li>
-                                <li>Vocabulario personalizado que usted añade para mejorar la precisión de la transcripción.</li>
+                                <li>{t('privacy_s1_sub1_li2_sub1')}</li>
+                                <li>{t('privacy_s1_sub1_li2_sub2')}</li>
+                                <li>{t('privacy_s1_sub1_li2_sub3')}</li>
+                                <li>{t('privacy_s1_sub1_li2_sub4')}</li>
                             </ul>
                         </li>
-                        <li><strong>Información de Pago:</strong> Los pagos son procesados por nuestro proveedor externo (Stripe). Diktalo no almacena los números completos de su tarjeta de crédito, solo recibimos confirmación de la transacción y estado de la suscripción.</li>
-                        <li><strong>Comunicaciones:</strong> Información que nos envía a través de soporte, feedback o formularios de contacto.</li>
+                        <li><strong>{t('privacy_s1_sub1_li3').split(':')[0]}:</strong> {t('privacy_s1_sub1_li3').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s1_sub1_li4').split(':')[0]}:</strong> {t('privacy_s1_sub1_li4').split(':')[1]}</li>
                     </ul>
 
-                    <h3 className="font-bold text-slate-900 dark:text-white mt-6 mb-2">1.2 Información recopilada automáticamente</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-white mt-6 mb-2">{t('privacy_s1_sub2_title')}</h3>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Datos de Uso:</strong> Recopilamos información sobre cómo interactúa con el Servicio, como las funciones que utiliza, la duración de las grabaciones y la frecuencia de uso.</li>
-                        <li><strong>Información del Dispositivo:</strong> Dirección IP, tipo de navegador, sistema operativo y tipo de dispositivo.</li>
-                        <li><strong>Datos de la Extensión de Chrome:</strong> Cuando utiliza nuestra extensión, procesamos el audio de la pestaña activa que usted elige grabar explícitamente. No capturamos ni almacenamos su historial de navegación ni el contenido de pestañas que no esté grabando activamente.</li>
+                        <li><strong>{t('privacy_s1_sub2_li1').split(':')[0]}:</strong> {t('privacy_s1_sub2_li1').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s1_sub2_li2').split(':')[0]}:</strong> {t('privacy_s1_sub2_li2').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s1_sub2_li3').split(':')[0]}:</strong> {t('privacy_s1_sub2_li3').split(':')[1]}</li>
                     </ul>
                 </section>
 
                 <section>
-                    <h2>2. Cómo Usamos su Información</h2>
-                    <p className="mb-3">Utilizamos su información para los siguientes fines legítimos:</p>
+                    <h2>{t('privacy_s2_title')}</h2>
+                    <p className="mb-3">{t('privacy_s2_desc')}</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Prestación del Servicio:</strong> Para grabar, almacenar, transcribir y resumir su audio; para gestionar su cuenta y autenticar su identidad.</li>
-                        <li><strong>Funcionalidad de IA:</strong> Utilizamos procesadores de IA de terceros (como Google Gemini y AssemblyAI) para generar transcripciones y resúmenes. <strong>Sus datos se envían a estos procesadores únicamente con el fin de devolverle el resultado a usted.</strong></li>
-                        <li><strong>Mejora del Servicio:</strong> Para analizar tendencias de uso, corregir errores y mejorar la precisión de nuestros sistemas.</li>
-                        <li><strong>Seguridad:</strong> Para prevenir fraudes, abusos y garantizar la integridad técnica de nuestra plataforma.</li>
-                        <li><strong>Comunicaciones:</strong> Para enviarle actualizaciones del servicio, facturas y, si ha dado su consentimiento, novedades sobre productos (puede darse de baja en cualquier momento).</li>
+                        <li><strong>{t('privacy_s2_li1').split(':')[0]}:</strong> {t('privacy_s2_li1').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s2_li2').split(':')[0]}:</strong> {t('privacy_s2_li2').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s2_li3').split(':')[0]}:</strong> {t('privacy_s2_li3').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s2_li4').split(':')[0]}:</strong> {t('privacy_s2_li4').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s2_li5').split(':')[0]}:</strong> {t('privacy_s2_li5').split(':')[1]}</li>
                     </ul>
                 </section>
 
                 <section className="p-8 bg-brand-violet/5 dark:bg-brand-violet/10 rounded-[2rem] border border-primary/20">
-                    <h2 className="text-xl font-display font-black text-primary mb-4 uppercase tracking-wider italic !mt-0">Cláusula de Entrenamiento de IA</h2>
+                    <h2 className="text-xl font-display font-black text-primary mb-4 uppercase tracking-wider italic !mt-0">{t('privacy_ai_clause_title')}</h2>
                     <p className="text-slate-900 dark:text-slate-100 font-bold">
-                        Diktalo <strong>NO</strong> vende sus datos de voz ni los utiliza para entrenar nuestros modelos de IA fundamentales de manera que sus datos privados queden expuestos a otros usuarios. Sus grabaciones son confidenciales.
+                        {t('privacy_ai_clause_text')}
                     </p>
                 </section>
 
                 <section>
-                    <h2>3. Cómo Compartimos su Información</h2>
-                    <p className="mb-4">No vendemos su información personal. Solo compartimos datos con terceros en las siguientes circunstancias:</p>
+                    <h2>{t('privacy_s3_title')}</h2>
+                    <p className="mb-4">{t('privacy_s3_desc')}</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 not-prose">
                         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">Supabase</h4>
-                            <p className="text-xs">Infraestructura y Base de Datos segura.</p>
+                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">{t('privacy_s3_card1_title')}</h4>
+                            <p className="text-xs">{t('privacy_s3_card1_desc')}</p>
                         </div>
                         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">Google Cloud (Vertex AI) / AssemblyAI</h4>
-                            <p className="text-xs">Procesamiento de IA para transcripciones.</p>
+                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">{t('privacy_s3_card2_title')}</h4>
+                            <p className="text-xs">{t('privacy_s3_card2_desc')}</p>
                         </div>
                         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">Stripe</h4>
-                            <p className="text-xs">Procesamiento seguro de pagos.</p>
+                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">{t('privacy_s3_card3_title')}</h4>
+                            <p className="text-xs">{t('privacy_s3_card3_desc')}</p>
                         </div>
                         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">Twilio</h4>
-                            <p className="text-xs">Servicios de telefonía y SMS.</p>
+                            <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase mb-2">{t('privacy_s3_card4_title')}</h4>
+                            <p className="text-xs">{t('privacy_s3_card4_desc')}</p>
                         </div>
                     </div>
 
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Requisitos Legales:</strong> Podemos divulgar su información si así lo exige la ley, una orden judicial o para proteger los derechos y la seguridad de Diktalo o de nuestros usuarios.</li>
-                        <li><strong>Transferencia de Negocio:</strong> En caso de fusión, adquisición o venta de activos, sus datos podrían ser transferidos como parte de la operación, notificándole previamente.</li>
+                        <li><strong>{t('privacy_s3_li1').split(':')[0]}:</strong> {t('privacy_s3_li1').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s3_li2').split(':')[0]}:</strong> {t('privacy_s3_li2').split(':')[1]}</li>
                     </ul>
                 </section>
 
                 <section>
-                    <h2>4. Seguridad de los Datos</h2>
-                    <p className="mb-3">Implementamos medidas de seguridad robustas de nivel empresarial para proteger sus datos:</p>
+                    <h2>{t('privacy_s4_title')}</h2>
+                    <p className="mb-3">{t('privacy_s4_desc')}</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Encriptación:</strong> Los datos se encriptan en tránsito (TLS/SSL) y en reposo (AES-256) en nuestros servidores de almacenamiento.</li>
-                        <li><strong>Control de Acceso:</strong> Utilizamos Row Level Security (RLS) para asegurar que solo usted (y las personas con las que comparta explícitamente) puedan acceder a sus grabaciones y transcripciones.</li>
-                        <li><strong>Autenticación:</strong> Gestión segura de sesiones mediante tokens y protección contra accesos no autorizados.</li>
+                        <li><strong>{t('privacy_s4_li1').split(':')[0]}:</strong> {t('privacy_s4_li1').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s4_li2').split(':')[0]}:</strong> {t('privacy_s4_li2').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s4_li3').split(':')[0]}:</strong> {t('privacy_s4_li3').split(':')[1]}</li>
                     </ul>
-                    <p className="mt-4 text-sm italic">Sin embargo, ningún sistema es 100% impenetrable. Si detectamos una brecha de seguridad, le notificaremos de acuerdo con las leyes aplicables.</p>
+                    <p className="mt-4 text-sm italic">{t('privacy_s4_note')}</p>
                 </section>
 
                 <section>
-                    <h2>5. Retención de Datos</h2>
-                    <p className="mb-3">Conservamos su información personal y contenido de usuario mientras su cuenta esté activa o sea necesario para prestarle el Servicio.</p>
+                    <h2>{t('privacy_s5_title')}</h2>
+                    <p className="mb-3">{t('privacy_s5_desc')}</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li>Si elimina una grabación específica, esta se elimina de nuestros sistemas de almacenamiento inmediatamente (o tras un breve periodo de respaldo técnico).</li>
-                        <li>Si elimina su cuenta, borraremos todos sus datos personales y contenido asociado en un plazo de 30 días, salvo que la ley exija lo contrario.</li>
+                        <li>{t('privacy_s5_li1')}</li>
+                        <li>{t('privacy_s5_li2')}</li>
                     </ul>
                 </section>
 
                 <section>
-                    <h2>6. Sus Derechos y Opciones</h2>
-                    <p className="mb-3">Dependiendo de su ubicación (incluyendo GDPR en Europa o CCPA en California), usted tiene derechos sobre sus datos:</p>
+                    <h2>{t('privacy_s6_title')}</h2>
+                    <p className="mb-3">{t('privacy_s6_desc')}</p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>Acceso y Portabilidad:</strong> Puede acceder a sus grabaciones y descargarlas en formatos estándar (MP3, PDF, TXT) desde el panel de control.</li>
-                        <li><strong>Rectificación:</strong> Puede editar sus datos de perfil y corregir las transcripciones generadas.</li>
-                        <li><strong>Eliminación (Derecho al Olvido):</strong> Puede solicitar la eliminación de su cuenta y todos sus datos.</li>
-                        <li><strong>Oposición y Limitación:</strong> Puede oponerse a ciertos procesamientos de sus datos.</li>
+                        <li><strong>{t('privacy_s6_li1').split(':')[0]}:</strong> {t('privacy_s6_li1').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s6_li2').split(':')[0]}:</strong> {t('privacy_s6_li2').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s6_li3').split(':')[0]}:</strong> {t('privacy_s6_li3').split(':')[1]}</li>
+                        <li><strong>{t('privacy_s6_li4').split(':')[0]}:</strong> {t('privacy_s6_li4').split(':')[1]}</li>
                     </ul>
                     <p className="mt-4 text-sm font-bold">
-                        Para ejercer estos derechos, contáctenos en: <a href="mailto:privacy@diktalo.com" className="text-primary hover:underline">privacy@diktalo.com</a>
+                        {t('privacy_s6_contact')} <a href="mailto:privacy@diktalo.com" className="text-primary hover:underline">privacy@diktalo.com</a>
                     </p>
                 </section>
 
                 <section>
-                    <h2>7. Privacidad de los Menores</h2>
+                    <h2>{t('privacy_s7_title')}</h2>
+                    <p>{t('privacy_s7_text')}</p>
+                </section>
+
+                <section>
+                    <h2>{t('privacy_s8_title')}</h2>
                     <p>
-                        El Servicio no está dirigido a menores de 18 años (o la edad de mayoría legal en su jurisdicción). No recopilamos conscientemente información personal de menores. Si descubrimos que hemos recopilado datos de un menor sin consentimiento parental, tomaremos medidas para eliminarlos.
+                        {t('privacy_s8_text')}<a href="/cookies" className="text-primary hover:underline">{t('privacy_s8_link')}</a>.
                     </p>
                 </section>
 
                 <section>
-                    <h2>8. Cookies y Tecnologías de Rastreo</h2>
-                    <p>
-                        Utilizamos cookies esenciales para mantener su sesión iniciada y cookies analíticas para entender cómo se usa nuestro sitio. Puede gestionar sus preferencias de cookies a través de la configuración de su navegador o nuestro banner de consentimiento. Para más detalles, consulte nuestra <a href="/cookies" className="text-primary hover:underline">Política de Cookies</a>.
-                    </p>
+                    <h2>{t('privacy_s9_title')}</h2>
+                    <p>{t('privacy_s9_text')}</p>
                 </section>
 
                 <section>
-                    <h2>9. Cambios en esta Política</h2>
+                    <h2>{t('privacy_s10_title')}</h2>
                     <p>
-                        Podemos actualizar esta Política de Privacidad ocasionalmente. Le notificaremos sobre cambios significativos enviándole un correo electrónico o mostrando un aviso destacado en nuestro Servicio antes de que los cambios entren en vigor.
-                    </p>
-                </section>
-
-                <section>
-                    <h2>10. Contacto</h2>
-                    <p>
-                        Si tiene preguntas sobre esta Política de Privacidad o sobre cómo manejamos sus datos, contáctenos:<br /><br />
+                        {t('privacy_s10_text')}<br /><br />
                         <strong>Diktalo Legal Team</strong><br />
-                        Correo electrónico: <a href="mailto:legal@diktalo.com" className="text-primary hover:underline">legal@diktalo.com</a>
+                        Email: <a href="mailto:legal@diktalo.com" className="text-primary hover:underline">legal@diktalo.com</a>
                     </p>
                 </section>
             </motion.div>
