@@ -209,13 +209,22 @@ Es una plataforma de IA que te ayuda a:
 - Analizar con IA para extraer insights
 - Exportar a múltiples formatos (PDF, Word, TXT)
 
-Perfecto para médicos (notas SOAP), vendedores (análisis BANT), abogados, y profesionales en general.
+MÉTODOS DE GRABACIÓN:
+1. Grabadora Web: Desde el panel de control.
+2. Extensión de Chrome: Para Google Meet, Zoom y Microsoft Teams.
+3. Subida de Archivos: MP3, WAV, etc.
+4. LLAMADAS TELEFÓNICAS: Diktalo tiene un Dialer integrado. Puedes marcar un número desde la plataforma y la conversación se grabará y transcribirá automáticamente. Es ideal para ventas (análisis BANT) o entrevistas telefónicas.
 
-Plan gratuito: 24 minutos/mes
-Planes de pago: desde 9€/mes
+PÚBLICO OBJETIVO:
+- Médicos: Notas SOAP automáticas.
+- Vendedores: Análisis de llamadas comerciales.
+- Abogados: Documentación de testimonios y casos.
 
-Para crear cuenta: ve a diktalo.com y haz clic en "Crear Mi Cuenta"
-Para grabar: usa la grabadora web, extensión de Chrome, o sube archivos
+PLANES:
+- Gratis: 24 minutos al mes.
+- Pro: Desde 9€/mes.
+
+Para crear cuenta: clic en "Crear Mi Cuenta" en la home.
 Soporte: contacto@diktalo.com`;
 
             try {
@@ -232,7 +241,7 @@ Soporte: contacto@diktalo.com`;
                         return `TEMA: ${intent.category}\nPATTERNS: ${intent.patterns.join(', ')}\nRESPUESTA: ${intent.response_template}`;
                     }).join('\n\n---\n\n');
 
-                    knowledgeBase = `KNOWLEDGE BASE DE DIKTALO:\n\n${intents}`;
+                    knowledgeBase = `KNOWLEDGE BASE DE DIKTALO:\n\n${intents}\n\nDETALLE IMPORTANTE: También permitimos grabar LLAMADAS TELEFÓNICAS mediante nuestro Dialer integrado.`;
                     console.log('[AI_API] Knowledge base loaded successfully');
                 } else {
                     console.warn('[AI_API] Knowledge base file not found, using fallback');
@@ -249,33 +258,25 @@ CONTEXTO COMPLETO DE DIKTALO:
 ${knowledgeBase}
 
 REGLAS ESTRICTAS:
-1. NO uses emojis. Nunca.
-2. Responde de forma concisa y profesional
-3. Si el usuario pregunta algo que está en el knowledge base, responde directamente
-4. Si no tienes información, sugiere: "Te recomiendo contactar con soporte en contacto@diktalo.com"
-5. SIEMPRE responde en ESPAÑOL
-6. No menciones que tienes un "knowledge base" o que eres un bot
-7. Sé útil y directa
-
-EJEMPLOS DE BUENAS RESPUESTAS:
-- Usuario: "¿Qué es Diktalo?"
-  Tú: "Diktalo es una plataforma de IA para grabar, transcribir y analizar conversaciones. Te ayuda a automatizar la documentación de reuniones, llamadas y conversaciones profesionales."
-
-- Usuario: "¿Cómo grabo audio?"
-  Tú: "Puedes grabar de 3 formas: 1) Desde el dashboard web, 2) Con la extensión de Chrome durante videollamadas, 3) Subiendo archivos de audio. ¿Cuál método prefieres usar?"`
+1. NO uses emojis.
+2. NO uses negritas (**) ni ningún tipo de formato markdown especial. Texto plano únicamente.
+3. Responde de forma concisa (máximo 3 párrafos cortos).
+4. Incluye siempre la opción de "Llamadas Telefónicas mediante el Dialer" cuando te pregunten cómo grabar.
+5. Si el usuario pregunta algo que no está en el contexto, sugiere: "Para ese detalle específico, por favor contacta con soporte en contacto@diktalo.com".
+6. SIEMPRE responde en ESPAÑOL.
+7. No menciones que eres un bot ni que lees un knowledge base.`
                 : `You are Nati Pol, Diktalo's virtual assistant. Professional, direct, and helpful.
 
 CONTEXT:
 ${knowledgeBase}
 
 STRICT RULES:
-1. NO emojis. Never.
-2. Be concise and professional
-3. Answer directly based on knowledge base
-4. If uncertain, suggest: "Please contact support at contacto@diktalo.com"
-5. ALWAYS respond in ENGLISH
-6. Don't mention you have a "knowledge base"
-7. Be helpful and direct`;
+1. NO emojis.
+2. NO bolding (**) or special markdown formatting. Plain text only.
+3. Be concise.
+4. Always include "Phone Calls via Dialer" as a recording option.
+5. If uncertain, suggest contacting support.
+6. ALWAYS respond in ENGLISH.`;
 
             const chat = genAI.chats.create({
                 model: 'gemini-2.0-flash-exp',
