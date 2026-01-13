@@ -282,7 +282,7 @@ STRICT RULES:
                 model: 'gemini-2.0-flash-exp',
                 config: {
                     systemInstruction,
-                    temperature: 0.7  // Slightly more creative for friendly chat
+                    temperature: 0.3
                 },
                 history: history.map((h: any) => ({
                     role: h.role === 'user' ? 'user' : 'model',
