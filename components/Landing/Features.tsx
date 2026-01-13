@@ -69,15 +69,7 @@ export const Features: React.FC = () => {
             icon: Mic,
             image: '/images/feature-step1-capture.png'
         },
-        {
-            id: 1,
-            number: '02',
-            title: t('step2_ai'),
-            fullTitle: t('step2_ai'),
-            description: t('step2Desc'),
-            icon: Cpu,
-            image: '/images/feature-step2-ai.png'
-        },
+
         {
             id: 2,
             number: '03',
