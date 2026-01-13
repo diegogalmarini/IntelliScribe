@@ -2,6 +2,8 @@
 
 The native **Audio Recorder** is your tool for capturing in-person moments with high fidelity. Ideal for quick meetings, personal voice notes, or brainstorming sessions where you are not using a video conferencing platform.
 
+![Audio Recorder](/docs/screenshots/es/grabadora_web/03_active.png)
+
 ---
 
 ## Key Features

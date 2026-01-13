@@ -2,7 +2,7 @@
 
 Connect Diktalo directly to your phone communications. The **Call Recorder** allows you to log critical business conversations, phone interviews, or legal consultations with total transparency.
 
-![Call Recorder](/docs/screenshots/es/grabadora/call_recording.png)
+![Call Recorder](/docs/screenshots/es/dialer/01_dialer.png)
 
 ---
 
