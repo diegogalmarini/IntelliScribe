@@ -29,6 +29,7 @@ import { Privacy } from './pages/legal/Privacy';
 import { PricingComparison } from './pages/PricingComparison'; // NEW
 import { TrustCenter } from './pages/legal/TrustCenter';
 import { Cookies } from './pages/legal/Cookies';
+import { Contact } from './pages/Contact';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { PublicLayout } from './layouts/PublicLayout';
@@ -62,6 +63,7 @@ const AppContent: React.FC = () => {
         if (path === '/cookies') return AppRoute.COOKIES;
         if (path === '/login') return AppRoute.LOGIN;
         if (path === '/pricing') return AppRoute.PRICING_COMPARISON; // NEW
+        if (path === '/contact') return AppRoute.CONTACT;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         if (path === '/intelligence') return AppRoute.INTELLIGENCE;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
@@ -98,6 +100,7 @@ const AppContent: React.FC = () => {
         else if (path === '/admin/users') newRoute = AppRoute.ADMIN_USERS;
         else if (path === '/admin/financials') newRoute = AppRoute.ADMIN_FINANCIALS;
         else if (path === '/admin/plans') newRoute = AppRoute.ADMIN_PLANS;
+        else if (path === '/contact') newRoute = AppRoute.CONTACT;
 
         if (newRoute !== currentRoute) {
             setCurrentRoute(newRoute);
@@ -502,7 +505,9 @@ const AppContent: React.FC = () => {
             [AppRoute.ADMIN_OVERVIEW]: '/admin',
             [AppRoute.ADMIN_USERS]: '/admin/users',
             [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
-            [AppRoute.ADMIN_PLANS]: '/admin/plans'
+            [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
+            [AppRoute.ADMIN_PLANS]: '/admin/plans',
+            [AppRoute.CONTACT]: '/contact'
         };
 
         if (pathMap[route]) {
@@ -713,6 +718,17 @@ const AppContent: React.FC = () => {
             <>
                 <CrispWidget />
                 <Cookies />
+            </>
+        );
+    }
+
+    if (currentRoute === AppRoute.CONTACT) {
+        return (
+            <>
+                <CrispWidget />
+                <Navbar user={user} onNavigate={navigate} />
+                <Contact />
+                {/* Footer would go here if available */}
             </>
         );
     }
