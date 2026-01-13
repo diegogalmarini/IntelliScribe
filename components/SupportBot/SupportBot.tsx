@@ -28,7 +28,7 @@ export const SupportBot: React.FC = () => {
 
         try {
             // Call real Gemini AI instead of pattern matching
-            const { supportChat } = await import('../services/geminiService');
+            const { supportChat } = await import('../../services/geminiService');
             const response = await supportChat(userMsg, messages, 'es');
             setMessages(prev => [...prev, { role: 'bot', content: response }]);
         } catch (error) {
