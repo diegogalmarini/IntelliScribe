@@ -23,6 +23,7 @@ import { databaseService } from './services/databaseService';
 import { notifyNewRecording } from './services/emailService';
 import CrispWidget from './components/CrispWidget';
 import { SupportBot } from './components/SupportBot/SupportBot';
+import { Navbar } from './components/Landing/Navbar';
 import { Landing } from './pages/Landing';
 import { Terms } from './pages/legal/Terms';
 import { Privacy } from './pages/legal/Privacy';
