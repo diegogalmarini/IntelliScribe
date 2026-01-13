@@ -1,28 +1,47 @@
 # Grabadora de Audio
 
-La **Grabadora de Audio** nativa es tu herramienta para capturar momentos en persona con alta fidelidad. Ideal para reuniones rápidas, notas de voz personales o sesiones de brainstorming donde no estás utilizando una plataforma de videoconferencia.
+La **Grabadora de Audio** es tu suite de captura integrada directamente en el navegador. Diseñada para eliminar la fricción entre tener una idea y preservarla para siempre.
 
-![Grabadora de Audio](/docs/screenshots/es/grabadora_web/03_active.png)
+Accede instantáneamente desde cualquier dispositivo sin instalar software adicional.
 
----
-
-## Características Principales
-
-### 🎙️ Captura de Alta Calidad
-Utiliza la API de audio web moderna para grabar audio sin compresión o con compresión optimizada (según el navegador), garantizando que cada palabra se capture con claridad para nuestra IA de transcripción.
-
-### ⏱️ Sin Límite de Tiempo
-Graba sesiones tan largas como necesites. El sistema gestiona automáticamente el buffer de memoria para evitar pérdidas de datos en grabaciones extensas.
+![Grabadora Web - Estado Inicial](/docs/screenshots/es/grabadora_web/01_initial.png)
 
 ---
 
-## Cómo usarla
+## Modos de Captura Especializados
 
-1.  Navega a la sección **"Grabar"** en tu Dashboard.
-2.  Selecciona el modo **"Micrófono"**.
-3.  Elige tu dispositivo de entrada si tienes varios micrófonos conectados.
-4.  Haz clic en el botón circular grande para **Iniciar Grabación**.
-5.  Puedes **Pausar** y **Reanudar** en cualquier momento.
-6.  Al finalizar, haz clic en **Stop**. La grabación se procesará automáticamente.
+Diktalo adapta su motor de grabación al contexto de tu conversación. Seleccionar el modo correcto asegura la máxima precisión en la transcripción.
 
-> **Nota:** Grabar en entornos silenciosos mejora drásticamente la precisión de la transcripción y la identificación de oradores.
+### 🎙️ Reunión Presencial (Micrófono)
+**El estándar para interacciones humanas directas.**
+Utiliza algoritmos de cancelación de eco para capturar voces en una sala de reuniones, una entrevista cara a cara o tus propias notas de voz.
+*   **Ideal para:** Brainstorming, 1-on-1s, dictados personales.
+
+### 🔊 Altavoz (Sistema)
+**Captura lo que escuchas.**
+Canaliza el audio interno de tu ordenador directamente al motor de IA. Perfecto para digitalizar contenido que estás consumiendo.
+*   **Ideal para:** Webinars, conferencias en streaming, videos de YouTube.
+
+### 📞 Multi-origen (Híbrido)
+**El puente entre lo físico y lo digital.**
+Graba simultáneamente tu micrófono y el audio del sistema. Es la solución para llamadas de VoIP (Skype, Slack Huddle) donde necesitas registrar ambas partes de la conversación sin integraciones complejas.
+
+---
+
+## Flujo de Trabajo Profesional
+
+### 1. Configuración de Entrada
+Antes de grabar, el sistema realiza un **Check de Latencia y Ganancia**.
+*   Selecciona tu dispositivo de entrada (Soporta micrófonos USB, Bluetooth y arrays integrados).
+*   Verifica la **Visualización de Onda**: Si las barras reaccionan a tu voz, el sistema está listo.
+
+![Grabación Activa](/docs/screenshots/es/grabadora_web/03_active.png)
+
+### 2. Marcadores Contextuales (Live Notes)
+No esperes al final. Durante la grabación, utiliza el panel de **"Notas Rápidas"** para marcar momentos clave en tiempo real.
+*   *Ejemplo:* Escribe "Acuerdo de Presupuesto" en el minuto 14:20.
+*   **Resultado:** La IA vinculará esa nota al timestamp exacto en la transcripción final.
+
+### 3. Control de Sesión
+*   **Pausa Inteligente:** Detén la grabación sin cortar el archivo. Ideal para recesos o información off-the-record.
+*   **Salvaguarda:** Si cierras la pestaña accidentalmente, Diktalo intentará recuperar el bloqué de audio temporal en tu próxima visita.
