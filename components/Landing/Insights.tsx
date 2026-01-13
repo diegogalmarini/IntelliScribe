@@ -15,7 +15,7 @@ export const Insights: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="h2 text-slate-900 dark:text-white mb-6"
+                            className="h2 text-slate-900 dark:text-white mb-6 line-height-relaxed"
                         >
                             {t('insightsTitlePre')}{t('insightsTitleHighlight')}{t('insightsTitlePost')}
                         </motion.h2>
@@ -25,7 +25,7 @@ export const Insights: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed font-medium max-w-xl"
+                            className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed font-medium max-w-xl line-height-relaxed"
                         >
                             {t('insightsSubtitle')}
                         </motion.p>
