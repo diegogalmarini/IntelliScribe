@@ -7,149 +7,163 @@ import rehypeRaw from 'rehype-raw';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Manual.css';
 import { SupportBot } from '../components/SupportBot/SupportBot';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ManualSection {
     id: string;
-    title: string;
-    category: string;
-    path: string;
+    translationKeyTitle: string;
+    translationKeyDesc: string;
+    translationKeyCategory: string;
+    path: string; // Base filename only, lang prefix added dynamically
     icon: string;
-    description: string;
 }
 
-const MANUAL_SECTIONS: ManualSection[] = [
+// Static definition of structure, content is dynamic
+const SECTION_DEFINITIONS: ManualSection[] = [
     {
         id: 'crear-cuenta',
-        title: 'Crear tu Cuenta',
-        category: 'Primeros Pasos',
-        path: '/docs/manual/es/01_primeros_pasos/crear_cuenta.md',
+        translationKeyTitle: 'manual_create_account_title',
+        translationKeyDesc: 'manual_create_account_desc',
+        translationKeyCategory: 'cat_getting_started',
+        path: '01_primeros_pasos/crear_cuenta.md',
         icon: 'account_circle',
-        description: 'Aprende a registrarte y dar tus primeros pasos en Diktalo.'
     },
     {
         id: 'grabadora-audio',
-        title: 'Grabadora de Audio',
-        category: 'Métodos de Grabación',
-        path: '/docs/manual/es/02_metodos_grabacion/grabadora_audio.md',
+        translationKeyTitle: 'manual_audio_recorder_title',
+        translationKeyDesc: 'manual_audio_recorder_desc',
+        translationKeyCategory: 'cat_recording',
+        path: '02_metodos_grabacion/grabadora_audio.md',
         icon: 'mic',
-        description: 'Graba tu voz directamente desde la plataforma (Reuniones presenciales, notas).'
     },
     {
         id: 'grabadora-web',
-        title: 'Grabar desde Extensión de Chrome',
-        category: 'Métodos de Grabación',
-        path: '/docs/manual/es/02_metodos_grabacion/grabadora_web.md',
-        icon: 'extension', // Changed icon to extension
-        description: 'Captura el audio de tus pestañas (Meet, Youtube) con nuestra Extensión.'
+        translationKeyTitle: 'manual_web_recorder_title',
+        translationKeyDesc: 'manual_web_recorder_desc',
+        translationKeyCategory: 'cat_recording',
+        path: '02_metodos_grabacion/grabadora_web.md',
+        icon: 'extension',
     },
     {
         id: 'subir-archivos',
-        title: 'Subir Archivos',
-        category: 'Métodos de Grabación',
-        path: '/docs/manual/es/02_metodos_grabacion/subir_archivos.md',
+        translationKeyTitle: 'manual_upload_files_title',
+        translationKeyDesc: 'manual_upload_files_desc',
+        translationKeyCategory: 'cat_recording',
+        path: '02_metodos_grabacion/subir_archivos.md',
         icon: 'upload_file',
-        description: 'Importa archivos de audio o video existentes para transcribir.'
     },
     {
         id: 'multi-audio',
-        title: 'Multi-Audio',
-        category: 'Métodos de Grabación',
-        path: '/docs/manual/es/02_metodos_grabacion/multi_audio.md',
+        translationKeyTitle: 'manual_multi_audio_title',
+        translationKeyDesc: 'manual_multi_audio_desc',
+        translationKeyCategory: 'cat_recording',
+        path: '02_metodos_grabacion/multi_audio.md',
         icon: 'group_work',
-        description: 'Sube múltiples archivos y asígnalos a diferentes hablantes.'
     },
     {
         id: 'grabadora-llamada',
-        title: 'Grabadora de Llamada',
-        category: 'Métodos de Grabación',
-        path: '/docs/manual/es/02_metodos_grabacion/grabadora_llamada.md',
+        translationKeyTitle: 'manual_call_recorder_title',
+        translationKeyDesc: 'manual_call_recorder_desc',
+        translationKeyCategory: 'cat_recording',
+        path: '02_metodos_grabacion/grabadora_llamada.md',
         icon: 'call',
-        description: 'Registra tus llamadas telefónicas importantes.'
     },
     {
         id: 'ask-diktalo',
-        title: 'ASK Diktalo - Los 3 Niveles',
-        category: 'Inteligencia IA',
-        path: '/docs/manual/es/03_inteligencia_ia/ask_diktalo.md',
+        translationKeyTitle: 'manual_ask_diktalo_title',
+        translationKeyDesc: 'manual_ask_diktalo_desc',
+        translationKeyCategory: 'cat_ai',
+        path: '03_inteligencia_ia/ask_diktalo.md',
         icon: 'psychology',
-        description: 'Extrae el máximo valor de tus audios con nuestro chat inteligente.'
     },
     {
         id: 'resumenes-plantillas',
-        title: 'Plantillas de Resumen',
-        category: 'Inteligencia IA',
-        path: '/docs/manual/es/03_inteligencia_ia/resumenes_plantillas.md',
+        translationKeyTitle: 'manual_templates_title',
+        translationKeyDesc: 'manual_templates_desc',
+        translationKeyCategory: 'cat_ai',
+        path: '03_inteligencia_ia/resumenes_plantillas.md',
         icon: 'description',
-        description: 'Ahorra tiempo usando nuestras plantillas preconfiguradas y avanzadas.'
     },
     {
         id: 'exportar',
-        title: 'Exportar (PDF, DOC, TXT, JSON)',
-        category: 'Productividad',
-        path: '/docs/manual/es/03_inteligencia_ia/exportar.md',
+        translationKeyTitle: 'manual_export_title',
+        translationKeyDesc: 'manual_export_desc',
+        translationKeyCategory: 'cat_productivity',
+        path: '03_inteligencia_ia/exportar.md',
         icon: 'download',
-        description: 'Lleva tus transcripciones y análisis a donde necesites.'
     },
     {
         id: 'configuracion',
-        title: 'Configuración y Ajustes',
-        category: 'Ajustes',
-        path: '/docs/manual/es/05_ajustes/configuracion.md',
+        translationKeyTitle: 'manual_config_title',
+        translationKeyDesc: 'manual_config_desc',
+        translationKeyCategory: 'cat_settings',
+        path: '05_ajustes/configuracion.md',
         icon: 'settings',
-        description: 'Personaliza tu experiencia, perfil y preferencias de IA.'
     }
 ];
 
 const CATEGORIES = [
-    { id: 'Primeros Pasos' },
-    { id: 'Métodos de Grabación' },
-    { id: 'Inteligencia IA' },
-    { id: 'Productividad' },
-    { id: 'Ajustes' }
+    { id: 'cat_getting_started' },
+    { id: 'cat_recording' },
+    { id: 'cat_ai' },
+    { id: 'cat_productivity' },
+    { id: 'cat_settings' }
 ];
 
 export const Manual: React.FC = () => {
+    const { t, language } = useLanguage();
     const [view, setView] = useState<'hub' | 'article'>('hub');
     const [selectedSectionId, setSelectedSectionId] = useState<string>('');
     const [content, setContent] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Dynamic Sections based on Language
+    const manualSections = useMemo(() => {
+        return SECTION_DEFINITIONS.map(def => ({
+            ...def,
+            title: t(def.translationKeyTitle as any),
+            description: t(def.translationKeyDesc as any),
+            category: t(def.translationKeyCategory as any),
+            fullPath: `/docs/manual/${language}/${def.path}` // Dynamic path
+        }));
+    }, [t, language]);
+
     const handleSelectSection = (id: string) => {
         setSelectedSectionId(id);
         setView('article');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Update URL without reload
         const newUrl = `${window.location.pathname}?id=${id}`;
         window.history.pushState({ path: newUrl }, '', newUrl);
     };
 
-    // Deep linking support
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
-        if (id && MANUAL_SECTIONS.some(s => s.id === id)) {
+        if (id && manualSections.some(s => s.id === id)) {
             setSelectedSectionId(id);
             setView('article');
         }
-    }, []);
+    }, [manualSections]); // Added dep
 
     useEffect(() => {
         if (view === 'article' && selectedSectionId) {
             const loadContent = async () => {
                 setIsLoading(true);
-                const section = MANUAL_SECTIONS.find(s => s.id === selectedSectionId);
+                const section = manualSections.find(s => s.id === selectedSectionId);
                 if (!section) return;
 
                 try {
-                    const response = await fetch(section.path);
+                    console.log(`Loading manual from: ${section.fullPath}`);
+                    const response = await fetch(section.fullPath);
+                    if (!response.ok) throw new Error('File not found');
+
                     const text = await response.text();
-                    // Strip YAML frontmatter
                     const cleanText = text.replace(/^---[\s\S]*?---\n/, '');
                     setContent(cleanText);
                 } catch (error) {
                     console.error('Error loading manual section:', error);
-                    setContent('# Error\n\nNo se pudo cargar esta sección del manual.');
+                    setContent(`# ${t('manualError')}\n\n${language === 'en' ? 'The content for this section is not yet available in English.' : 'No se pudo cargar esta sección.'}`);
                 } finally {
                     setIsLoading(false);
                     setTimeout(() => window.scrollTo({ top: 0 }), 100);
@@ -157,25 +171,26 @@ export const Manual: React.FC = () => {
             };
             loadContent();
         }
-    }, [view, selectedSectionId]);
+    }, [view, selectedSectionId, language, manualSections, t]); // Reliably reload on lang change
 
-    const currentSection = MANUAL_SECTIONS.find(s => s.id === selectedSectionId);
+    const currentSection = manualSections.find(s => s.id === selectedSectionId);
 
     const filteredSections = useMemo(() => {
         if (!searchQuery) return [];
-        return MANUAL_SECTIONS.filter(s =>
+        return manualSections.filter(s =>
             s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             s.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
             s.category.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery]);
+    }, [searchQuery, manualSections]);
 
     const groupedSections = useMemo(() => {
         return CATEGORIES.map(cat => ({
-            ...cat,
-            sections: MANUAL_SECTIONS.filter(s => s.category === cat.id)
+            id: t(cat.id as any),
+            originalId: cat.id,
+            sections: manualSections.filter(s => s.translationKeyCategory === cat.id)
         }));
-    }, []);
+    }, [manualSections, t]);
 
     return (
         <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans text-slate-900 dark:text-white">
@@ -183,14 +198,11 @@ export const Manual: React.FC = () => {
 
             <div className="flex-grow pt-32 pb-24">
                 {view === 'hub' ? (
-                    /* HUB VIEW - DIRECTORY STYLE */
                     <div className="max-w-[1400px] mx-auto px-6">
-
-                        {/* Header: Title Left, Search Right */}
-                        {/* Header: Title Left, Search Right */}
+                        {/* Header */}
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 pb-8 border-b border-slate-100 dark:border-slate-800">
                             <div>
-                                <h1 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Manual de Usuario</h1>
+                                <h1 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">{t('manualTitle')}</h1>
                             </div>
 
                             <div className="relative w-full md:w-80">
@@ -199,12 +211,11 @@ export const Manual: React.FC = () => {
                                 </span>
                                 <input
                                     type="text"
-                                    placeholder="Buscar"
+                                    placeholder={t('manualSearch')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm placeholder:text-slate-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-white focus:border-slate-900 dark:focus:border-white transition-all shadow-sm hover:shadow-md"
                                 />
-                                {/* Search Dropdown */}
                                 {searchQuery && (
                                     <div className="absolute top-full right-0 left-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
                                         {filteredSections.length > 0 ? (
@@ -219,17 +230,17 @@ export const Manual: React.FC = () => {
                                                 </button>
                                             ))
                                         ) : (
-                                            <div className="p-4 text-center text-sm text-slate-500">No hay resultados.</div>
+                                            <div className="p-4 text-center text-sm text-slate-500">{t('manualNoResults')}</div>
                                         )}
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Directory Grid - Text Only */}
+                        {/* Directory Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
                             {groupedSections.map((cat) => (
-                                <div key={cat.id} className="flex flex-col">
+                                <div key={cat.originalId} className="flex flex-col">
                                     <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                                         {cat.id}
                                     </h2>
@@ -251,8 +262,6 @@ export const Manual: React.FC = () => {
                 ) : (
                     /* ARTICLE VIEW */
                     <div className="max-w-[1400px] mx-auto px-6">
-                        {/* Minimal Breadcrumb */}
-                        {/* Minimal Breadcrumb (Mobile Only) */}
                         <nav className="md:hidden flex items-center gap-2 text-[13px] text-slate-500 mb-8 overflow-x-auto whitespace-nowrap">
                             <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
                             <span className="text-slate-300">/</span>
@@ -260,10 +269,8 @@ export const Manual: React.FC = () => {
                         </nav>
 
                         <div className="flex flex-col md:flex-row gap-16">
-                            {/* Sidebar List */}
                             <aside className="hidden md:block w-64 shrink-0">
                                 <div className="sticky top-32">
-                                    {/* Desktop Sticky Breadcrumb */}
                                     <nav className="flex flex-wrap items-center gap-2 text-[13px] text-slate-500 mb-8">
                                         <button onClick={() => setView('hub')} className="hover:text-slate-900 dark:hover:text-white transition-colors">Manual</button>
                                         <span className="text-slate-300">/</span>
@@ -288,10 +295,9 @@ export const Manual: React.FC = () => {
                                 </div>
                             </aside>
 
-                            {/* Content */}
                             <main className="flex-1 min-w-0">
                                 {isLoading ? (
-                                    <div className="py-12 text-center text-sm text-slate-400">Cargando...</div>
+                                    <div className="py-12 text-center text-sm text-slate-400">{t('manualLoading')}</div>
                                 ) : (
                                     <article className="manual-article prose-slate dark:prose-invert">
                                         <ReactMarkdown
@@ -317,7 +323,6 @@ export const Manual: React.FC = () => {
             </div>
 
             <Footer />
-            {/* Bot is now injected via App.tsx, but kept here for fallback in case App.tsx routing fails */}
         </div>
     );
 };
