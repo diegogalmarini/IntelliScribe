@@ -23,25 +23,23 @@ export const Terms: React.FC = () => {
                     <h2>{t('terms_s1_title')}</h2>
 
                     <h3 className="font-bold text-slate-900 dark:text-white mt-6 mb-2">{t('terms_s1_sub1_title')}</h3>
-                    <p className="mb-3">
-                        {t('terms_s1_sub1_desc').replace('Diktalo', '<strong>Diktalo</strong>').replace('Usted', '<strong>Usted</strong>')}
-                    </p>
+                    <p className="mb-3" dangerouslySetInnerHTML={{ __html: t('terms_s1_sub1_desc') }} />
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li>{t('terms_s1_sub1_li1')}</li>
-                        <li>{t('terms_s1_sub1_li2')}</li>
-                        <li><strong>Diktalo</strong> {t('terms_s1_sub1_li3').replace('Diktalo', '').trim()}</li>
+                        <li dangerouslySetInnerHTML={{ __html: t('terms_s1_sub1_li1') }} />
+                        <li dangerouslySetInnerHTML={{ __html: t('terms_s1_sub1_li2') }} />
+                        <li dangerouslySetInnerHTML={{ __html: `<strong>Diktalo</strong> ${t('terms_s1_sub1_li3').replace('Diktalo', '').trim()}` }} />
                     </ul>
 
                     <h3 className="font-bold text-slate-900 dark:text-white mt-6 mb-2">{t('terms_s1_sub2_title')}</h3>
-                    <p>{t('terms_s1_sub2_desc')}</p>
+                    <p dangerouslySetInnerHTML={{ __html: t('terms_s1_sub2_desc') }} />
                 </section>
 
                 <section>
                     <h2>{t('terms_s2_title')}</h2>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li><strong>{t('terms_s2_li1').split(':')[0]}:</strong> {t('terms_s2_li1').split(':')[1]}</li>
-                        <li><strong>{t('terms_s2_li2').split(':')[0]}:</strong> {t('terms_s2_li2').split(':')[1]}</li>
-                        <li><strong>{t('terms_s2_li3').split(':')[0]}:</strong> {t('terms_s2_li3').split(':')[1]}</li>
+                        <li dangerouslySetInnerHTML={{ __html: t('terms_s2_li1') }} />
+                        <li dangerouslySetInnerHTML={{ __html: t('terms_s2_li2') }} />
+                        <li dangerouslySetInnerHTML={{ __html: t('terms_s2_li3') }} />
                     </ul>
                 </section>
 

@@ -115,43 +115,46 @@
 /* Legal Pages Typography Overrides */
 .legal-page h1,
 .legal-page .h1 {
-    font-family: 'Suisseintl', 'Inter', system-ui, sans-serif;
-    /* Fallback included just in case */
-    letter-spacing: -.02em;
-    font-weight: 500;
-    line-height: 1.1;
-    font-size: 2rem;
-    margin: 0;
+    font-family: 'Suisseintl', 'Inter', system-ui, sans-serif !important;
+    letter-spacing: -.02em !important;
+    font-weight: 500 !important;
+    line-height: 1.1 !important;
+    font-size: 2rem !important;
+    margin: 0 !important;
 }
 
 .legal-page p {
-    margin-top: 1rem;
-    line-height: 1.6;
-    font-size: 0.9rem;
-    font-weight: 400;
+    margin-top: 1rem !important;
+    line-height: 1.6 !important;
+    font-size: 0.9rem !important;
+    font-weight: 400 !important;
 }
 
 .legal-page h2,
 .legal-page .h2 {
-    font-family: 'Suisseintl', 'Inter', system-ui, sans-serif;
-    letter-spacing: -.01em;
-    font-weight: 500;
-    line-height: 1.25;
-    font-size: 1.5rem;
-    margin: 0;
+    font-family: 'Suisseintl', 'Inter', system-ui, sans-serif !important;
+    letter-spacing: -.01em !important;
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    font-size: 1.5rem !important;
+    margin: 0 !important;
     color: #0f172a;
+    margin-top: 2rem !important;
+    /* Added some top margin for separation */
+    margin-bottom: 1rem !important;
 }
 
 .legal-page h3,
 .legal-page .h3 {
-    font-family: 'Suisseintl', 'Inter', system-ui, sans-serif;
-    letter-spacing: -.01em;
-    font-weight: 500;
-    line-height: 1.25;
-    font-size: 1.1rem;
-    margin: 0;
+    font-family: 'Suisseintl', 'Inter', system-ui, sans-serif !important;
+    letter-spacing: -.01em !important;
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
     color: #0f172a;
-    margin-top: 1.5rem;
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
 }
 
 .legal-page li,
