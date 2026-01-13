@@ -2,8 +2,6 @@
 
 La **Grabadora de Audio** nativa es tu herramienta para capturar momentos en persona con alta fidelidad. Ideal para reuniones rápidas, notas de voz personales o sesiones de brainstorming donde no estás utilizando una plataforma de videoconferencia.
 
-![Grabadora de Audio](/docs/screenshots/es/grabadora/01_mic_active.png)
-
 ---
 
 ## Características Principales

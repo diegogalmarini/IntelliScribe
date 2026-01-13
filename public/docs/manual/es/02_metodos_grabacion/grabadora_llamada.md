@@ -2,6 +2,8 @@
 
 Conecta Diktalo directamente a tus comunicaciones telefónicas. La **Grabadora de Llamadas** permite registrar conversaciones críticas de negocios, entrevistas telefónicas o consultas legales con total transparencia.
 
+![Grabadora de Llamada](/docs/screenshots/es/grabadora/call_recording.png)
+
 ---
 
 ## Funcionalidad
