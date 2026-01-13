@@ -155,15 +155,27 @@ export const Manual: React.FC = () => {
 
                 try {
                     console.log(`Loading manual from: ${section.fullPath}`);
-                    const response = await fetch(section.fullPath);
+                    const response = await fetch(`${section.fullPath}?t=${Date.now()}`);
+
                     if (!response.ok) throw new Error('File not found');
 
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        throw new Error('Received HTML instead of Markdown (File not found)');
+                    }
+
                     const text = await response.text();
-                    const cleanText = text.replace(/^---[\s\S]*?---\n/, '');
+                    if (!text.trim()) throw new Error('Empty file');
+
+                    // Only strip frontmatter if it actually exists at the start
+                    const cleanText = text.startsWith('---')
+                        ? text.replace(/^---[\s\S]*?---\n/, '')
+                        : text;
+
                     setContent(cleanText);
                 } catch (error) {
                     console.error('Error loading manual section:', error);
-                    setContent(`# ${t('manualError')}\n\n${language === 'en' ? 'The content for this section is not yet available in English.' : 'No se pudo cargar esta sección.'}`);
+                    setContent(`# ${t('manualError')}\n\n${language === 'en' ? 'The content for this section is not yet available.' : 'No se pudo cargar esta sección. Asegúrate de que el archivo existe.'}\n\n> Debug: ${section.fullPath} (${error})`);
                 } finally {
                     setIsLoading(false);
                     setTimeout(() => window.scrollTo({ top: 0 }), 100);
