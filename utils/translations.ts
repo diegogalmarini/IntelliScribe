@@ -70,6 +70,42 @@ export const translations = {
     contactSidebarDesc: "Need help configuring the dialer or recording permissions?",
     contactSidebarManual: "Check the Manual",
 
+    // Manual Page
+    manualTitle: "User Manual",
+    manualSearch: "Search",
+    manualNoResults: "No results found.",
+    manualLoading: "Loading...",
+    manualError: "Could not load this manual section.",
+
+    // Manual Categories
+    cat_getting_started: "Getting Started",
+    cat_recording: "Recording Methods",
+    cat_ai: "AI Intelligence",
+    cat_productivity: "Productivity",
+    cat_settings: "Settings",
+
+    // Manual Sections
+    manual_create_account_title: "Create Account",
+    manual_create_account_desc: "Learn how to register and take your first steps in Diktalo.",
+    manual_audio_recorder_title: "Audio Recorder",
+    manual_audio_recorder_desc: "Record your voice directly from the platform (In-person meetings, notes).",
+    manual_web_recorder_title: "Record from Chrome Extension",
+    manual_web_recorder_desc: "Capture audio from your tabs (Meet, Youtube) with our Extension.",
+    manual_upload_files_title: "Upload Files",
+    manual_upload_files_desc: "Import existing audio or video files for transcription.",
+    manual_multi_audio_title: "Multi-Audio",
+    manual_multi_audio_desc: "Upload multiple files and assign them to different speakers.",
+    manual_call_recorder_title: "Call Recorder",
+    manual_call_recorder_desc: "Record your important phone calls.",
+    manual_ask_diktalo_title: "ASK Diktalo - The 3 Levels",
+    manual_ask_diktalo_desc: "Extract maximum value from your audios with our intelligent chat.",
+    manual_templates_title: "Summary Templates",
+    manual_templates_desc: "Save time using our pre-configured and advanced templates.",
+    manual_export_title: "Export (PDF, DOC, TXT, JSON)",
+    manual_export_desc: "Take your transcripts and analysis wherever you need.",
+    manual_config_title: "Configuration & Settings",
+    manual_config_desc: "Customize your experience, profile, and AI preferences.",
+
     // Sidebar
     dashboard: "Dashboard",
     integrations: "Integrations",
@@ -733,6 +769,42 @@ export const translations = {
     contactSidebarTitle: "Captura Omnicanal",
     contactSidebarDesc: "¿Necesitas ayuda configurando el marcador o los permisos de grabación?",
     contactSidebarManual: "Ver el Manual",
+
+    // Manual Page
+    manualTitle: "Manual de Usuario",
+    manualSearch: "Buscar",
+    manualNoResults: "No hay resultados.",
+    manualLoading: "Cargando...",
+    manualError: "No se pudo cargar esta sección del manual.",
+
+    // Manual Categories
+    cat_getting_started: "Primeros Pasos",
+    cat_recording: "Métodos de Grabación",
+    cat_ai: "Inteligencia IA",
+    cat_productivity: "Productividad",
+    cat_settings: "Ajustes",
+
+    // Manual Sections
+    manual_create_account_title: "Crear tu Cuenta",
+    manual_create_account_desc: "Aprende a registrarte y dar tus primeros pasos en Diktalo.",
+    manual_audio_recorder_title: "Grabadora de Audio",
+    manual_audio_recorder_desc: "Graba tu voz directamente desde la plataforma (Reuniones presenciales, notas).",
+    manual_web_recorder_title: "Grabar desde Extensión de Chrome",
+    manual_web_recorder_desc: "Captura el audio de tus pestañas (Meet, Youtube) con nuestra Extensión.",
+    manual_upload_files_title: "Subir Archivos",
+    manual_upload_files_desc: "Importa archivos de audio o video existentes para transcribir.",
+    manual_multi_audio_title: "Multi-Audio",
+    manual_multi_audio_desc: "Sube múltiples archivos y asígnalos a diferentes hablantes.",
+    manual_call_recorder_title: "Grabadora de Llamada",
+    manual_call_recorder_desc: "Registra tus llamadas telefónicas importantes.",
+    manual_ask_diktalo_title: "ASK Diktalo - Los 3 Niveles",
+    manual_ask_diktalo_desc: "Extrae el máximo valor de tus audios con nuestro chat inteligente.",
+    manual_templates_title: "Plantillas de Resumen",
+    manual_templates_desc: "Ahorra tiempo usando nuestras plantillas preconfiguradas y avanzadas.",
+    manual_export_title: "Exportar (PDF, DOC, TXT, JSON)",
+    manual_export_desc: "Lleva tus transcripciones y análisis a donde necesites.",
+    manual_config_title: "Configuración y Ajustes",
+    manual_config_desc: "Personaliza tu experiencia, perfil y preferencias de IA.",
 
     // Auth
     welcomeBack: "Bienvenido de nuevo",
