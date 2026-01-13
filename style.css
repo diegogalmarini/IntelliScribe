@@ -274,3 +274,16 @@
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
+/* LINE-HEIGHT UTILITIES - Override global tight spacing */
+.landing-page .line-height-relaxed {
+    line-height: 1.75 !important;
+}
+
+.landing-page .h2.line-height-relaxed {
+    line-height: 1.4 !important;
+}
+
+.landing-page p.line-height-relaxed {
+    line-height: 1.75 !important;
+}
