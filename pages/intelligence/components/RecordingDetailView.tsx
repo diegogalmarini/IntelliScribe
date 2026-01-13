@@ -12,6 +12,7 @@ import * as exportUtils from '../../../utils/exportUtils';
 import { supabase } from '../../../lib/supabase';
 import { databaseService } from '../../../services/databaseService';
 import { saveAs } from 'file-saver';
+import { useToast } from '../../../components/Toast';
 import { Image as ImageIcon } from 'lucide-react'; // Import Image icon
 
 
@@ -83,6 +84,7 @@ const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageC
 
 export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
     const { t, language } = useLanguage();
+    const { showToast } = useToast();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -392,7 +394,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
     const handleTranscribeAudio = async () => {
         if (!signedAudioUrl) {
-            alert("Audio URL not available.");
+            showToast("Audio URL not available.", 'error');
             return;
         }
 
@@ -442,7 +444,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
         } catch (error) {
             console.error('Failed to transcribe', error);
-            alert("Error al regenerar la transcripción.");
+            showToast("Error al regenerar la transcripción.", 'error');
         } finally {
             setIsTranscribing(false);
         }
@@ -502,7 +504,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             setAnalysisOpen(false);
         } catch (error) {
             console.error(error);
-            alert("Error generando resumen");
+            showToast("Error generando resumen", 'error');
         } finally {
             setIsGenerating(false);
         }

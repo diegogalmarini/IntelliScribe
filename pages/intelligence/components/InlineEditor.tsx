@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import { logger } from '../../../services/loggingService';
 import { WaveformVisualizer } from '../../../components/WaveformVisualizer';
 import { supabase } from '../../../lib/supabase';
+import { useToast } from '../../../components/Toast';
 
 interface InlineEditorProps {
     recording: Recording;
@@ -25,6 +26,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     onClose
 }) => {
     const { t, language } = useLanguage();
+    const { showToast } = useToast();
 
     // State for the full recording details (Lazy Loaded)
     const [recording, setRecording] = useState<Recording>(initialRecording);
@@ -318,7 +320,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
     const handleTranscribeAudio = async () => {
         if (!signedAudioUrl) {
-            alert(t('audioNotReady') || "Audio not ready");
+            showToast(t('audioNotReady') || "Audio not ready", 'error');
             return;
         }
 
@@ -367,7 +369,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
         } catch (error) {
             logger.error('Failed to transcribe', { error, recordingId: recording.id, language }, user.id);
-            alert("Failed to transcribe audio. Please check your API key.");
+            showToast("Failed to transcribe audio. Please check your API key.", 'error');
         } finally {
             setIsTranscribing(false);
         }
@@ -523,7 +525,7 @@ ${fullTranscript}`;
         }
 
         if (!recording.audioUrl) {
-            alert(t('downloadFailed'));
+            showToast(t('downloadFailed'), 'error');
             return;
         }
 
@@ -575,7 +577,7 @@ ${fullTranscript}`;
             }
         } catch (err) {
             logger.error('Failed to download audio', { error: err, recordingId: recording.id }, user.id);
-            alert(t('downloadFailed'));
+            showToast(t('downloadFailed'), 'error');
         }
     };
 
@@ -603,7 +605,7 @@ ${fullTranscript}`;
 
         if (format === 'clipboard') {
             navigator.clipboard.writeText(content).then(() => {
-                alert('Transcript copied to clipboard!');
+                showToast('Transcript copied to clipboard!', 'success');
                 setShowExportMenu(false);
             });
             return;

@@ -20,6 +20,7 @@ import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
 import { notifyNewRecording } from '../../services/emailService';
+import { useToast } from '../../components/Toast';
 import { concatenateAudios, timeToSeconds } from '../../services/audioConcat';
 
 interface IntelligenceDashboardProps {
@@ -71,6 +72,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const { t } = useLanguage();
     const [view, setView] = useState<'recordings' | 'subscription' | 'templates'>(initialView); // View state
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const { showToast } = useToast();
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Sync view with prop changes (e.g. navigation trigger)
@@ -264,8 +266,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             return;
         }
 
+        console.log(`[Dashboard] Folder selected: ${folderId}`);
         if (onSelectFolder) onSelectFolder(folderId);
-        setIsSidebarOpen(false);
+
+        // Auto-close sidebar ONLY on mobile
+        if (isMobile) {
+            setIsSidebarOpen(false);
+        }
     };
 
     const handleLogoClick = () => {
@@ -381,7 +388,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
                 } catch (error: any) {
                     console.error("Upload failed:", error);
-                    alert(`Error al subir el archivo: ${error.message}`);
+                    showToast(`Error al subir el archivo: ${error.message}`, 'error');
                     // Revert optimistic update
                     setTempRecording(null);
                     setSelectedId(null);
@@ -682,7 +689,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
         } catch (error) {
             console.error("Transcription error:", error);
-            alert("Error generating transcription: " + (error as any).message);
+            showToast("Error generating transcription: " + (error as any).message, 'error');
         }
     };
 
@@ -809,7 +816,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         onMoveRecording(id, folderId === 'root' ? '' : folderId);
                     }}
                     folders={folders}
-                    selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
+                    selectedFolderId={selectedFolderId}
                     onSelectFolder={handleSelectFolder}
                     onLogoClick={handleLogoClick}
                     currentView={view}
@@ -857,7 +864,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             onMoveRecording(id, folderId === 'root' ? '' : folderId);
                         }}
                         folders={folders}
-                        selectedFolderId={selectedFolderId === 'ALL' ? null : selectedFolderId}
+                        selectedFolderId={selectedFolderId}
                         onSelectFolder={handleSelectFolder}
                         onLogoClick={handleLogoClick}
                         currentView={view}

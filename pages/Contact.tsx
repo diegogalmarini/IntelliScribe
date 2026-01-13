@@ -33,44 +33,80 @@ export const Contact: React.FC = () => {
         setError(null);
 
         try {
+            console.log('✉️ [Contact] Submitting form...', {
+                topic: formData.topic,
+                subject: formData.subject,
+                email: formData.email
+            });
+
             // Construct the HTML email content
             const htmlContent = `
-                <div style="font-family: sans-serif; color: #333; max-width: 600px;">
-                    <h2>New Contact Form Submission</h2>
-                    <p><strong>Topic:</strong> ${formData.topic.toUpperCase()}</p>
-                    <p><strong>Name:</strong> ${formData.name}</p>
-                    <p><strong>Email:</strong> ${formData.email}</p>
-                    <p><strong>Subject:</strong> ${formData.subject}</p>
-                    <hr />
+                <div style="font-family: sans-serif; color: #333; max-width: 600px; line-height: 1.6;">
+                    <h2 style="color: #2563eb;">New Contact Form Submission</h2>
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <p><strong>Topic:</strong> ${formData.topic.toUpperCase()}</p>
+                        <p><strong>Name:</strong> ${formData.name}</p>
+                        <p><strong>Email:</strong> ${formData.email}</p>
+                        <p><strong>Subject:</strong> ${formData.subject}</p>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
                     <h3>Message:</h3>
-                    <p style="white-space: pre-wrap;">${formData.message}</p>
+                    <div style="white-space: pre-wrap; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        ${formData.message}
+                    </div>
+                    <p style="font-size: 12px; color: #64748b; margin-top: 30px;">
+                        Sent via Diktalo Contact Form. IP Diagnostics logged.
+                    </p>
                 </div>
             `;
 
             const response = await fetch('/api/send-email', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
-                    to: 'support@diktalo.com', // Will be forwarded to gmail
+                    to: 'support@diktalo.com',
                     subject: `[Contact Form] ${formData.topic.toUpperCase()}: ${formData.subject}`,
                     html: htmlContent,
                     channel: 'support',
-                    replyTo: formData.email // So you can reply directly
+                    replyTo: formData.email
                 })
             });
+
+            // Handle non-JSON or problematic responses
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('❌ [Contact] Non-JSON response:', text);
+                throw new Error(`Server returned non-JSON response (${response.status})`);
+            }
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to send message');
+                console.error('❌ [Contact] Request failed:', data);
+                throw new Error(data.error || `Error ${response.status}: Failed to send message`);
             }
 
+            console.log('✅ [Contact] Success:', data);
             setIsSuccess(true);
             setFormData({ name: '', email: '', topic: 'support', subject: '', message: '' });
 
         } catch (err: any) {
-            console.error('Contact form error:', err);
-            setError(err.message || 'Something went wrong. Please try again later.');
+            console.error('🔥 [Contact] CRITICAL ERROR:', {
+                name: err.name,
+                message: err.message,
+                stack: err.stack
+            });
+
+            // Helpful message for the "pattern" issue or other common failures
+            if (err.message?.includes('pattern') || err.name === 'SyntaxError') {
+                setError('Diagnostic: A browser error occurred during transmission. Please try disabling extensions like translators or password managers, or use a different browser.');
+            } else {
+                setError(err.message || 'Something went wrong. Please try again later.');
+            }
         } finally {
             setIsSubmitting(false);
         }

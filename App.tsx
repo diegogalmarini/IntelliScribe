@@ -2,6 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
+import { ToastProvider } from './components/Toast';
 
 import IntelligenceDashboard from './pages/intelligence/IntelligenceDashboard';
 import { LiveRecording } from './pages/LiveRecording';
@@ -243,9 +244,9 @@ const AppContent: React.FC = () => {
                 ...prev,
                 id: supabaseUser.id,
                 email: supabaseUser.email || prev.email,
-                firstName: data.first_name || prev.firstName,
-                lastName: data.last_name || prev.lastName,
-                avatarUrl: data.avatar_url || prev.avatarUrl,
+                firstName: data.first_name || supabaseUser.user_metadata?.full_name?.split(' ')[0] || supabaseUser.user_metadata?.first_name || prev.firstName,
+                lastName: data.last_name || supabaseUser.user_metadata?.full_name?.split(' ').slice(1).join(' ') || supabaseUser.user_metadata?.last_name || prev.lastName,
+                avatarUrl: data.avatar_url || supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture || prev.avatarUrl,
                 phone: data.phone || prev.phone,
                 phoneVerified: data.phone_verified || false,
                 // Fallback to localStorage if DB fields are missing
@@ -434,10 +435,8 @@ const AppContent: React.FC = () => {
             }
 
             if (!isRecovery) {
-                // Remove automatic redirection from LANDING/LOGIN
-                // if (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN) {
-                //     navigate(AppRoute.DASHBOARD);
-                // }
+                // FORCE REDIRECT to Dashboard if user just logged in or is on Home while authenticated
+                // but ONLY if they are not intentionally on the Landing (let's check if they came from login)
                 if (currentRoute === AppRoute.LOGIN) {
                     window.location.href = '/dashboard';
                 }
@@ -521,7 +520,10 @@ const AppContent: React.FC = () => {
         }
 
         setCurrentRoute(route);
-        setIsSidebarOpen(false); // Close sidebar on navigation on mobile
+        // Only close sidebar on mobile to prevent desktop collapse bug
+        if (window.innerWidth < 768) {
+            setIsSidebarOpen(false);
+        }
     };
 
     const handleSocialLoginSuccess = (provider: 'Google' | 'Microsoft') => {
@@ -996,14 +998,16 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
     return (
-        <AuthProvider>
-            <LanguageProvider>
-                <ThemeProvider>
-                    <AppContent />
-                    <CookieConsentBanner />
-                </ThemeProvider>
-            </LanguageProvider>
-        </AuthProvider>
+        <ToastProvider>
+            <AuthProvider>
+                <LanguageProvider>
+                    <ThemeProvider>
+                        <AppContent />
+                        <CookieConsentBanner />
+                    </ThemeProvider>
+                </LanguageProvider>
+            </AuthProvider>
+        </ToastProvider>
     );
 };
 
