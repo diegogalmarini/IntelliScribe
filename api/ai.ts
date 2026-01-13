@@ -257,7 +257,7 @@ INSTRUCTIONS:
                 }))
             });
 
-            const response = await chat.sendMessage({ message });
+            const response = await chat.sendMessage(message);
             result = response.text;
         }
 
