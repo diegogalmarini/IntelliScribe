@@ -32,6 +32,7 @@ import { PricingComparison } from './pages/PricingComparison'; // NEW
 import { TrustCenter } from './pages/legal/TrustCenter';
 import { Cookies } from './pages/legal/Cookies';
 import { Contact } from './pages/Contact';
+import { About } from './pages/About';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { PublicLayout } from './layouts/PublicLayout';
@@ -66,6 +67,7 @@ const AppContent: React.FC = () => {
         if (path === '/login') return AppRoute.LOGIN;
         if (path === '/pricing') return AppRoute.PRICING_COMPARISON; // NEW
         if (path === '/contact') return AppRoute.CONTACT;
+        if (path === '/about') return AppRoute.ABOUT;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         if (path === '/intelligence') return AppRoute.INTELLIGENCE;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
@@ -98,6 +100,7 @@ const AppContent: React.FC = () => {
         else if (path === '/plans') newRoute = AppRoute.SUBSCRIPTION;
         else if (path === '/settings') newRoute = AppRoute.SETTINGS;
         else if (path === '/manual') newRoute = AppRoute.MANUAL;
+        else if (path === '/about') newRoute = AppRoute.ABOUT;
         else if (path === '/admin') newRoute = AppRoute.ADMIN_OVERVIEW;
         else if (path === '/admin/users') newRoute = AppRoute.ADMIN_USERS;
         else if (path === '/admin/financials') newRoute = AppRoute.ADMIN_FINANCIALS;
@@ -509,7 +512,8 @@ const AppContent: React.FC = () => {
             [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
             [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
             [AppRoute.ADMIN_PLANS]: '/admin/plans',
-            [AppRoute.CONTACT]: '/contact'
+            [AppRoute.CONTACT]: '/contact',
+            [AppRoute.ABOUT]: '/about'
         };
 
         if (pathMap[route]) {
@@ -720,6 +724,15 @@ const AppContent: React.FC = () => {
             <>
                 <CrispWidget />
                 <Cookies />
+            </>
+        );
+    }
+
+    if (currentRoute === AppRoute.ABOUT) {
+        return (
+            <>
+                <CrispWidget />
+                <About user={user} />
             </>
         );
     }

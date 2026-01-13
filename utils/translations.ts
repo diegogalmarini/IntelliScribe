@@ -98,6 +98,18 @@ export const translations = {
     manual_call_recorder_title: "Call Recorder",
     manual_call_recorder_desc: "Record your important phone calls.",
     manual_ask_diktalo_title: "ASK Diktalo - The 3 Levels",
+
+    // About Page
+    about_hero_title: "Your Second Corporate Brain",
+    about_hero_desc: "Diktalo was created to empower professionals with AI that doesn't just listen, but understands and acts. We believe in transparency, efficiency, and a human-centric approach to conversational intelligence.",
+    about_team_title: "Meet the Team",
+    about_nati_role: "Director of Support Experience",
+    about_nati_bio: "Copenhagener at heart. If she's not helping you balance your BANT, she's likely lost with her Leica camera in a fjord. Expert at simplifying the complex.",
+    about_partner_role: "Technical Strategy Architect",
+    about_partner_bio: "Obsessed with optimization and clean code. Believes AI is here to empower, not replace, human ingenuity. Mechanical keyboard collector.",
+    about_philosophy_title: "Our Philosophy",
+    about_philosophy_desc: "We operate on a hybrid model where Humans and AI work in perfect sync. Our values are simple: Direct, Concise, and No Fluff.",
+
     manual_ask_diktalo_desc: "Extract maximum value from your audios with our intelligent chat.",
     manual_templates_title: "Summary Templates",
     manual_templates_desc: "Save time using our pre-configured and advanced templates.",
@@ -985,6 +997,18 @@ export const translations = {
     manual_call_recorder_title: "Grabadora de Llamada",
     manual_call_recorder_desc: "Registra tus llamadas telefónicas importantes.",
     manual_ask_diktalo_title: "ASK Diktalo - Los 3 Niveles",
+
+    // About Page
+    about_hero_title: "Tu Segundo Cerebro Corporativo",
+    about_hero_desc: "Diktalo nació para empoderar a los profesionales con una IA que no solo escucha, sino que comprende y actúa. Creemos en la transparencia, la eficiencia y un enfoque centrado en el humano para la inteligencia conversacional.",
+    about_team_title: "Conoce al Equipo",
+    about_nati_role: "Directora de Experiencia de Soporte",
+    about_nati_bio: "Copenhaguense de corazón. Si no te está ayudando a equilibrar tu BANT, probablemente esté perdida con su cámara Leica en algún fiordo. Experta en simplificar lo complejo.",
+    about_partner_role: "Arquitecto de Estrategia Técnica",
+    about_partner_bio: "Obsesionado con la optimización y el código limpio. Cree que la IA está aquí para potenciar, no reemplazar, el ingenio humano. Coleccionista de teclados mecánicos.",
+    about_philosophy_title: "Nuestra Filosofía",
+    about_philosophy_desc: "Operamos bajo un modelo híbrido donde los Humanos y la IA trabajan en perfecta sincronía. Nuestros valores son simples: Directos, Concisos y Sin Relleno.",
+
     manual_ask_diktalo_desc: "Extrae el máximo valor de tus audios con nuestro chat inteligente.",
     manual_templates_title: "Plantillas de Resumen",
     manual_templates_desc: "Ahorra tiempo usando nuestras plantillas preconfiguradas y avanzadas.",
