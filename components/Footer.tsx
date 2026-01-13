@@ -47,6 +47,7 @@ export const Footer: React.FC = () => {
                 {/* Column 5: Contact */}
                 <div className="flex flex-col gap-4">
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('footer_contact')}</h4>
+                    <a href="/about" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">About Us</a>
                     <a href="mailto:hello@diktalo.com" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">hello@diktalo.com</a>
                     <div className="flex items-center gap-3 mt-2">
                         <a href="https://x.com/diktalo" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-all">
