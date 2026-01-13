@@ -200,24 +200,46 @@ Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'spe
         else if (action === 'support') {
             const { message, history, knowledgeBasePath } = payload;
 
-            // Load knowledge base from file system
-            let knowledgeBase = '';
+            // Load knowledge base from file system with fallback
+            let knowledgeBase = `Diktalo es tu Segundo Cerebro Corporativo.
+
+Es una plataforma de IA que te ayuda a:
+- Grabar reuniones, llamadas y conversaciones
+- Transcribir automáticamente a texto
+- Analizar con IA para extraer insights
+- Exportar a múltiples formatos (PDF, Word, TXT)
+
+Perfecto para médicos (notas SOAP), vendedores (análisis BANT), abogados, y profesionales en general.
+
+Plan gratuito: 24 minutos/mes
+Planes de pago: desde 9€/mes
+
+Para crear cuenta: ve a diktalo.com y haz clic en "Crear Mi Cuenta"
+Para grabar: usa la grabadora web, extensión de Chrome, o sube archivos
+Soporte: contacto@diktalo.com`;
+
             try {
                 const fs = await import('fs');
                 const path = await import('path');
                 const kbPath = path.join(process.cwd(), 'public', knowledgeBasePath || 'docs/chatbot-training/knowledge-base.json');
-                const kbContent = fs.readFileSync(kbPath, 'utf-8');
-                const kbData = JSON.parse(kbContent);
 
-                // Format knowledge base for AI
-                const intents = kbData.intents.map((intent: any) => {
-                    return `TEMA: ${intent.category}\nPATTERNS: ${intent.patterns.join(', ')}\nRESPUESTA: ${intent.response_template}`;
-                }).join('\n\n---\n\n');
+                if (fs.existsSync(kbPath)) {
+                    const kbContent = fs.readFileSync(kbPath, 'utf-8');
+                    const kbData = JSON.parse(kbContent);
 
-                knowledgeBase = `KNOWLEDGE BASE DE DIKTALO:\n\n${intents}`;
+                    // Format knowledge base for AI
+                    const intents = kbData.intents.map((intent: any) => {
+                        return `TEMA: ${intent.category}\nPATTERNS: ${intent.patterns.join(', ')}\nRESPUESTA: ${intent.response_template}`;
+                    }).join('\n\n---\n\n');
+
+                    knowledgeBase = `KNOWLEDGE BASE DE DIKTALO:\n\n${intents}`;
+                    console.log('[AI_API] Knowledge base loaded successfully');
+                } else {
+                    console.warn('[AI_API] Knowledge base file not found, using fallback');
+                }
             } catch (err) {
                 console.error('[AI_API] Failed to load knowledge base:', err);
-                knowledgeBase = 'Diktalo es una plataforma de IA para transcribir y analizar conversaciones.';
+                console.log('[AI_API] Using fallback knowledge base');
             }
 
             const systemInstruction = language === 'es'
