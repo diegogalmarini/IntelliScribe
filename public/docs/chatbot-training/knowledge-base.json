@@ -4,6 +4,29 @@
     "language": "es",
     "intents": [
         {
+            "intent_id": "what_is_diktalo",
+            "category": "product_info",
+            "patterns": [
+                "qué es diktalo",
+                "que es diktalo",
+                "para qué sirve diktalo",
+                "qué hace diktalo",
+                "dime sobre diktalo",
+                "información sobre diktalo",
+                "cuéntame de diktalo",
+                "explicame diktalo",
+                "función de diktalo",
+                "para que es diktalo"
+            ],
+            "response_template": "¡Hola! 👋 Diktalo es tu **Segundo Cerebro Corporativo**.\n\nEs una plataforma de IA que te ayuda a:\n✅ Grabar reuniones, llamadas y conversaciones\n✅ Transcribir automáticamente a texto\n✅ Analizar con IA para extraer insights\n✅ Exportar a múltiples formatos (PDF, Word, TXT)\n\nPerfecto para:\n🩺 Médicos (notas SOAP automáticas)\n💼 Vendedores (análisis BANT)\n⚖️ Abogados (documentación de casos)\n👔 Profesionales en general\n\n💡 **Empieza gratis** con 24 min/mes\n\n¿Quieres saber cómo crear tu cuenta o hacer tu primera grabación?",
+            "related_intents": [
+                "how_to_create_account",
+                "what_is_free_plan",
+                "how_to_record_web"
+            ],
+            "confidence_threshold": 0.9
+        },
+        {
             "intent_id": "how_to_create_account",
             "category": "onboarding",
             "patterns": [
