@@ -136,9 +136,9 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         <h2 className="h2 home text-white mb-8 w-full text-center mx-auto">
                             {t('ctaTitle')}
                         </h2>
-                        <p className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium text-center line-height-relaxed">
+                        <h5 className="h5 home text-white/90 max-w-2xl mx-auto mb-12 font-medium text-center">
                             {t('ctaDesc')}
-                        </p>
+                        </h5>
                         <a
                             href="/login"
                             className="inline-block px-12 py-5 bg-white text-primary text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl active:scale-95 mx-auto"

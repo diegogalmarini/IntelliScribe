@@ -276,6 +276,25 @@
     opacity: 1;
 }
 
+/* h5 for subtitles */
+.landing-page h5.home,
+.landing-page .h5.home {
+    font-family: var(--suisse);
+    font-weight: 400;
+    line-height: 1.6;
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.landing-page h5,
+.landing-page .h5 {
+    font-family: var(--suisse);
+    font-weight: 400;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
 .landing-page p {
     margin-top: 1rem;
     line-height: 1.6;
