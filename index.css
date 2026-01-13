@@ -198,3 +198,17 @@
     color: #f8fafc;
     /* Slate 50 */
 }
+
+/* Explicit Bold for Legal Pages */
+.legal-page strong,
+.legal-page b {
+    font-weight: 700 !important;
+    color: #0f172a;
+    /* Slate 900 to ensure contrast */
+}
+
+.dark .legal-page strong,
+.dark .legal-page b {
+    color: #f8fafc;
+    /* Slate 50 */
+}
