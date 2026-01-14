@@ -1,4 +1,5 @@
-async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: number = 16000): Promise<AudioBuffer> {
+// Exported for single file compression
+export async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: number = 16000): Promise<AudioBuffer> {
     // Calculate new length
     const ratio = targetSampleRate / buffer.sampleRate;
     const newLength = Math.round(buffer.length * ratio);
@@ -18,6 +19,93 @@ interface ConcatenationResult {
     blob: Blob;
     segmentOffsets: number[];
     totalDuration: number;
+}
+
+// Helper to convert AudioBuffer to WAV blob
+function audioBufferToWavInternal(buffer: AudioBuffer): Blob {
+    const numOfChan = buffer.numberOfChannels;
+    const length = buffer.length * numOfChan * 2 + 44;
+    const arrayBuffer = new ArrayBuffer(length);
+    const view = new DataView(arrayBuffer);
+    const channels = [];
+    let i;
+    let sample;
+    let offset = 0;
+    let pos = 0;
+
+    function setUint16(data: number) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
+
+    function setUint32(data: number) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
+
+    // write WAVE header
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8); // file length - 8
+    setUint32(0x45564157); // "WAVE"
+
+    setUint32(0x20746d66); // "fmt " chunk
+    setUint32(16); // length = 16
+    setUint16(1); // PCM (uncompressed)
+    setUint16(numOfChan);
+    setUint32(buffer.sampleRate);
+    setUint32(buffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2); // block-align
+    setUint16(16); // 16-bit
+
+    setUint32(0x61746164); // "data" - chunk
+    setUint32(length - pos - 4); // chunk length
+
+    // write interleaved data
+    for (i = 0; i < buffer.numberOfChannels; i++)
+        channels.push(buffer.getChannelData(i));
+
+    while (pos < length) {
+        for (i = 0; i < numOfChan; i++) {
+            sample = Math.max(-1, Math.min(1, channels[i][offset]));
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+            view.setInt16(pos, sample, true);
+            pos += 2;
+        }
+        offset++;
+    }
+
+    return new Blob([arrayBuffer], { type: 'audio/wav' });
+}
+
+/**
+ * Compress a single audio file to 16kHz mono WAV
+ * Reduces file size dramatically: 61MB -> ~6MB
+ */
+export async function compressAudioFile(file: File): Promise<Blob> {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+    const originalSizeMB = (file.size / 1024 / 1024).toFixed(1);
+    console.log(`[audioConcat] Compressing ${file.name} (${originalSizeMB}MB)`);
+
+    // 1. Decode the file
+    const arrayBuffer = await file.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+    console.log(`[audioConcat] Original: ${audioBuffer.sampleRate}Hz, ${audioBuffer.numberOfChannels}ch, ${audioBuffer.duration.toFixed(1)}s`);
+
+    // 2. Resample to 16kHz Mono
+    const resampledBuffer = await resampleAndMixDown(audioBuffer, 16000);
+
+    // 3. Convert to WAV
+    const wavBlob = audioBufferToWavInternal(resampledBuffer);
+
+    const compressedSizeMB = (wavBlob.size / 1024 / 1024).toFixed(1);
+    console.log(`[audioConcat] Compressed: ${originalSizeMB}MB -> ${compressedSizeMB}MB (${((1 - wavBlob.size / file.size) * 100).toFixed(0)}% reduction)`);
+
+    // Close the audio context
+    await audioContext.close();
+
+    return wavBlob;
 }
 
 export const concatenateAudios = async (audioFiles: File[]): Promise<ConcatenationResult> => {
@@ -69,7 +157,7 @@ export const concatenateAudios = async (audioFiles: File[]): Promise<Concatenati
         const resampledBuffer = await resampleAndMixDown(concatenatedBuffer, 16000);
 
         console.log('[audioConcat] Encoding to WAV...');
-        const audioBlob = audioBufferToWav(resampledBuffer);
+        const audioBlob = audioBufferToWavInternal(resampledBuffer);
 
         console.log(`[audioConcat] Encoding complete, blob size: ${audioBlob.size} bytes`);
 
@@ -84,61 +172,6 @@ export const concatenateAudios = async (audioFiles: File[]): Promise<Concatenati
         throw error;
     }
 };
-
-function audioBufferToWav(buffer: AudioBuffer): Blob {
-    const numOfChan = buffer.numberOfChannels; // Should be 1 after resampling
-    const length = buffer.length * numOfChan * 2 + 44;
-    const arrayBuffer = new ArrayBuffer(length);
-    const view = new DataView(arrayBuffer);
-    const channels = [];
-    let i;
-    let sample;
-    let offset = 0;
-    let pos = 0;
-
-    function setUint16(data: number) {
-        view.setUint16(pos, data, true);
-        pos += 2;
-    }
-
-    function setUint32(data: number) {
-        view.setUint32(pos, data, true);
-        pos += 4;
-    }
-
-    // write WAVE header
-    setUint32(0x46464952); // "RIFF"
-    setUint32(length - 8); // file length - 8
-    setUint32(0x45564157); // "WAVE"
-
-    setUint32(0x20746d66); // "fmt " chunk
-    setUint32(16); // length = 16
-    setUint16(1); // PCM (uncompressed)
-    setUint16(numOfChan);
-    setUint32(buffer.sampleRate);
-    setUint32(buffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
-    setUint16(numOfChan * 2); // block-align
-    setUint16(16); // 16-bit (hardcoded in this implementation)
-
-    setUint32(0x61746164); // "data" - chunk
-    setUint32(length - pos - 4); // chunk length
-
-    // write interleaved data
-    for (i = 0; i < buffer.numberOfChannels; i++)
-        channels.push(buffer.getChannelData(i));
-
-    while (pos < length) {
-        for (i = 0; i < numOfChan; i++) { // interleave channels
-            sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
-            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0; // scale to 16-bit signed int
-            view.setInt16(pos, sample, true); // write 16-bit sample
-            pos += 2;
-        }
-        offset++; // next sample
-    }
-
-    return new Blob([arrayBuffer], { type: 'audio/wav' });
-}
 
 export const formatTimeFromSeconds = (seconds: number): string => {
     const h = Math.floor(seconds / 3600);

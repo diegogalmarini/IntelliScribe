@@ -342,8 +342,25 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 if (isMobile) setIsSidebarOpen(false);
 
                 try {
-                    // 1. Upload to Storage
-                    const audioUrl = await uploadAudio(file, user.id!);
+                    // 0.5. COMPRESS LARGE FILES (>10MB)
+                    const LARGE_FILE_THRESHOLD = 10 * 1024 * 1024; // 10MB
+                    let fileToUpload: Blob = file;
+                    let finalFileName = file.name;
+
+                    if (file.size > LARGE_FILE_THRESHOLD) {
+                        console.log(`[Dashboard] Large file detected (${(file.size / 1024 / 1024).toFixed(1)}MB). Compressing...`);
+                        showToast('Optimizando audio para mejor rendimiento...', 'info');
+
+                        const { compressAudioFile } = await import('../../services/audioConcat');
+                        fileToUpload = await compressAudioFile(file);
+
+                        // Update filename to .wav since compression outputs WAV
+                        finalFileName = file.name.replace(/\.[^/.]+$/, "") + '.wav';
+                        console.log(`[Dashboard] Compression complete. New size: ${(fileToUpload.size / 1024 / 1024).toFixed(1)}MB`);
+                    }
+
+                    // 1. Upload to Storage (use compressed blob if applicable)
+                    const audioUrl = await uploadAudio(fileToUpload as File, user.id!);
                     if (!audioUrl) throw new Error("Error al subir el archivo a storage.");
 
                     // 2. Prepare Final Metadata
