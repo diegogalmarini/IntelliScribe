@@ -1013,6 +1013,34 @@ const AppContent: React.FC = () => {
                     }}
                 />
             )}
+            {/* Support Bot Integration with Recording Context & Actions */}
+            <SupportBot
+                recordings={recordings}
+                user={user}
+                position={
+                    currentRoute === AppRoute.DASHBOARD ||
+                        currentRoute === AppRoute.INTELLIGENCE ||
+                        currentRoute === AppRoute.SUBSCRIPTION
+                        ? 'left'
+                        : 'right'
+                }
+                onAction={(type, payload) => {
+                    if (type === 'OPEN_RECORDING' && payload.id) {
+                        setActiveRecordingId(payload.id);
+                        if (currentRoute !== AppRoute.DASHBOARD) {
+                            navigate(AppRoute.DASHBOARD);
+                        }
+                    } else if (type === 'NAVIGATE' && payload.target) {
+                        if (payload.target === 'SETTINGS') {
+                            navigate(AppRoute.SETTINGS);
+                        } else if (payload.target === 'PLANS') {
+                            navigate(AppRoute.SUBSCRIPTION);
+                        } else {
+                            navigate(AppRoute.DASHBOARD);
+                        }
+                    }
+                }}
+            />
         </>
     );
 };
@@ -1024,25 +1052,12 @@ const App: React.FC = () => {
                 <LanguageProvider>
                     <ThemeProvider>
                         <AppContent />
-                        <GlobalSupportBot />
                         <CookieConsentBanner />
                     </ThemeProvider>
                 </LanguageProvider>
             </AuthProvider>
         </ToastProvider>
     );
-};
-
-const GlobalSupportBot = () => {
-    const location = useLocation();
-    const isLogin = location.pathname === '/login';
-    const isDashboard = location.pathname === '/dashboard' ||
-        location.pathname === '/intelligence' ||
-        location.pathname === '/plans';
-
-    if (isLogin) return null;
-
-    return <SupportBot position={isDashboard ? 'left' : 'right'} />;
 };
 
 export default App;
