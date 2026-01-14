@@ -2,10 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Personality, PERSONALITIES } from '../../utils/supportPersonalities';
 import { useLanguage } from '../../contexts/LanguageContext';
-
-// generateNatiGreeting removed in favor of dynamic personality
-
-import { Personality, PERSONALITIES } from '../../utils/supportPersonalities';
 import { Recording, UserProfile } from '../../types';
 
 interface SupportBotProps {
@@ -24,7 +20,32 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
-    // ... existing logic ...
+    // Select personality once on mount
+    const [agent] = useState<Personality>(() => {
+        const random = PERSONALITIES[Math.floor(Math.random() * PERSONALITIES.length)];
+        return random;
+    });
+
+    const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([]);
+
+    // Initialize greeting
+    useEffect(() => {
+        const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+        const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
+        setMessages([{ role: 'bot', content: greeting }]);
+    }, [agent, language]);
+
+    const [input, setInput] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages, isTyping]);
 
     const handleSend = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -93,7 +114,6 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     3. If they ask about language or settings, use [[ACTION:NAVIGATE:SETTINGS]].`;
 
             const response = await supportChat(userMsg, messages, language, systemPromptOverride);
-            // ... rest remains same ...
 
             // Simulation of natural typing delay
             const delayBase = 1000;
@@ -174,8 +194,15 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         <motion.div
             drag
             dragMomentum={false}
-            dragConstraints={{ left: -window.innerWidth + 450, right: 0, top: -window.innerHeight + 650, bottom: 0 }}
-            className={`fixed bottom-6 z-[9999] flex flex-col ${sideClasses} transition-all duration-500`}
+            // Better constraints: allow full screen but keep it visible
+            dragConstraints={{
+                left: position === 'right' ? -window.innerWidth + 400 : -20,
+                right: position === 'left' ? window.innerWidth - 400 : 20,
+                top: -window.innerHeight + 600,
+                bottom: 20
+            }}
+            // CRITICAL: Remove transition-all as it conflicts with drag transforms
+            className={`fixed bottom-6 z-[9999] flex flex-col ${sideClasses}`}
         >
             <AnimatePresence>
                 {isOpen && (
@@ -185,8 +212,8 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         className="w-[350px] md:w-[400px] h-[550px] bg-white dark:bg-slate-900 shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col mb-4 pointer-events-auto"
                     >
-                        {/* Header - Make it the drag handle maybe? No, let's keep whole thing draggable */}
-                        <div className="bg-primary p-6 text-white flex items-center justify-between cursor-move">
+                        {/* Header - Drag Handle */}
+                        <div className="bg-primary p-6 text-white flex items-center justify-between cursor-grab active:cursor-grabbing select-none">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
                                     <img
@@ -200,7 +227,13 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                     <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
                                 </div>
                             </div>
-                            <button onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} className="hover:rotate-90 transition-transform p-1">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsOpen(false);
+                                }}
+                                className="hover:rotate-90 transition-transform p-1 rounded-full hover:bg-white/10"
+                            >
                                 <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
@@ -238,7 +271,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                     placeholder="Escribe tu pregunta..."
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
-                                    onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing
+                                    onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing/focusing
                                     className="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary transition-all dark:text-white"
                                 />
                                 <button
@@ -262,7 +295,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
+                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
                     }`}
             >
                 <span className="material-symbols-outlined text-3xl">
