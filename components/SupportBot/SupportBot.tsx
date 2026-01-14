@@ -6,7 +6,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 // generateNatiGreeting removed in favor of dynamic personality
 
 export const SupportBot: React.FC = () => {
-    const { language = 'es' } = useLanguage();
+    const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
     // Select personality once on mount

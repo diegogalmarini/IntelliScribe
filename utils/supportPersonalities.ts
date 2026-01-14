@@ -63,7 +63,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Customer Success',
         city: 'Madrid',
         age: 27,
-        avatar: '/images/avatars/elena.jpg', // Placeholder
+        avatar: '/images/avatars/elena.webp',
         bio: {
             es: "27 años. Salamanca, Madrid. Elegante, formal y amante de la ópera. Protocolaria.",
             en: "27 years old. Salamanca, Madrid. Elegant, formal, opera lover. Protocol-focused."
@@ -91,7 +91,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'AI Ethics',
         city: 'Paris',
         age: 25,
-        avatar: '/images/avatars/sophie.jpg', // Placeholder
+        avatar: '/images/avatars/sophie.webp',
         bio: {
             es: "25 años. Le Marais, París. Intelectual, chic, toca el violín. Vegana.",
             en: "25 years old. Le Marais, Paris. Intellectual, chic, plays violin. Vegan."
@@ -119,7 +119,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Systems Architect',
         city: 'Zurich',
         age: 32,
-        avatar: '/images/avatars/klaus.jpg', // Placeholder
+        avatar: '/images/avatars/klaus.webp',
         bio: {
             es: "32 años. Zürich. Ingeniero de sistemas. Serio, preciso, alpinista.",
             en: "32 years old. Zürich. Systems Engineer. Serious, precise, mountaineer."
@@ -147,7 +147,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Enterprise Sales',
         city: 'Milan',
         age: 23,
-        avatar: '/images/avatars/isabella.jpg', // Placeholder
+        avatar: '/images/avatars/isabella.webp',
         bio: {
             es: "23 años. Milán. Fashionista, dinámica, experta en ventas. Energía pura.",
             en: "23 years old. Milan. Fashionista, dynamic, sales expert. Pure energy."
@@ -175,7 +175,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Operations Head',
         city: 'London',
         age: 29,
-        avatar: '/images/avatars/victoria.jpg', // Placeholder
+        avatar: '/images/avatars/victoria.webp',
         bio: {
             es: "29 años. Kensington, Londres. Graduada en Oxford. Tradicional, remera.",
             en: "29 years old. Kensington, London. Oxford grad. Traditional, rower."
@@ -203,7 +203,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Security Specialist',
         city: 'Vienna',
         age: 30,
-        avatar: '/images/avatars/alexander.jpg', // Placeholder
+        avatar: '/images/avatars/alexander.webp',
         bio: {
             es: "30 años. Viena. Ex-militar. Experto en ciberseguridad. Estratega.",
             en: "30 years old. Vienna. Ex-military. Cybersecurity expert. Strategist."
@@ -231,7 +231,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Product Specialist',
         city: 'Buenos Aires',
         age: 26,
-        avatar: '/images/avatars/camila.jpg', // Placeholder
+        avatar: '/images/avatars/camila.webp',
         bio: {
             es: "26 años. Recoleta, Buenos Aires. Sofisticada, jugadora de Polo. Mediadora.",
             en: "26 years old. Recoleta, Buenos Aires. Sophisticated, Polo player. Mediator."
