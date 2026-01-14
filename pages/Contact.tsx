@@ -75,19 +75,22 @@ export const Contact: React.FC = () => {
                 })
             });
 
-            // Handle non-JSON or problematic responses
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
+            let data;
+            try {
+                data = await response.json();
+            } catch (pErr) {
                 const text = await response.text();
                 console.error('❌ [Contact] Non-JSON response:', text);
-                throw new Error(`Server returned non-JSON response (${response.status})`);
+                throw new Error(`Server error (${response.status}): ${text.substring(0, 100)}`);
             }
-
-            const data = await response.json();
 
             if (!response.ok) {
                 console.error('❌ [Contact] Request failed:', data);
-                throw new Error(data.error || `Error ${response.status}: Failed to send message`);
+                // Ensure we extract a string from the error
+                const errorMsg = data.error
+                    ? (typeof data.error === 'object' ? JSON.stringify(data.error) : data.error)
+                    : `Error ${response.status}: Failed to send message`;
+                throw new Error(errorMsg);
             }
 
             console.log('✅ [Contact] Success:', data);
@@ -101,12 +104,8 @@ export const Contact: React.FC = () => {
                 stack: err.stack
             });
 
-            // Helpful message for the "pattern" issue or other common failures
-            if (err.message?.includes('pattern') || err.name === 'SyntaxError') {
-                setError('Diagnostic: A browser error occurred during transmission. Please try disabling extensions like translators or password managers, or use a different browser.');
-            } else {
-                setError(err.message || 'Something went wrong. Please try again later.');
-            }
+            // Clean error message for the UI
+            setError(err.message || 'Something went wrong. Please try again later.');
         } finally {
             setIsSubmitting(false);
         }

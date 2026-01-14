@@ -30,13 +30,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // 2. Validación de Clave API
-    if (!process.env.RESEND_API_KEY) {
-        console.error('❌ Missing RESEND_API_KEY');
-        return res.status(500).json({ error: 'Server configuration error: Missing API Key' });
-    }
-
     try {
+        // 2. Validación de Clave API (inside handler to avoid top-level crashes)
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            console.error('❌ Missing RESEND_API_KEY');
+            return res.status(500).json({
+                error: 'Server configuration error: Missing Resend API Key',
+                diagnostics: 'Please set RESEND_API_KEY in your environment variables/Vercel settings.'
+            });
+        }
+
+        const resend = new Resend(apiKey);
         const { to, subject, html, channel = 'system', replyTo } = req.body || {};
 
         console.log('📨 [EMAIL] Incoming request payload:', {
@@ -67,8 +72,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (error) {
             console.error('❌ [EMAIL] Resend service error:', error);
-            // Distinguish between validation errors and service failures
-            return res.status(400).json({ error: error.message || 'Resend provider error' });
+            // Resend error objects can sometimes have nested details
+            return res.status(400).json({
+                error: error.message || 'Resend provider error',
+                details: error
+            });
         }
 
         console.log('✅ [EMAIL] Email sent successfully:', data?.id);
@@ -78,12 +86,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
     } catch (error: any) {
-        // Detailed error reporting to catch the "pattern" issue if it comes from here
         console.error('🔥 [EMAIL] UNEXPECTED SERVER ERROR:', {
             name: error.name,
             message: error.message,
-            stack: error.stack,
-            cause: error.cause
+            stack: error.stack
         });
 
         return res.status(500).json({
