@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -9,6 +10,7 @@ import { PlanConfig } from '../../types';
 
 export const Pricing: React.FC = () => {
     const { t, language } = useLanguage();
+    const navigate = useNavigate();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
 
     // Estados Dinámicos
@@ -131,15 +133,15 @@ export const Pricing: React.FC = () => {
                                 )}
                             </div>
 
-                            <a
-                                href="/login"
+                            <button
+                                onClick={() => navigate('/login')}
                                 className={`mt-auto block w-full py-2.5 px-4 rounded-lg text-center text-sm font-bold transition-all ${isHighlight
                                     ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-500/20'
                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                                     }`}
                             >
                                 {plan.id === 'free' ? t('pricing_start_free') : t('pricing_choose_plan')}
-                            </a>
+                            </button>
 
                             {/* Features from Backend - Use language-specific field */}
                             <div className="mt-6 space-y-2">

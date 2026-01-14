@@ -237,7 +237,29 @@ const AppContent: React.FC = () => {
             if (storedLang) {
                 setLanguage(storedLang as 'en' | 'es');
             } else if (data.language) {
-                setLanguage(data.language as 'en' | 'es');
+            }
+
+            // AUTO-HEAL: If name is generic "User" or missing, try to patch it from Auth Metadata (Google)
+            const currentFirstName = data.first_name;
+            const metaFullName = supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name;
+
+            if ((!currentFirstName || currentFirstName === 'User') && metaFullName) {
+                const parts = metaFullName.split(' ');
+                const realFirstName = parts[0];
+                const realLastName = parts.slice(1).join(' '); // Can be empty string
+
+                if (realFirstName && realFirstName !== 'User') {
+                    console.log(`[App] Auto-healing generic name '${currentFirstName}' to '${realFirstName}'`);
+                    // Fire and forget update
+                    databaseService.updateUserProfile(supabaseUser.id, {
+                        firstName: realFirstName,
+                        lastName: realLastName || data.last_name
+                    }).catch(e => console.error("[App] Auto-heal failed", e));
+
+                    // Update local data reference so UI renders correctly immediately
+                    data.first_name = realFirstName;
+                    if (realLastName) data.last_name = realLastName;
+                }
             }
 
             setUser(prev => ({

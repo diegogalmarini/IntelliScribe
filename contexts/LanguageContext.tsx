@@ -10,19 +10,21 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize with persisted language if available
-  const [language, setLanguage] = useState<Language>(() => {
-    // Check for any stored language preference
-    // Note: We need a generic key or one that matches App.tsx pattern. 
-    // Since we don't have userId here easily, we might fallback to a generic key or wait for App.tsx
-    // However, App.tsx writes to `diktalo_settings_language_${userId}`.
-    // Let's try to match that or a generic 'diktalo_language' if we want global.
-    // For now, let's keep it simple: App.tsx controls it. 
-    // BUT, to avoid flash, we need to read SOMETHING.
-    // Let's try reading a generic key if we decide to fallback.
-    // Actually, let's just default to 'es' but export a setter that writes to storage.
+  // Initialize with persisted language if available, defaulting to 'es'
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('diktalo_global_language');
+      if (stored === 'en' || stored === 'es') return stored;
+    }
     return 'es';
   });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('diktalo_global_language', lang);
+    }
+  };
 
   // We need to exposing a method to update state respecting storage is handled by App.tsx, 
   // but we can make internal state update cleaner.
