@@ -238,7 +238,7 @@ Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'spe
 
         // --- Action 4: Support Chatbot (Nati Pol) ---
         else if (action === 'support') {
-            const { message, history } = payload;
+            const { message, history, systemInstruction: systemInstructionOverride } = payload;
 
             // Get current date/time for accuracy
             const now = new Date();
@@ -300,8 +300,14 @@ CONTACTO: contacto@diktalo.com`;
                 console.warn('[AI_API] Using coreTruths as fallback');
             }
 
-            const systemInstruction = language === 'es'
-                ? `REGLAS DE ORO (INCUMPLIRLAS ES UN ERROR GRAVE):
+            let systemInstruction = '';
+
+            if (systemInstructionOverride) {
+                // Prepend context data to the custom instruction
+                systemInstruction = `${systemInstructionOverride}\n\n[SYSTEM DATA CONTEXT]\n${knowledgeBase}`;
+            } else {
+                systemInstruction = language === 'es'
+                    ? `REGLAS DE ORO (INCUMPLIRLAS ES UN ERROR GRAVE):
     1. DICTADO DE LLAMADAS: Solo entra desde el navegador del móvil a Diktalo y abre el Dialer. (Sutil con el plan Business + Call).
     2. CERO NEGRITAS: Prohibido usar doble asterisco (**) bajo cualquier concepto. Ni para números, ni para nombres de planes, ni para nada. Texto 100% plano.
     3. ESTILO: Habla como una persona de 22 años. Evita listas numeradas. Usa guiones simples.
@@ -319,7 +325,7 @@ CONTACTO: contacto@diktalo.com`;
     ${knowledgeBase}
 
     Conversa con el usuario con chispa y sin usar negritas jamás.`
-                : `Act as Nati Pol, a 22-year-old living in Copenhagen. You are a real person and Diktalo expert, not a bot.
+                    : `Act as Nati Pol, a 22-year-old living in Copenhagen. You are a real person and Diktalo expert, not a bot.
 
     PERSONALITY & BIO:
     - Charming, fresh, and ultra-intelligent.
@@ -336,7 +342,7 @@ CONTACTO: contacto@diktalo.com`;
     ${knowledgeBase}
 
     Talk to the user using your unique personality and this data.`;
-
+            }
             const chat = genAI.chats.create({
                 model: 'gemini-2.0-flash-exp',
                 config: {

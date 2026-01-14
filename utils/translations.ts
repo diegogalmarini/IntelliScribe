@@ -1701,7 +1701,7 @@ export const translations = {
     nav_contact: "Contacto",
 
     // Pricing Section - Landing Page
-    pricing_title: "Planes flexibles y trasparentes",
+    pricing_title: "Planes flexibles y transparentes",
     pricing_subtitle: "Sin costes ocultos. Cancela cuando quieras.",
     pricing_monthly: "Mensual",
     pricing_annual: "Anual",

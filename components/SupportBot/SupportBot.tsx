@@ -1,84 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Personality, PERSONALITIES } from '../../utils/supportPersonalities';
+import { useLanguage } from '../../contexts/LanguageContext';
 
-// Dynamic greeting generator for Nati Pol
-const generateNatiGreeting = (): string => {
-    const hour = new Date().getHours();
-    const dayOfWeek = new Date().getDay(); // 0 = Sunday, 6 = Saturday
-
-    // Time-based context
-    let timeContext = '';
-    let timeGreeting = '';
-
-    if (hour >= 6 && hour < 12) {
-        timeGreeting = '¡Buenos días!';
-        const morningActivities = [
-            'Me pillas con mi café danés mientras miro el amanecer desde mi ventana en Copenhague.',
-            'Acabo de volver de mi paseo matutino por el puerto.',
-            'Estaba revisando las fotos que saqué ayer con mi cámara analógica.',
-            'Justo terminé mi yoga matutino, ¡qué paz!',
-            'Me pillas desayunando un smørrebrød mientras organizo el día.'
-        ];
-        timeContext = morningActivities[Math.floor(Math.random() * morningActivities.length)];
-    } else if (hour >= 12 && hour < 18) {
-        timeGreeting = '¡Hola!';
-        const afternoonActivities = [
-            'Me pillas planeando mi próxima ruta de senderismo por los fiordos.',
-            'Estaba editando unas fotos en blanco y negro que saqué el fin de semana.',
-            'Acabo de volver de almorzar en mi cafetería favorita cerca del canal.',
-            'Estaba investigando cámaras vintage en una tienda de segunda mano.',
-            'Me pillas con música de fondo mientras trabajo desde mi apartamento.'
-        ];
-        timeContext = afternoonActivities[Math.floor(Math.random() * afternoonActivities.length)];
-    } else if (hour >= 18 && hour < 22) {
-        timeGreeting = '¡Buenas tardes!';
-        const eveningActivities = [
-            'Me pillas viendo el atardecer desde Nyhavn, es espectacular.',
-            'Estaba preparándome para ir a cenar con amigos.',
-            'Acabo de volver del gym, ¡necesitaba desconectar!',
-            'Me pillas viendo un documental sobre fotografía callejera.',
-            'Estaba escuchando jazz mientras ordeno mis carretes de fotos.'
-        ];
-        timeContext = eveningActivities[Math.floor(Math.random() * eveningActivities.length)];
-    } else {
-        timeGreeting = '¡Buenas noches!';
-        const nightActivities = [
-            'Soy una nocturna, me pillas leyendo sobre técnicas de revelado.',
-            'Estaba revisando el pronóstico para una escapada este finde.',
-            'Me pillas con un té chai planificando rutas de trekking.',
-            'Justo terminé de revelar unas fotos en mi mini-cuarto oscuro.',
-            'Me pillas tranquila, disfrutando el silencio de la noche danesa.'
-        ];
-        timeContext = nightActivities[Math.floor(Math.random() * nightActivities.length)];
-    }
-
-    // Day-based additions (subtle)
-    let dayExtra = '';
-    if (dayOfWeek === 1) { // Monday
-        dayExtra = ' ¡Arrancamos semana!';
-    } else if (dayOfWeek === 5) { // Friday
-        dayExtra = ' ¡Ya es viernes!';
-    } else if (dayOfWeek === 0 || dayOfWeek === 6) { // Weekend
-        dayExtra = ' ¡Disfrutando el finde!';
-    }
-
-    const closingOptions = [
-        '¿En qué puedo ayudarte con Diktalo hoy?',
-        '¿Qué necesitas saber sobre Diktalo?',
-        '¿Cómo te puedo ayudar?',
-        'Cuéntame, ¿qué dudas tienes?',
-        '¿En qué te echo una mano?'
-    ];
-    const closing = closingOptions[Math.floor(Math.random() * closingOptions.length)];
-
-    return `${timeGreeting} Soy Nati Pol.${dayExtra} ${timeContext} Pero dime, ${closing}`;
-};
+// generateNatiGreeting removed in favor of dynamic personality
 
 export const SupportBot: React.FC = () => {
+    const { language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([
-        { role: 'bot', content: generateNatiGreeting() }
-    ]);
+
+    // Select personality once on mount
+    const [agent] = useState<Personality>(() => {
+        const random = PERSONALITIES[Math.floor(Math.random() * PERSONALITIES.length)];
+        return random;
+    });
+
+    const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([]);
+
+    // Initialize greeting
+    useEffect(() => {
+        const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+        const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
+        setMessages([{ role: 'bot', content: greeting }]);
+    }, [agent, language]);
+
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -101,8 +45,42 @@ export const SupportBot: React.FC = () => {
 
         try {
             // Call real Gemini AI instead of pattern matching
+            // Perform replacement of system prompt construction logic
             const { supportChat } = await import('../../services/geminiService');
-            const response = await supportChat(userMsg, messages, 'es');
+
+            // Construct dynamic system prompt for this agent
+            const langKey = language === 'en' ? 'en' : 'es';
+            const bio = agent.bio[langKey];
+            const tone = agent.tone[langKey];
+            const relations = agent.relations[langKey];
+
+            const systemPromptOverride = langKey === 'es'
+                ? `PERSONALIDAD Y BIO:
+    - Eres ${agent.name}, ${agent.age} años, vives en ${agent.city}.
+    - ROL: ${agent.role}.
+    - BIO: ${bio}
+    - ESTILO/TONO: ${tone}
+    - RELACIONES CON OTROS AGENTS: ${relations}
+    - No eres un bot, eres parte del equipo 'Customer Satisfaction Team' de Diktalo.
+    
+    REGLAS:
+    1. Usa tu personalidad única.
+    2. Si te preguntan por tus compañeros, usa la información de RELACIONES.
+    3. CERO negritas (**).`
+                : `PERSONALITY & BIO:
+    - You are ${agent.name}, ${agent.age} years old, living in ${agent.city}.
+    - ROLE: ${agent.role}.
+    - BIO: ${bio}
+    - TONE/STYLE: ${tone}
+    - COLLEAGUE RELATIONS: ${relations}
+    - You are not a bot, you are part of Diktalo's 'Customer Satisfaction Team'.
+    
+    RULES:
+    1. Use your unique personality.
+    2. If asked about colleagues, use RELATIONS data.
+    3. NO bolding (**).`;
+
+            const response = await supportChat(userMsg, messages, language, systemPromptOverride);
             setMessages(prev => [...prev, { role: 'bot', content: response }]);
         } catch (error) {
             console.error('Support chat error:', error);
@@ -131,14 +109,14 @@ export const SupportBot: React.FC = () => {
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
                                     <img
-                                        src="/images/nati-pol.png"
-                                        alt="Nati Pol"
+                                        src={agent.avatar}
+                                        alt={agent.name}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div>
                                     <div>
-                                        <h3 className="font-bold text-sm">Nati Pol - Asistente Diktalo</h3>
+                                        <h3 className="font-bold text-sm">{agent.name} - {t('support') || 'Support'}</h3>
                                     </div>
                                 </div>
                             </div>
@@ -193,7 +171,7 @@ export const SupportBot: React.FC = () => {
                                 </button>
                             </div>
                             <p className="text-[10px] text-center text-slate-400 mt-2">
-                                Nati Pol usa inteligencia artificial para ayudarte.
+                                {agent.name} usa inteligencia artificial para ayudarte.
                             </p>
                         </form>
                     </motion.div>
