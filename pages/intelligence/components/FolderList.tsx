@@ -131,68 +131,76 @@ export const FolderList: React.FC<FolderListProps> = ({
                     <span className="truncate">{t('allRecordings') || 'Todas las Grabaciones'}</span>
                 </button>
 
-                {(folders || []).map(folder => (
-                    <div
-                        key={folder.id}
-                        className={`group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${selectedFolderId === folder.id
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
-                            }`}
-                        onClick={() => onSelectFolder(folder.id)}
-                    >
-                        {editingFolderId === folder.id ? (
-                            <form onSubmit={handleRenameFolder} className="flex-1 mr-2" onClick={e => e.stopPropagation()}>
-                                <input
-                                    autoFocus
-                                    type="text"
-                                    value={editName}
-                                    onChange={(e) => setEditName(e.target.value)}
-                                    onBlur={() => {
-                                        // Delay to allow form submit to fire if Enter was pressed
-                                        setTimeout(() => {
-                                            if (editingFolderId === folder.id) {
+                {/* Filter out folders with reserved names that duplicate the special buttons */}
+                {(folders || [])
+                    .filter(folder => {
+                        const reservedNames = ['Todas las Grabaciones', 'All Recordings', 'Favoritos', 'Favorites'];
+                        return !reservedNames.some(reserved =>
+                            folder.name.toLowerCase().trim() === reserved.toLowerCase()
+                        );
+                    })
+                    .map(folder => (
+                        <div
+                            key={folder.id}
+                            className={`group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${selectedFolderId === folder.id
+                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                                }`}
+                            onClick={() => onSelectFolder(folder.id)}
+                        >
+                            {editingFolderId === folder.id ? (
+                                <form onSubmit={handleRenameFolder} className="flex-1 mr-2" onClick={e => e.stopPropagation()}>
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        onBlur={() => {
+                                            // Delay to allow form submit to fire if Enter was pressed
+                                            setTimeout(() => {
+                                                if (editingFolderId === folder.id) {
+                                                    setEditingFolderId(null);
+                                                }
+                                            }, 200);
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleRenameFolder(e);
+                                            }
+                                            if (e.key === 'Escape') {
+                                                e.preventDefault();
                                                 setEditingFolderId(null);
                                             }
-                                        }, 200);
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            handleRenameFolder(e);
-                                        }
-                                        if (e.key === 'Escape') {
-                                            e.preventDefault();
-                                            setEditingFolderId(null);
-                                        }
-                                    }}
-                                    className="w-full bg-white dark:bg-slate-800 border border-blue-500 rounded text-sm px-1.5 py-0.5 focus:outline-none"
-                                />
-                            </form>
-                        ) : (
-                            <div className="flex items-center gap-2 truncate">
-                                <Folder className="w-4 h-4 text-blue-400" fill={selectedFolderId === folder.id ? "currentColor" : "none"} />
-                                <span className="truncate text-[0.8rem]">{folder.name}</span>
-                            </div>
-                        )}
+                                        }}
+                                        className="w-full bg-white dark:bg-slate-800 border border-blue-500 rounded text-sm px-1.5 py-0.5 focus:outline-none"
+                                    />
+                                </form>
+                            ) : (
+                                <div className="flex items-center gap-2 truncate">
+                                    <Folder className="w-4 h-4 text-blue-400" fill={selectedFolderId === folder.id ? "currentColor" : "none"} />
+                                    <span className="truncate text-[0.8rem]">{folder.name}</span>
+                                </div>
+                            )}
 
-                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1">
-                            <button
-                                onClick={(e) => startEditing(folder, e)}
-                                className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-blue-500 rounded transition-colors"
-                                title="Renombrar"
-                            >
-                                <Edit2 className="w-3 h-3" />
-                            </button>
-                            <button
-                                onClick={(e) => handleDeleteFolder(folder.id, e)}
-                                className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 rounded transition-colors"
-                                title="Eliminar"
-                            >
-                                <Trash2 className="w-3 h-3" />
-                            </button>
+                            <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1">
+                                <button
+                                    onClick={(e) => startEditing(folder, e)}
+                                    className="p-1 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-blue-500 rounded transition-colors"
+                                    title="Renombrar"
+                                >
+                                    <Edit2 className="w-3 h-3" />
+                                </button>
+                                <button
+                                    onClick={(e) => handleDeleteFolder(folder.id, e)}
+                                    className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 rounded transition-colors"
+                                    title="Eliminar"
+                                >
+                                    <Trash2 className="w-3 h-3" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
             </div>
 
             <ConfirmModal
