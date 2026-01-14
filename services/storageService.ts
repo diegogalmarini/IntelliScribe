@@ -9,6 +9,11 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
             return null;
         }
 
+        // BLOB HANDLER: If it's a local blob URL, return it as is
+        if (path.startsWith('blob:')) {
+            return path;
+        }
+
         // SMART LEGACY HANDLER:
         // If the path looks like a full URL (contains 'http'), extract the relative path
         let relativePath = path;
