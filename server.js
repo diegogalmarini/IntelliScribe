@@ -80,6 +80,23 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: err.message }));
             }
         });
+    } else if (req.url.startsWith('/api/coupon-status') && req.method === 'GET') {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const code = url.searchParams.get('code');
+
+        console.log(`[API] Checking coupon status for: ${code}`);
+
+        // Mock response to avoid breaking UI if Stripe is not configured
+        // In production this calls Stripe (see api/coupon-status.ts)
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            active: true,
+            code: code,
+            remaining: 5,
+            total: 100,
+            percent_off: 20,
+            label: `🔥 Solo quedan 5 ofertas`
+        }));
     } else if (req.url === '/api/ai' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
@@ -88,7 +105,7 @@ const server = http.createServer(async (req, res) => {
         req.on('end', async () => {
             try {
                 // geminiService sends: { action, payload, language }
-                const { action, payload, language } = JSON.parse(body);
+                const { action, payload, language = 'es' } = JSON.parse(body);
                 console.log('AI Request:', action);
 
                 if (!process.env.GEMINI_API_KEY) {
@@ -101,58 +118,32 @@ const server = http.createServer(async (req, res) => {
 
                 let resultData = null;
 
+                // --- Action: Summary ---
                 if (action === 'summary') {
-                    const { transcript, template = 'general' } = payload || {};
+                    const { transcript, template = 'general', systemPrompt: systemPromptOverride } = payload || {};
                     let prompt = "";
 
-                    // Template logic
-                    switch (template) {
-                        case 'meeting':
-                            prompt = `Analiza la siguiente transcripción de una reunión. Genera un resumen estructurado que incluya:
-                              1. **Objetivos de la reunión**: ¿Para qué se reunieron?
-                              2. **Decisiones clave**: ¿Qué se acordó?
-                              3. **Tareas pendientes (Action Items)**: ¿Quién hace qué y para cuándo?
-                              4. **Conclusiones**: Resumen general.
-                              
-                              Transcripción:
-                              ${transcript}`;
-                            break;
-                        case 'class':
-                            prompt = `Actúa como un estudiante de honor. Analiza esta transcripción de clase/conferencia y genera:
-                              1. **Conceptos Principales**: Definiciones y temas clave.
-                              2. **Puntos Importantes para el Examen**: Qué es probable que pregunten.
-                              3. **Resumen Cronológico**: Flujo de la clase.
-                              4. **Bibliografía/Referencias**: Si se mencionaron libros o autores.
-                              
-                              Transcripción:
-                              ${transcript}`;
-                            break;
-                        case 'interview':
-                            prompt = `Analiza esta transcripción de entrevista. Genera un perfil que incluya:
-                              1. **Resumen del Candidato/Entrevistado**: Perfil general.
-                              2. **Preguntas Clave y Respuestas**: Los momentos más relevantes.
-                              3. **Fortalezas y Debilidades**: Análisis de soft y hard skills detectadas.
-                              4. **Evaluación General**: Conclusión sobre el desempeño.
-                              
-                              Transcripción:
-                              ${transcript}`;
-                            break;
-                        case 'sales':
-                            prompt = `Analiza esta llamada de ventas. Extrae:
-                              1. **Necesidades del Cliente**: ¿Qué problema tienen?
-                              2. **Objeciones**: ¿Qué dudas o problemas plantearon?
-                              3. **Puntos de Dolor (Pain Points)**: Problemas críticos mencionados.
-                              4. **Próximos Pasos**: Acuerdos de seguimiento.
-                              5. **Sentimiento**: ¿El cliente está interesado? (Positivo/Neutral/Negativo).
-                              
-                              Transcripción:
-                              ${transcript}`;
-                            break;
-                        default: // 'general'
-                            prompt = `Genera un resumen conciso y estructurado de la siguiente transcripción. Identifica los puntos clave, temas principales y cualquier conclusión relevante. Utiliza formato Markdown para mejorar la legibilidad.
-                              
-                              Transcripción:
-                              ${transcript}`;
+                    if (systemPromptOverride) {
+                        prompt = `${systemPromptOverride}\n\nTranscript:\n${transcript}`;
+                    } else {
+                        // Template logic
+                        switch (template) {
+                            case 'meeting':
+                                prompt = `Analiza la siguiente transcripción de una reunión. Genera un resumen estructurado que incluya:
+                                  1. **Objetivos de la reunión**: ¿Para qué se reunieron?
+                                  2. **Decisiones clave**: ¿Qué se acordó?
+                                  3. **Tareas pendientes (Action Items)**: ¿Quién hace qué y para cuándo?
+                                  4. **Conclusiones**: Resumen general.
+                                  
+                                  Transcripción:
+                                  ${transcript}`;
+                                break;
+                            default: // 'general'
+                                prompt = `Genera un resumen conciso y estructurado de la siguiente transcripción. Identifica los puntos clave, temas principales y cualquier conclusión relevante. Utiliza formato Markdown para mejorar la legibilidad.
+                                  
+                                  Transcripción:
+                                  ${transcript}`;
+                        }
                     }
 
                     const response = await genAI.models.generateContent({
@@ -162,12 +153,75 @@ const server = http.createServer(async (req, res) => {
                     });
 
                     resultData = response.text || "No summary generated.";
-                } else {
+                }
+                // --- Action: Chat ---
+                else if (action === 'chat') {
+                    const { transcript, history, message } = payload;
+                    let finalContext = typeof transcript === 'string' ? transcript : JSON.stringify(transcript);
+
+                    const systemInstruction = language === 'es'
+                        ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto de grabaciones:\n${finalContext}`
+                        : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}`;
+
+                    const chat = genAI.chats.create({
+                        model: 'gemini-2.0-flash-exp',
+                        config: { systemInstruction },
+                        history: history.map((h) => ({ role: h.role === 'user' ? 'user' : 'model', parts: [{ text: h.text || h.content }] }))
+                    });
+                    const response = await chat.sendMessage({ message });
+                    resultData = response.text;
+                }
+                // --- Action: Transcribe ---
+                else if (action === 'transcribe') {
+                    const { audioBase64, audioUrl, mimeType } = payload;
+                    let finalBase64 = audioBase64;
+
+                    if (!finalBase64 && audioUrl) {
+                        console.log(`[AI_API] Fetching audio from URL: ${audioUrl}`);
+                        const response = await fetch(audioUrl);
+                        if (!response.ok) throw new Error(`Failed to fetch audio from storage: ${response.statusText}`);
+                        const buffer = await response.arrayBuffer();
+                        finalBase64 = Buffer.from(buffer).toString('base64');
+                    }
+
+                    if (!finalBase64) throw new Error('No audio data or URL provided');
+
+                    const response = await genAI.models.generateContent({
+                        model: 'gemini-2.0-flash-exp',
+                        contents: {
+                            parts: [
+                                { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
+                                { text: `Transcribe this audio conversation. Return a JSON array of objects with 'timestamp' (MM:SS), 'speaker', and 'text'.` }
+                            ]
+                        },
+                        config: { responseMimeType: 'application/json' }
+                    });
+                    resultData = JSON.parse(response.text || "[]");
+                }
+                // --- Action: Support ---
+                else if (action === 'support') {
+                    const { message, history } = payload;
+                    const coreTruths = `Diktalo FEATURES: 1. Grabadora Web, 2. Extensión Chrome, 3. Subida Archivos, 4. DIALER (Crítico). Precios: Free (24 min), Pro (9€/mes). Nati Pol, 22 años, vive en Copenhague. Habla sin negritas.`;
+
+                    const systemInstruction = `Eres Nati Pol, experta en Diktalo. ${coreTruths}. REGLA DE ORO: CERO NEGRITAS.`;
+
+                    const chat = genAI.chats.create({
+                        model: 'gemini-2.0-flash-exp',
+                        config: { systemInstruction, temperature: 0.9 },
+                        history: history.map((h) => ({
+                            role: h.role === 'user' ? 'user' : 'model',
+                            parts: [{ text: h.content || h.text }]
+                        }))
+                    });
+
+                    const response = await chat.sendMessage({ message });
+                    resultData = response.text;
+                }
+                else {
                     throw new Error(`Invalid action: ${action}`);
                 }
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                // geminiService expects: { data: result }
                 res.end(JSON.stringify({ data: resultData }));
 
             } catch (err) {
