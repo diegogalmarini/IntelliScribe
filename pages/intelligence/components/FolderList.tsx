@@ -95,15 +95,28 @@ export const FolderList: React.FC<FolderListProps> = ({
 
     return (
         <div className="space-y-2 mt-6">
-            <div className="flex items-center justify-between px-2 mb-2">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('projects')}</h3>
+            {/* "All Recordings" - Main root folder */}
+            <div className="space-y-0.5 mb-3">
                 <button
-                    onClick={() => setIsCreating(true)}
-                    className="p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-md transition-colors"
+                    onClick={() => onSelectFolder(null)}
+                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[0.8rem] transition-colors ${selectedFolderId === null
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                        }`}
                 >
-                    <Plus className="w-3.5 h-3.5 text-slate-400" />
+                    <FolderOpen className="w-4 h-4" />
+                    <span className="truncate">{t('allRecordings') || 'Todas las Grabaciones'}</span>
                 </button>
             </div>
+
+            {/* User's Projects Section */}
+            <button
+                onClick={() => setIsCreating(true)}
+                className="w-full flex items-center justify-between px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md transition-colors group"
+            >
+                <span className="text-xs font-medium">{t('newProject') || 'Nuevo Proyecto'}</span>
+                <Plus className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
+            </button>
 
             {isCreating && (
                 <form onSubmit={handleCreateFolder} className="px-2 mb-2">
@@ -119,19 +132,8 @@ export const FolderList: React.FC<FolderListProps> = ({
                 </form>
             )}
 
+            {/* User's Folders */}
             <div className="space-y-0.5">
-                <button
-                    onClick={() => onSelectFolder(null)}
-                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[0.8rem] transition-colors ${selectedFolderId === null
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
-                        }`}
-                >
-                    <FolderOpen className="w-4 h-4" />
-                    <span className="truncate">{t('allRecordings') || 'Todas las Grabaciones'}</span>
-                </button>
-
-                {/* Filter out folders with reserved names that duplicate the special buttons */}
                 {(folders || [])
                     .filter(folder => {
                         const reservedNames = ['Todas las Grabaciones', 'All Recordings', 'Favoritos', 'Favorites'];
