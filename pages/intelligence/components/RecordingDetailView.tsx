@@ -426,6 +426,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
             // Transcribe using Gemini service
             const targetLang = user.transcriptionLanguage || 'es';
+            console.log('[RecordingDetailView] Regenerating with language:', targetLang, '(user pref:', user.transcriptionLanguage, ')');
             const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
             // CRITICAL: Only update if we got valid results
