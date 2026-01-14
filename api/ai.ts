@@ -193,7 +193,47 @@ Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'spe
                 },
                 config: { responseMimeType: 'application/json' }
             });
-            result = JSON.parse(response.text || "[]");
+            const rawText = response.text || "[]";
+
+            // SANITIZE: Gemini sometimes returns control characters that break JSON parsing
+            // This regex replaces unescaped control characters inside strings
+            let sanitizedText = rawText;
+            try {
+                // First attempt: direct parse
+                result = JSON.parse(rawText);
+            } catch (parseError) {
+                console.warn('[AI_API] JSON parse failed, attempting to sanitize control characters...');
+
+                // Sanitize: escape control characters that break JSON
+                // Replace actual newlines/tabs inside string values (not the structural ones)
+                sanitizedText = rawText
+                    .replace(/[\x00-\x1F\x7F]/g, (char) => {
+                        // Keep structural newlines for JSON formatting, escape others
+                        if (char === '\n' || char === '\r' || char === '\t') {
+                            return char; // Keep these for JSON structure
+                        }
+                        return ''; // Remove other control chars
+                    });
+
+                // Try parsing markdown-wrapped JSON (```json ... ```)
+                const jsonMatch = sanitizedText.match(/```json\s*([\s\S]*?)\s*```/);
+                if (jsonMatch) {
+                    sanitizedText = jsonMatch[1];
+                }
+
+                // Clean any trailing commas before ] or }
+                sanitizedText = sanitizedText
+                    .replace(/,\s*]/g, ']')
+                    .replace(/,\s*}/g, '}');
+
+                try {
+                    result = JSON.parse(sanitizedText);
+                    console.log('[AI_API] Sanitization successful, parsed transcript');
+                } catch (retryError) {
+                    console.error('[AI_API] Sanitization failed, returning empty array. Raw text:', rawText.substring(0, 500));
+                    result = [];
+                }
+            }
         }
 
         // --- Action 4: Support Chatbot (Nati Pol) ---
