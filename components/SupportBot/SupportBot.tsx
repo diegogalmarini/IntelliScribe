@@ -8,6 +8,7 @@ interface SupportBotProps {
     position?: 'left' | 'right';
     recordings?: Recording[];
     user?: UserProfile;
+    activeRecording?: Recording; // NEW: Full context of currently viewed recording
     onAction?: (action: string, payload: any) => void;
 }
 
@@ -15,6 +16,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     position = 'right',
     recordings = [],
     user,
+    activeRecording,
     onAction
 }) => {
     const { t, language = 'es' } = useLanguage();
@@ -66,12 +68,33 @@ export const SupportBot: React.FC<SupportBotProps> = ({
             const tone = agent.tone[langKey];
             const relations = agent.relations[langKey];
 
-            // Context: Recordings and User Profile
+            // Context: User Profile with proper auth detection
+            const userContext = user && user.id
+                ? `USUARIO: ${user.firstName}, PLAN: ${user.subscription?.planId || 'free'}`
+                : 'USUARIO: No autenticado (visitante)';
+
+            // Context: Active Recording (full transcript if viewing one)
+            let activeRecordingContext = '';
+            if (activeRecording && activeRecording.segments && activeRecording.segments.length > 0) {
+                const transcript = activeRecording.segments.map(s => `[${s.timestamp}] ${s.speaker}: ${s.text}`).join('\n');
+                const speakers = activeRecording.metadata?.speakers ? activeRecording.metadata.speakers.join(', ') : 'Desconocido';
+                activeRecordingContext = `
+
+AUDIO ACTUALMENTE ABIERTO:
+Título: ${activeRecording.title}
+Oradores: ${speakers}
+Resumen: ${activeRecording.summary || 'Sin resumen'}
+
+TRANSCRIPCIÓN COMPLETA:
+${transcript}
+`;
+            }
+
+            // Context: Recent Recordings List (summary only)
             const recordingsList = recordings.slice(0, 10).map(r => {
                 const speakers = r.metadata?.speakers ? ` (Oradores: ${r.metadata.speakers.join(', ')})` : '';
                 return `- ID: ${r.id}, Título: ${r.title}${speakers}${r.summary ? `, Resumen: ${r.summary.substring(0, 200)}...` : ''}`;
             }).join('\n');
-            const userContext = user ? `USUARIO: ${user.firstName}, PLAN: ${user.subscription?.planId || 'free'}` : 'USUARIO: No autenticado';
 
             const systemPromptOverride = langKey === 'es'
                 ? `PERSONALIDAD Y BIO:
@@ -91,8 +114,9 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     - CONTEXTO: 
       ${userContext}
       GRABACIONES RECIENTES (Título y fragmento de resumen):
-      ${recordingsList || 'Sin grabaciones aún.'}
+      ${recordingsList || 'Sin grabaciones aún.'}${activeRecordingContext}
     - RELACIONES: ${relations}. Nati Pol es nuestra Directora Creativa y jefa.
+    - IMPORTANTE: Si el usuario NO está autenticado, NO asumas que tiene plan 'free'. Explícale que debe crear cuenta para acceder a funciones.
     
     REGLAS:
     1. Usa tu personalidad. CERO negritas (**).
@@ -113,8 +137,9 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
-      ${recordingsList || 'No recordings yet.'}
+      ${recordingsList || 'No recordings yet.'}${activeRecordingContext}
     - RELATIONS: ${relations}. Nati Pol is our Creative Director and boss.
+    - IMPORTANT: If the user is NOT authenticated, do NOT assume they have a 'free' plan. Explain they need to create an account to access features.
     
     RULES:
     1. Use your uniquely personality. NO bolding (**).
