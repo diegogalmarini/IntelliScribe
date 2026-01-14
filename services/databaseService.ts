@@ -140,13 +140,11 @@ export const databaseService = {
 
     async getRecordings(userId: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
         // FULL QUERY - Índices confirmados en Supabase ✅
-        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields AND audio_url (Lazy Load) - Added metadata for temporal features
-        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, metadata'; // Removed audio_url
+        // STRICT COLUMN SELECTION: Exclude heavy JSONB fields (Lazy Load) - Added metadata and summary
+        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, metadata, summary';
 
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
-
-        console.log(`[databaseService] Loading metadata for user ${userId} (Page ${page}, Limit ${pageSize})`);
 
         const { data: recordingsData, error } = await supabase
             .from('recordings')
@@ -157,7 +155,7 @@ export const databaseService = {
 
         if (error) {
             logger.error('Error fetching full recordings', { error, userId });
-            console.log('[databaseService] ⚠️ Falling back to EMERGENCY MODE (minimal data)');
+            logger.warn('[databaseService] ⚠️ Falling back to EMERGENCY MODE (minimal data)');
 
             // Fallback: Try minimal query
             const { data: minimalData, error: minimalError } = await supabase
@@ -172,7 +170,7 @@ export const databaseService = {
                 return [];
             }
 
-            console.log(`[databaseService] ✅ Loaded ${minimalData?.length || 0} recordings in EMERGENCY MODE`);
+            logger.warn(`[databaseService] ✅ Loaded ${minimalData?.length || 0} recordings in EMERGENCY MODE`);
             return (minimalData || []).map((r: any) => ({
                 id: r.id,
                 title: r.title,
@@ -194,7 +192,7 @@ export const databaseService = {
             }));
         }
 
-        console.log(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully (Full Mode - Lightweight)`);
+        logger.info(`[databaseService] ✅ Loaded ${recordingsData?.length || 0} recordings successfully (Full Mode - Lightweight)`);
         return (recordingsData || []).map((r: any) => ({
             id: r.id,
             title: r.title,
@@ -211,7 +209,7 @@ export const databaseService = {
             segments: [],
             notes: [],
             media: [],
-            summary: undefined,
+            summary: r.summary || undefined,
             metadata: r.metadata // Pass through metadata
         }));
     },
@@ -225,7 +223,7 @@ export const databaseService = {
             .in('id', ids);
 
         if (error) {
-            console.error('Error fetching segments:', error);
+            logger.error('Error fetching segments:', { error, ids });
             return new Map();
         }
 
@@ -249,7 +247,7 @@ export const databaseService = {
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        console.log(`[databaseService] Searching for "${searchQuery}" (normalized: "${normalizedQuery}") for user ${userId}`);
+        logger.info(`[databaseService] Searching for "${searchQuery}" (normalized: "${normalizedQuery}") for user ${userId}`);
 
         // For Supabase/PostgreSQL, we'll use the textSearch operator or ilike for partial matching
         // Since we need to search inside JSONB (segments), we'll fetch full data and do filtering
@@ -288,7 +286,7 @@ export const databaseService = {
             return titleMatch || summaryMatch || segmentsMatch;
         });
 
-        console.log(`[databaseService] Found ${filtered.length} matching recordings`);
+        logger.info(`[databaseService] Found ${filtered.length} matching recordings`);
 
         return filtered.map((r: any) => ({
             id: r.id,
@@ -406,12 +404,25 @@ export const databaseService = {
         if (updates.description !== undefined) dbUpdates.description = updates.description;
         if (updates.folderId !== undefined) dbUpdates.folder_id = updates.folderId;
         if (updates.status !== undefined) dbUpdates.status = updates.status;
-        if (updates.segments !== undefined) dbUpdates.segments = updates.segments;
+        if (updates.segments !== undefined) {
+            dbUpdates.segments = updates.segments;
+            // Auto-extract unique speakers and store in metadata for SupportBot context
+            const speakers = Array.from(new Set((updates.segments as any[]).map(s => s.speaker).filter(Boolean)));
+            if (speakers.length > 0) {
+                dbUpdates.metadata = {
+                    ...(updates.metadata || {}),
+                    speakers
+                };
+            }
+        }
         if (updates.summary !== undefined) dbUpdates.summary = updates.summary;
         if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
         if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
         if (updates.durationSeconds !== undefined) dbUpdates.duration_seconds = updates.durationSeconds;
-        if (updates.metadata !== undefined) dbUpdates.metadata = updates.metadata;
+        if (updates.metadata !== undefined && !dbUpdates.metadata) dbUpdates.metadata = updates.metadata;
+        else if (updates.metadata !== undefined && dbUpdates.metadata) {
+            dbUpdates.metadata = { ...updates.metadata, ...dbUpdates.metadata };
+        }
 
         // Note: Updating notes/media is more complex (diffing), usually handled separately.
         // For simple renames/moves, this is enough. 
@@ -431,8 +442,15 @@ export const databaseService = {
     },
 
     async saveTransription(id: string, segments: any[], summary?: string): Promise<boolean> {
+        const metadata: any = {};
+        const speakers = Array.from(new Set(segments.map(s => s.speaker).filter(Boolean)));
+        if (speakers.length > 0) {
+            metadata.speakers = speakers;
+        }
+
         const updates: any = { segments };
         if (summary) updates.summary = summary;
+        if (speakers.length > 0) updates.metadata = metadata;
 
         const { error } = await supabase
             .from('recordings')
