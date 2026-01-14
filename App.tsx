@@ -911,6 +911,7 @@ const AppContent: React.FC = () => {
             <SupportBot
                 recordings={recordings}
                 user={user}
+                activeRecording={activeRecording}
                 position={
                     currentRoute === AppRoute.DASHBOARD ||
                         currentRoute === AppRoute.INTELLIGENCE ||
