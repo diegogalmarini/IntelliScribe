@@ -75,12 +75,14 @@ export const transcribeAudio = async (
 export const supportChat = async (
   userMessage: string,
   history: { role: 'user' | 'bot', content: string }[],
-  language: string = 'es'
+  language: string = 'es',
+  systemInstruction?: string
 ): Promise<string> => {
   try {
     const result = await callAIEndpoint('support', {
       message: userMessage,
       history,
+      systemInstruction,
       knowledgeBasePath: '/docs/chatbot-training/knowledge-base.json'
     }, language);
     if (!result) throw new Error("No output from AI");
