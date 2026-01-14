@@ -144,6 +144,7 @@ export const translations = {
     newProjectPlaceholder: "New project...", // Renamed from folder
     deleteProjectTitle: "Delete Project",
     deleteProjectConfirm: "Are you sure you want to delete this project? Audios will simply be unlinked.",
+    createProject: "Create Project",
 
     // Dashboard / Home
     welcomeUser: "Good morning, {name}",
@@ -175,6 +176,7 @@ export const translations = {
     viewReport: "View Report",
     filterAll: "All",
     noRecordings: "No recordings found",
+    closeMenu: "Close Menu",
     startFirst: "Start your first session to see it here.",
     emptyFolder: "This folder is empty.",
     draft: "Draft",
@@ -235,6 +237,20 @@ export const translations = {
     supportedFormats: "Supported: JPG, PNG, WEBP (Max 5MB)",
     sessionInit: "Session Initialized",
     recordingProgress: "Recording in progress...",
+    defaultMicrophone: "Default Microphone",
+    addNote: "Add Note",
+    notesPlaceholder: "Notes you take will appear here",
+    sessionTitlePlaceholder: "Session Title",
+    writeNotePlaceholder: "Type a note... (Enter to send)",
+    transcriptionRegeneratedSuccess: "Transcript regenerated successfully.",
+    transcriptionRegenerateError: "Error regenerating. Original transcript preserved.",
+    transcriptionRegenerateEmpty: "Could not regenerate. Original transcript preserved.",
+    summaryGenerationError: "Error generating summary",
+    holdToStop: "Hold to Stop (3s)",
+    holdToPause: "Hold to Pause (2s)",
+    tapToResume: "Tap to Resume",
+    tapToPause: "Tap to Pause",
+    release: "Release",
 
     // Navigation Guard
     confirmExitTitle: "Exit Recording?",
@@ -264,7 +280,7 @@ export const translations = {
 
     // Editor
     back: "Back",
-    summarize: "Analyze",
+    summarize: "Summarize",
     thinking: "Analyzing...",
     export: "Export",
     askDiktalo: "Ask Diktalo",
@@ -274,10 +290,16 @@ export const translations = {
     readyToTranscribeDesc: "Your audio is ready for processing. Click the button below to generate a transcript using Gemini AI.",
     genTranscript: "Generate Transcript",
     regenerate: "Regenerate", // NEW
+    regenerateTranscription: "Regenerate Transcript",
     viewImage: "View Image", // NEW
     generateTranscript: "Generate Transcript",
     noTranscript: "No Transcript",
     transcribing: "Transcribing...",
+    transcriptionNotAvailable: "Transcription not available",
+    generateTranscription: "Generate Transcript",
+    regenerating: "Processing...",
+    audioOriginal: "Original Audio",
+    galleryAttachments: "Attachments Gallery",
     meetingSummary: "Analysis Result",
     askPlaceholder: "Ask a question...",
     askEmpty: "Ask me anything about this transcript.\ne.g., 'What were the main pain points?'",
@@ -1111,6 +1133,7 @@ export const translations = {
     newProjectPlaceholder: "Nuevo proyecto...", // Renamed from folder
     deleteProjectTitle: "Eliminar Proyecto",
     deleteProjectConfirm: "¿Estás seguro de eliminar este proyecto? Los audios no se borrarán, solo se desvincularán.",
+    createProject: "Crear Proyecto",
 
     // Dashboard / Home
     welcomeUser: "Hola, {name}",
@@ -1142,6 +1165,7 @@ export const translations = {
     viewReport: "Ver Reporte",
     filterAll: "Todos",
     noRecordings: "No se encontraron grabaciones",
+    closeMenu: "Cerrar menú",
     startFirst: "Inicia tu primera sesión para verla aquí.",
     emptyFolder: "Esta carpeta está vacía.",
     draft: "Borrador",
@@ -1167,6 +1191,11 @@ export const translations = {
     audioPlayback: "Reproducción",
     aiSummary: "Resumen IA",
     processingTranscription: "Procesando transcripción...",
+    transcriptionNotAvailable: "Transcripción no disponible",
+    generateTranscription: "Generar Transcripción",
+    regenerating: "Procesando...",
+    audioOriginal: "Audio Original",
+    galleryAttachments: "Galería de Adjuntos",
     goodMorning: "Buenos días",
     goodAfternoon: "Buenas tardes",
     goodEvening: "Buenas noches",
@@ -1175,6 +1204,7 @@ export const translations = {
     makeCall: "Hacer Llamada",
     uploadFile: "Subir Archivo",
     regenerate: "Regenerar", // NEW
+    regenerateTranscription: "Regenerar transcripción",
     viewImage: "Ver Imagen", // NEW
     inPersonMeetings: "Reuniones presenciales",
     integratedVoIP: "Telefonía IP integrada",
@@ -1195,6 +1225,20 @@ export const translations = {
     ready: "Listo",
     recording: "Grabando",
     paused: "Pausado",
+    defaultMicrophone: "Micrófono predeterminado",
+    addNote: "Añadir nota",
+    notesPlaceholder: "Las notas que tomes aparecerán aquí",
+    sessionTitlePlaceholder: "Título de la sesión",
+    writeNotePlaceholder: "Escribe una nota... (Enter para enviar)",
+    transcriptionRegeneratedSuccess: "Transcripción regenerada exitosamente.",
+    transcriptionRegenerateError: "Error al regenerar. Se mantiene la transcripción original.",
+    transcriptionRegenerateEmpty: "No se pudo regenerar. Se mantiene la transcripción original.",
+    summaryGenerationError: "Error generando resumen",
+    holdToStop: "Mantén para detener (3s)",
+    holdToPause: "Mantén para pausar (2s)",
+    tapToResume: "Toca para reanudar",
+    tapToPause: "Toca para pausar",
+    release: "Suelta",
     mark: "Marcar",
     markedPoint: "Punto Marcado",
     notes: "Notas",
@@ -1233,7 +1277,7 @@ export const translations = {
 
     // Editor
     back: "Volver",
-    summarize: "Analizar",
+    summarize: "Resumir",
     thinking: "Analizando...",
     export: "Exportar",
     askDiktalo: "Preguntar a Diktalo",

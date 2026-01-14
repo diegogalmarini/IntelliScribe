@@ -385,7 +385,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                             value={sessionTitle}
                             onChange={(e) => setSessionTitle(e.target.value)}
                             className="text-2xl font-normal text-[#1f1f1f] dark:text-white bg-transparent border-b border-transparent hover:border-[#8e8e8e] focus:border-blue-500 outline-none transition-colors"
-                            placeholder="Título de la sesión"
+                            placeholder={t('sessionTitlePlaceholder')}
                         />
                         <p className="text-[#8e8e8e] text-sm mt-1">{new Date().toLocaleDateString()}</p>
                     </div>
@@ -418,7 +418,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                             >
                                 <Mic size={16} />
                                 <span className="max-w-[200px] truncate">
-                                    {inputDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'Micrófono predeterminado'}
+                                    {inputDevices.find(d => d.deviceId === selectedDeviceId)?.label || t('defaultMicrophone')}
                                 </span>
                                 <ChevronDown size={16} />
                             </button>
@@ -437,7 +437,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                                 : 'text-[#1f1f1f] dark:text-[#e3e3e3]'
                                                 }`}
                                         >
-                                            {device.label || `Micrófono ${device.deviceId.slice(0, 5)}...`}
+                                            {device.label || `Microphone ${device.deviceId.slice(0, 5)}...`}
                                         </button>
                                     ))}
                                 </div>
@@ -517,12 +517,12 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                                 onTouchStart={() => startHold('stop')}
                                                 onTouchEnd={cancelHold}
                                                 className="w-14 h-14 rounded-full bg-[#1f1f1f] dark:bg-white text-white dark:text-[#1f1f1f] flex items-center justify-center transition-all active:scale-95 z-10 relative"
-                                                title="Mantén para detener (3s)"
+                                                title={t('holdToStop')}
                                             >
                                                 <Square size={24} />
                                             </button>
                                             <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
-                                                Mantén 3s
+                                                {t('holdToStop')}
                                             </p>
                                         </div>
 
@@ -553,12 +553,12 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                                 onTouchEnd={cancelHold}
                                                 onClick={handleResumeTap}
                                                 className="w-14 h-14 rounded-full bg-[#8e8e8e] hover:bg-[#444746] text-white flex items-center justify-center transition-all active:scale-95 z-10 relative"
-                                                title={isPaused ? "Toca para reanudar" : "Mantén para pausar (2s)"}
+                                                title={isPaused ? t('tapToResume') : t('holdToPause')}
                                             >
                                                 {isPaused ? <Play size={24} /> : <Pause size={24} />}
                                             </button>
                                             <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
-                                                {isPaused ? 'Toca' : 'Mantén 2s'}
+                                                {isPaused ? 'Resume' : 'Hold 2s'}
                                             </p>
                                         </div>
                                     </>
@@ -571,7 +571,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                 {/* Right: Notes Panel - Stacks on bottom on mobile */}
                 <div className="w-full lg:w-80 h-[400px] lg:h-auto flex-shrink-0 border-t lg:border-t-0 lg:border-l border-black/[0.05] dark:border-white/[0.05] flex flex-col bg-white dark:bg-[#1a1a1a]">
                     <div className="px-4 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
-                        <h3 className="text-sm font-medium text-[#1f1f1f] dark:text-white">Notas</h3>
+                        <h3 className="text-sm font-medium text-[#1f1f1f] dark:text-white">{t('notes')}</h3>
                     </div>
 
                     <div ref={notesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -583,7 +583,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                         ))}
                         {notes.length === 0 && (
                             <p className="text-sm text-[#8e8e8e] text-center mt-8">
-                                Las notas que tomes aparecerán aquí
+                                {t('notesPlaceholder')}
                             </p>
                         )}
                     </div>
@@ -598,7 +598,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                     handleSendNote();
                                 }
                             }}
-                            placeholder="Escribe una nota... (Enter para enviar)"
+                            placeholder={t('writeNotePlaceholder')}
                             className="w-full px-3 py-2 bg-[#f5f5f5] dark:bg-[#2f2f2f] border border-black/10 dark:border-white/10 rounded-lg text-sm text-[#1f1f1f] dark:text-white placeholder-[#8e8e8e] outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                             rows={3}
                         />
@@ -607,7 +607,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                             disabled={!currentNote.trim()}
                             className="mt-2 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-[#d0d0d0] disabled:text-[#8e8e8e] text-white text-sm rounded-lg transition-colors disabled:cursor-not-allowed"
                         >
-                            Añadir nota
+                            {t('addNote')}
                         </button>
                     </div>
                 </div>

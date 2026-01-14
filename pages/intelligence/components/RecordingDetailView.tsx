@@ -432,7 +432,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             // CRITICAL: Only update if we got valid results
             if (!result || result.length === 0) {
                 console.warn('[RecordingDetailView] Regeneration returned empty, preserving original transcription');
-                showToast("No se pudo regenerar. Se mantiene la transcripción original.", 'warning');
+                showToast(t('transcriptionRegenerateEmpty'), 'warning');
                 return; // Exit without modifying anything
             }
 
@@ -455,11 +455,11 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 setFullRecording({ ...fullRecording, segments: newSegments, status: 'Completed' });
             }
 
-            showToast("Transcripción regenerada exitosamente.", 'success');
+            showToast(t('transcriptionRegeneratedSuccess'), 'success');
 
         } catch (error) {
             console.error('Failed to transcribe', error);
-            showToast("Error al regenerar. Se mantiene la transcripción original.", 'error');
+            showToast(t('transcriptionRegenerateError'), 'error');
             // IMPORTANT: Do NOT modify segments state on error - they stay as they were
         } finally {
             setIsTranscribing(false);
@@ -520,7 +520,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             setAnalysisOpen(false);
         } catch (error) {
             console.error(error);
-            showToast("Error generando resumen", 'error');
+            showToast(t('summaryGenerationError'), 'error');
         } finally {
             setIsGenerating(false);
         }
@@ -665,14 +665,14 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             onClick={handleTranscribeAudio}
                             disabled={isTranscribing || !signedAudioUrl}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                            title="Regenerar transcripción"
+                            title={t('regenerateTranscription')}
                         >
                             {isTranscribing ? (
                                 <Loader2 size={14} className="animate-spin text-brand-purple" />
                             ) : (
                                 <RefreshCw size={14} className="text-brand-purple" />
                             )}
-                            <span className="hidden sm:inline">{isTranscribing ? 'Procesando...' : t('regenerate')}</span>
+                            <span className="hidden sm:inline">{isTranscribing ? t('regenerating') : t('regenerate')}</span>
                         </button>
 
                         {/* Analizar */}
@@ -713,7 +713,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                         <div className="flex items-center gap-2 mb-4">
                             <FileText size={16} className="text-[#8e8e8e]" />
                             <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                Audio Original
+                                {t('audioOriginal')}
                             </h2>
                         </div>
 
@@ -793,7 +793,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             </div>
                         ) : (
                             <p className="text-[12px] text-[#8e8e8e]">
-                                Audio no disponible
+                                {t('audioNotReady')}
                             </p>
                         )}
                     </div>
@@ -804,7 +804,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             <div className="flex items-center gap-2 mb-4">
                                 <ImageIcon size={16} className="text-[#8e8e8e]" />
                                 <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                    Galería de Adjuntos
+                                    {t('galleryAttachments')}
                                 </h2>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -840,7 +840,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                 <div className="flex items-center gap-2">
                                     <FileText size={16} className="text-[#8e8e8e]" />
                                     <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                        Transcripción
+                                        {t('transcription') || 'Transcripción'}
                                     </h2>
                                 </div>
                                 <div className="flex gap-2">
@@ -1018,12 +1018,12 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             <div className="flex items-center gap-2 mb-4">
                                 <FileText size={16} className="text-[#8e8e8e]" />
                                 <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                    Transcripción
+                                    {t('transcription') || 'Transcripción'}
                                 </h2>
                             </div>
                             <div className="flex flex-col items-center justify-center py-8">
                                 <Mic size={48} className="text-[#8e8e8e]/30 mb-4" />
-                                <p className="text-[13px] text-[#8e8e8e] mb-6">Transcripción no disponible</p>
+                                <p className="text-[13px] text-[#8e8e8e] mb-6">{t('transcriptionNotAvailable')}</p>
                                 {onGenerateTranscript && (
                                     <button
                                         onClick={async () => {
@@ -1042,7 +1042,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                         ) : (
                                             <Sparkles size={16} />
                                         )}
-                                        {isGenerating ? 'Generando...' : 'Generar Transcripción'}
+                                        {isGenerating ? t('regenerating') : t('generateTranscription')}
                                     </button>
                                 )}
                             </div>
@@ -1056,7 +1056,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                 <div className="flex items-center gap-2">
                                     <Sparkles size={16} className="text-[#8e8e8e]" />
                                     <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                        Resumen IA
+                                        {t('aiSummary')}
                                     </h2>
                                 </div>
                                 <div className="flex gap-2">

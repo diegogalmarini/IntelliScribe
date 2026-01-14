@@ -162,7 +162,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     <button
                         onClick={onToggle}
                         className="p-1.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"
-                        title="Cerrar menú"
+                        title={t('closeMenu')}
                     >
                         <LayoutTemplate size={18} className="rotate-180" />
                     </button>
