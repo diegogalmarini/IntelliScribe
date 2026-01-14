@@ -710,7 +710,6 @@ const AppContent: React.FC = () => {
         return (
             <>
                 <CrispWidget />
-                <SupportBot />
                 <Landing user={user} />
             </>
         );
@@ -951,7 +950,6 @@ const AppContent: React.FC = () => {
 
                     {currentRoute === AppRoute.MANUAL && (
                         <ScrollablePage>
-                            <SupportBot />
                             <Manual />
                         </ScrollablePage>
                     )}
@@ -1026,12 +1024,25 @@ const App: React.FC = () => {
                 <LanguageProvider>
                     <ThemeProvider>
                         <AppContent />
+                        <GlobalSupportBot />
                         <CookieConsentBanner />
                     </ThemeProvider>
                 </LanguageProvider>
             </AuthProvider>
         </ToastProvider>
     );
+};
+
+const GlobalSupportBot = () => {
+    const location = useLocation();
+    const isLogin = location.pathname === '/login';
+    const isDashboard = location.pathname === '/dashboard' ||
+        location.pathname === '/intelligence' ||
+        location.pathname === '/plans';
+
+    if (isLogin) return null;
+
+    return <SupportBot position={isDashboard ? 'left' : 'right'} />;
 };
 
 export default App;
