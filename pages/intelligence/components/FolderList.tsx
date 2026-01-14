@@ -112,9 +112,9 @@ export const FolderList: React.FC<FolderListProps> = ({
             {/* User's Projects Section */}
             <button
                 onClick={() => setIsCreating(true)}
-                className="w-full flex items-center justify-between px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-md transition-colors group"
+                className="w-full flex items-center justify-between px-2 py-1.5 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg transition-colors group"
             >
-                <span className="text-xs font-medium">{t('newProject') || 'Nuevo Proyecto'}</span>
+                <span className="text-[0.8rem] font-medium">Crear Proyecto</span>
                 <Plus className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
             </button>
 
