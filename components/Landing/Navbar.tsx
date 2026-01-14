@@ -80,10 +80,9 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                             {isAuthenticated ? (
                                 <button
                                     onClick={() => navigate('/dashboard')}
-                                    className="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-all group"
-                                    title="Go to Dashboard"
+                                    className="flex items-center gap-3 pl-1 pr-4 py-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-all group border border-transparent hover:border-slate-200 dark:hover:border-white/10"
                                 >
-                                    <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-primary/20 overflow-hidden ring-2 ring-transparent group-hover:ring-primary/30 transition-all">
+                                    <div className="h-9 w-9 shrink-0 rounded-full bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 font-bold text-xs shadow-md overflow-hidden ring-2 ring-white dark:ring-black">
                                         {user.avatarUrl ? (
                                             <img
                                                 src={user.avatarUrl}
@@ -91,12 +90,20 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <span>{user.firstName[0]}{user.lastName[0]}</span>
+                                            <span>{user.firstName && user.firstName !== 'User' ? user.firstName[0] : ''}{user.lastName ? user.lastName[0] : ''}</span>
                                         )}
                                     </div>
-                                    <div className="flex flex-col items-start pr-2">
-                                        <p className="text-[12px] font-bold text-slate-900 dark:text-white leading-none mb-1">{user.firstName} {user.lastName}</p>
-                                        <p className="text-[10px] text-primary font-bold uppercase tracking-wider leading-none">Dashboard</p>
+                                    <div className="flex flex-col items-start">
+                                        <p className="text-[13px] font-bold text-slate-900 dark:text-white leading-none mb-0.5">
+                                            {user.firstName === 'User' ? 'Mi Cuenta' : `${user.firstName} ${user.lastName}`}
+                                        </p>
+                                        <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Ir al Dashboard</span>
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:translate-x-0.5 transition-transform">
+                                                <path d="M5 12h14"></path>
+                                                <path d="M12 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
                                     </div>
                                 </button>
                             ) : (
