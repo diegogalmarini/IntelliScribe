@@ -107,6 +107,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                     </div>
                                 </button>
                             ) : (
+                                <>
                                     <button onClick={() => navigate('/login')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
                                         Login
                                     </button>
@@ -115,75 +116,75 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                     </button>
                                 </>
                             )}
-                        <div className="flex items-center gap-3 pl-2">
-                            <LanguageSelector />
-                            <ThemeToggle />
+                            <div className="flex items-center gap-3 pl-2">
+                                <LanguageSelector />
+                                <ThemeToggle />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Mobile Menu Toggle */}
-                <div className="lg:hidden flex items-center gap-4">
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="p-2 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors"
-                    >
-                        <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
-                    </button>
-                </div>
-            </div>
-        </nav >
-
-            {/* Mobile Menu Overlay */ }
-            <AnimatePresence>
-    {
-        isMenuOpen && (
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="fixed inset-0 z-40 bg-white dark:bg-background-dark pt-24 px-6 lg:hidden"
-            >
-                <div className="flex flex-col gap-6 text-center">
-                    <button onClick={() => handleNavClick('solutions')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('solSectionTag')}</button>
-                    <button onClick={() => handleNavClick('pricing')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_plans')}</button>
-                    <button onClick={() => handleNavClick('faq')} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
-                    <button onClick={() => { setIsMenuOpen(false); navigate('/contact'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_contact')}</button>
-
-                    {isAuthenticated ? (
+                    {/* Mobile Menu Toggle */}
+                    <div className="lg:hidden flex items-center gap-4">
                         <button
-                            onClick={() => navigate('/dashboard')}
-                            className="flex flex-col items-center gap-3 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="p-2 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors"
                         >
-                            <div className="h-16 w-16 rounded-full bg-gradient-brand flex items-center justify-center text-white font-bold text-xl shadow-xl overflow-hidden">
-                                {user.avatarUrl ? (
-                                    <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
-                                ) : (
-                                    <span>{user.firstName[0]}{user.lastName[0]}</span>
-                                )}
-                            </div>
-                            <div>
-                                <p className="font-bold text-slate-900 dark:text-white">{user.firstName} {user.lastName}</p>
-                                <p className="text-sm text-primary font-bold">Ir al Dashboard</p>
-                            </div>
+                            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
                         </button>
-                    ) : (
-                        <>
-                            <button onClick={() => { setIsMenuOpen(false); navigate('/login'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</button>
-                            <button onClick={() => { setIsMenuOpen(false); navigate('/login'); }} className="px-6 py-4 bg-primary dark:bg-white text-white dark:text-slate-950 text-sm font-semibold rounded-xl mt-4">
-                                {t('navCtaFree')}
-                            </button>
-                        </>
-                    )}
-
-                    <div className="flex justify-center gap-6 mt-8">
-                        <LanguageSelector />
-                        <ThemeToggle />
                     </div>
                 </div>
-            </motion.div>
-        )
-    }
+            </nav >
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {
+                    isMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="fixed inset-0 z-40 bg-white dark:bg-background-dark pt-24 px-6 lg:hidden"
+                        >
+                            <div className="flex flex-col gap-6 text-center">
+                                <button onClick={() => handleNavClick('solutions')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('solSectionTag')}</button>
+                                <button onClick={() => handleNavClick('pricing')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_plans')}</button>
+                                <button onClick={() => handleNavClick('faq')} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
+                                <button onClick={() => { setIsMenuOpen(false); navigate('/contact'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_contact')}</button>
+
+                                {isAuthenticated ? (
+                                    <button
+                                        onClick={() => navigate('/dashboard')}
+                                        className="flex flex-col items-center gap-3 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10"
+                                    >
+                                        <div className="h-16 w-16 rounded-full bg-gradient-brand flex items-center justify-center text-white font-bold text-xl shadow-xl overflow-hidden">
+                                            {user.avatarUrl ? (
+                                                <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span>{user.firstName[0]}{user.lastName[0]}</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                                            <p className="text-sm text-primary font-bold">Ir al Dashboard</p>
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button onClick={() => { setIsMenuOpen(false); navigate('/login'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">Login</button>
+                                        <button onClick={() => { setIsMenuOpen(false); navigate('/login'); }} className="px-6 py-4 bg-primary dark:bg-white text-white dark:text-slate-950 text-sm font-semibold rounded-xl mt-4">
+                                            {t('navCtaFree')}
+                                        </button>
+                                    </>
+                                )}
+
+                                <div className="flex justify-center gap-6 mt-8">
+                                    <LanguageSelector />
+                                    <ThemeToggle />
+                                </div>
+                            </div>
+                        </motion.div>
+                    )
+                }
             </AnimatePresence >
         </>
     );
