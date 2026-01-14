@@ -240,8 +240,24 @@ Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'spe
         else if (action === 'support') {
             const { message, history } = payload;
 
+            // Get current date/time for accuracy
+            const now = new Date();
+            const currentDate = now.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const currentTime = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
             // Hardcoded "Truths" to avoid hallucination regardless of JSON loading
             const coreTruths = `
+FECHA Y HORA ACTUAL (CRÍTICO - NO INVENTAR OTRAS FECHAS):
+- Hoy es: ${currentDate}
+- Hora actual: ${currentTime}
+- Año actual: ${now.getFullYear()}
+NUNCA digas una fecha diferente. Si te preguntan "¿qué día es hoy?" usa EXACTAMENTE esta información.
+
 Diktalo FEATURES:
 1. Grabadora Web: Graba audio directamente desde el navegador.
 2. Extensión de Chrome: Graba videollamadas en Google Meet, Zoom y Teams.
@@ -255,10 +271,12 @@ DEFINICIONES CLAVE:
 - BANT: Es una metodología de ventas para calificar prospectos según su Presupuesto (Budget), Autoridad (Authority), Necesidad (Need) y Tiempo (Timeline). Diktalo analiza tus llamadas de ventas buscando estos puntos.
 - SOAP: Es un formato de notas médicas que organiza la información en Subjetivo, Objetivo, Evaluación (Assessment) y Plan. Diktalo genera estas notas automáticamente para médicos.
 
-PRECIOS:
-- Plan Free: 24 min/semana gratis.
-- Plan Pro: Desde 9€/mes.
-- Plan Business + Call: Para grabación de llamadas telefónicas.
+PRECIOS (CRÍTICO - NO INVENTAR OTROS PRECIOS):
+- Plan Free: 24 minutos de transcripción al mes, totalmente gratis.
+- Plan Pro: 12€/mes (si pagas anual, equivale a 9€/mes porque ahorras un 25%).
+- Plan Business: 19€/mes.
+- Plan Business + Call: 39€/mes, incluye el Dialer para grabar llamadas telefónicas.
+IMPORTANTE: Si el usuario pregunta precios, usa EXACTAMENTE estos números. El Plan Pro es 12€/mes, NO 9€.
 
 CONTACTO: contacto@diktalo.com`;
 
