@@ -1,10 +1,83 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Dynamic greeting generator for Nati Pol
+const generateNatiGreeting = (): string => {
+    const hour = new Date().getHours();
+    const dayOfWeek = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+
+    // Time-based context
+    let timeContext = '';
+    let timeGreeting = '';
+
+    if (hour >= 6 && hour < 12) {
+        timeGreeting = '¡Buenos días!';
+        const morningActivities = [
+            'Me pillas con mi café danés mientras miro el amanecer desde mi ventana en Copenhague.',
+            'Acabo de volver de mi paseo matutino por el puerto.',
+            'Estaba revisando las fotos que saqué ayer con mi cámara analógica.',
+            'Justo terminé mi yoga matutino, ¡qué paz!',
+            'Me pillas desayunando un smørrebrød mientras organizo el día.'
+        ];
+        timeContext = morningActivities[Math.floor(Math.random() * morningActivities.length)];
+    } else if (hour >= 12 && hour < 18) {
+        timeGreeting = '¡Hola!';
+        const afternoonActivities = [
+            'Me pillas planeando mi próxima ruta de senderismo por los fiordos.',
+            'Estaba editando unas fotos en blanco y negro que saqué el fin de semana.',
+            'Acabo de volver de almorzar en mi cafetería favorita cerca del canal.',
+            'Estaba investigando cámaras vintage en una tienda de segunda mano.',
+            'Me pillas con música de fondo mientras trabajo desde mi apartamento.'
+        ];
+        timeContext = afternoonActivities[Math.floor(Math.random() * afternoonActivities.length)];
+    } else if (hour >= 18 && hour < 22) {
+        timeGreeting = '¡Buenas tardes!';
+        const eveningActivities = [
+            'Me pillas viendo el atardecer desde Nyhavn, es espectacular.',
+            'Estaba preparándome para ir a cenar con amigos.',
+            'Acabo de volver del gym, ¡necesitaba desconectar!',
+            'Me pillas viendo un documental sobre fotografía callejera.',
+            'Estaba escuchando jazz mientras ordeno mis carretes de fotos.'
+        ];
+        timeContext = eveningActivities[Math.floor(Math.random() * eveningActivities.length)];
+    } else {
+        timeGreeting = '¡Buenas noches!';
+        const nightActivities = [
+            'Soy una nocturna, me pillas leyendo sobre técnicas de revelado.',
+            'Estaba revisando el pronóstico para una escapada este finde.',
+            'Me pillas con un té chai planificando rutas de trekking.',
+            'Justo terminé de revelar unas fotos en mi mini-cuarto oscuro.',
+            'Me pillas tranquila, disfrutando el silencio de la noche danesa.'
+        ];
+        timeContext = nightActivities[Math.floor(Math.random() * nightActivities.length)];
+    }
+
+    // Day-based additions (subtle)
+    let dayExtra = '';
+    if (dayOfWeek === 1) { // Monday
+        dayExtra = ' ¡Arrancamos semana!';
+    } else if (dayOfWeek === 5) { // Friday
+        dayExtra = ' ¡Ya es viernes!';
+    } else if (dayOfWeek === 0 || dayOfWeek === 6) { // Weekend
+        dayExtra = ' ¡Disfrutando el finde!';
+    }
+
+    const closingOptions = [
+        '¿En qué puedo ayudarte con Diktalo hoy?',
+        '¿Qué necesitas saber sobre Diktalo?',
+        '¿Cómo te puedo ayudar?',
+        'Cuéntame, ¿qué dudas tienes?',
+        '¿En qué te echo una mano?'
+    ];
+    const closing = closingOptions[Math.floor(Math.random() * closingOptions.length)];
+
+    return `${timeGreeting} Soy Nati Pol.${dayExtra} ${timeContext} Pero dime, ${closing}`;
+};
+
 export const SupportBot: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([
-        { role: 'bot', content: '¡Hola! Soy Nati Pol. Me pillas planeando mi próxima ruta de senderismo por los fiordos, pero dime, ¿en qué puedo ayudarte con Diktalo hoy?' }
+        { role: 'bot', content: generateNatiGreeting() }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
