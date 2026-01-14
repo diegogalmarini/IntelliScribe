@@ -907,42 +907,92 @@ const AppContent: React.FC = () => {
                 />
             )}
 
-            {/* Support Bot Integration with Recording Context & Actions */}
-            <SupportBot
-                recordings={recordings}
-                user={user}
-                activeRecording={activeRecording}
-                position={
-                    currentRoute === AppRoute.DASHBOARD ||
-                        currentRoute === AppRoute.INTELLIGENCE ||
-                        currentRoute === AppRoute.SUBSCRIPTION ||
-                        currentRoute === AppRoute.SETTINGS ||
-                        currentRoute === AppRoute.INTEGRATIONS
-                        ? 'left'
-                        : 'right'
+            {/* Support Bot Integration with Freemium Strategy */}
+            {/* FREE users: Bot only on public pages (Landing, Login, etc.) */}
+            {/* PRO+ users: Bot everywhere, including Dashboard with full transcript */}
+            {(() => {
+                const isPaidPlan = user && user.subscription &&
+                    ['pro', 'business', 'business_plus'].includes(user.subscription.planId);
+
+                const isPublicPage = [
+                    AppRoute.LANDING,
+                    AppRoute.LOGIN,
+                    AppRoute.TERMS,
+                    AppRoute.PRIVACY,
+                    AppRoute.TRUST,
+                    AppRoute.COOKIES,
+                    AppRoute.CONTACT,
+                    AppRoute.ABOUT,
+                    AppRoute.PRICING_COMPARISON
+                ].includes(currentRoute);
+
+                const isDashboardArea = [
+                    AppRoute.DASHBOARD,
+                    AppRoute.INTELLIGENCE,
+                    AppRoute.SUBSCRIPTION,
+                    AppRoute.SETTINGS,
+                    AppRoute.INTEGRATIONS,
+                    AppRoute.MANUAL
+                ].includes(currentRoute);
+
+                // Show bot on public pages for everyone
+                if (isPublicPage) {
+                    return (
+                        <SupportBot
+                            recordings={[]} // No recordings on public pages
+                            user={user}
+                            position="right"
+                            onAction={(type, payload) => {
+                                if (type === 'NAVIGATE' && payload.target) {
+                                    if (payload.target === 'SETTINGS') {
+                                        navigate(AppRoute.SETTINGS);
+                                    } else if (payload.target === 'PLANS') {
+                                        navigate(AppRoute.SUBSCRIPTION);
+                                    } else {
+                                        navigate(AppRoute.DASHBOARD);
+                                    }
+                                }
+                            }}
+                        />
+                    );
                 }
-                onAction={(type, payload) => {
-                    if (type === 'OPEN_RECORDING' && payload.id) {
-                        setActiveRecordingId(payload.id);
-                        if (currentRoute !== AppRoute.DASHBOARD) {
-                            navigate(AppRoute.DASHBOARD);
-                        }
-                    } else if (type === 'NAVIGATE' && payload.target) {
-                        if (payload.target === 'SETTINGS') {
-                            navigate(AppRoute.SETTINGS);
-                        } else if (payload.target === 'PLANS') {
-                            navigate(AppRoute.SUBSCRIPTION);
-                        } else {
-                            navigate(AppRoute.DASHBOARD);
-                        }
-                    } else if (type === 'SEARCH' && payload.query) {
-                        setActiveSearchQuery(payload.query);
-                        if (currentRoute !== AppRoute.DASHBOARD) {
-                            navigate(AppRoute.DASHBOARD);
-                        }
-                    }
-                }}
-            />
+
+                // Show bot in dashboard ONLY for PRO+ users
+                if (isDashboardArea && isPaidPlan) {
+                    return (
+                        <SupportBot
+                            recordings={recordings}
+                            user={user}
+                            activeRecording={activeRecording}
+                            position="left"
+                            onAction={(type, payload) => {
+                                if (type === 'OPEN_RECORDING' && payload.id) {
+                                    setActiveRecordingId(payload.id);
+                                    if (currentRoute !== AppRoute.DASHBOARD) {
+                                        navigate(AppRoute.DASHBOARD);
+                                    }
+                                } else if (type === 'NAVIGATE' && payload.target) {
+                                    if (payload.target === 'SETTINGS') {
+                                        navigate(AppRoute.SETTINGS);
+                                    } else if (payload.target === 'PLANS') {
+                                        navigate(AppRoute.SUBSCRIPTION);
+                                    } else {
+                                        navigate(AppRoute.DASHBOARD);
+                                    }
+                                } else if (type === 'SEARCH' && payload.query) {
+                                    setActiveSearchQuery(payload.query);
+                                    if (currentRoute !== AppRoute.DASHBOARD) {
+                                        navigate(AppRoute.DASHBOARD);
+                                    }
+                                }
+                            }}
+                        />
+                    );
+                }
+
+                // Don't show bot for FREE users in dashboard
+                return null;
+            })()}
         </>
     );
 };
