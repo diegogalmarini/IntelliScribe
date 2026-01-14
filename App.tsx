@@ -893,6 +893,7 @@ const AppContent: React.FC = () => {
                             onUpdateRecording={handleUpdateRecording}
                             initialView="recordings"
                             onSelectFolder={setSelectedFolderId}
+                            onUpdateUser={handleUpdateUser}
                         />
                     )}
 
