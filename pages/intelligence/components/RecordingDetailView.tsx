@@ -399,6 +399,10 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
         }
 
         setIsTranscribing(true);
+
+        // CRITICAL: Store backup of existing segments in case regeneration fails
+        const backupSegments = [...segments];
+
         try {
             // Fetch audio content as base64
             const response = await fetch(signedAudioUrl);
@@ -424,6 +428,13 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             const targetLang = user.transcriptionLanguage || 'es';
             const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
+            // CRITICAL: Only update if we got valid results
+            if (!result || result.length === 0) {
+                console.warn('[RecordingDetailView] Regeneration returned empty, preserving original transcription');
+                showToast("No se pudo regenerar. Se mantiene la transcripción original.", 'warning');
+                return; // Exit without modifying anything
+            }
+
             const newSegments = result.map((s, index) => ({
                 id: Date.now().toString() + index,
                 timestamp: s.timestamp || "00:00",
@@ -432,6 +443,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
             }));
 
+            // Only update now that we have confirmed valid data
             setSegments(newSegments);
             if (onUpdateRecording) {
                 onUpdateRecording(recording.id, { segments: newSegments, status: 'Completed' });
@@ -442,9 +454,12 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 setFullRecording({ ...fullRecording, segments: newSegments, status: 'Completed' });
             }
 
+            showToast("Transcripción regenerada exitosamente.", 'success');
+
         } catch (error) {
             console.error('Failed to transcribe', error);
-            showToast("Error al regenerar la transcripción.", 'error');
+            showToast("Error al regenerar. Se mantiene la transcripción original.", 'error');
+            // IMPORTANT: Do NOT modify segments state on error - they stay as they were
         } finally {
             setIsTranscribing(false);
         }

@@ -688,6 +688,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             // Check if segments are valid
             if (!segments || segments.length === 0) {
                 console.warn("No segments returned");
+                showToast("No se pudo generar la transcripción. Intenta de nuevo.", 'warning');
                 return;
             }
 
