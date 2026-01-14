@@ -5,24 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { PlanConfig } from '../../types';
 
-// Hook para obtener escasez REAL desde el backend
-const useRealScarcity = (code: string) => {
-    const [data, setData] = useState<any>(null);
-    useEffect(() => {
-        const fetchScarcity = async () => {
-            try {
-                if (!code) return;
-                const res = await fetch(`/api/coupon-status?code=${code}`);
-                const json = await res.json();
-                if (json.active) setData(json);
-            } catch (e) {
-                console.error("Error fetching scarcity:", e);
-            }
-        };
-        fetchScarcity();
-    }, [code]);
-    return data;
-};
+
 
 export const Pricing: React.FC = () => {
     const { t, language } = useLanguage();
@@ -33,8 +16,7 @@ export const Pricing: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [legalFooter, setLegalFooter] = useState<string>('');
 
-    // Conectar al cupón EARLY100
-    const scarcity = useRealScarcity('EARLY100');
+
 
     useEffect(() => {
         const fetchData = async () => {
