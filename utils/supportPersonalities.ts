@@ -35,7 +35,7 @@ export const PERSONALITIES: Personality[] = [
         role: 'Creative Guide',
         city: 'Copenhagen',
         age: 24,
-        avatar: '/images/nati-pol.png',
+        avatar: '/images/nati-pol.webp',
         bio: {
             es: "24 años. Fotógrafa analógica. Vive en Vesterbro, Copenhague. Creativa y minimalista.",
             en: "24 years old. Analog photographer. Lives in Vesterbro, Copenhagen. Creative and minimalist."
