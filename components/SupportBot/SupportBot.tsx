@@ -30,6 +30,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
 
     // Initialize greeting
     useEffect(() => {
+        console.log(`[SupportBot] Mounted. Route: ${window.location.pathname}, Position: ${position}`);
         const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
         const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
@@ -66,7 +67,10 @@ export const SupportBot: React.FC<SupportBotProps> = ({
             const relations = agent.relations[langKey];
 
             // Context: Recordings and User Profile
-            const recordingsList = recordings.slice(0, 10).map(r => `- ID: ${r.id}, Título: ${r.title}`).join('\n');
+            const recordingsList = recordings.slice(0, 10).map(r => {
+                const speakers = r.metadata?.speakers ? ` (Oradores: ${r.metadata.speakers.join(', ')})` : '';
+                return `- ID: ${r.id}, Título: ${r.title}${speakers}${r.summary ? `, Resumen: ${r.summary.substring(0, 200)}...` : ''}`;
+            }).join('\n');
             const userContext = user ? `USUARIO: ${user.firstName}, PLAN: ${user.subscription?.planId || 'free'}` : 'USUARIO: No autenticado';
 
             const systemPromptOverride = langKey === 'es'
@@ -77,14 +81,16 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     - ESTILO/TONO: ${tone}
     - RESPUESTAS: Sé concreto, directo y amigable.
     - TUS CAPACIDADES: Puedes buscar en los audios del usuario, decirles su plan actual, y ayudarles a navegar por la app.
+    - BÚSQUEDA: Para buscar un audio, lee los Títulos Y Resúmenes del contexto. Si el usuario pregunta por un tema o persona (ej. "Javi") que aparece en un resumen pero no en el título, dale el audio correspondiente.
     - ACCIONES (SOLO SI EL USUARIO LO PIDE):
         1. Abrir audio: [[ACTION:OPEN_RECORDING:ID_DEL_AUDIO:TITULO_DEL_AUDIO]]
-        2. Navegar a sección: [[ACTION:NAVIGATE:SETTINGS]] (usar para Ajustes, Idioma, Perfil) o [[ACTION:NAVIGATE:PLANS]] (para precios/upgrades).
+        2. Navegar a sección: [[ACTION:NAVIGATE:SETTINGS]] o [[ACTION:NAVIGATE:PLANS]].
+        3. Búsqueda Profunda: Si NO encuentras lo que pide en los 10 audios del CONTEXTO, usa [[ACTION:SEARCH:termino_de_busqueda]] para buscar en todo el historial.
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
       ${userContext}
-      GRABACIONES RECIENTES:
+      GRABACIONES RECIENTES (Título y fragmento de resumen):
       ${recordingsList || 'Sin grabaciones aún.'}
     - RELACIONES: ${relations}. Nati Pol es nuestra Directora Creativa y jefa.
     
@@ -99,9 +105,11 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     - TONE/STYLE: ${tone}
     - RESPONSES: Be concrete and friendly.
     - CAPABILITIES: You can search recordings, tell users their current plan, and help navigate the app.
+    - SEARCH: Search Titles AND Summaries. If context doesn't match, use Deep Search.
     - ACTIONS (ONLY IF REQUESTED):
         1. Open audio: [[ACTION:OPEN_RECORDING:RECORDING_ID:RECORDING_TITLE]]
         2. Navigate: [[ACTION:NAVIGATE:SETTINGS]] or [[ACTION:NAVIGATE:PLANS]].
+        3. Deep Search: [[ACTION:SEARCH:query]] if not in recent context.
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
@@ -184,6 +192,18 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             {label}
                         </button>
                     );
+                } else if (type === 'SEARCH') {
+                    const query = actionData[1];
+                    elements.push(
+                        <button
+                            key={`action-${i}`}
+                            onClick={() => onAction?.(type, { query })}
+                            className="mt-3 w-full py-2.5 px-4 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-all"
+                        >
+                            <span className="material-symbols-outlined text-sm">search</span>
+                            Buscar "{query}" en historial
+                        </button>
+                    );
                 }
             }
         }
@@ -201,8 +221,8 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                 top: -window.innerHeight + 600,
                 bottom: 20
             }}
-            // CRITICAL: Remove transition-all as it conflicts with drag transforms
-            className={`fixed bottom-6 z-[9999] flex flex-col ${sideClasses}`}
+            // MAX Z-INDEX to be above everything (Crisp, etc)
+            className={`fixed bottom-6 z-[2147483647] flex flex-col ${sideClasses}`}
         >
             <AnimatePresence>
                 {isOpen && (

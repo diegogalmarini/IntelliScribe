@@ -32,6 +32,7 @@ export interface RecordingMetadata {
     timestamp: number;
     url: string;
   }>;
+  speakers?: string[]; // NEW: Unique list of speaker names for Isabella Context
   audioFileSize?: number; // Size in bytes for storage tracking
 }
 
@@ -109,6 +110,7 @@ export interface UserProfile {
   timezone?: string; // New field
   language?: 'en' | 'es'; // Interface language persistence
   transcriptionLanguage?: string; // Default transcription language persistence
+  integrations?: IntegrationState[]; // NEW: Moved here for unified state
   notificationSettings?: {
     email: {
       newRecording: boolean;

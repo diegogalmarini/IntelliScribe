@@ -37,8 +37,8 @@ interface IntelligenceDashboardProps {
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
     onSearch?: (query: string) => Promise<Recording[]>;
     onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => Promise<Recording | void> | void;
-    onUpdateRecording: (id: string, updates: Partial<Recording>) => void;
-    initialView?: 'recordings' | 'subscription'; // Added prop
+    activeRecordingId?: string | null; // NEW: Pass external selection
+    initialSearchQuery?: string; // NEW: Trigger search from outside
     onSelectFolder?: (folderId: string | null) => void;
     onAppStateChange?: (state: { isRecording: boolean; isViewingRecording: boolean; isUploading: boolean }) => void;
     // Folder Actions
@@ -63,6 +63,9 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onRecordingComplete,
     onUpdateRecording,
     initialView = 'recordings', // Default value
+    activeRecordingId,
+    initialSearchQuery,
+    initialSettingsOpen, // NEW
     onSelectFolder,
     onAppStateChange,
     onAddFolder,
@@ -79,6 +82,30 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     useEffect(() => {
         if (initialView) setView(initialView);
     }, [initialView]);
+
+    // Sync external activeRecordingId selection (for SupportBot)
+    useEffect(() => {
+        if (activeRecordingId && activeRecordingId !== selectedId) {
+            console.log(`[Dashboard] External selection trigger: ${activeRecordingId}`);
+            handleSelectRecording(activeRecordingId);
+        }
+    }, [activeRecordingId]);
+
+    // Sync external search query (from SupportBot)
+    useEffect(() => {
+        if (initialSearchQuery) {
+            console.log(`[Dashboard] External search trigger: ${initialSearchQuery}`);
+            setSearchQuery(initialSearchQuery);
+            setView('recordings');
+        }
+    }, [initialSearchQuery]);
+
+    // Sync external settings toggle (from SupportBot/Navigate)
+    useEffect(() => {
+        if (initialSettingsOpen !== undefined) {
+            setIsSettingsOpen(initialSettingsOpen);
+        }
+    }, [initialSettingsOpen]);
 
     const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false); // MOVED UP
     const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false); // MOVED UP
@@ -195,7 +222,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             return;
         }
 
-        console.log(`[Dashboard] Selecting recording: ${id}`);
         setView('recordings'); // Switch back to recordings view
 
         // Check if recording exists in current lists
@@ -214,7 +240,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     setSearchResults(prev => [...prev, rec]); // Hack: push to search results to make it visible
                     setSelectedId(id);
                 } else {
-                    console.error("Recording not found via ID fetch:", id);
                     setAlertState({
                         isOpen: true,
                         title: t('recordingNotFoundTitle') || 'Grabación no encontrada',
@@ -223,7 +248,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     });
                 }
             } catch (err) {
-                console.error("Error fetching remote recording:", err);
                 setAlertState({
                     isOpen: true,
                     title: t('connectionErrorTitle') || 'Error de conexión',
@@ -235,7 +259,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         onSelectRecording(id);
         setIsEditorOpen(false); // Show RecordingDetailView by default
         setIsRecording(false); // Close recorder since we are navigating to an existing recording
-        console.log(`[Dashboard] View state: isEditorOpen=false, activeId=${id}`);
 
         // Auto-close sidebar on mobile when selecting
         if (isMobile) {
@@ -266,7 +289,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             return;
         }
 
-        console.log(`[Dashboard] Folder selected: ${folderId}`);
         if (onSelectFolder) onSelectFolder(folderId);
 
         // Auto-close sidebar ONLY on mobile
@@ -305,7 +327,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             // Using processing state for simpler UI feedback
             setIsProcessingMultiAudio(true); // Reusing this for spinner visibility if shared, or add specific state
 
-            console.log('[Dashboard] Starting single file upload:', file.name);
 
             // Upload Logic
             const processUpload = async () => {
@@ -348,7 +369,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     let finalFileName = file.name;
 
                     if (file.size > LARGE_FILE_THRESHOLD) {
-                        console.log(`[Dashboard] Large file detected (${(file.size / 1024 / 1024).toFixed(1)}MB). Compressing...`);
                         showToast('Optimizando audio para mejor rendimiento...', 'info');
 
                         const { compressAudioFile } = await import('../../services/audioConcat');
@@ -356,7 +376,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
                         // Update filename to .wav since compression outputs WAV
                         finalFileName = file.name.replace(/\.[^/.]+$/, "") + '.wav';
-                        console.log(`[Dashboard] Compression complete. New size: ${(fileToUpload.size / 1024 / 1024).toFixed(1)}MB`);
                     }
 
                     // 1. Upload to Storage (use compressed blob if applicable)
@@ -375,7 +394,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     const createdRecording = await databaseService.createRecording(recordingData);
                     if (!createdRecording) throw new Error("Error al crear el registro en base de datos.");
 
-                    console.log('[Dashboard] Recording created:', createdRecording.id);
 
                     // Update local state with REAL ID
                     setTempRecording(createdRecording);
@@ -467,32 +485,24 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleProcessMultiAudio = async (files: any[]) => {
-        console.log('[Dashboard] handleProcessMultiAudio called with files:', files);
         try {
             setIsProcessingMultiAudio(true);
 
-            console.log('[Dashboard] Starting audio concatenation...');
             // 1. Concatenate audios into single MP3
             const audioFiles = files.map(f => f.file);
             const { blob, segmentOffsets, totalDuration } = await concatenateAudios(audioFiles);
 
-            console.log('[Dashboard] Uploading WAV to Supabase...');
             // 2. Upload concatenated WAV to Supabase  
             const audioUrl = await uploadAudio(blob, user.id!);
             if (!audioUrl) throw new Error('Failed to upload audio');
-            console.log('[Dashboard] Upload complete, URL:', audioUrl);
 
             // 3. Get signed URL for transcription
-            console.log('[Dashboard] Getting signed URL...');
             const signedUrl = await getSignedAudioUrl(audioUrl);
             if (!signedUrl) throw new Error('Failed to get signed URL');
-            console.log('[Dashboard] Signed URL obtained');
 
             // 4. Transcribe the full concatenated audio
-            console.log('[Dashboard] Starting transcription...');
             const targetLang = user.transcriptionLanguage || 'es';
             const fullTranscription = await transcribeAudio(undefined, 'audio/wav', targetLang, signedUrl);
-            console.log('[Dashboard] Transcription complete, segments:', fullTranscription.length);
 
             // 5. Distribute segments to speakers based on time offsets
             const allSegments: any[] = [];
@@ -536,8 +546,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 currentSegmentStart = segmentEnd;
             });
 
-            console.log('[Dashboard] Temporal metadata:', temporalSegments);
-
             // 7. Create recording
             const h = Math.floor(totalDuration / 3600).toString().padStart(2, '0');
             const m = Math.floor((totalDuration % 3600) / 60).toString().padStart(2, '0');
@@ -565,15 +573,11 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 }
             };
 
-            console.log('[Dashboard] Recording with metadata:', recording);
-
             // 8. Save to database
             const createdRecording = await databaseService.createRecording(recording);
             if (!createdRecording) throw new Error('Failed to create recording');
 
             // 8. Update state and navigate
-            console.log('[Dashboard] Recording created:', createdRecording.id);
-            console.log('[Dashboard] Opening InlineEditor...');
 
             // Set temp recording to ensure immediate availability with fresh metadata
             setTempRecording(createdRecording);
@@ -795,7 +799,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     // Check if user has Business+ plan for call button
     const showCallButton = user?.subscription?.planId === 'business_plus';
 
-    console.log('[Dashboard Render] ActiveRec:', activeRecording?.id, 'IsEditorOpen:', isEditorOpen, 'TempRec:', tempRecording?.id, 'View:', view);
+    // console.log('[Dashboard Render] ActiveRec:', activeRecording?.id, 'IsEditorOpen:', isEditorOpen, 'TempRec:', tempRecording?.id, 'View:', view);
 
     return (
         <div className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
@@ -998,6 +1002,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                                     setView('recordings');
                                     handleNewRecording();
                                 }}
+                            />
+                        </div>
+                    ) : view === 'integrations' ? (
+                        <div className="h-full pt-12 md:pt-0 overflow-y-auto">
+                            <Integrations
+                                integrations={user.integrations || []}
+                                onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })}
                             />
                         </div>
                     ) : isEditorOpen && activeRecording ? (

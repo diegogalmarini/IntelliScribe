@@ -138,7 +138,8 @@ const AppContent: React.FC = () => {
             minutesUsed: 0,
             minutesLimit: 24,
             storageDaysLimit: 7
-        }
+        },
+        integrations: [], // NEW
     };
 
     const [user, setUser] = useState<UserProfile>(defaultUser);
@@ -218,6 +219,7 @@ const AppContent: React.FC = () => {
     const [integrations, setIntegrations] = useState<IntegrationState[]>(defaultIntegrations);
 
     const [activeRecordingId, setActiveRecordingId] = useState<string | null>(null);
+    const [activeSearchQuery, setActiveSearchQuery] = useState<string>('');
 
     // --- REFRESHABLE FETCHERS ---
     const fetchProfile = React.useCallback(async () => {
@@ -284,7 +286,8 @@ const AppContent: React.FC = () => {
                     minutesLimit: data.minutes_limit || 24,
                     minutesUsed: data.minutes_used || 0,
                     usageResetDate: data.usage_reset_date
-                }
+                },
+                integrations: (data.integrations as IntegrationState[]) || defaultIntegrations, // Sync integrations
             }));
         } else if (supabaseUser) {
             setUser(prev => ({
@@ -680,154 +683,91 @@ const AppContent: React.FC = () => {
 
     // --- RENDER ---
 
-    if (authLoading && (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN)) {
-        return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] transition-colors duration-200">
-                <div className="flex flex-col items-center gap-6 mb-8">
-                    <img
-                        src="/logo-diktalo.svg"
-                        alt="Diktalo"
-                        className="h-20 w-auto animate-pulse dark:brightness-0 dark:invert"
-                    />
-                    {/* Text Removed per request */}
+    // --- RENDER ---
+    const renderPageContent = () => {
+        if (authLoading && (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN)) {
+            return (
+                <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] transition-colors duration-200">
+                    <div className="flex flex-col items-center gap-6 mb-8">
+                        <img
+                            src="/logo-diktalo.svg"
+                            alt="Diktalo"
+                            className="h-20 w-auto animate-pulse dark:brightness-0 dark:invert"
+                        />
+                    </div>
+                    <div className="w-32 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                        <motion.div
+                            className="h-full bg-black dark:bg-white"
+                            initial={{ width: 0 }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                    </div>
+                    <p className="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-wider mt-4 font-medium animate-pulse">Initializing...</p>
                 </div>
-
-                {/* Minimalist Loader */}
-                <div className="w-32 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <motion.div
-                        className="h-full bg-black dark:bg-white"
-                        initial={{ width: 0 }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                </div>
-                <p className="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-wider mt-4 font-medium animate-pulse">Initializing...</p>
-            </div>
-        );
-    }
-
-    if (currentRoute === AppRoute.LANDING) {
-        return (
-            <>
-                <CrispWidget />
-                <Landing user={user} />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.TERMS) {
-        return (
-            <>
-                <CrispWidget />
-                <Terms />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.PRIVACY) {
-        return (
-            <>
-                <CrispWidget />
-                <Privacy />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.TRUST) {
-        return (
-            <>
-                <CrispWidget />
-                <TrustCenter />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.COOKIES) {
-        return (
-            <>
-                <CrispWidget />
-                <Cookies />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.ABOUT) {
-        return (
-            <>
-                <CrispWidget />
-                <About user={user} />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.CONTACT) {
-        return (
-            <>
-                <CrispWidget />
-                <Navbar user={user} onNavigate={navigate} />
-                <Contact />
-                <Footer />
-            </>
-        );
-    }
-
-    if (currentRoute === AppRoute.LOGIN) {
-        return (
-            <>
-                <CrispWidget />
-                <Login onNavigate={navigate} />
-            </>
-        );
-    }
-
-    // ========== ADMIN ROUTES (Top Level) ==========
-    const isAdminRoute =
-        currentRoute === AppRoute.ADMIN_OVERVIEW ||
-        currentRoute === AppRoute.ADMIN_USERS ||
-        currentRoute === AppRoute.ADMIN_FINANCIALS ||
-        currentRoute === AppRoute.ADMIN_PLANS;
-
-    if (isAdminRoute) {
-        class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-            constructor(props: any) { super(props); this.state = { hasError: false }; }
-            static getDerivedStateFromError(error: any) { return { hasError: true }; }
-            render() {
-                if (this.state.hasError) return <div className="p-4 text-red-500">Failed to load Admin module. Refresh page.</div>;
-                return this.props.children;
-            }
+            );
         }
 
-        return (
-            <ErrorBoundary>
-                <Suspense fallback={
-                    <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-[#050505] transition-colors">
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+        if (currentRoute === AppRoute.LANDING) return <Landing user={user} />;
+        if (currentRoute === AppRoute.TERMS) return <Terms />;
+        if (currentRoute === AppRoute.PRIVACY) return <Privacy />;
+        if (currentRoute === AppRoute.TRUST) return <TrustCenter />;
+        if (currentRoute === AppRoute.COOKIES) return <Cookies />;
+        if (currentRoute === AppRoute.ABOUT) return <About user={user} />;
+
+        if (currentRoute === AppRoute.CONTACT) {
+            return (
+                <>
+                    <Navbar user={user} onNavigate={navigate} />
+                    <Contact />
+                    <Footer />
+                </>
+            );
+        }
+
+        if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
+
+        // ========== ADMIN ROUTES (Top Level) ==========
+        const isAdminRoute =
+            currentRoute === AppRoute.ADMIN_OVERVIEW ||
+            currentRoute === AppRoute.ADMIN_USERS ||
+            currentRoute === AppRoute.ADMIN_FINANCIALS ||
+            currentRoute === AppRoute.ADMIN_PLANS;
+
+        if (isAdminRoute) {
+            class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+                constructor(props: any) { super(props); this.state = { hasError: false }; }
+                static getDerivedStateFromError(error: any) { return { hasError: true }; }
+                render() {
+                    if (this.state.hasError) return <div className="p-4 text-red-500">Failed to load Admin module. Refresh page.</div>;
+                    return this.props.children;
+                }
+            }
+
+            return (
+                <ErrorBoundary>
+                    <Suspense fallback={
+                        <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-[#050505] transition-colors">
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full" />
                             </div>
                         </div>
-                    </div>
-                }>
-                    <AdminRoute onNavigate={navigate}>
-                        <AdminLayout
-                            currentRoute={currentRoute}
-                            onNavigate={navigate}
-                            user={user}
-                        >
-                            {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
-                            {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
-                            {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
-                            {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
-                        </AdminLayout>
-                    </AdminRoute>
-                </Suspense>
-            </ErrorBoundary>
-        );
-    }
+                    }>
+                        <AdminRoute onNavigate={navigate}>
+                            <AdminLayout currentRoute={currentRoute} onNavigate={navigate} user={user}>
+                                {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
+                                {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
+                                {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
+                                {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
+                            </AdminLayout>
+                        </AdminRoute>
+                    </Suspense>
+                </ErrorBoundary>
+            );
+        }
 
-    return (
-        <>
-            <CrispWidget />
+        // --- AUTHENTICATED/APP LAYOUT ---
+        return (
             <motion.div
                 className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200"
                 initial={{ opacity: 0 }}
@@ -835,14 +775,14 @@ const AppContent: React.FC = () => {
                 transition={{ duration: 0.3 }}
             >
                 {/* Sidebar */}
-                {/* Hide Sidebar for Intelligence route and others */}
                 {currentRoute !== AppRoute.INTELLIGENCE &&
                     currentRoute !== AppRoute.RECORDING &&
                     currentRoute !== AppRoute.RESET_PASSWORD &&
                     currentRoute !== AppRoute.DASHBOARD &&
                     currentRoute !== AppRoute.SUBSCRIPTION &&
-                    currentRoute !== AppRoute.MANUAL &&
-                    !currentRoute.startsWith('admin_') && ( // Generic check for admin routes to avoid type overlap errors
+                    currentRoute !== AppRoute.SETTINGS &&
+                    currentRoute !== AppRoute.INTEGRATIONS &&
+                    currentRoute !== AppRoute.MANUAL && (
                         <Sidebar
                             currentRoute={currentRoute}
                             onNavigate={navigate}
@@ -859,7 +799,6 @@ const AppContent: React.FC = () => {
 
                 {/* Main Content Area */}
                 <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-
                     {/* Mobile Header Toggle */}
                     {currentRoute !== AppRoute.RESET_PASSWORD &&
                         currentRoute !== AppRoute.DASHBOARD &&
@@ -875,78 +814,39 @@ const AppContent: React.FC = () => {
                                 <span className="ml-2 font-bold text-lg text-primary">Diktalo</span>
                             </div>
                         )}
-                    {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE) && (
-                        <IntelligenceDashboard
-                            user={user}
-                            recordings={recordings}
-                            onNavigate={navigate}
-                            onSelectRecording={handleSelectRecordingIntelligence}
-                            onDeleteRecording={handleDeleteRecording}
-                            onRenameRecording={handleRenameRecording}
-                            onMoveRecording={handleMoveRecording}
-                            selectedFolderId={selectedFolderId}
-                            folders={folders}
-                            onLogout={handleLogout}
-                            onSearch={handleSearch}
-                            onRecordingComplete={handleRecordingComplete}
-                            onUpdateRecording={handleUpdateRecording}
-                            initialView="recordings"
-                            onSelectFolder={setSelectedFolderId}
-                            onUpdateUser={handleUpdateUser}
-                        />
-                    )}
 
-
-
-                    {currentRoute === AppRoute.RECORDING && (
-                        <LiveRecording
-                            onNavigate={navigate}
-                            onRecordingComplete={handleRecordingComplete}
-                        />
-                    )}
-
-                    {/* Old TranscriptEditor removed - all editing happens in IntelligenceDashboard */}
-
-                    {/* WRAPPED IN SCROLLABLE CONTAINER */}
-                    {currentRoute === AppRoute.INTEGRATIONS && (
-                        <ScrollablePage>
-                            <Integrations
-                                integrations={integrations}
-                                onToggle={handleToggleIntegration}
-                            />
-                        </ScrollablePage>
-                    )}
-
-                    {currentRoute === AppRoute.SETTINGS && (
-                        <ScrollablePage>
-                            <Settings
+                    {(currentRoute === AppRoute.DASHBOARD ||
+                        currentRoute === AppRoute.INTELLIGENCE ||
+                        currentRoute === AppRoute.SETTINGS ||
+                        currentRoute === AppRoute.INTEGRATIONS ||
+                        currentRoute === AppRoute.SUBSCRIPTION) && (
+                            <IntelligenceDashboard
                                 user={user}
-                                onUpdateUser={handleUpdateUser}
+                                recordings={recordings}
+                                onNavigate={navigate}
+                                activeRecordingId={activeRecordingId}
+                                initialSearchQuery={activeSearchQuery}
+                                onSelectRecording={handleSelectRecordingIntelligence}
+                                onDeleteRecording={handleDeleteRecording}
+                                onRenameRecording={handleRenameRecording}
+                                onMoveRecording={handleMoveRecording}
+                                selectedFolderId={selectedFolderId}
+                                folders={folders}
                                 onLogout={handleLogout}
-                                initialTab="profile"
+                                onSearch={handleSearch}
+                                onRecordingComplete={handleRecordingComplete}
+                                onUpdateRecording={handleUpdateRecording}
+                                initialView={
+                                    currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' :
+                                        currentRoute === AppRoute.INTEGRATIONS ? 'integrations' :
+                                            'recordings'
+                                }
+                                initialSettingsOpen={currentRoute === AppRoute.SETTINGS}
+                                onSelectFolder={setSelectedFolderId}
+                                onUpdateUser={handleUpdateUser}
+                                onAppStateChange={handleAppStateChange}
                             />
-                        </ScrollablePage>
-                    )}
-
-                    {currentRoute === AppRoute.SUBSCRIPTION && (
-                        <IntelligenceDashboard
-                            user={user}
-                            recordings={recordings}
-                            onNavigate={navigate}
-                            onSelectRecording={handleSelectRecordingIntelligence}
-                            onDeleteRecording={handleDeleteRecording}
-                            onRenameRecording={handleRenameRecording}
-                            onMoveRecording={handleMoveRecording}
-                            selectedFolderId={selectedFolderId}
-                            folders={folders}
-                            onLogout={handleLogout}
-                            onSearch={handleSearch}
-                            onRecordingComplete={handleRecordingComplete}
-                            onUpdateRecording={handleUpdateRecording}
-                            initialView={currentRoute === AppRoute.SUBSCRIPTION ? "subscription" : undefined}
-                            onAppStateChange={handleAppStateChange}
-                        />
-                    )}
+                        )}
 
                     {currentRoute === AppRoute.MANUAL && (
                         <ScrollablePage>
@@ -965,44 +865,37 @@ const AppContent: React.FC = () => {
                             <PricingComparison />
                         </ScrollablePage>
                     )}
-
-
                 </div>
             </motion.div>
+        );
+    };
+
+    return (
+        <>
+            <CrispWidget />
+            {renderPageContent()}
 
             {/* Global VoIP Dialer - Only for Business Plus */}
             {user && user.subscription?.planId === 'business_plus' && (
                 <Dialer
                     user={user}
-                    showMinimized={(
-                        // Show only on Dashboard "Home"
+                    showMinimized={
                         (currentRoute === AppRoute.DASHBOARD ||
                             currentRoute === AppRoute.INTELLIGENCE ||
                             currentRoute === AppRoute.SUBSCRIPTION) &&
-                        // HIDDEN if active task:
                         !dashboardState.isRecording &&
                         !dashboardState.isViewingRecording &&
                         !dashboardState.isUploading &&
                         !new URLSearchParams(location.search).has('action')
-                    )}
+                    }
                     onNavigate={navigate}
                     onCallFinished={() => {
-                        console.log("📞 Call finished. Refreshing recordings...");
-                        // Aggressive polling to ensure recording appears (backend processing might take time)
                         fetchData();
                         setTimeout(fetchData, 2000);
                         setTimeout(fetchData, 5000);
-                        setTimeout(fetchData, 8000);
-                        setTimeout(fetchData, 12000);
                     }}
                     onUserUpdated={async () => {
-                        // Refresh user profile from database after verification
-                        const { data, error } = await supabase
-                            .from('profiles')
-                            .select('*')
-                            .eq('id', user.id)
-                            .single();
-
+                        const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
                         if (data && !error) {
                             setUser(prev => ({
                                 ...prev,
@@ -1013,6 +906,7 @@ const AppContent: React.FC = () => {
                     }}
                 />
             )}
+
             {/* Support Bot Integration with Recording Context & Actions */}
             <SupportBot
                 recordings={recordings}
@@ -1020,7 +914,9 @@ const AppContent: React.FC = () => {
                 position={
                     currentRoute === AppRoute.DASHBOARD ||
                         currentRoute === AppRoute.INTELLIGENCE ||
-                        currentRoute === AppRoute.SUBSCRIPTION
+                        currentRoute === AppRoute.SUBSCRIPTION ||
+                        currentRoute === AppRoute.SETTINGS ||
+                        currentRoute === AppRoute.INTEGRATIONS
                         ? 'left'
                         : 'right'
                 }
@@ -1036,6 +932,11 @@ const AppContent: React.FC = () => {
                         } else if (payload.target === 'PLANS') {
                             navigate(AppRoute.SUBSCRIPTION);
                         } else {
+                            navigate(AppRoute.DASHBOARD);
+                        }
+                    } else if (type === 'SEARCH' && payload.query) {
+                        setActiveSearchQuery(payload.query);
+                        if (currentRoute !== AppRoute.DASHBOARD) {
                             navigate(AppRoute.DASHBOARD);
                         }
                     }
