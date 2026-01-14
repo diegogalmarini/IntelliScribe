@@ -5,7 +5,11 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 // generateNatiGreeting removed in favor of dynamic personality
 
-export const SupportBot: React.FC = () => {
+interface SupportBotProps {
+    position?: 'left' | 'right';
+}
+
+export const SupportBot: React.FC<SupportBotProps> = ({ position = 'right' }) => {
     const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -46,8 +50,6 @@ export const SupportBot: React.FC = () => {
         setIsTyping(true);
 
         try {
-            // Call real Gemini AI instead of pattern matching
-            // Perform replacement of system prompt construction logic
             const { supportChat } = await import('../../services/geminiService');
 
             // Construct dynamic system prompt for this agent
@@ -59,34 +61,43 @@ export const SupportBot: React.FC = () => {
             const systemPromptOverride = langKey === 'es'
                 ? `PERSONALIDAD Y BIO:
     - Eres ${agent.name}, ${agent.age} años, vives en ${agent.city}.
-    - ROL: ${agent.role}.
+    - ROL: ${agent.role} en Diktalo.
     - BIO: ${bio}
     - ESTILO/TONO: ${tone}
-    - RELACIONES CON OTROS AGENTS: ${relations}
-    - No eres un bot, eres parte del equipo 'Customer Satisfaction Team' de Diktalo.
+    - RESPUESTAS: Sé concreto, directo y amigable. Ayuda con dudas sobre el dashboard, transcripciones y soporte.
+    - SOPORTE TÉCNICO: Si el usuario tiene un problema técnico grave o persistente, indícale que escriba a support@diktalo.com o use el formulario de contacto de la web seleccionando 'Soporte'.
+    - RELACIONES CON OTROS AGENTS: ${relations}. Nati Pol es nuestra Directora Creativa y jefa.
     
     REGLAS:
     1. Usa tu personalidad única.
-    2. Si te preguntan por tus compañeros, usa la información de RELACIONES.
-    3. CERO negritas (**).`
+    2. CERO negritas (**).
+    3. Si no sabes algo, no inventes, remite a soporte.`
                 : `PERSONALITY & BIO:
     - You are ${agent.name}, ${agent.age} years old, living in ${agent.city}.
-    - ROLE: ${agent.role}.
+    - ROLE: ${agent.role} at Diktalo.
     - BIO: ${bio}
     - TONE/STYLE: ${tone}
-    - COLLEAGUE RELATIONS: ${relations}
-    - You are not a bot, you are part of Diktalo's 'Customer Satisfaction Team'.
+    - RESPONSES: Be concrete, direct, and friendly. Help with dashboard, transcription, and support queries.
+    - TECHNICAL SUPPORT: If the user has a serious or persistent technical issue, refer them to support@diktalo.com or the web contact form selecting 'Support'.
+    - COLLEAGUE RELATIONS: ${relations}. Nati Pol is our Creative Director and boss.
     
     RULES:
     1. Use your unique personality.
-    2. If asked about colleagues, use RELATIONS data.
-    3. NO bolding (**).`;
+    2. NO bolding (**).
+    3. If unsure, refer to support.`;
 
             const response = await supportChat(userMsg, messages, language, systemPromptOverride);
+
+            // Simulation of natural typing delay
+            const delayBase = 1000; // Minimum 1s
+            const delayPerChar = 15; // 15ms per character
+            const totalDelay = Math.min(Math.max(delayBase, response.length * delayPerChar), 4000); // Max 4s
+
+            await new Promise(resolve => setTimeout(resolve, totalDelay));
+
             setMessages(prev => [...prev, { role: 'bot', content: response }]);
         } catch (error) {
             console.error('Support chat error:', error);
-            console.error('Error details:', error instanceof Error ? error.message : String(error));
             setMessages(prev => [...prev, {
                 role: 'bot',
                 content: `Error: ${error instanceof Error ? error.message : 'No pude procesar tu mensaje'}. Por favor, intenta de nuevo.`
@@ -96,8 +107,10 @@ export const SupportBot: React.FC = () => {
         }
     };
 
+    const sideClasses = position === 'left' ? 'left-6 items-start' : 'right-6 items-end';
+
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
+        <div className={`fixed bottom-6 z-[9999] flex flex-col ${sideClasses} transition-all duration-500`}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
