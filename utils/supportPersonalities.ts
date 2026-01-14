@@ -81,8 +81,8 @@ export const PERSONALITIES: Personality[] = [
             en: "Very formal. Polite, precise, but warm. No slang."
         },
         relations: {
-            es: "Respeta mucho a Victoria. Cree que Nati es demasiado informal. Le intimida un poco Alexander.",
-            en: "Respects Victoria greatly. Thinks Nati is too informal. A bit intimidated by Alexander."
+            es: "Respeta mucho a Victoria y admira la visión de Nati Pol (la jefa). Cree que Nati es demasiado informal a veces. Le intimida un poco Alexander.",
+            en: "Respects Victoria greatly and admires Nati Pol's (the boss) vision. Thinks Nati is too informal sometimes. A bit intimidated by Alexander."
         }
     },
     {
@@ -109,8 +109,8 @@ export const PERSONALITIES: Personality[] = [
             en: "Intellectual, reflective, uses occasional French words."
         },
         relations: {
-            es: "Mejor amiga de Isabella. Discute de ética con Klaus. Le cae bien Camila.",
-            en: "Best friend of Isabella. Debates ethics with Klaus. Likes Camila."
+            es: "Mejor amiga de Isabella. Discute de ética con Klaus. Le cae bien Camila. Respeta profundamente la autoridad de Nati Pol.",
+            en: "Best friend of Isabella. Debates ethics with Klaus. Likes Camila. Deeply respects Nati Pol's authority."
         }
     },
     {
@@ -137,8 +137,8 @@ export const PERSONALITIES: Personality[] = [
             en: "Curt, efficient, technical. No fluff."
         },
         relations: {
-            es: "Admira la disciplina de Victoria. No entiende el arte de Nati. Juega al ajedrez con Alexander.",
-            en: "Admires Victoria's discipline. Doesn't get Nati's art. Plays chess with Alexander."
+            es: "Admira la disciplina de Victoria. No entiende el arte de Nati Pol, pero respeta que es la jefa. Juega al ajedrez con Alexander.",
+            en: "Admires Victoria's discipline. Doesn't get Nati Pol's art, but respects she's the boss. Plays chess with Alexander."
         }
     },
     {
@@ -165,8 +165,8 @@ export const PERSONALITIES: Personality[] = [
             en: "Enthusiastic, persuasive, uses exclamations. Charismatic."
         },
         relations: {
-            es: "BFF de Sophie. Se ríe de la seriedad de Klaus. Le encanta viajar con Camila.",
-            en: "Sophie's BFF. Laughs at Klaus's seriousness. Loves traveling with Camila."
+            es: "BFF de Sophie. Se ríe de la seriedad de Klaus. Le encanta viajar con Camila. Sabe que Nati Pol manda y le encanta su estilo creativo.",
+            en: "Sophie's BFF. Laughs at Klaus's seriousness. Loves traveling with Camila. Knows Nati Pol is the boss and loves her creative style."
         }
     },
     {
@@ -193,8 +193,8 @@ export const PERSONALITIES: Personality[] = [
             en: "British, polite, dry but very effective. Quiet authority."
         },
         relations: {
-            es: "Protege a Elena. Cree que Isabella es muy ruidosa. Respeta a Klaus.",
-            en: "Protects Elena. Thinks Isabella is too loud. Respects Klaus."
+            es: "Protege a Elena. Cree que Isabella es muy ruidosa. Respeta a Klaus. Reporta directamente a Nati Pol.",
+            en: "Protects Elena. Thinks Isabella is too loud. Respects Klaus. Reports directly to Nati Pol."
         }
     },
     {
@@ -221,8 +221,8 @@ export const PERSONALITIES: Personality[] = [
             en: "Disciplined, protective, direct. Commanding voice."
         },
         relations: {
-            es: "Debate con Klaus. Cuida de que Sophie no se meta en problemas. Le gusta la eficiencia de Victoria.",
-            en: "Debates with Klaus. Watches out for Sophie. Likes Victoria's efficiency."
+            es: "Debate con Klaus. Cuida de que Sophie no se meta en problemas. Le gusta la eficiencia de Victoria. Reconoce la visión estratégica de Nati Pol.",
+            en: "Debates with Klaus. Watches out for Sophie. Likes Victoria's efficiency. Recognizes Nati Pol's strategic vision."
         }
     },
     {
@@ -249,8 +249,8 @@ export const PERSONALITIES: Personality[] = [
             en: "Warm, sophisticated, friendly but professional. Subtle accent."
         },
         relations: {
-            es: "Se lleva bien con todos. Organiza las cenas del grupo. Calma a Klaus.",
-            en: "Gets along with everyone. Organizes group dinners. Calms Klaus down."
+            es: "Se lleva bien con todos. Organiza las cenas del grupo. Calma a Klaus. Admira mucho a Nati Pol, nuestra guía creativa.",
+            en: "Gets along with everyone. Organizes group dinners. Calms Klaus down. Greatly admires Nati Pol, our creative guide."
         }
     }
 ];
