@@ -20,9 +20,15 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
 
         if (path.startsWith('http')) {
             // Check if it's a Supabase URL and extract the relative path
-            const match = path.match(/recordings\/(.*)$/);
+            const match = path.match(/recordings\/(.*?)(?:\?|$)/); // Non-greedy match until ? or end
             if (match && match[1]) {
                 relativePath = match[1];
+                // Double check to remove any query params if regex missed
+                if (relativePath.includes('?')) {
+                    relativePath = relativePath.split('?')[0];
+                }
+                // Decode URI component in case filename has spaces/special chars
+                relativePath = decodeURIComponent(relativePath);
             } else {
                 console.warn('[Storage] Could not extract relative path from legacy URL:', path);
                 // Can't sign a full http URL if we don't know the path relative to bucket
