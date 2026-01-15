@@ -180,6 +180,7 @@ export interface AdminUser {
   phoneVerified: boolean;
   planId: 'free' | 'pro' | 'business' | 'business_plus';
   status: 'active' | 'past_due' | 'canceled' | 'banned';
+  minutesUsed: number;
   minutesLimit: number;
   usagePercentage: number;
   storageUsed?: number;
