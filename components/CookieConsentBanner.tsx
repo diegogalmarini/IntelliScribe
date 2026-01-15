@@ -54,11 +54,9 @@ export const CookieConsentBanner: React.FC = () => {
             console.log("🍪 [Cookies] Analytics blocked by user.");
         }
 
-        // 2. Functional (Crisp Chat, etc.)
+        // 2. Functional (Custom integrations if any)
         if (settings.functional) {
-            console.log("🍪 [Cookies] Enabling Functional Scripts (Crisp)...");
-            // Dispatch a custom event that CrispWidget can listen to
-            window.dispatchEvent(new Event('diktalo-consent-functional-granted'));
+            console.log("🍪 [Cookies] Enabling Functional Scripts...");
         }
     };
 

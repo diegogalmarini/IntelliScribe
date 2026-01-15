@@ -468,16 +468,6 @@
    9. THIRD-PARTY OVERRIDES
    ============================================ */
 
-/* Hide Crisp chat widget completely */
-.crisp-client,
-#crisp-chatbox,
-.crisp-1rjpbb7 {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
 /* Text size utilities */
 .text-sm {
     font-size: .75rem;

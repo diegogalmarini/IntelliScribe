@@ -22,7 +22,6 @@ import { Dialer } from './components/Dialer';
 import { supabase } from './lib/supabase';
 import { databaseService } from './services/databaseService';
 import { notifyNewRecording } from './services/emailService';
-import CrispWidget from './components/CrispWidget';
 import { SupportBot } from './components/SupportBot/SupportBot';
 import { Navbar } from './components/Landing/Navbar';
 import { Footer } from './components/Footer';
@@ -36,12 +35,8 @@ import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
-import { trackPageView, initGA, trackEvent } from './utils/analytics';
+import { trackPageView, initGA, trackEvent, setUserProperties } from './utils/analytics';
 import { PublicLayout } from './layouts/PublicLayout';
-
-// ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
-// CRITICAL: Admin components are lazy-loaded to ensure they are NEVER
-// bundled in the main app for regular users (chunk splitting)
 const AdminRoute = lazy(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
 const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
@@ -113,6 +108,18 @@ const AppContent: React.FC = () => {
 
         trackPageView(location.pathname, newTitle);
     }, [location.pathname, currentRoute]);
+
+    // Sync User Properties to GA4
+    useEffect(() => {
+        if (user && user.id) {
+            setUserProperties({
+                interface_language: user.language || 'es',
+                transcription_language: user.transcriptionLanguage || 'es',
+                user_role: user.role || 'Member',
+                plan_id: user.subscription?.planId || 'free'
+            });
+        }
+    }, [user.id, user.language, user.transcriptionLanguage, user.role, user.subscription?.planId]);
 
     // Sync state with URL changes (for browser back/forward and Links)
     useEffect(() => {
@@ -913,7 +920,6 @@ const AppContent: React.FC = () => {
 
     return (
         <>
-            <CrispWidget />
             {renderPageContent()}
 
             {/* Global VoIP Dialer - Only for Business Plus */}
@@ -989,6 +995,8 @@ const AppContent: React.FC = () => {
                                         navigate(AppRoute.SETTINGS);
                                     } else if (payload.target === 'PLANS') {
                                         navigate(AppRoute.SUBSCRIPTION);
+                                    } else if (payload.target === 'CONTACT') {
+                                        navigate(AppRoute.CONTACT);
                                     } else {
                                         navigate(AppRoute.DASHBOARD);
                                     }
@@ -1018,6 +1026,8 @@ const AppContent: React.FC = () => {
                                         navigate(AppRoute.SETTINGS);
                                     } else if (payload.target === 'PLANS') {
                                         navigate(AppRoute.SUBSCRIPTION);
+                                    } else if (payload.target === 'CONTACT') {
+                                        navigate(AppRoute.CONTACT);
                                     } else {
                                         navigate(AppRoute.DASHBOARD);
                                     }

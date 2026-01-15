@@ -378,6 +378,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         finalFileName = file.name.replace(/\.[^/.]+$/, "") + '.wav';
                     }
 
+                    // TRACK: Single Upload Start
+                    trackEvent('upload_single_audio_start', {
+                        file_size: file.size,
+                        transcription_language: user.transcriptionLanguage || 'es'
+                    });
+
                     // 1. Upload to Storage (use compressed blob if applicable)
                     const audioUrl = await uploadAudio(fileToUpload as File, user.id!);
                     if (!audioUrl) throw new Error("Error al subir el archivo a storage.");
@@ -415,6 +421,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                                 });
                                 // Update local optimistic view
                                 setTempRecording(prev => prev ? ({ ...prev, segments: segments as any, status: 'Completed' }) : null);
+
+                                // TRACK: Single Upload/Transcription Success
+                                trackEvent('upload_single_audio_success', {
+                                    duration_seconds: createdRecording.durationSeconds,
+                                    transcription_language: targetLang
+                                });
                             }
                         } catch (transcribeError) {
                             console.error("Auto-transcription failed (background):", transcribeError);
@@ -453,6 +465,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             setShowMultiAudioUploader(true);
         }
         if (type === 'extension') {
+            trackEvent('click_chrome_ext', { location: 'dashboard' });
             window.open('https://chromewebstore.google.com/detail/gamgfdgjlmnohikeicknbdplagigoeml?utm_source=item-share-cb', '_blank');
         }
     };
@@ -487,6 +500,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleProcessMultiAudio = async (files: any[]) => {
         try {
             setIsProcessingMultiAudio(true);
+
+            // TRACK: Multi-Audio Processing Start
+            trackEvent('process_multi_audio_start', {
+                file_count: files.length,
+                transcription_language: user.transcriptionLanguage || 'es'
+            });
 
             // 1. Concatenate audios into single MP3
             const audioFiles = files.map(f => f.file);
@@ -581,6 +600,13 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
             // Set temp recording to ensure immediate availability with fresh metadata
             setTempRecording(createdRecording);
+
+            // TRACK: Multi-Audio Processing Success
+            trackEvent('process_multi_audio_success', {
+                duration_seconds: Math.floor(totalDuration),
+                file_count: files.length,
+                transcription_language: targetLang
+            });
 
             // Notify user via email (async)
             notifyNewRecording(user, createdRecording).catch(err => console.error('[Notification] Failed to send email:', err));

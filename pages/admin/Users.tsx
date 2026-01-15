@@ -12,7 +12,8 @@ import {
     Ban,
     CheckCircle,
     MoreHorizontal,
-    Filter
+    Filter,
+    Calendar
 } from 'lucide-react';
 
 /**
@@ -104,6 +105,16 @@ export const Users: React.FC = () => {
         return colors[plan] || 'bg-slate-100 text-slate-700';
     };
 
+    const handleTrialChange = async (userId: string, date: string) => {
+        const success = await adminService.updateUserTrial(userId, date || null);
+        if (success) {
+            loadUsers();
+            showToast('Trial date updated', 'success');
+        } else {
+            showToast('Failed to update trial date', 'error');
+        }
+    };
+
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {
             'active': 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/20',
@@ -180,6 +191,7 @@ export const Users: React.FC = () => {
                             <tr className="bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-[#1f1f1f]">
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Trial Ends</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Usage</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
@@ -189,7 +201,7 @@ export const Users: React.FC = () => {
                         <tbody className="divide-y divide-slate-100 dark:divide-[#1f1f1f]">
                             {filteredUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400 text-sm">
+                                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-sm">
                                         No users found matching your criteria
                                     </td>
                                 </tr>
@@ -225,6 +237,20 @@ export const Users: React.FC = () => {
                                                 <option value="business">Business</option>
                                                 <option value="business_plus">Business+</option>
                                             </select>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="date"
+                                                    value={user.trialEndsAt ? new Date(user.trialEndsAt).toISOString().split('T')[0] : ''}
+                                                    onChange={(e) => handleTrialChange(user.id, e.target.value)}
+                                                    className="bg-transparent border-none text-[11px] text-slate-600 dark:text-slate-400 focus:ring-0 p-0 cursor-pointer hover:text-blue-500 transition-colors"
+                                                />
+                                                {user.trialEndsAt && new Date(user.trialEndsAt) > new Date() && (
+                                                    <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" title="Active Trial"></span>
+                                                )}
+                                            </div>
                                         </td>
 
                                         <td className="px-6 py-4">

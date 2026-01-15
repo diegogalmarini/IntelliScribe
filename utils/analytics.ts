@@ -89,3 +89,17 @@ export const trackEvent = (eventName: string, params: Record<string, any> = {}) 
         console.log(`📊 [Analytics] Event: ${eventName}`, params);
     }
 };
+
+/**
+ * Sets user properties in GA4.
+ * @param properties Key-value pairs of user properties
+ */
+export const setUserProperties = (properties: Record<string, any>) => {
+    if (typeof window === 'undefined' || !window.gtag) return;
+
+    window.gtag('set', 'user_properties', properties);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log("📊 [Analytics] UserProperties:", properties);
+    }
+};

@@ -23,15 +23,47 @@ export const SupportBot: React.FC<SupportBotProps> = ({
 }) => {
     const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+
+    const toggleOpen = () => {
+        const nextState = !isOpen;
+        setIsOpen(nextState);
+        if (nextState) {
+            import('../../utils/analytics').then(({ trackEvent, setUserProperties }) => {
+                // Set the current agent as a user property for session-long attribution
+                setUserProperties({ active_support_agent: agent.id });
+
+                trackEvent('support_bot_opened', {
+                    agent_id: agent.id,
+                    agent_name: agent.name
+                });
+            });
+        } else {
+            // Track when the bot is closed, including engagement depth
+            import('../../utils/analytics').then(({ trackEvent }) => {
+                trackEvent('support_bot_closed', {
+                    agent_id: agent.id,
+                    agent_name: agent.name,
+                    total_messages: msgCount
+                });
+            });
+        }
+    };
     const [alignment, setAlignment] = useState<'start' | 'center' | 'end'>(position === 'left' ? 'start' : 'end');
 
-    // Select personality once on mount
-    const [agent] = useState<Personality>(() => {
+    // Select personality: Try to load from localStorage first for persistence
+    const [agent, setAgent] = useState<Personality>(() => {
+        const savedAgentId = localStorage.getItem('diktalo_active_support_agent');
+        if (savedAgentId) {
+            const found = PERSONALITIES.find(p => p.id === savedAgentId);
+            if (found) return found;
+        }
         const random = PERSONALITIES[Math.floor(Math.random() * PERSONALITIES.length)];
+        localStorage.setItem('diktalo_active_support_agent', random.id);
         return random;
     });
 
-    const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string }[]>([]);
+    const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string; feedback?: 'up' | 'down' }[]>([]);
+    const [msgCount, setMsgCount] = useState(0);
 
     // Initialize greeting
     useEffect(() => {
@@ -50,9 +82,17 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     // Auto-scroll
     useEffect(() => {
         if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            const scroll = () => {
+                if (scrollRef.current) {
+                    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+                }
+            };
+            scroll();
+            // Also execute after a small delay to handle entry animations (framer-motion)
+            const timer = setTimeout(scroll, 100);
+            return () => clearTimeout(timer);
         }
-    }, [messages, isTyping]);
+    }, [messages, isTyping, isOpen]);
 
     const handleSend = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -60,8 +100,17 @@ export const SupportBot: React.FC<SupportBotProps> = ({
 
         const userMsg = input.trim();
         setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+        setMsgCount(prev => prev + 1);
         setInput('');
         setIsTyping(true);
+
+        // TRACK: Support Bot Message Sent
+        import('../../utils/analytics').then(({ trackEvent }) => {
+            trackEvent('support_bot_message_sent', {
+                agent_name: agent.name.es,
+                is_authenticated: !!user?.id
+            });
+        });
 
         try {
             const { supportChat } = await import('../../services/geminiService');
@@ -125,7 +174,9 @@ ${transcript}
     REGLAS:
     1. Usa tu personalidad. CERO negritas (**).
     2. Si el usuario pregunta "¿Cuál es mi plan?", díselo (${user?.subscription?.planId}) y ofrece ayuda para cambiarlo si quiere.
-    3. Si pregunta cómo cambiar el idioma o ir a ajustes, dile cómo y ponle el botón: [[ACTION:NAVIGATE:SETTINGS]].`
+    3. Si pregunta cómo cambiar el idioma o ir a ajustes, dile cómo y ponle el botón: [[ACTION:NAVIGATE:SETTINGS]].
+    4. Si tiene un problema técnico que tú no puedes resolver o pide hablar con un humano, indícale que puede contactar con soporte y usa: [[ACTION:NAVIGATE:CONTACT]].
+    5. DERIVACIÓN: Si el usuario es muy técnico y eres Isabella, ofrece pasarle con Alex o Klaus. Si es muy creativo y eres Klaus, ofrece pasarle con Nati Pol. Para derivar usa: [[ACTION:SWITCH_AGENT:ID_DEL_AGENTE]].`
                 : `PERSONALITY & BIO:
     - You are ${agent.name}, ${agent.age} years old, living in ${agent.city}.
     - ROLE: ${agent.role} at Diktalo.
@@ -148,7 +199,9 @@ ${transcript}
     RULES:
     1. Use your uniquely personality. NO bolding (**).
     2. If user asks "What is my plan?", tell them (${user?.subscription?.planId}) and offer help.
-    3. If they ask about language or settings, use [[ACTION:NAVIGATE:SETTINGS]].`;
+    3. If they ask about language or settings, use [[ACTION:NAVIGATE:SETTINGS]].
+    4. If they need human support or technical help you can't provide, use: [[ACTION:NAVIGATE:CONTACT]].
+    5. REFERRALS: If the user is very technical and you are Isabella, offer to switch to Alex or Klaus. If they are very creative and you are Klaus, offer to switch to Nati Pol. To refer, use: [[ACTION:SWITCH_AGENT:AGENT_ID]].`;
 
             const response = await supportChat(userMsg, messages, language, systemPromptOverride);
 
@@ -160,6 +213,7 @@ ${transcript}
             await new Promise(resolve => setTimeout(resolve, totalDelay));
 
             setMessages(prev => [...prev, { role: 'bot', content: response }]);
+            setMsgCount(prev => prev + 1);
         } catch (error) {
             console.error('Support chat error:', error);
             setMessages(prev => [...prev, {
@@ -197,7 +251,16 @@ ${transcript}
                     elements.push(
                         <button
                             key={`action-${i}`}
-                            onClick={() => onAction?.(type, { id, title })}
+                            onClick={() => {
+                                import('../../utils/analytics').then(({ trackEvent }) => {
+                                    trackEvent('support_bot_action_click', {
+                                        agent_id: agent.id,
+                                        action_type: 'open_recording',
+                                        target_id: id
+                                    });
+                                });
+                                onAction?.(type, { id, title });
+                            }}
                             className="mt-3 w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary/20"
                         >
                             <span className="material-symbols-outlined text-sm">play_circle</span>
@@ -206,13 +269,27 @@ ${transcript}
                     );
                 } else if (type === 'NAVIGATE') {
                     const target = actionData[1];
-                    const label = target === 'SETTINGS' ? 'Ir a Ajustes' : (target === 'PLANS' ? 'Ver Planes' : `Ir a ${target}`);
-                    const icon = target === 'SETTINGS' ? 'settings' : 'payments';
+                    let label = target === 'SETTINGS' ? 'Ir a Ajustes' : (target === 'PLANS' ? 'Ver Planes' : `Ir a ${target}`);
+                    let icon = target === 'SETTINGS' ? 'settings' : 'payments';
+
+                    if (target === 'CONTACT') {
+                        label = language === 'en' ? 'Contact Support' : 'Contactar Soporte (Email)';
+                        icon = 'mail';
+                    }
 
                     elements.push(
                         <button
                             key={`action-${i}`}
-                            onClick={() => onAction?.(type, { target })}
+                            onClick={() => {
+                                import('../../utils/analytics').then(({ trackEvent }) => {
+                                    trackEvent('support_bot_action_click', {
+                                        agent_id: agent.id,
+                                        action_type: 'navigate',
+                                        target_page: target
+                                    });
+                                });
+                                onAction?.(type, { target });
+                            }}
                             className="mt-3 w-full py-2.5 px-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
                         >
                             <span className="material-symbols-outlined text-sm">{icon}</span>
@@ -224,13 +301,51 @@ ${transcript}
                     elements.push(
                         <button
                             key={`action-${i}`}
-                            onClick={() => onAction?.(type, { query })}
+                            onClick={() => {
+                                import('../../utils/analytics').then(({ trackEvent }) => {
+                                    trackEvent('support_bot_action_click', {
+                                        agent_id: agent.id,
+                                        action_type: 'search',
+                                        query: query
+                                    });
+                                });
+                                onAction?.(type, { query });
+                            }}
                             className="mt-3 w-full py-2.5 px-4 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-all"
                         >
                             <span className="material-symbols-outlined text-sm">search</span>
                             Buscar "{query}" en historial
                         </button>
                     );
+                } else if (type === 'SWITCH_AGENT') {
+                    const nextId = actionData[1];
+                    const nextAgent = PERSONALITIES.find(p => p.id === nextId);
+                    if (nextAgent) {
+                        elements.push(
+                            <button
+                                key={`action-${i}`}
+                                onClick={() => {
+                                    import('../../utils/analytics').then(({ trackEvent }) => {
+                                        trackEvent('support_bot_agent_switch', {
+                                            from_agent: agent.id,
+                                            to_agent: nextId
+                                        });
+                                    });
+                                    localStorage.setItem('diktalo_active_support_agent', nextId);
+                                    setAgent(nextAgent);
+                                    // Add switch message
+                                    const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                                    const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+                                    const greeting = language === 'en' ? nextAgent.greeting.en(time, day) : nextAgent.greeting.es(time, day);
+                                    setMessages(prev => [...prev, { role: 'bot', content: greeting }]);
+                                }}
+                                className="mt-3 w-full py-2.5 px-4 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all border border-slate-200 dark:border-white/10"
+                            >
+                                <span className="material-symbols-outlined text-sm">person_add</span>
+                                Hablar con {nextAgent.name}
+                            </button>
+                        );
+                    }
                 }
             }
         }
@@ -271,7 +386,7 @@ ${transcript}
                     isDragging.current = false;
                 }, 100);
             }}
-            // MAX Z-INDEX to be above everything (Crisp, etc)
+            // ABOVE EVERYTHING
             className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${initialOffset || (position === 'left' ? 'left-6' : 'right-6')}`}
         >
             <AnimatePresence>
@@ -311,12 +426,55 @@ ${transcript}
                         {/* Messages Area */}
                         <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-transparent">
                             {messages.map((m, i) => (
-                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
                                     <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
                                         ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
                                         : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
                                         }`}>
                                         {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
+
+                                        {/* Feedback Icons for bot messages */}
+                                        {m.role === 'bot' && (
+                                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (m.feedback) return;
+                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
+                                                            import('../../utils/analytics').then(({ trackEvent }) => {
+                                                                trackEvent('support_bot_feedback', {
+                                                                    agent_id: agent.id,
+                                                                    type: 'helpful',
+                                                                    message_index: i
+                                                                });
+                                                            });
+                                                        }}
+                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">thumb_up</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (m.feedback) return;
+                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
+                                                            import('../../utils/analytics').then(({ trackEvent }) => {
+                                                                trackEvent('support_bot_feedback', {
+                                                                    agent_id: agent.id,
+                                                                    type: 'unhelpful',
+                                                                    message_index: i
+                                                                });
+                                                            });
+                                                        }}
+                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">thumb_down</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -357,16 +515,17 @@ ${transcript}
                             </p>
                         </form>
                     </motion.div>
-                )}
-            </AnimatePresence>
+                )
+                }
+            </AnimatePresence >
 
             {/* Bubble Toggle */}
-            <motion.button
+            < motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
                     if (!isDragging.current) {
-                        setIsOpen(!isOpen);
+                        toggleOpen();
                     }
                 }}
                 className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
@@ -375,7 +534,7 @@ ${transcript}
                 <span className="material-symbols-outlined text-3xl">
                     {isOpen ? 'close' : 'chat_bubble'}
                 </span>
-            </motion.button>
-        </motion.div>
+            </motion.button >
+        </motion.div >
     );
 };

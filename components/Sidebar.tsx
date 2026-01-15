@@ -51,6 +51,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ? Math.min((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100, 100)
     : 0;
 
+  const storageUsedGB = (user.subscription.storageUsed || 0) / 1073741824;
+  const storageLimitGB = (user.subscription.storageLimit || 0) / 1073741824;
+  const storagePercent = storageLimitGB > 0
+    ? Math.min((storageUsedGB / storageLimitGB) * 100, 100)
+    : 0;
+
+  // Days remaining calculation
+  const getDaysRemaining = () => {
+    const end = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
+    if (!end) return null;
+    const diff = new Date(end).getTime() - new Date().getTime();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  };
+
+  const daysRemaining = getDaysRemaining();
+  const isTrial = !!user.subscription.trialEndsAt;
+
   return (
     <Fragment>
       {/* Mobile Backdrop */}
@@ -247,31 +264,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <p className="mb-1.5 leading-relaxed">✗ NO se acumulan si no usas</p>
               <p className="leading-relaxed">✗ Borrar audios NO devuelve minutos</p>
               <div className="mt-2 pt-2 border-t border-slate-700">
-                <p className="font-semibold mb-1.5 text-green-400">💾 Almacenamiento</p>
+                <p className="font-semibold mb-1.5 text-green-400">💾 Almacenamiento {storageUsedGB.toFixed(2)} GB</p>
                 <p className="mb-1 leading-relaxed">✓ Borrar audios SÍ libera espacio</p>
                 <p className="leading-relaxed">✗ NO se resetea mensualmente</p>
               </div>
+              {daysRemaining !== null && (
+                <div className="mt-2 pt-2 border-t border-slate-700">
+                  <p className="font-semibold mb-1.5 text-amber-400">⏳ {isTrial ? 'Periodo de Prueba' : 'Próximo Cobro'}</p>
+                  <p className="leading-relaxed">Te quedan {daysRemaining} días.</p>
+                </div>
+              )}
             </div>
 
-            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-3">
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-2">
               <div
                 className={`h-1.5 rounded-full transition-all ${usagePercent > 90
                   ? 'bg-red-500'
-                  : user.subscription.planId === 'business_plus'
-                    ? 'bg-brand-green'
-                    : user.subscription.planId === 'business'
-                      ? 'bg-brand-blue'
-                      : user.subscription.planId === 'pro'
-                        ? 'bg-brand-violet'
-                        : 'bg-primary'
+                  : 'bg-primary'
                   }`}
                 style={{ width: `${usagePercent}%` }}
               ></div>
             </div>
+
+            {/* Storage Usage (Visible if limit > 0) */}
+            {storageLimitGB > 0 && (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-1.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                  <div className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">database</span>
+                    <span>Storage</span>
+                  </div>
+                  <span className="font-mono">{storageUsedGB.toFixed(1)}/{storageLimitGB.toFixed(0)} GB</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1">
+                  <div
+                    className={`h-1 rounded-full transition-all ${storagePercent > 90 ? 'bg-orange-500' : 'bg-green-500'}`}
+                    style={{ width: `${storagePercent}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {/* Expired / Countdown Warning */}
+            {daysRemaining !== null && daysRemaining <= 10 && (
+              <div className={`mt-4 p-2.5 rounded-lg border flex items-center gap-2 group/msg transition-all animate-pulse ${daysRemaining <= 3 ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/20 text-red-600 dark:text-red-400' : 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-900/20 text-amber-600 dark:text-amber-400'}`}>
+                <span className="material-symbols-outlined text-sm">{daysRemaining <= 3 ? 'warning' : 'info'}</span>
+                <span className="text-[10px] font-bold leading-none">
+                  {daysRemaining === 0
+                    ? (isTrial ? 'Trial expired' : 'Payment due')
+                    : `${daysRemaining} days remaining`}
+                </span>
+              </div>
+            )}
+
             {user.subscription.planId === 'free' && (
               <button
                 onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
-                className="w-full py-1.5 bg-gradient-to-r from-primary to-purple-600 text-white text-xs font-bold rounded-lg hover:shadow-lg hover:shadow-primary/20 transition-all">
+                className="w-full py-1.5 mt-4 bg-gradient-to-r from-primary to-purple-600 text-white text-xs font-bold rounded-lg hover:shadow-lg hover:shadow-primary/20 transition-all">
                 {t('upgrade')} ⚡
               </button>
             )}

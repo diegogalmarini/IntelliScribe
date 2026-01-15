@@ -152,6 +152,9 @@ export const adminService = {
                 status: profile.subscription_status || 'active',
                 minutesUsed: profile.minutes_used || 0,
                 minutesLimit: profile.minutes_limit || 24,
+                storageUsed: profile.storage_used || 0,
+                storageLimit: profile.storage_limit || 0,
+                trialEndsAt: profile.trial_ends_at,
                 usagePercentage: profile.minutes_limit > 0
                     ? Math.round((profile.minutes_used / profile.minutes_limit) * 100)
                     : 0,
@@ -218,6 +221,27 @@ export const adminService = {
             return true;
         } catch (error) {
             console.error('[adminService] Exception in updateUserPlan:', error);
+            return false;
+        }
+    },
+
+    /**
+     * Update user's manual trial expiration date
+     */
+    async updateUserTrial(userId: string, date: string | null): Promise<boolean> {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ trial_ends_at: date })
+                .eq('id', userId);
+
+            if (error) {
+                console.error('[adminService] Error updating trial date:', error);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('[adminService] Exception in updateUserTrial:', error);
             return false;
         }
     },
