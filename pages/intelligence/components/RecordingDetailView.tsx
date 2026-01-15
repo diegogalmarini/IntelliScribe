@@ -134,8 +134,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
         }
     };
 
-    const audioRef = React.useRef<HTMLAudioElement>(null);
-
     // Simple markdown cleaner
     const cleanMarkdown = (text: string | undefined) => {
         if (!text) return '';
@@ -554,10 +552,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
 
 
-
-    const handleAnalyze = () => {
-        setAnalysisOpen(true);
-    };
 
     const handleExport = () => {
         requiresPremium('Exportar', () => {
