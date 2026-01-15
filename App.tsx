@@ -36,7 +36,7 @@ import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
-import { trackPageView, initGA } from './utils/analytics';
+import { trackPageView, initGA, trackEvent } from './utils/analytics';
 import { PublicLayout } from './layouts/PublicLayout';
 
 // ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
