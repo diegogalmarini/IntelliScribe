@@ -78,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-1.5-flash-latest',
             }).generateContent(finalPrompt);
             result = response.response.text() || "No summary generated.";
         }
@@ -111,7 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
             const chat = genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-1.5-flash-latest',
                 systemInstruction,
             }).startChat({
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
@@ -175,7 +175,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLanguageName = languageNames[language] || 'English';
 
             const response = await genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-1.5-flash-latest',
             }).generateContent({
                 contents: [{
                     parts: [
@@ -343,7 +343,7 @@ CONTACTO: contacto@diktalo.com`;
     Talk to the user using your unique personality and this data.`;
             }
             const chat = genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-1.5-flash-latest',
                 systemInstruction,
                 generationConfig: { temperature: 0.9 }
             }).startChat({

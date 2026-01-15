@@ -275,11 +275,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div
                 className={`h-1.5 rounded-full transition-all ${usagePercent > 90
                   ? 'bg-red-500'
-                  : user.subscription.planId === 'business_plus'
+                  : String(user.subscription.planId).toLowerCase().includes('plus')
                     ? 'bg-brand-green'
-                    : user.subscription.planId === 'business'
+                    : String(user.subscription.planId).toLowerCase().includes('business')
                       ? 'bg-brand-blue'
-                      : user.subscription.planId === 'pro'
+                      : String(user.subscription.planId).toLowerCase().includes('pro')
                         ? 'bg-brand-violet'
                         : 'bg-primary'
                   }`}
@@ -288,7 +288,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Storage Usage (Surfaced for any non-basic configuration) */}
-            {(storageLimitBytes > 0 || String(user.subscription.planId).toLowerCase() !== 'free' || (user.subscription.minutesLimit || 0) > 30) && (
+            {((user.subscription.minutesLimit || 0) > 30 || (storageLimitBytes > 0) || String(user.subscription.planId).toLowerCase() !== 'free') && (
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
