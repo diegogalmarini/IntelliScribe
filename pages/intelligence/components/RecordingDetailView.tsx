@@ -554,6 +554,11 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
 
 
+
+    const handleAnalyze = () => {
+        setAnalysisOpen(true);
+    };
+
     const handleExport = () => {
         requiresPremium('Exportar', () => {
             setExportOpen(true);
