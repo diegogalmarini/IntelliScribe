@@ -141,7 +141,7 @@ export const databaseService = {
     async getRecordings(userId: string, page: number = 1, pageSize: number = 50): Promise<Recording[]> {
         // FULL QUERY - Índices confirmados en Supabase ✅
         // STRICT COLUMN SELECTION: Exclude heavy JSONB fields (Lazy Load) - Added metadata and summary
-        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, metadata, summary';
+        const columns = 'id, title, date, duration, duration_seconds, status, tags, participants, folder_id, created_at, metadata, summary, audio_url';
 
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
