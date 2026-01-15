@@ -82,9 +82,28 @@ const AppContent: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Legacy user state (mapped from supabaseUser)
-    // We map it here so it's available for effects below
-    const user = supabaseUser;
+    // User State Template
+    const defaultUser: UserProfile = {
+        id: '',
+        firstName: 'Guest',
+        lastName: '',
+        email: '',
+        phone: '',
+        phoneVerified: false,
+        avatarUrl: null,
+        role: 'Member',
+        subscription: {
+            planId: 'free',
+            status: 'active',
+            currentPeriodEnd: new Date().toISOString(),
+            minutesUsed: 0,
+            minutesLimit: 24,
+            storageDaysLimit: 7
+        },
+        integrations: [], // NEW
+    };
+
+    const [user, setUser] = useState<UserProfile>(defaultUser);
 
     // Google Analytics Integration
     useEffect(() => {
@@ -171,27 +190,8 @@ const AppContent: React.FC = () => {
     // --- MOVED UP ---
 
     // User State Template
-    const defaultUser: UserProfile = {
-        id: '',
-        firstName: 'Guest',
-        lastName: '',
-        email: '',
-        phone: '',
-        phoneVerified: false,
-        avatarUrl: null,
-        role: 'Member',
-        subscription: {
-            planId: 'free',
-            status: 'active',
-            currentPeriodEnd: new Date().toISOString(),
-            minutesUsed: 0,
-            minutesLimit: 24,
-            storageDaysLimit: 7
-        },
-        integrations: [], // NEW
-    };
-
-    const [user, setUser] = useState<UserProfile>(defaultUser);
+    // --- MOVED UP ---
+    // User state initialization moved to top
 
     // Recordings & Folders State
     const [recordings, setRecordings] = useState<Recording[]>([]);
