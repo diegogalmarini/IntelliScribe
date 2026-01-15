@@ -10,6 +10,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Increase limit to 5MB
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+      },
       manifest: {
         name: 'Diktalo - AI Meeting Assistant',
         short_name: 'Diktalo',
@@ -51,5 +55,15 @@ export default defineConfig({
   build: {
     minify: false,
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+          ui: ['lucide-react'],
+          utils: ['jspdf', 'html2canvas', 'file-saver'],
+          supabase: ['@supabase/supabase-js']
+        }
+      }
+    }
   }
 });
