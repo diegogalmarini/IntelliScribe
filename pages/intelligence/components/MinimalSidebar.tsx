@@ -182,10 +182,10 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             </div>
                             <div className="h-1 bg-[#e5e5e5] dark:bg-card-dark rounded-full overflow-hidden">
                                 <div
-                                    className={`h-full transition-all ${(user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 90 ? 'bg-red-500' :
-                                        (String(user.subscription.planId).toLowerCase().includes('plus') || (user.subscription.minutesLimit || 0) > 300) ? 'bg-brand-green' :
-                                            (String(user.subscription.planId).toLowerCase().includes('business') || (user.subscription.minutesLimit || 0) > 60) ? 'bg-brand-blue' :
-                                                (String(user.subscription.planId).toLowerCase().includes('pro') || (user.subscription.minutesLimit || 0) > 30) ? 'bg-brand-violet' :
+                                    className={`h-full transition-all ${(user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100 > 90 ? 'bg-red-500' :
+                                        (String(user.subscription.planId).toLowerCase().includes('plus') || (user.subscription.minutesLimit || 0) > 300) ? 'bg-[#D3E97A]' :
+                                            (String(user.subscription.planId).toLowerCase().includes('business') || (user.subscription.minutesLimit || 0) > 60) ? 'bg-[#0055FF]' :
+                                                (String(user.subscription.planId).toLowerCase().includes('pro') || (user.subscription.minutesLimit || 0) > 30) ? 'bg-[#8B5CF6]' :
                                                     'bg-blue-500'
                                         }`}
                                     style={{ width: `${Math.min((user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100, 100)}%` }}
