@@ -16,6 +16,32 @@ export const PlansEditor: React.FC = () => {
         loadData();
     }, []);
 
+    // Auto-save to localStorage when plans change (debounced)
+    useEffect(() => {
+        if (plans.length > 0) {
+            const timeoutId = setTimeout(() => {
+                localStorage.setItem('admin_plans_draft', JSON.stringify(plans));
+                console.log('[PlansEditor] 💾 Auto-guardado en localStorage');
+            }, 1000); // Debounce 1 segundo
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [plans]);
+
+    // Restore from localStorage if available
+    useEffect(() => {
+        const savedDraft = localStorage.getItem('admin_plans_draft');
+        if (savedDraft && plans.length === 0) {
+            try {
+                const parsedPlans = JSON.parse(savedDraft);
+                setPlans(parsedPlans);
+                console.log('[PlansEditor] 🔄 Restaurado desde localStorage');
+            } catch (e) {
+                console.error('[PlansEditor] Error parsing saved draft:', e);
+            }
+        }
+    }, []);
+
     const loadData = async () => {
         setLoading(true);
         const [plansData, settingsData] = await Promise.all([
@@ -70,7 +96,7 @@ export const PlansEditor: React.FC = () => {
         setSavingId(plan.id);
         setSuccessId(null);
 
-        const success = await adminService.updatePlanConfig(plan.id, {
+        const result = await adminService.updatePlanConfig(plan.id, {
             name: plan.name,
             description: plan.description,
             price_monthly: plan.price_monthly,
@@ -85,9 +111,28 @@ export const PlansEditor: React.FC = () => {
 
         setSavingId(null);
 
-        if (success) {
+        if (result.success) {
             setSuccessId(plan.id);
             setTimeout(() => setSuccessId(null), 3000);
+            // Clear localStorage cache for this plan
+            localStorage.removeItem(`admin_plan_draft_${plan.id}`);
+        } else {
+            // Show branded error using custom modal/toast
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 z-[99999] bg-red-500 text-white px-6 py-4 rounded-lg shadow-2xl animate-in slide-in-from-right';
+            errorDiv.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="width" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="font-bold">Error de Base de Datos</p>
+                        <p class="text-sm opacity-90">${result.error || 'Error desconocido'}</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
         }
     };
 
@@ -128,8 +173,8 @@ export const PlansEditor: React.FC = () => {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {plans.map(plan => (
                     <div key={plan.id} className={`bg-white dark:bg-[#0A0D13] rounded-xl border p-6 space-y-5 transition-all shadow-sm hover:shadow-md ${plan.highlight
-                            ? 'border-blue-500 ring-1 ring-blue-500/30'
-                            : 'border-slate-200 dark:border-[#1f1f1f]'
+                        ? 'border-blue-500 ring-1 ring-blue-500/30'
+                        : 'border-slate-200 dark:border-[#1f1f1f]'
                         }`}>
 
                         {/* Header del Plan */}
