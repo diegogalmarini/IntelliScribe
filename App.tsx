@@ -964,7 +964,7 @@ const AppContent: React.FC = () => {
                             recordings={recordings}
                             user={user}
                             activeRecording={activeRecording}
-                            position="right"
+                            position="left"
                             onAction={(type, payload) => {
                                 if (type === 'OPEN_RECORDING' && payload.id) {
                                     setActiveRecordingId(payload.id);
