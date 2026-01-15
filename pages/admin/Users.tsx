@@ -106,17 +106,29 @@ export const Users: React.FC = () => {
     };
 
     const handleTrialChange = async (userId: string, date: string) => {
+        // 1. Optimistic Update: Update UI immediately to prevent input loss/picker closing
+        const newDate = date || null;
+        setUsers(prev => prev.map(u =>
+            u.id === userId
+                ? { ...u, trialEndsAt: newDate }
+                : u
+        ));
+
         try {
-            const success = await adminService.updateUserTrial(userId, date || null);
+            // 2. Background Update
+            const success = await adminService.updateUserTrial(userId, newDate);
+
             if (success) {
-                await loadUsers();
                 showToast('Trial date updated', 'success');
+                // Do NOT reload users here, it forces a re-render and closes the date picker
             } else {
                 showToast('Failed to update trial date', 'error');
+                loadUsers(); // Revert on failure
             }
         } catch (err) {
             console.error(err);
             showToast('An error occurred while updating the trial', 'error');
+            loadUsers(); // Revert on error
         }
     };
 
