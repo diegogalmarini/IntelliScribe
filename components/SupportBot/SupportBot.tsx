@@ -9,6 +9,7 @@ interface SupportBotProps {
     recordings?: Recording[];
     user?: UserProfile;
     activeRecording?: Recording; // NEW: Full context of currently viewed recording
+    initialOffset?: string; // NEW: Custom initial position (e.g. left-[280px])
     onAction?: (action: string, payload: any) => void;
 }
 
@@ -17,6 +18,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     recordings = [],
     user,
     activeRecording,
+    initialOffset,
     onAction
 }) => {
     const { t, language = 'es' } = useLanguage();
@@ -270,7 +272,7 @@ ${transcript}
                 }, 100);
             }}
             // MAX Z-INDEX to be above everything (Crisp, etc)
-            className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${position === 'left' ? 'left-6' : 'right-6'}`}
+            className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${initialOffset || (position === 'left' ? 'left-6' : 'right-6')}`}
         >
             <AnimatePresence>
                 {isOpen && (

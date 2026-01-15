@@ -965,6 +965,7 @@ const AppContent: React.FC = () => {
                             user={user}
                             activeRecording={activeRecording}
                             position="left"
+                            initialOffset="left-[280px]"
                             onAction={(type, payload) => {
                                 if (type === 'OPEN_RECORDING' && payload.id) {
                                     setActiveRecordingId(payload.id);
