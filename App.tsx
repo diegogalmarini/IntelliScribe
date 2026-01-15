@@ -74,6 +74,18 @@ const AppContent: React.FC = () => {
     const location = useLocation();
     const navigateRR = useNavigate();
 
+    // --- STATE INITIALIZATION ---
+    // Moved to top to avoid ReferenceError
+    const { user: supabaseUser, signOut, loading: authLoading } = useAuth();
+    const { t, setLanguage } = useLanguage();
+    const [isLoadingData, setIsLoadingData] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Legacy user state (mapped from supabaseUser)
+    // We map it here so it's available for effects below
+    const user = supabaseUser;
+
     // Google Analytics Integration
     useEffect(() => {
         // 1. Initial Check: If user already consented, initialize GA
@@ -111,15 +123,15 @@ const AppContent: React.FC = () => {
 
     // Sync User Properties to GA4
     useEffect(() => {
-        if (user && user.id) {
+        if (supabaseUser && supabaseUser.id) {
             setUserProperties({
-                interface_language: user.language || 'es',
-                transcription_language: user.transcriptionLanguage || 'es',
-                user_role: user.role || 'Member',
-                plan_id: user.subscription?.planId || 'free'
+                interface_language: supabaseUser.language || 'es',
+                transcription_language: supabaseUser.transcriptionLanguage || 'es',
+                user_role: supabaseUser.role || 'Member',
+                plan_id: supabaseUser.subscription?.planId || 'free'
             });
         }
-    }, [user.id, user.language, user.transcriptionLanguage, user.role, user.subscription?.planId]);
+    }, [supabaseUser?.id, supabaseUser?.language, supabaseUser?.transcriptionLanguage, supabaseUser?.role, supabaseUser?.subscription?.planId]);
 
     // Sync state with URL changes (for browser back/forward and Links)
     useEffect(() => {
@@ -156,13 +168,7 @@ const AppContent: React.FC = () => {
         }
     }, [location.pathname, location.hash, currentRoute]);
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    // --- STATE INITIALIZATION ---
-    const { user: supabaseUser, signOut, loading: authLoading } = useAuth();
-    const { t, setLanguage } = useLanguage();
-    const [isLoadingData, setIsLoadingData] = useState(false);
-    const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
+    // --- MOVED UP ---
 
     // User State Template
     const defaultUser: UserProfile = {
