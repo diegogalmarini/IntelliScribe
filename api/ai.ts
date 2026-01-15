@@ -343,7 +343,7 @@ CONTACTO: contacto@diktalo.com`;
     Talk to the user using your unique personality and this data.`;
             }
             const chat = genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash-latest',
+                model: "gemini-1.5-flash",
                 systemInstruction,
                 generationConfig: { temperature: 0.9 }
             }).startChat({
@@ -365,6 +365,9 @@ CONTACTO: contacto@diktalo.com`;
 
     } catch (error: any) {
         console.error('AI Service Error:', error);
-        return res.status(500).json({ error: error.message || 'Error processing AI request' });
+        return res.status(500).json({
+            error: error.message || 'Error processing AI request',
+            details: error.stack // Surfacing for frontend debugging
+        });
     }
 }
