@@ -106,12 +106,28 @@ export const Users: React.FC = () => {
     };
 
     const handleTrialChange = async (userId: string, date: string) => {
-        const success = await adminService.updateUserTrial(userId, date || null);
-        if (success) {
-            loadUsers();
-            showToast('Trial date updated', 'success');
-        } else {
-            showToast('Failed to update trial date', 'error');
+        try {
+            const success = await adminService.updateUserTrial(userId, date || null);
+            if (success) {
+                await loadUsers();
+                showToast('Trial date updated', 'success');
+            } else {
+                showToast('Failed to update trial date', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('An error occurred while updating the trial', 'error');
+        }
+    };
+
+    const safeDateValue = (dateStr: string | null | undefined) => {
+        if (!dateStr) return '';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '';
+            return d.toISOString().split('T')[0];
+        } catch (e) {
+            return '';
         }
     };
 
@@ -247,7 +263,7 @@ export const Users: React.FC = () => {
                                                         const d = new Date();
                                                         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                                                     })()}
-                                                    value={user.trialEndsAt ? new Date(user.trialEndsAt).toISOString().split('T')[0] : ''}
+                                                    value={safeDateValue(user.trialEndsAt)}
                                                     onChange={(e) => handleTrialChange(user.id, e.target.value)}
                                                     className="bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:bg-white dark:focus:bg-black cursor-pointer transition-all shadow-sm w-[110px]"
                                                 />
