@@ -287,8 +287,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ></div>
             </div>
 
-            )}
-
             {/* Storage Usage (Show for paid plans even if limit is 0 initially) */}
             {(storageLimitBytes > 0 || user.subscription.planId !== 'free') && (
               <div className="mt-3">
