@@ -53,7 +53,7 @@ export default defineConfig({
     }
   },
   build: {
-    minify: false,
+    minify: true,
     sourcemap: true,
     rollupOptions: {
       output: {
