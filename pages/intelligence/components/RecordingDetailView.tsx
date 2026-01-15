@@ -599,16 +599,13 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 // Replace ugly alert with proper error logging/handling
                 // Ideally use a toast here, but for now we suppress the alert to avoid UX disruption
             }
-        };
+        });
+    };
 
 
 
 
-
-
-
-
-        const handleImageClick = (e: React.MouseEvent, url: string | null) => {
+    const handleImageClick = (e: React.MouseEvent, url: string | null) => {
             e.stopPropagation(); // Prevent timestamp seek if clicked on specific view button
             if (url) setSelectedImage(url);
         };
