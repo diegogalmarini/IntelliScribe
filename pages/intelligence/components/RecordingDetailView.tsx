@@ -13,7 +13,8 @@ import { supabase } from '../../../lib/supabase';
 import { databaseService } from '../../../services/databaseService';
 import { saveAs } from 'file-saver';
 import { useToast } from '../../../components/Toast';
-import { Image as ImageIcon } from 'lucide-react'; // Import Image icon
+import { Image as ImageIcon } from 'lucide-react';
+import { UpgradeModal } from '../../../components/UpgradeModal';
 
 
 interface RecordingDetailViewProps {
@@ -106,11 +107,30 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
     const [isTranscribing, setIsTranscribing] = useState(false);
 
+    // Upgrade Modal State
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+    const [upgradeFeatureName, setUpgradeFeatureName] = useState('');
+
     // CRITICAL: Local state for data that often goes missing in lightweight props
     const [fullRecording, setFullRecording] = useState<Recording | null>(null);
     const [segments, setSegments] = useState<any[]>(recording.segments || []);
     const [summary, setSummary] = useState<string>(recording.summary || '');
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+    const audioRef = React.useRef<HTMLAudioElement>(null);
+
+    // Check if user is on FREE plan
+    const isFreeUser = !user || !user.subscription || user.subscription.planId === 'free';
+
+    // Upgrade gate helper
+    const requiresPremium = (featureName: string, action: () => void) => {
+        if (isFreeUser) {
+            setUpgradeFeatureName(featureName);
+            setUpgradeModalOpen(true);
+        } else {
+            action();
+        }
+    };
 
     const audioRef = React.useRef<HTMLAudioElement>(null);
 
@@ -533,48 +553,51 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
 
     const handleExport = () => {
-        setExportOpen(true);
+        requiresPremium('Exportar', () => {
+            setExportOpen(true);
+        });
     };
 
 
 
 
     const handleDownloadAudio = async () => {
-        const audioUrlSource = fullRecording?.audioUrl || recording.audioUrl;
-        if (!audioUrlSource) return;
+        requiresPremium('Descargar Audio', async () => {
+            const audioUrlSource = fullRecording?.audioUrl || recording.audioUrl;
+            if (!audioUrlSource) return;
 
-        try {
-            // Extract file extension from the original audio URL
-            const urlParts = audioUrlSource.split('.');
-            const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
-            const fileName = `${(fullRecording?.title || recording.title) || 'audio'}.${fileExtension}`;
+            try {
+                // Extract file extension from the original audio URL
+                const urlParts = audioUrlSource.split('.');
+                const fileExtension = urlParts.length > 1 ? urlParts[urlParts.length - 1] : 'mp3';
+                const fileName = `${(fullRecording?.title || recording.title) || 'audio'}.${fileExtension}`;
 
-            // Use the already signed URL if available (best for private files)
-            // or fetch a new one if expired/missing
-            let downloadUrl = signedAudioUrl;
+                // Use the already signed URL if available (best for private files)
+                // or fetch a new one if expired/missing
+                let downloadUrl = signedAudioUrl;
 
-            if (!downloadUrl) {
-                console.log('[RecordingDetailView] Generating new signed URL for download...');
-                downloadUrl = await getSignedAudioUrl(audioUrlSource);
+                if (!downloadUrl) {
+                    console.log('[RecordingDetailView] Generating new signed URL for download...');
+                    downloadUrl = await getSignedAudioUrl(audioUrlSource);
+                }
+
+                if (!downloadUrl) throw new Error('Could not generate download URL');
+
+                // Fetch the file
+                const response = await fetch(downloadUrl);
+                if (!response.ok) throw new Error('Failed to fetch audio file');
+
+                const blob = await response.blob();
+
+                // Use file-saver for reliable download with correct filename
+                saveAs(blob, fileName);
+                console.log('[RecordingDetailView] Download initiated successfully');
+            } catch (err) {
+                console.error('Failed to download audio:', err);
+                // Replace ugly alert with proper error logging/handling
+                // Ideally use a toast here, but for now we suppress the alert to avoid UX disruption
             }
-
-            if (!downloadUrl) throw new Error('Could not generate download URL');
-
-            // Fetch the file
-            const response = await fetch(downloadUrl);
-            if (!response.ok) throw new Error('Failed to fetch audio file');
-
-            const blob = await response.blob();
-
-            // Use file-saver for reliable download with correct filename
-            saveAs(blob, fileName);
-            console.log('[RecordingDetailView] Download initiated successfully');
-        } catch (err) {
-            console.error('Failed to download audio:', err);
-            // Replace ugly alert with proper error logging/handling
-            // Ideally use a toast here, but for now we suppress the alert to avoid UX disruption
-        }
-    };
+        };
 
 
 
@@ -583,535 +606,535 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
 
 
-    const handleImageClick = (e: React.MouseEvent, url: string | null) => {
-        e.stopPropagation(); // Prevent timestamp seek if clicked on specific view button
-        if (url) setSelectedImage(url);
-    };
+        const handleImageClick = (e: React.MouseEvent, url: string | null) => {
+            e.stopPropagation(); // Prevent timestamp seek if clicked on specific view button
+            if (url) setSelectedImage(url);
+        };
 
-    return (
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-background-dark">
-            {/* Image Modal */}
-            {selectedImage && (
-                <div
-                    className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-                    onClick={() => setSelectedImage(null)}
-                >
-                    <div className="relative max-w-5xl max-h-[90vh] w-full flex flex-col items-center">
-                        <button
-                            onClick={() => setSelectedImage(null)}
-                            className="absolute -top-10 right-0 text-white/70 hover:text-white transition-colors"
-                        >
-                            <X size={24} />
-                        </button>
-                        <img
-                            src={selectedImage}
-                            alt="Full View"
-                            className="rounded-lg shadow-2xl max-w-full max-h-[85vh] object-contain"
-                            onClick={(e) => e.stopPropagation()}
-                        />
+        return (
+            <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-background-dark">
+                {/* Image Modal */}
+                {selectedImage && (
+                    <div
+                        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <div className="relative max-w-5xl max-h-[90vh] w-full flex flex-col items-center">
+                            <button
+                                onClick={() => setSelectedImage(null)}
+                                className="absolute -top-10 right-0 text-white/70 hover:text-white transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                            <img
+                                src={selectedImage}
+                                alt="Full View"
+                                className="rounded-lg shadow-2xl max-w-full max-h-[85vh] object-contain"
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Header */}
+                {/* Header */}
+                <div className="px-4 md:px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                            {isEditingTitle ? (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={editedTitle}
+                                        onChange={(e) => setEditedTitle(e.target.value)}
+                                        className="text-xl font-medium text-[#1f1f1f] dark:text-white bg-transparent border-b border-blue-500 focus:outline-none w-full"
+                                        autoFocus
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handleSaveTitle();
+                                            if (e.key === 'Escape') handleCancelEdit();
+                                        }}
+                                    />
+                                    <button onClick={handleSaveTitle} className="p-1 hover:bg-green-500/10 rounded-md text-green-600">
+                                        <Check size={18} />
+                                    </button>
+                                    <button onClick={handleCancelEdit} className="p-1 hover:bg-red-500/10 rounded-md text-red-600">
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2 group">
+                                    <h1 className="text-lg md:text-xl font-medium text-[#1f1f1f] dark:text-white truncate" title={recording.title}>
+                                        {recording.title || t('untitledRecording')}
+                                    </h1>
+                                    {onRename && (
+                                        <button
+                                            onClick={handleStartEdit}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-md text-[#8e8e8e]"
+                                        >
+                                            <Pencil size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            <p className="text-[11px] text-[#8e8e8e] mt-1">
+                                {formatDate(recording.date)}
+                            </p>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 shrink-0">
+                            {/* Regenerar */}
+                            <button
+                                onClick={handleTranscribeAudio}
+                                disabled={isTranscribing || !signedAudioUrl}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                                title={t('regenerateTranscription')}
+                            >
+                                {isTranscribing ? (
+                                    <Loader2 size={14} className="animate-spin text-brand-purple" />
+                                ) : (
+                                    <RefreshCw size={14} className="text-brand-purple" />
+                                )}
+                                <span className="hidden sm:inline">{isTranscribing ? t('regenerating') : t('regenerate')}</span>
+                            </button>
+
+                            {/* Analizar */}
+                            <button
+                                onClick={handleAnalyze}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
+                                title={t('summarize')}
+                            >
+                                <Sparkles size={14} className="text-brand-purple" />
+                                <span className="hidden sm:inline">{t('summarize')}</span>
+                            </button>
+
+                            {/* Exportar */}
+                            <button
+                                onClick={handleExport}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
+                                title={t('export')}
+                            >
+                                <Share2 size={14} />
+                                <span className="hidden sm:inline">{t('export')}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )}
 
-            {/* Header */}
-            {/* Header */}
-            <div className="px-4 md:px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                        {isEditingTitle ? (
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={editedTitle}
-                                    onChange={(e) => setEditedTitle(e.target.value)}
-                                    className="text-xl font-medium text-[#1f1f1f] dark:text-white bg-transparent border-b border-blue-500 focus:outline-none w-full"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleSaveTitle();
-                                        if (e.key === 'Escape') handleCancelEdit();
-                                    }}
-                                />
-                                <button onClick={handleSaveTitle} className="p-1 hover:bg-green-500/10 rounded-md text-green-600">
-                                    <Check size={18} />
-                                </button>
-                                <button onClick={handleCancelEdit} className="p-1 hover:bg-red-500/10 rounded-md text-red-600">
-                                    <X size={18} />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-2 group">
-                                <h1 className="text-lg md:text-xl font-medium text-[#1f1f1f] dark:text-white truncate" title={recording.title}>
-                                    {recording.title || t('untitledRecording')}
-                                </h1>
-                                {onRename && (
-                                    <button
-                                        onClick={handleStartEdit}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-md text-[#8e8e8e]"
-                                    >
-                                        <Pencil size={14} />
-                                    </button>
-                                )}
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6">
+                    <div className="max-w-4xl mx-auto space-y-8">
+                        {isLoadingDetails && !fullRecording && (
+                            <div className="flex items-center gap-2 text-[12px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg animate-pulse mb-4">
+                                <Loader2 size={14} className="animate-spin" />
+                                Actualizando detalles completos...
                             </div>
                         )}
-                        <p className="text-[11px] text-[#8e8e8e] mt-1">
-                            {formatDate(recording.date)}
-                        </p>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-2 shrink-0">
-                        {/* Regenerar */}
-                        <button
-                            onClick={handleTranscribeAudio}
-                            disabled={isTranscribing || !signedAudioUrl}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                            title={t('regenerateTranscription')}
-                        >
-                            {isTranscribing ? (
-                                <Loader2 size={14} className="animate-spin text-brand-purple" />
-                            ) : (
-                                <RefreshCw size={14} className="text-brand-purple" />
-                            )}
-                            <span className="hidden sm:inline">{isTranscribing ? t('regenerating') : t('regenerate')}</span>
-                        </button>
+                        {/* Audio Player Card */}
+                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <FileText size={16} className="text-[#8e8e8e]" />
+                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                    {t('audioOriginal')}
+                                </h2>
+                            </div>
 
-                        {/* Analizar */}
-                        <button
-                            onClick={handleAnalyze}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
-                            title={t('summarize')}
-                        >
-                            <Sparkles size={14} className="text-brand-purple" />
-                            <span className="hidden sm:inline">{t('summarize')}</span>
-                        </button>
+                            {(fullRecording?.audioUrl || recording.audioUrl) ? (
+                                <div className="space-y-4">
+                                    <div className="bg-[#f7f7f8] dark:bg-black/20 rounded-lg p-3 flex items-center gap-4">
+                                        {/* Play/Pause Button */}
+                                        <button
+                                            onClick={togglePlay}
+                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors flex-shrink-0"
+                                        >
+                                            {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+                                        </button>
 
-                        {/* Exportar */}
-                        <button
-                            onClick={handleExport}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
-                            title={t('export')}
-                        >
-                            <Share2 size={14} />
-                            <span className="hidden sm:inline">{t('export')}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6">
-                <div className="max-w-4xl mx-auto space-y-8">
-                    {isLoadingDetails && !fullRecording && (
-                        <div className="flex items-center gap-2 text-[12px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg animate-pulse mb-4">
-                            <Loader2 size={14} className="animate-spin" />
-                            Actualizando detalles completos...
-                        </div>
-                    )}
-
-                    {/* Audio Player Card */}
-                    <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <FileText size={16} className="text-[#8e8e8e]" />
-                            <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                {t('audioOriginal')}
-                            </h2>
-                        </div>
-
-                        {(fullRecording?.audioUrl || recording.audioUrl) ? (
-                            <div className="space-y-4">
-                                <div className="bg-[#f7f7f8] dark:bg-black/20 rounded-lg p-3 flex items-center gap-4">
-                                    {/* Play/Pause Button */}
-                                    <button
-                                        onClick={togglePlay}
-                                        className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors flex-shrink-0"
-                                    >
-                                        {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
-                                    </button>
-
-                                    {/* Time and Slider */}
-                                    <div className="flex-1 space-y-1">
-                                        <div className="flex items-center justify-between text-[11px] text-[#8e8e8e] font-medium">
-                                            <span>{formatTime(currentTime)}</span>
-                                            <span>{formatTime(duration || 0)}</span>
+                                        {/* Time and Slider */}
+                                        <div className="flex-1 space-y-1">
+                                            <div className="flex items-center justify-between text-[11px] text-[#8e8e8e] font-medium">
+                                                <span>{formatTime(currentTime)}</span>
+                                                <span>{formatTime(duration || 0)}</span>
+                                            </div>
+                                            <div className="relative h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer group">
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max={duration || 100}
+                                                    value={currentTime}
+                                                    onChange={handleSeek}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                />
+                                                <div
+                                                    className="absolute top-0 left-0 h-full bg-blue-600 rounded-full pointer-events-none transition-all duration-100"
+                                                    style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                                                />
+                                                {/* Thumb handle visual */}
+                                                <div
+                                                    className="absolute top-1/2 -mt-1.5 h-3 w-3 bg-white border-2 border-blue-600 rounded-full shadow-sm pointer-events-none transition-all duration-100 opacity-0 group-hover:opacity-100"
+                                                    style={{ left: `calc(${duration > 0 ? (currentTime / duration) * 100 : 0}% - 6px)` }}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="relative h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer group">
+
+                                        {/* Volume */}
+                                        <div className="flex items-center gap-2 group relative w-8 hover:w-24 transition-all duration-300">
+                                            <button onClick={toggleMute} className="text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors">
+                                                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                                            </button>
                                             <input
                                                 type="range"
                                                 min="0"
-                                                max={duration || 100}
-                                                value={currentTime}
-                                                onChange={handleSeek}
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                            />
-                                            <div
-                                                className="absolute top-0 left-0 h-full bg-blue-600 rounded-full pointer-events-none transition-all duration-100"
-                                                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
-                                            />
-                                            {/* Thumb handle visual */}
-                                            <div
-                                                className="absolute top-1/2 -mt-1.5 h-3 w-3 bg-white border-2 border-blue-600 rounded-full shadow-sm pointer-events-none transition-all duration-100 opacity-0 group-hover:opacity-100"
-                                                style={{ left: `calc(${duration > 0 ? (currentTime / duration) * 100 : 0}% - 6px)` }}
+                                                max="1"
+                                                step="0.1"
+                                                value={volume}
+                                                onChange={handleVolumeChange}
+                                                className="w-0 group-hover:w-16 h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer transition-all duration-300 opacity-0 group-hover:opacity-100 accent-blue-600"
                                             />
                                         </div>
                                     </div>
 
-                                    {/* Volume */}
-                                    <div className="flex items-center gap-2 group relative w-8 hover:w-24 transition-all duration-300">
-                                        <button onClick={toggleMute} className="text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors">
-                                            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                                    <audio
+                                        ref={audioRef}
+                                        src={signedAudioUrl || undefined}
+                                        onTimeUpdate={handleTimeUpdate}
+                                        onLoadedMetadata={handleLoadedMetadata}
+                                        onDurationChange={handleLoadedMetadata}
+                                        onEnded={handleEnded}
+                                        className="hidden"
+                                    />
+
+                                    {/* Download Button */}
+                                    <button
+                                        onClick={handleDownloadAudio}
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
+                                    >
+                                        <Download size={14} />
+                                        {t('downloadAudio')}
+                                    </button>
+                                </div>
+                            ) : (
+                                <p className="text-[12px] text-[#8e8e8e]">
+                                    {t('audioNotReady')}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Attachments Gallery */}
+                        {fullRecording?.metadata?.attachments && fullRecording.metadata.attachments.length > 0 && (
+                            <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <ImageIcon size={16} className="text-[#8e8e8e]" />
+                                    <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                        {t('galleryAttachments')}
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {fullRecording.metadata.attachments.map((att, idx) => {
+                                        const diffMs = att.timestamp - new Date(fullRecording.date).getTime();
+                                        const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+                                        const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
+                                        const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
+                                        const s = (diffSec % 60).toString().padStart(2, '0');
+                                        const timeLabel = `${h}:${m}:${s}`;
+
+                                        // Use a hook-derived signed URL map or async load?
+                                        // For simplicity, we'll assume a helper component or state.
+                                        // Actually, we can just use a local component that handles its own signing
+                                        return (
+                                            <AttachmentThumbnail
+                                                key={idx}
+                                                attachment={att}
+                                                timeLabel={timeLabel}
+                                                onTimestampClick={handleTimestampClick}
+                                                onImageClick={handleImageClick}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Transcription Card */}
+                        {hasTranscript ? (
+                            <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <FileText size={16} className="text-[#8e8e8e]" />
+                                        <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                            {t('transcription') || 'Transcripción'}
+                                        </h2>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => exportUtils.exportAsPDF(recording, { includeTranscript: true, includeSummary: false })}
+                                            className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                        >
+                                            PDF
                                         </button>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="1"
-                                            step="0.1"
-                                            value={volume}
-                                            onChange={handleVolumeChange}
-                                            className="w-0 group-hover:w-16 h-1 bg-black/10 dark:bg-white/10 rounded-full cursor-pointer transition-all duration-300 opacity-0 group-hover:opacity-100 accent-blue-600"
-                                        />
+                                        <button
+                                            onClick={() => exportUtils.exportAsDoc(recording, { includeTranscript: true, includeSummary: false })}
+                                            className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                        >
+                                            DOC
+                                        </button>
                                     </div>
                                 </div>
 
-                                <audio
-                                    ref={audioRef}
-                                    src={signedAudioUrl || undefined}
-                                    onTimeUpdate={handleTimeUpdate}
-                                    onLoadedMetadata={handleLoadedMetadata}
-                                    onDurationChange={handleLoadedMetadata}
-                                    onEnded={handleEnded}
-                                    className="hidden"
-                                />
+                                <div className="space-y-4">
+                                    {segments.map((segment, idx) => {
+                                        // Check for temporal metadata matches
+                                        const temporalMeta = recording.metadata?.segments?.find(
+                                            meta => meta.segmentStartIndex === idx
+                                        );
 
-                                {/* Download Button */}
-                                <button
-                                    onClick={handleDownloadAudio}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
-                                >
-                                    <Download size={14} />
-                                    {t('downloadAudio')}
-                                </button>
+                                        // Calculate time gap from previous segment
+                                        let timeGapDisplay = null;
+                                        if (temporalMeta && idx > 0 && recording.metadata?.segments) {
+                                            const prevMeta = recording.metadata.segments.find(m => m.segmentEndIndex === idx);
+                                            if (prevMeta) {
+                                                const prevDate = new Date(prevMeta.recordedAt);
+                                                const currDate = new Date(temporalMeta.recordedAt);
+                                                const diffHours = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60);
+
+                                                if (diffHours > 24) {
+                                                    const diffDays = Math.floor(diffHours / 24);
+                                                    timeGapDisplay = `${diffDays} día${diffDays > 1 ? 's' : ''} después`;
+                                                } else if (diffHours > 1) {
+                                                    timeGapDisplay = `${Math.floor(diffHours)} horas después`;
+                                                }
+                                            }
+                                        }
+
+                                        return (
+                                            <React.Fragment key={idx}>
+                                                {/* Date Separator */}
+                                                {temporalMeta && (
+                                                    <div className="relative py-6 flex items-center justify-center">
+                                                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                            <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
+                                                        </div>
+                                                        <div className="relative flex flex-col items-center gap-1 bg-white dark:bg-card-dark px-4">
+                                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-1.5 shadow-sm">
+                                                                <Calendar size={14} />
+                                                                {new Date(temporalMeta.recordedAt).toLocaleDateString('es-ES', {
+                                                                    weekday: 'long',
+                                                                    year: 'numeric',
+                                                                    month: 'long',
+                                                                    day: 'numeric',
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                })}
+                                                            </span>
+                                                            {timeGapDisplay && (
+                                                                <span className="text-[10px] text-orange-600 dark:text-orange-400 italic flex items-center gap-1">
+                                                                    <Clock size={12} />
+                                                                    {timeGapDisplay}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Segment Content */}
+                                                <div
+                                                    className="flex gap-4"
+                                                    onMouseUp={() => {
+                                                        try {
+                                                            const selection = window.getSelection();
+                                                            if (selection && !selection.isCollapsed && selection.anchorNode && selection.focusNode) {
+                                                                // Valid selection
+                                                            }
+                                                        } catch (e) {
+                                                            console.warn('Selection error suppressed:', e);
+                                                        }
+                                                    }}
+                                                >
+                                                    <button
+                                                        onClick={() => handleTimestampClick(segment.timestamp)}
+                                                        className="text-[11px] text-[#8e8e8e] hover:text-blue-600 dark:hover:text-blue-400 font-mono shrink-0 w-16 text-left cursor-pointer hover:underline transition-colors"
+                                                        title="Click para saltar a este momento"
+                                                    >
+                                                        {segment.timestamp}
+                                                    </button>
+                                                    <div className="flex-1">
+                                                        <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
+                                                            {editingSpeaker === segment.speaker ? (
+                                                                <span className="inline-flex items-center gap-1 mr-2">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={editedSpeakerName}
+                                                                        onChange={(e) => setEditedSpeakerName(e.target.value)}
+                                                                        className="text-blue-600 dark:text-blue-400 font-semibold bg-transparent border-b border-blue-500 focus:outline-none w-32"
+                                                                        autoFocus
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') handleSaveSpeaker(segment.speaker!);
+                                                                            if (e.key === 'Escape') handleCancelEditSpeaker();
+                                                                        }}
+                                                                    />
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); handleSaveSpeaker(segment.speaker!); }}
+                                                                        className="p-0.5 hover:bg-green-500/10 rounded text-green-600"
+                                                                    >
+                                                                        <Check size={14} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); handleCancelEditSpeaker(); }}
+                                                                        className="p-0.5 hover:bg-red-500/10 rounded text-red-600"
+                                                                    >
+                                                                        <X size={14} />
+                                                                    </button>
+                                                                </span>
+                                                            ) : (
+                                                                <span
+                                                                    className="font-semibold text-blue-600 dark:text-blue-400 mr-1 cursor-pointer hover:underline decoration-blue-400/50"
+                                                                    onClick={() => onUpdateSpeaker && handleStartEditSpeaker(segment.speaker!)}
+                                                                    title="Clic para cambiar nombre"
+                                                                >
+                                                                    {segment.speaker}:
+                                                                </span>
+                                                            )}
+                                                            {editingSegmentIndex === idx ? (
+                                                                <span className="inline-flex flex-col gap-2 w-full mt-1">
+                                                                    <textarea
+                                                                        value={editedSegmentText}
+                                                                        onChange={(e) => setEditedSegmentText(e.target.value)}
+                                                                        className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed bg-black/5 dark:bg-white/5 border border-blue-500 rounded p-2 focus:outline-none w-full min-h-[60px]"
+                                                                        autoFocus
+                                                                    />
+                                                                    <div className="flex justify-end gap-2">
+                                                                        <button
+                                                                            onClick={() => handleSaveSegment(idx)}
+                                                                            className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white rounded text-[11px] hover:bg-green-700"
+                                                                        >
+                                                                            <Check size={12} /> Guardar
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={handleCancelEditSegment}
+                                                                            className="flex items-center gap-1 px-2 py-1 bg-red-600 text-white rounded text-[11px] hover:bg-red-700"
+                                                                        >
+                                                                            <X size={12} /> Cancelar
+                                                                        </button>
+                                                                    </div>
+                                                                </span>
+                                                            ) : (
+                                                                <span
+                                                                    className="cursor-pointer hover:bg-blue-500/5 transition-colors rounded px-1 -mx-1"
+                                                                    onClick={() => handleStartEditSegment(idx, segment.text)}
+                                                                    title="Clic para editar texto"
+                                                                >
+                                                                    {segment.text}
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         ) : (
-                            <p className="text-[12px] text-[#8e8e8e]">
-                                {t('audioNotReady')}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Attachments Gallery */}
-                    {fullRecording?.metadata?.attachments && fullRecording.metadata.attachments.length > 0 && (
-                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <ImageIcon size={16} className="text-[#8e8e8e]" />
-                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                    {t('galleryAttachments')}
-                                </h2>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {fullRecording.metadata.attachments.map((att, idx) => {
-                                    const diffMs = att.timestamp - new Date(fullRecording.date).getTime();
-                                    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
-                                    const h = Math.floor(diffSec / 3600).toString().padStart(2, '0');
-                                    const m = Math.floor((diffSec % 3600) / 60).toString().padStart(2, '0');
-                                    const s = (diffSec % 60).toString().padStart(2, '0');
-                                    const timeLabel = `${h}:${m}:${s}`;
-
-                                    // Use a hook-derived signed URL map or async load?
-                                    // For simplicity, we'll assume a helper component or state.
-                                    // Actually, we can just use a local component that handles its own signing
-                                    return (
-                                        <AttachmentThumbnail
-                                            key={idx}
-                                            attachment={att}
-                                            timeLabel={timeLabel}
-                                            onTimestampClick={handleTimestampClick}
-                                            onImageClick={handleImageClick}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Transcription Card */}
-                    {hasTranscript ? (
-                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
+                            <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                                <div className="flex items-center gap-2 mb-4">
                                     <FileText size={16} className="text-[#8e8e8e]" />
                                     <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
                                         {t('transcription') || 'Transcripción'}
                                     </h2>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => exportUtils.exportAsPDF(recording, { includeTranscript: true, includeSummary: false })}
-                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
-                                    >
-                                        PDF
-                                    </button>
-                                    <button
-                                        onClick={() => exportUtils.exportAsDoc(recording, { includeTranscript: true, includeSummary: false })}
-                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
-                                    >
-                                        DOC
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                {segments.map((segment, idx) => {
-                                    // Check for temporal metadata matches
-                                    const temporalMeta = recording.metadata?.segments?.find(
-                                        meta => meta.segmentStartIndex === idx
-                                    );
-
-                                    // Calculate time gap from previous segment
-                                    let timeGapDisplay = null;
-                                    if (temporalMeta && idx > 0 && recording.metadata?.segments) {
-                                        const prevMeta = recording.metadata.segments.find(m => m.segmentEndIndex === idx);
-                                        if (prevMeta) {
-                                            const prevDate = new Date(prevMeta.recordedAt);
-                                            const currDate = new Date(temporalMeta.recordedAt);
-                                            const diffHours = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60);
-
-                                            if (diffHours > 24) {
-                                                const diffDays = Math.floor(diffHours / 24);
-                                                timeGapDisplay = `${diffDays} día${diffDays > 1 ? 's' : ''} después`;
-                                            } else if (diffHours > 1) {
-                                                timeGapDisplay = `${Math.floor(diffHours)} horas después`;
-                                            }
-                                        }
-                                    }
-
-                                    return (
-                                        <React.Fragment key={idx}>
-                                            {/* Date Separator */}
-                                            {temporalMeta && (
-                                                <div className="relative py-6 flex items-center justify-center">
-                                                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                                                        <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
-                                                    </div>
-                                                    <div className="relative flex flex-col items-center gap-1 bg-white dark:bg-card-dark px-4">
-                                                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-1.5 shadow-sm">
-                                                            <Calendar size={14} />
-                                                            {new Date(temporalMeta.recordedAt).toLocaleDateString('es-ES', {
-                                                                weekday: 'long',
-                                                                year: 'numeric',
-                                                                month: 'long',
-                                                                day: 'numeric',
-                                                                hour: '2-digit',
-                                                                minute: '2-digit'
-                                                            })}
-                                                        </span>
-                                                        {timeGapDisplay && (
-                                                            <span className="text-[10px] text-orange-600 dark:text-orange-400 italic flex items-center gap-1">
-                                                                <Clock size={12} />
-                                                                {timeGapDisplay}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
+                                <div className="flex flex-col items-center justify-center py-8">
+                                    <Mic size={48} className="text-[#8e8e8e]/30 mb-4" />
+                                    <p className="text-[13px] text-[#8e8e8e] mb-6">{t('transcriptionNotAvailable')}</p>
+                                    {onGenerateTranscript && (
+                                        <button
+                                            onClick={async () => {
+                                                setIsGenerating(true);
+                                                try {
+                                                    await onGenerateTranscript();
+                                                } finally {
+                                                    setIsGenerating(false);
+                                                }
+                                            }}
+                                            disabled={isGenerating}
+                                            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/70 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2"
+                                        >
+                                            {isGenerating ? (
+                                                <Loader2 size={16} className="animate-spin" />
+                                            ) : (
+                                                <Sparkles size={16} />
                                             )}
+                                            {isGenerating ? t('regenerating') : t('generateTranscription')}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
-                                            {/* Segment Content */}
-                                            <div
-                                                className="flex gap-4"
-                                                onMouseUp={() => {
-                                                    try {
-                                                        const selection = window.getSelection();
-                                                        if (selection && !selection.isCollapsed && selection.anchorNode && selection.focusNode) {
-                                                            // Valid selection
-                                                        }
-                                                    } catch (e) {
-                                                        console.warn('Selection error suppressed:', e);
-                                                    }
-                                                }}
-                                            >
-                                                <button
-                                                    onClick={() => handleTimestampClick(segment.timestamp)}
-                                                    className="text-[11px] text-[#8e8e8e] hover:text-blue-600 dark:hover:text-blue-400 font-mono shrink-0 w-16 text-left cursor-pointer hover:underline transition-colors"
-                                                    title="Click para saltar a este momento"
-                                                >
-                                                    {segment.timestamp}
-                                                </button>
-                                                <div className="flex-1">
-                                                    <p className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
-                                                        {editingSpeaker === segment.speaker ? (
-                                                            <span className="inline-flex items-center gap-1 mr-2">
-                                                                <input
-                                                                    type="text"
-                                                                    value={editedSpeakerName}
-                                                                    onChange={(e) => setEditedSpeakerName(e.target.value)}
-                                                                    className="text-blue-600 dark:text-blue-400 font-semibold bg-transparent border-b border-blue-500 focus:outline-none w-32"
-                                                                    autoFocus
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                    onKeyDown={(e) => {
-                                                                        if (e.key === 'Enter') handleSaveSpeaker(segment.speaker!);
-                                                                        if (e.key === 'Escape') handleCancelEditSpeaker();
-                                                                    }}
-                                                                />
-                                                                <button
-                                                                    onClick={(e) => { e.stopPropagation(); handleSaveSpeaker(segment.speaker!); }}
-                                                                    className="p-0.5 hover:bg-green-500/10 rounded text-green-600"
-                                                                >
-                                                                    <Check size={14} />
-                                                                </button>
-                                                                <button
-                                                                    onClick={(e) => { e.stopPropagation(); handleCancelEditSpeaker(); }}
-                                                                    className="p-0.5 hover:bg-red-500/10 rounded text-red-600"
-                                                                >
-                                                                    <X size={14} />
-                                                                </button>
-                                                            </span>
-                                                        ) : (
-                                                            <span
-                                                                className="font-semibold text-blue-600 dark:text-blue-400 mr-1 cursor-pointer hover:underline decoration-blue-400/50"
-                                                                onClick={() => onUpdateSpeaker && handleStartEditSpeaker(segment.speaker!)}
-                                                                title="Clic para cambiar nombre"
-                                                            >
-                                                                {segment.speaker}:
-                                                            </span>
-                                                        )}
-                                                        {editingSegmentIndex === idx ? (
-                                                            <span className="inline-flex flex-col gap-2 w-full mt-1">
-                                                                <textarea
-                                                                    value={editedSegmentText}
-                                                                    onChange={(e) => setEditedSegmentText(e.target.value)}
-                                                                    className="text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed bg-black/5 dark:bg-white/5 border border-blue-500 rounded p-2 focus:outline-none w-full min-h-[60px]"
-                                                                    autoFocus
-                                                                />
-                                                                <div className="flex justify-end gap-2">
-                                                                    <button
-                                                                        onClick={() => handleSaveSegment(idx)}
-                                                                        className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white rounded text-[11px] hover:bg-green-700"
-                                                                    >
-                                                                        <Check size={12} /> Guardar
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={handleCancelEditSegment}
-                                                                        className="flex items-center gap-1 px-2 py-1 bg-red-600 text-white rounded text-[11px] hover:bg-red-700"
-                                                                    >
-                                                                        <X size={12} /> Cancelar
-                                                                    </button>
-                                                                </div>
-                                                            </span>
-                                                        ) : (
-                                                            <span
-                                                                className="cursor-pointer hover:bg-blue-500/5 transition-colors rounded px-1 -mx-1"
-                                                                onClick={() => handleStartEditSegment(idx, segment.text)}
-                                                                title="Clic para editar texto"
-                                                            >
-                                                                {segment.text}
-                                                            </span>
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <FileText size={16} className="text-[#8e8e8e]" />
-                                <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                    {t('transcription') || 'Transcripción'}
-                                </h2>
-                            </div>
-                            <div className="flex flex-col items-center justify-center py-8">
-                                <Mic size={48} className="text-[#8e8e8e]/30 mb-4" />
-                                <p className="text-[13px] text-[#8e8e8e] mb-6">{t('transcriptionNotAvailable')}</p>
-                                {onGenerateTranscript && (
-                                    <button
-                                        onClick={async () => {
-                                            setIsGenerating(true);
-                                            try {
-                                                await onGenerateTranscript();
-                                            } finally {
-                                                setIsGenerating(false);
-                                            }
+                        {/* Summary Card */}
+                        {hasSummary && (
+                            <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles size={16} className="text-[#8e8e8e]" />
+                                        <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
+                                            {t('aiSummary')}
+                                        </h2>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => exportUtils.exportAsPDF({ ...recording, segments, summary }, { includeSummary: true, includeTranscript: false })}
+                                            className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                        >
+                                            PDF
+                                        </button>
+                                        <button
+                                            onClick={() => exportUtils.exportAsDoc({ ...recording, segments, summary }, { includeSummary: true, includeTranscript: false })}
+                                            className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
+                                        >
+                                            DOC
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
+                                    <ReactMarkdown
+                                        components={{
+                                            h1: ({ node, ...props }) => <h1 className="text-[16px] font-bold mb-3 mt-4" {...props} />,
+                                            h2: ({ node, ...props }) => <h2 className="text-[15px] font-semibold mb-2 mt-3" {...props} />,
+                                            h3: ({ node, ...props }) => <h3 className="text-[14px] font-semibold mb-2 mt-3" {...props} />,
+                                            p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                                            ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                                            ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                                            li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                                            strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
                                         }}
-                                        disabled={isGenerating}
-                                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/70 text-white text-[13px] font-medium rounded-lg transition-colors flex items-center gap-2"
                                     >
-                                        {isGenerating ? (
-                                            <Loader2 size={16} className="animate-spin" />
-                                        ) : (
-                                            <Sparkles size={16} />
-                                        )}
-                                        {isGenerating ? t('regenerating') : t('generateTranscription')}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Summary Card */}
-                    {hasSummary && (
-                        <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <Sparkles size={16} className="text-[#8e8e8e]" />
-                                    <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                        {t('aiSummary')}
-                                    </h2>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => exportUtils.exportAsPDF({ ...recording, segments, summary }, { includeSummary: true, includeTranscript: false })}
-                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
-                                    >
-                                        PDF
-                                    </button>
-                                    <button
-                                        onClick={() => exportUtils.exportAsDoc({ ...recording, segments, summary }, { includeSummary: true, includeTranscript: false })}
-                                        className="text-[11px] font-medium text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-[#ececec] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1 rounded transition-colors"
-                                    >
-                                        DOC
-                                    </button>
+                                        {cleanMarkdown(summary)}
+                                    </ReactMarkdown>
                                 </div>
                             </div>
-
-                            <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
-                                <ReactMarkdown
-                                    components={{
-                                        h1: ({ node, ...props }) => <h1 className="text-[16px] font-bold mb-3 mt-4" {...props} />,
-                                        h2: ({ node, ...props }) => <h2 className="text-[15px] font-semibold mb-2 mt-3" {...props} />,
-                                        h3: ({ node, ...props }) => <h3 className="text-[14px] font-semibold mb-2 mt-3" {...props} />,
-                                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
-                                        ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-2" {...props} />,
-                                        ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-2" {...props} />,
-                                        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-                                        strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
-                                    }}
-                                >
-                                    {cleanMarkdown(summary)}
-                                </ReactMarkdown>
-                            </div>
-                        </div>
-                    )}
+                        )}
 
 
+                    </div>
                 </div>
-            </div>
 
-            {/* Modals */}
-            <AnalysisModal
-                isOpen={analysisOpen}
-                onClose={() => setAnalysisOpen(false)}
-                onGenerate={handleGenerateSummary}
-                isGenerating={isGenerating}
-                defaultLanguage={user.transcriptionLanguage || 'es'}
-            />
-            {/* ChatModal moved to Dashboard level */}
-            <ExportModal
-                isOpen={exportOpen}
-                onClose={() => setExportOpen(false)}
-                recording={fullRecording || recording}
-            />
-        </div>
-    );
-};
+                {/* Modals */}
+                <AnalysisModal
+                    isOpen={analysisOpen}
+                    onClose={() => setAnalysisOpen(false)}
+                    onGenerate={handleGenerateSummary}
+                    isGenerating={isGenerating}
+                    defaultLanguage={user.transcriptionLanguage || 'es'}
+                />
+                {/* ChatModal moved to Dashboard level */}
+                <ExportModal
+                    isOpen={exportOpen}
+                    onClose={() => setExportOpen(false)}
+                    recording={fullRecording || recording}
+                />
+            </div>
+        );
+    };
