@@ -15,6 +15,7 @@ import { saveAs } from 'file-saver';
 import { useToast } from '../../../components/Toast';
 import { Image as ImageIcon } from 'lucide-react';
 import { UpgradeModal } from '../../../components/UpgradeModal';
+import { RecordingActions } from './RecordingActions';
 
 
 interface RecordingDetailViewProps {
@@ -681,43 +682,19 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             </p>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex items-center gap-2 shrink-0">
-                            {/* Regenerar */}
-                            <button
-                                onClick={handleTranscribeAudio}
-                                disabled={isTranscribing || !signedAudioUrl}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                                title={t('regenerateTranscription')}
-                            >
-                                {isTranscribing ? (
-                                    <Loader2 size={14} className="animate-spin text-brand-purple" />
-                                ) : (
-                                    <RefreshCw size={14} className="text-brand-purple" />
-                                )}
-                                <span className="hidden sm:inline">{isTranscribing ? t('regenerating') : t('regenerate')}</span>
-                            </button>
-
-                            {/* Analizar */}
-                            <button
-                                onClick={handleAnalyze}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
-                                title={t('summarize')}
-                            >
-                                <Sparkles size={14} className="text-brand-purple" />
-                                <span className="hidden sm:inline">{t('summarize')}</span>
-                            </button>
-
-                            {/* Exportar */}
-                            <button
-                                onClick={handleExport}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm"
-                                title={t('export')}
-                            >
-                                <Share2 size={14} />
-                                <span className="hidden sm:inline">{t('export')}</span>
-                            </button>
-                        </div>
+                        {/* Action Buttons - Refactored with Premium Gates */}
+                        <RecordingActions
+                            isFreeUser={isFreeUser}
+                            isTranscribing={isTranscribing}
+                            onTranscribe={handleTranscribeAudio}
+                            onAnalyze={handleAnalyze}
+                            onExport={handleExport}
+                            onShowUpgrade={(featureName) => {
+                                setUpgradeFeatureName(featureName);
+                                setUpgradeModalOpen(true);
+                            }}
+                            canTranscribe={!!signedAudioUrl}
+                        />
                     </div>
                 </div>
 
