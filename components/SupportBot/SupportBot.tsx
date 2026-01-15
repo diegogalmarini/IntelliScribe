@@ -243,7 +243,7 @@ ${transcript}
             dragMomentum={false}
             // Better constraints: allow full screen but keep it visible
             dragConstraints={{
-                left: -20,
+                left: -400,
                 right: window.innerWidth - 80,
                 top: -window.innerHeight + 100,
                 bottom: 20
