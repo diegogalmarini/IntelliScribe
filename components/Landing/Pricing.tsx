@@ -200,32 +200,44 @@ export const Pricing: React.FC = () => {
                                 ))}
                             </tr>
 
-                            {/* FUNCIONES IA Group */}
+
+                            {/* FUNCIONES IA Group - DYNAMIC from database */}
                             <tr className="bg-slate-50 dark:bg-slate-800/50">
                                 <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     {t('table_ai_features')}
                                 </td>
                             </tr>
-                            <tr>
-                                <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    {t('table_ask_diktalo')}
-                                </td>
-                                {plans.map(p => (
-                                    <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
-                                        {p.id !== 'free' ? <Check size={18} className="mx-auto text-blue-600 dark:text-blue-400" /> : <span className="text-slate-400">-</span>}
-                                    </td>
-                                ))}
-                            </tr>
-                            <tr>
-                                <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    {t('table_advanced_summaries')}
-                                </td>
-                                {plans.map(p => (
-                                    <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
-                                        {p.id !== 'free' ? <Check size={18} className="mx-auto text-blue-600 dark:text-blue-400" /> : <span className="text-slate-400">-</span>}
-                                    </td>
-                                ))}
-                            </tr>
+                            {(() => {
+                                // Extract all unique AI-related features from all plans
+                                const aiKeywords = ['IA', 'Chat', 'Asistente', 'Resúmenes', 'Diktalo', 'AI', 'Assistant', 'Summaries'];
+                                const allFeatures = plans.flatMap(p =>
+                                    (language === 'en' && p.features_en ? p.features_en : p.features)?.filter(f =>
+                                        aiKeywords.some(keyword => f.toLowerCase().includes(keyword.toLowerCase()))
+                                    ) || []
+                                );
+                                const uniqueAiFeatures = [...new Set(allFeatures)];
+
+                                return uniqueAiFeatures.map((feature, idx) => (
+                                    <tr key={`ai-${idx}`}>
+                                        <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
+                                            {feature}
+                                        </td>
+                                        {plans.map(p => {
+                                            const planFeatures = language === 'en' && p.features_en ? p.features_en : p.features;
+                                            const hasFeature = planFeatures?.includes(feature);
+                                            return (
+                                                <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
+                                                    {hasFeature ? (
+                                                        <Check size={18} className="mx-auto text-blue-600 dark:text-blue-400" />
+                                                    ) : (
+                                                        <span className="text-slate-400">-</span>
+                                                    )}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ));
+                            })()}
 
                             {/* INTEGRACIÓN Group */}
                             <tr className="bg-slate-50 dark:bg-slate-800/50">
