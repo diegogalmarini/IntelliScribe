@@ -240,15 +240,20 @@ export const Users: React.FC = () => {
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 group/date">
                                                 <input
                                                     type="date"
                                                     value={user.trialEndsAt ? new Date(user.trialEndsAt).toISOString().split('T')[0] : ''}
                                                     onChange={(e) => handleTrialChange(user.id, e.target.value)}
-                                                    className="bg-transparent border-none text-[11px] text-slate-600 dark:text-slate-400 focus:ring-0 p-0 cursor-pointer hover:text-blue-500 transition-colors"
+                                                    className="bg-transparent border border-transparent group-hover/date:border-slate-200 dark:group-hover/date:border-slate-700 rounded px-1 text-xs text-slate-600 dark:text-slate-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:bg-white dark:focus:bg-black p-1 cursor-pointer transition-all"
                                                 />
                                                 {user.trialEndsAt && new Date(user.trialEndsAt) > new Date() && (
-                                                    <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" title="Active Trial"></span>
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" title="Active Trial"></span>
+                                                )}
+                                                {!user.trialEndsAt && (
+                                                    <span className="text-[10px] text-slate-300 dark:text-slate-600 opacity-0 group-hover/date:opacity-100 transition-opacity">
+                                                        Set Date
+                                                    </span>
                                                 )}
                                             </div>
                                         </td>
@@ -264,9 +269,16 @@ export const Users: React.FC = () => {
                                                         style={{ width: `${Math.min(user.usagePercentage, 100)}%` }}
                                                     />
                                                 </div>
-                                                <span className="text-xs text-slate-500 min-w-[50px] font-mono">
-                                                    {user.minutesUsed}/{user.minutesLimit === -1 ? '∞' : user.minutesLimit}
-                                                </span>
+                                                <div className="flex flex-col text-[10px] font-mono text-slate-500 min-w-[60px] text-right">
+                                                    <span>
+                                                        {user.minutesUsed}/{user.minutesLimit === -1 ? '∞' : user.minutesLimit}m
+                                                    </span>
+                                                    {(user.storageUsed && user.storageUsed > 0) && (
+                                                        <span className="text-slate-400">
+                                                            {user.storageUsed ? (user.storageUsed / 1073741824).toFixed(1) : '0'}GB
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
 

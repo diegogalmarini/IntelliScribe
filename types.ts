@@ -182,6 +182,7 @@ export interface AdminUser {
   status: 'active' | 'past_due' | 'canceled' | 'banned';
   minutesLimit: number;
   usagePercentage: number;
+  minutesUsed: number; // Restored
   storageUsed?: number;
   storageLimit?: number;
   trialEndsAt?: string;
