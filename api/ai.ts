@@ -78,8 +78,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.getGenerativeModel({
-                model: 'models/gemini-1.5-flash',
-            }, { apiVersion: 'v1' }).generateContent(finalPrompt);
+                model: 'gemini-1.5-flash-latest',
+            }, { apiVersion: 'v1beta' }).generateContent(finalPrompt);
             result = response.response.text() || "No summary generated.";
         }
 
@@ -111,9 +111,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
             const chat = genAI.getGenerativeModel({
-                model: 'models/gemini-1.5-flash',
+                model: 'gemini-1.5-flash-latest',
                 systemInstruction,
-            }, { apiVersion: 'v1' }).startChat({
+            }, { apiVersion: 'v1beta' }).startChat({
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
             });
             const response = await chat.sendMessage(message);
@@ -175,8 +175,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLanguageName = languageNames[language] || 'English';
 
             const response = await genAI.getGenerativeModel({
-                model: 'models/gemini-1.5-flash',
-            }, { apiVersion: 'v1' }).generateContent({
+                model: 'gemini-1.5-flash-latest',
+            }, { apiVersion: 'v1beta' }).generateContent({
                 contents: [{
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
@@ -343,10 +343,10 @@ CONTACTO: contacto@diktalo.com`;
     Talk to the user using your unique personality and this data.`;
             }
             const chat = genAI.getGenerativeModel({
-                model: "models/gemini-1.5-flash",
+                model: 'gemini-1.5-flash-latest',
                 systemInstruction,
                 generationConfig: { temperature: 0.9 }
-            }, { apiVersion: 'v1' }).startChat({
+            }, { apiVersion: 'v1beta' }).startChat({
                 history: history.map((h: any) => ({
                     role: h.role === 'user' ? 'user' : 'model',
                     parts: [{ text: h.content }]

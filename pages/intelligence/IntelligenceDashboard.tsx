@@ -993,10 +993,10 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         <button
                             onClick={() => setView('subscription')}
                             className={`hidden md:block px-2.5 py-1 text-xs font-semibold rounded-md border transition-opacity hover:opacity-80 ${(String(user?.subscription?.planId).toLowerCase().includes('plus') || (user?.subscription?.minutesLimit || 0) > 300)
-                                    ? 'bg-[#D3E97A]/10 text-[#D3E97A] border-[#D3E97A]/20'
-                                    : (String(user?.subscription?.planId).toLowerCase().includes('business') || (user?.subscription?.minutesLimit || 0) > 60)
-                                        ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-500/20'
-                                        : 'bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-white/10'
+                                ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-500/20'
+                                : (String(user?.subscription?.planId).toLowerCase().includes('business') || (user?.subscription?.minutesLimit || 0) > 60)
+                                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-500/20'
+                                    : 'bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-white/10'
                                 }`}
                         >
                             {formatPlanName(user?.subscription?.planId || 'free')}
