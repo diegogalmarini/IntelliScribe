@@ -97,6 +97,9 @@ export interface UserSubscription {
   minutesUsed: number;
   minutesLimit: number; // -1 for unlimited
   storageDaysLimit: number; // 7 for free, -1 for unlimited
+  storageUsed?: number; // bytes
+  storageLimit?: number; // bytes
+  trialEndsAt?: string; // Manual trial expiration
   usageResetDate?: string; // Next reset date
 }
 
@@ -177,9 +180,11 @@ export interface AdminUser {
   phoneVerified: boolean;
   planId: 'free' | 'pro' | 'business' | 'business_plus';
   status: 'active' | 'past_due' | 'canceled' | 'banned';
-  minutesUsed: number;
   minutesLimit: number;
   usagePercentage: number;
+  storageUsed?: number;
+  storageLimit?: number;
+  trialEndsAt?: string;
   createdAt: string;
 }
 

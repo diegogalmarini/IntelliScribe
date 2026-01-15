@@ -508,7 +508,7 @@ export const databaseService = {
     async checkUsageLimit(userId: string): Promise<{ allowed: boolean; message?: string }> {
         const { data, error } = await supabase
             .from('profiles')
-            .select('minutes_used, minutes_limit, subscription_status')
+            .select('minutes_used, minutes_limit, subscription_status, trial_ends_at')
             .eq('id', userId)
             .single();
 
@@ -518,7 +518,10 @@ export const databaseService = {
         }
 
         // Check if account is paused/banned
-        if (data.subscription_status !== 'active') {
+        // If there's an active manual trial, it overrides the subscription_status for access
+        const isTrialActive = data.trial_ends_at && new Date(data.trial_ends_at) > new Date();
+
+        if (data.subscription_status !== 'active' && !isTrialActive) {
             return { allowed: false, message: 'Your account is paused. Please update your payment method.' };
         }
 

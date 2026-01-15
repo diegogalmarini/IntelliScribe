@@ -351,6 +351,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     const confirmLogout = () => {
+        import('../../../utils/analytics').then(({ trackEvent }) => {
+            trackEvent('logout');
+        });
         onLogout();
         onClose();
     };
@@ -779,6 +782,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     setTranscriptionLang(val);
                                                     handleUpdateUser({ transcriptionLanguage: val });
                                                     triggerSaveFeedback();
+
+                                                    // TRACK: Transcription Language Change
+                                                    import('../../../utils/analytics').then(({ trackEvent, setUserProperties }) => {
+                                                        trackEvent('change_transcription_language', { language: val });
+                                                        setUserProperties({ transcription_language: val });
+                                                    });
                                                 }}
                                                 options={[
                                                     { value: 'es', label: 'Español' },

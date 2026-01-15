@@ -23,6 +23,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
       localStorage.setItem('diktalo_global_language', lang);
+
+      // TRACK: Language Change
+      import('../utils/analytics').then(({ trackEvent, setUserProperties }) => {
+        trackEvent('change_interface_language', { language: lang });
+        setUserProperties({ interface_language: lang });
+      });
     }
   };
 

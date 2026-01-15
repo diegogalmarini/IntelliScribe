@@ -30,7 +30,17 @@ export const Footer: React.FC = () => {
                 <div className="flex flex-col gap-4">
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('footer_recording_methods')}</h4>
                     <a href="/manual?id=grabadora-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_audio_recorder')}</a>
-                    <a href="/manual?id=grabadora-web" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_chrome_ext')}</a>
+                    <a
+                        href="/manual?id=grabadora-web"
+                        onClick={() => {
+                            import('../utils/analytics').then(({ trackEvent }) => {
+                                trackEvent('click_chrome_ext', { location: 'footer' });
+                            });
+                        }}
+                        className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold"
+                    >
+                        {t('footer_chrome_ext')}
+                    </a>
                     <a href="/manual?id=subir-archivos" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_upload')}</a>
                     <a href="/manual?id=multi-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Multi-Audio</a>
                     <a href="/manual?id=grabadora-llamada" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_call_recorder')}</a>

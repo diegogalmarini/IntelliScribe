@@ -156,6 +156,16 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                 const type = mimeTypeRef.current || 'audio/webm';
                 const audioBlob = new Blob(audioChunksRef.current, { type });
                 onComplete(audioBlob, secondsRef.current, sessionTitle, notesRef.current, mediaItemsRef.current);
+
+                // TRACK: Recording Complete
+                import('../../../utils/analytics').then(({ trackEvent }) => {
+                    trackEvent('record_complete', {
+                        duration_seconds: secondsRef.current,
+                        mode: recordingMode,
+                        notes_count: notesRef.current.length,
+                        media_count: mediaItemsRef.current.length
+                    });
+                });
             };
         } catch (e) {
             console.error("Failed to create MediaRecorder", e);
@@ -267,6 +277,14 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
             setIsRecording(true);
             onStateChange?.('recording');
             if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();
+
+            // TRACK: Recording Started
+            import('../../../utils/analytics').then(({ trackEvent }) => {
+                trackEvent('start_recording', {
+                    mode: recordingMode,
+                    transcription_language: user.transcriptionLanguage || 'es'
+                });
+            });
         }
     };
 

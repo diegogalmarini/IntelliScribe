@@ -30,6 +30,9 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     useEffect(() => {
         if (isOpen && user && status === 'Idle') {
             callService.prepareToken(user.email || 'guest');
+            import('../utils/analytics').then(({ trackEvent }) => {
+                trackEvent('dialer_opened');
+            });
         }
     }, [isOpen, user]);
 
@@ -52,6 +55,13 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         setErrorMessage('');
         const numberToCall = '+' + number;
         setStatus('Calling...');
+
+        // TRACK: Start Call
+        import('../utils/analytics').then(({ trackEvent }) => {
+            trackEvent('start_call', {
+                transcription_language: user.transcriptionLanguage || 'es'
+            });
+        });
 
         // DEBUG: Check user phone value
         console.log('[DIALER] user.id:', user.id);
