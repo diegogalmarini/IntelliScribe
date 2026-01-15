@@ -36,6 +36,7 @@ import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
+import { trackPageView, initGA } from './utils/analytics';
 import { PublicLayout } from './layouts/PublicLayout';
 
 // ========== LAZY LOADING FOR ADMIN COMPONENTS ==========
@@ -66,7 +67,7 @@ const AppContent: React.FC = () => {
         if (path === '/trust') return AppRoute.TRUST;
         if (path === '/cookies') return AppRoute.COOKIES;
         if (path === '/login') return AppRoute.LOGIN;
-        if (path === '/pricing') return AppRoute.PRICING_COMPARISON; // NEW
+        if (path === '/comparar-planes') return AppRoute.PRICING_COMPARISON; // RENAMED from /pricing to avoid conflict
         if (path === '/contact') return AppRoute.CONTACT;
         if (path === '/about') return AppRoute.ABOUT;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
@@ -78,6 +79,41 @@ const AppContent: React.FC = () => {
     const location = useLocation();
     const navigateRR = useNavigate();
 
+    // Google Analytics Integration
+    useEffect(() => {
+        // 1. Initial Check: If user already consented, initialize GA
+        const savedConsent = localStorage.getItem('diktalo_cookie_consent');
+        if (savedConsent) {
+            try {
+                const parsed = JSON.parse(savedConsent);
+                if (parsed.analytics) {
+                    initGA();
+                }
+            } catch (e) { /* ignore */ }
+        }
+    }, []);
+
+    useEffect(() => {
+        // 2. Track Route Changes & Update Title
+        const routeTitles: Record<string, string> = {
+            [AppRoute.LANDING]: 'Diktalo - AI Meeting Assistant',
+            [AppRoute.LOGIN]: 'Iniciar Sesión | Diktalo',
+            [AppRoute.DASHBOARD]: 'Dashboard | Diktalo',
+            [AppRoute.INTELLIGENCE]: 'Intelligence Hub | Diktalo',
+            [AppRoute.PRICING_COMPARISON]: 'Planes y Precios | Diktalo',
+            [AppRoute.ABOUT]: 'Sobre Nosotros | Diktalo',
+            [AppRoute.CONTACT]: 'Contacto | Diktalo',
+            [AppRoute.TERMS]: 'Términos de Servicio | Diktalo',
+            [AppRoute.PRIVACY]: 'Privacidad | Diktalo',
+            [AppRoute.RESET_PASSWORD]: 'Restablecer Contraseña | Diktalo',
+        };
+
+        const newTitle = routeTitles[currentRoute] || 'Diktalo';
+        document.title = newTitle;
+
+        trackPageView(location.pathname, newTitle);
+    }, [location.pathname, currentRoute]);
+
     // Sync state with URL changes (for browser back/forward and Links)
     useEffect(() => {
         const path = location.pathname;
@@ -87,7 +123,7 @@ const AppContent: React.FC = () => {
         if (isResetPassword) newRoute = AppRoute.RESET_PASSWORD;
         else if (path === '/terms') newRoute = AppRoute.TERMS;
         else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
-        else if (path === '/pricing') newRoute = AppRoute.PRICING_COMPARISON; // NEW
+        else if (path === '/comparar-planes') newRoute = AppRoute.PRICING_COMPARISON; // RENAMED from /pricing
         else if (path === '/trust') newRoute = AppRoute.TRUST;
         else if (path === '/cookies') newRoute = AppRoute.COOKIES;
         else if (path === '/login') newRoute = AppRoute.LOGIN;
@@ -169,6 +205,7 @@ const AppContent: React.FC = () => {
 
     // Handle Logout defined early for useIdleTimer
     const handleLogout = async () => {
+        trackEvent('logout', { user_id: user.id });
         await signOut();
         setRecordings([]);
         setIsInitialized(false);
@@ -445,6 +482,9 @@ const AppContent: React.FC = () => {
         if (supabaseUser && supabaseUser.email) {
             fetchProfile();
             fetchData();
+            if (!isInitialized) {
+                trackEvent('login_success', { user_id: supabaseUser.id });
+            }
             setIsInitialized(true);
 
             // Special Check: If returning from Stripe Payment, poll DB aggressively
@@ -636,8 +676,9 @@ const AppContent: React.FC = () => {
         if (success) {
             setRecordings(prev => prev.filter(r => r.id !== id));
             if (activeRecordingId === id) setActiveRecordingId(null);
+            showToast('Recording deleted successfully', 'success');
         } else {
-            alert('Failed to delete recording.');
+            showToast('Failed to delete recording.', 'error');
         }
     };
 

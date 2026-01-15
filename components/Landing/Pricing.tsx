@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { PlanConfig } from '../../types';
+import { trackEvent } from '../../utils/analytics';
 
 
 
@@ -134,7 +135,10 @@ export const Pricing: React.FC = () => {
                             </div>
 
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => {
+                                    trackEvent('click_choose_plan', { plan_id: plan.id, interval: billingInterval });
+                                    navigate('/login');
+                                }}
                                 className={`mt-auto block w-full py-2.5 px-4 rounded-lg text-center text-sm font-bold transition-all ${isHighlight
                                     ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-500/20'
                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
