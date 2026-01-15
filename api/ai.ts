@@ -343,10 +343,10 @@ CONTACTO: contacto@diktalo.com`;
     Talk to the user using your unique personality and this data.`;
             }
             const chat = genAI.getGenerativeModel({
-                model: "gemini-1.5-flash",
+                model: "models/gemini-1.5-flash",
                 systemInstruction,
                 generationConfig: { temperature: 0.9 }
-            }).startChat({
+            }, { apiVersion: 'v1' }).startChat({
                 history: history.map((h: any) => ({
                     role: h.role === 'user' ? 'user' : 'model',
                     parts: [{ text: h.content }]
