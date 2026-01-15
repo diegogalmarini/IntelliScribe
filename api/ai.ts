@@ -78,8 +78,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
-            }, { apiVersion: 'v1beta' }).generateContent(finalPrompt);
+                model: 'gemini-pro',
+            }).generateContent(finalPrompt);
             result = response.response.text() || "No summary generated.";
         }
 
@@ -111,9 +111,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
             const chat = genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-pro',
                 systemInstruction,
-            }, { apiVersion: 'v1beta' }).startChat({
+            }).startChat({
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
             });
             const response = await chat.sendMessage(message);
@@ -175,8 +175,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLanguageName = languageNames[language] || 'English';
 
             const response = await genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash',
-            }, { apiVersion: 'v1beta' }).generateContent({
+                model: 'gemini-pro',
+            }).generateContent({
                 contents: [{
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
