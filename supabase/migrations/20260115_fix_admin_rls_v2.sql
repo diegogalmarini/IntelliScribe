@@ -6,13 +6,14 @@
 -- 
 -- SOLUTION: We'll use a function with SECURITY DEFINER to bypass RLS for admins
 
--- 1. Drop old policies that reference auth.users (if they exist)
+-- 1. Drop ALL old policies (from v1 and any previous attempts)
 DROP POLICY IF EXISTS "Owner emergency access to plans" ON public.plans_configuration;
 DROP POLICY IF EXISTS "Owner emergency access to settings" ON public.app_settings;
 DROP POLICY IF EXISTS "Admins can read all plans" ON public.plans_configuration;
 DROP POLICY IF EXISTS "Admins can update all plans" ON public.plans_configuration;
 DROP POLICY IF EXISTS "Admins can insert new plans" ON public.plans_configuration;
 DROP POLICY IF EXISTS "Admins can delete plans" ON public.plans_configuration;
+DROP POLICY IF EXISTS "Public can view plans" ON public.plans_configuration;
 DROP POLICY IF EXISTS "Admins can read app settings" ON public.app_settings;
 DROP POLICY IF EXISTS "Admins can update app settings" ON public.app_settings;
 

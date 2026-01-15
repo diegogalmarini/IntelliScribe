@@ -309,71 +309,46 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                         ))}
                                     </tr>
 
-                                    {/* AI Features Group */}
+
+                                    {/* AI Features Group - DYNAMIC from database */}
                                     <tr className="bg-slate-50 dark:bg-slate-800/50">
                                         <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             FUNCIONES IA
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            Preguntar a Diktalo (Chat)
-                                        </td>
-                                        {plans.map(p => (
-                                            <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
-                                                <div className="flex justify-center">
-                                                    {p.id !== 'free' ? <Check size={18} className="text-blue-600 dark:text-blue-400" /> : <span className="text-xs text-slate-400">-</span>}
-                                                </div>
-                                            </td>
-                                        ))}
-                                    </tr>
-                                    <tr>
-                                        <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            Resúmenes Avanzados
-                                        </td>
-                                        {plans.map(p => (
-                                            <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
-                                                <div className="flex justify-center">
-                                                    {p.id !== 'free' ? <Check size={18} className="text-blue-600 dark:text-blue-400" /> : <span className="text-xs text-slate-400">-</span>}
-                                                </div>
-                                            </td>
-                                        ))}
-                                    </tr>
+                                    {(() => {
+                                        // Extract all unique AI-related features from all plans
+                                        const aiKeywords = ['IA', 'Chat', 'Asistente', 'Resúmenes', 'Diktalo', 'AI', 'Assistant', 'Summaries'];
+                                        const allFeatures = plans.flatMap(p =>
+                                            (language === 'en' && p.features_en ? p.features_en : p.features)?.filter(f =>
+                                                aiKeywords.some(keyword => f.toLowerCase().includes(keyword.toLowerCase()))
+                                            ) || []
+                                        );
+                                        const uniqueAiFeatures = [...new Set(allFeatures)];
 
-                                    {/* Integration Group */}
-                                    <tr className="bg-slate-50 dark:bg-slate-800/50">
-                                        <td colSpan={plans.length + 1} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            INTEGRACIÓN
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            Integración Zapier
-                                        </td>
-                                        {plans.map(p => (
-                                            <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
-                                                <div className="flex justify-center">
-                                                    {p.id === 'business' || p.id === 'business_plus'
-                                                        ? <Check size={18} className="text-blue-600 dark:text-blue-400" />
-                                                        : <span className="text-xs text-slate-400">-</span>}
-                                                </div>
-                                            </td>
-                                        ))}
-                                    </tr>
-                                    <tr>
-                                        <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                            Llamadas
-                                        </td>
-                                        {plans.map(p => (
-                                            <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
-                                                <div className="flex justify-center">
-                                                    {p.id === 'business_plus'
-                                                        ? <Check size={18} className="text-blue-600 dark:text-blue-400" />
-                                                        : <span className="text-xs text-slate-400">-</span>}
-                                                </div>
-                                            </td>
-                                        ))}
-                                    </tr>
+                                        return uniqueAiFeatures.map((feature, idx) => (
+                                            <tr key={`ai-${idx}`}>
+                                                <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
+                                                    {feature}
+                                                </td>
+                                                {plans.map(p => {
+                                                    const planFeatures = language === 'en' && p.features_en ? p.features_en : p.features;
+                                                    const hasFeature = planFeatures?.includes(feature);
+                                                    return (
+                                                        <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
+                                                            <div className="flex justify-center">
+                                                                {hasFeature ? (
+                                                                    <Check size={18} className="text-blue-600 dark:text-blue-400" />
+                                                                ) : (
+                                                                    <span className="text-xs text-slate-400">-</span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ));
+                                    })()}
                                 </tbody>
                             </table>
                         </div>
