@@ -6,6 +6,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
+import { trackEvent } from '../utils/analytics';
 
 interface LoginProps {
     onNavigate: (route: AppRoute) => void;
@@ -56,6 +57,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         try {
             if (isSignUp) {
                 // REGISTER LOGIC
+                trackEvent('signup_attempt', { email_domain: email.split('@')[1] });
                 const { error: signUpError } = await supabase.auth.signUp({
                     email,
                     password,
@@ -75,6 +77,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 // For now, if auto-confirm is on in Supabase, user might be logged in.
             } else {
                 // LOGIN LOGIC
+                trackEvent('login_attempt');
                 const { error: signInError } = await supabase.auth.signInWithPassword({
                     email,
                     password

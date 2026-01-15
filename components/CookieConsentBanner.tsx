@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { initGA } from '../utils/analytics';
 
 // Extend Window interface for Analytics
 declare global {
@@ -48,22 +49,7 @@ export const CookieConsentBanner: React.FC = () => {
     const applyConsent = (settings: { necessary: boolean; analytics: boolean; functional: boolean }) => {
         // 1. Analytics (Google Analytics via GTM/gtag)
         if (settings.analytics) {
-            console.log("🍪 [Cookies] Enabling Analytics...");
-            // Initialize GA4 dynamically if not already present
-            if (typeof window !== 'undefined') {
-                window.dataLayer = window.dataLayer || [];
-                function gtag(...args: any[]) { window.dataLayer.push(args); }
-                gtag('js', new Date());
-                gtag('config', 'G-H50QCZL8CS'); // Your ID from index.html
-
-                // Load the script tag if not exists
-                if (!document.querySelector('script[src*="googletagmanager"]')) {
-                    const script = document.createElement('script');
-                    script.async = true;
-                    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-H50QCZL8CS';
-                    document.head.appendChild(script);
-                }
-            }
+            initGA();
         } else {
             console.log("🍪 [Cookies] Analytics blocked by user.");
         }

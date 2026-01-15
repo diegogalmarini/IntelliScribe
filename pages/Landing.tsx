@@ -13,6 +13,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Navbar } from '../components/Landing/Navbar';
 import { UserProfile } from '../types';
+import { trackEvent } from '../utils/analytics';
 
 export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t } = useLanguage();
@@ -141,6 +142,7 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         </h5>
                         <a
                             href="/login"
+                            onClick={() => trackEvent('click_final_cta_start')}
                             className="inline-block px-12 py-5 bg-white text-primary text-sm rounded-full hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl active:scale-95 mx-auto"
                             style={{ fontWeight: 500, marginTop: '1rem', fontSize: '.9rem' }}
                         >
