@@ -439,8 +439,9 @@ export const adminService = {
     /**
      * Actualizar un plan específico
      * NUEVO: Auto-traduce con IA al actualizar
+     * Returns: { success: boolean, error?: string }
      */
-    async updatePlanConfig(planId: string, updates: Partial<PlanConfig>): Promise<boolean> {
+    async updatePlanConfig(planId: string, updates: Partial<PlanConfig>): Promise<{ success: boolean; error?: string }> {
         console.log(`[adminService] Actualizando plan ${planId} con traducción automática...`);
 
         try {
@@ -478,15 +479,14 @@ export const adminService = {
 
             if (error) {
                 console.error('[adminService] Error de DB:', error.message);
-                alert(`Error de Base de Datos: ${error.message}`);
-                return false;
+                return { success: false, error: error.message };
             }
 
             console.log('[adminService] ✅ Plan guardado correctamente');
-            return true;
-        } catch (error) {
+            return { success: true };
+        } catch (error: any) {
             console.error('[adminService] Error general:', error);
-            return false;
+            return { success: false, error: error.message || 'Error desconocido' };
         }
     },
 
