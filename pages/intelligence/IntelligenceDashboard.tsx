@@ -985,148 +985,144 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             <MessageSquare className="w-3.5 h-3.5" />
                             <span className="hidden md:inline">
                                 {selectedFolderId && selectedFolderId !== 'ALL' && selectedFolderId !== 'FAVORITES'
-                                    ? `Chat con ${folders.find(f => f.id === selectedFolderId)?.name || 'Carpeta'}`
 
-
-                    {/* Content Body */}
-                                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark pt-0">
                                     {/* Added padding top for mobile header area if needed, or if we rely on Absolute buttons */}
 
-                                    {showMultiAudioUploader ? (
-                                        <div className="h-full pt-12 md:pt-0"> {/* Spacer for buttons */}
-                                            <MultiAudioUploader
-                                                user={user}
-                                                onProcess={handleProcessMultiAudio}
-                                                onCancel={() => setShowMultiAudioUploader(false)}
-                                            />
-                                        </div>
-                                    ) : view === 'subscription' ? (
-                                        <div className="h-full pt-12 md:pt-0 overflow-y-auto">
-                                            <SubscriptionView user={user} />
-                                        </div>
-                                    ) : view === 'templates' ? (
-                                        <div className="h-full pt-12 md:pt-0">
-                                            <TemplateGallery
-                                                onUseTemplate={(templateId) => {
-                                                    console.log("Using template:", templateId);
-                                                    setView('recordings');
-                                                    handleNewRecording();
-                                                }}
-                                            />
-                                        </div>
-                                    ) : view === 'integrations' ? (
-                                        <div className="h-full pt-12 md:pt-0 overflow-y-auto">
-                                            <Integrations
-                                                integrations={user.integrations || []}
-                                                onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })}
-                                            />
-                                        </div>
-                                    ) : isEditorOpen && activeRecording ? (
-                                        <div className="flex-1 h-full overflow-hidden flex flex-col relative">
-                                            <InlineEditor
-                                                recording={activeRecording}
-                                                user={user}
-                                                onUpdateRecording={onUpdateRecording}
-                                                onClose={handleCloseEditor}
-                                            />
-                                        </div>
-                                    ) : isRecording ? (
-                                        <div className="h-full pt-12 md:pt-0">
-                                            <InlineRecorder
-                                                user={user}
-                                                onComplete={handleRecordingComplete}
-                                                onCancel={() => {
-                                                    handleCancelRecording();
-                                                    if (isMobile) setIsSidebarOpen(true);
-                                                }}
-                                                onStateChange={setRecorderStatus}
-                                            />
-                                        </div>
-                                    ) : activeRecording ? (
-                                        <div className="h-full pt-12 md:pt-0">
-                                            <RecordingDetailView
-                                                recording={activeRecording} // Use activeRecording from hook/find
-                                                user={user}
-                                                onGenerateTranscript={!activeRecording.segments || activeRecording.segments.length === 0 ? handleGenerateTranscript : undefined}
-                                                onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
-                                                onUpdateSpeaker={handleUpdateSpeaker}
-                                                onUpdateSummary={(summary) => onUpdateRecording(activeRecording.id, { summary })}
-                                                onUpdateSegment={(idx, updates, segs) => handleUpdateSegment(idx, updates, segs)}
-                                                onUpdateRecording={onUpdateRecording}
-                                                onAskDiktalo={() => handleAskDiktalo([activeRecording])}
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="h-full pt-12 md:pt-0">
-                                            <EmptyStateClean
-                                                userName={user?.firstName || 'Usuario'}
-                                                onAction={handleAction}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                                {showMultiAudioUploader ? (
+                                    <div className="h-full pt-12 md:pt-0"> {/* Spacer for buttons */}
+                                        <MultiAudioUploader
+                                            user={user}
+                                            onProcess={handleProcessMultiAudio}
+                                            onCancel={() => setShowMultiAudioUploader(false)}
+                                        />
+                                    </div>
+                                ) : view === 'subscription' ? (
+                                    <div className="h-full pt-12 md:pt-0 overflow-y-auto">
+                                        <SubscriptionView user={user} />
+                                    </div>
+                                ) : view === 'templates' ? (
+                                    <div className="h-full pt-12 md:pt-0">
+                                        <TemplateGallery
+                                            onUseTemplate={(templateId) => {
+                                                console.log("Using template:", templateId);
+                                                setView('recordings');
+                                                handleNewRecording();
+                                            }}
+                                        />
+                                    </div>
+                                ) : view === 'integrations' ? (
+                                    <div className="h-full pt-12 md:pt-0 overflow-y-auto">
+                                        <Integrations
+                                            integrations={user.integrations || []}
+                                            onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })}
+                                        />
+                                    </div>
+                                ) : isEditorOpen && activeRecording ? (
+                                    <div className="flex-1 h-full overflow-hidden flex flex-col relative">
+                                        <InlineEditor
+                                            recording={activeRecording}
+                                            user={user}
+                                            onUpdateRecording={onUpdateRecording}
+                                            onClose={handleCloseEditor}
+                                        />
+                                    </div>
+                                ) : isRecording ? (
+                                    <div className="h-full pt-12 md:pt-0">
+                                        <InlineRecorder
+                                            user={user}
+                                            onComplete={handleRecordingComplete}
+                                            onCancel={() => {
+                                                handleCancelRecording();
+                                                if (isMobile) setIsSidebarOpen(true);
+                                            }}
+                                            onStateChange={setRecorderStatus}
+                                        />
+                                    </div>
+                                ) : activeRecording ? (
+                                    <div className="h-full pt-12 md:pt-0">
+                                        <RecordingDetailView
+                                            recording={activeRecording} // Use activeRecording from hook/find
+                                            user={user}
+                                            onGenerateTranscript={!activeRecording.segments || activeRecording.segments.length === 0 ? handleGenerateTranscript : undefined}
+                                            onRename={(newTitle) => onRenameRecording(activeRecording.id, newTitle)}
+                                            onUpdateSpeaker={handleUpdateSpeaker}
+                                            onUpdateSummary={(summary) => onUpdateRecording(activeRecording.id, { summary })}
+                                            onUpdateSegment={(idx, updates, segs) => handleUpdateSegment(idx, updates, segs)}
+                                            onUpdateRecording={onUpdateRecording}
+                                            onAskDiktalo={() => handleAskDiktalo([activeRecording])}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="h-full pt-12 md:pt-0">
+                                        <EmptyStateClean
+                                            userName={user?.firstName || 'Usuario'}
+                                            onAction={handleAction}
+                                        />
+                                    </div>
+                                )}
                             </div>
-
-                            {/* Settings Modal */}
-                            <SettingsModal
-                                user={user}
-                                isOpen={isSettingsOpen}
-                                onClose={() => setIsSettingsOpen(false)}
-                                onUpdateUser={onUpdateUser}
-                                onNavigate={onNavigate}
-                                onLogout={onLogout}
-                            />
-
-                            {/* Chat Modal */}
-                            <ChatModal
-                                isOpen={chatState.isOpen}
-                                onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
-                                recordings={chatState.recordings}
-                                title={chatState.title}
-                                onOpenRecording={(id) => {
-                                    setChatState(prev => ({ ...prev, isOpen: false }));
-                                    handleSelectRecording(id);
-                                }}
-                            />
-
-                            {/* Alert Modal */}
-                            <AlertModal
-                                isOpen={alertState.isOpen}
-                                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
-                                title={alertState.title}
-                                message={alertState.message}
-                                type={alertState.type}
-                            />
-                            {/* Navigation Confirm Modal */}
-                            <ConfirmModal
-                                isOpen={showNavConfirm}
-                                onClose={() => setShowNavConfirm(false)}
-                                onConfirm={() => {
-                                    // Force reset
-                                    setIsRecording(false);
-                                    setRecorderStatus('idle'); // Force idle
-                                    setIsEditorOpen(false);
-                                    setShowMultiAudioUploader(false);
-
-                                    if (pendingAction) {
-                                        pendingAction();
-                                        setPendingAction(null);
-                                    } else {
-                                        // Default fallback (Logo Click behavior)
-                                        setView('recordings');
-                                        setSelectedId(null);
-                                        window.history.replaceState({}, '', window.location.pathname);
-                                    }
-                                }}
-                                title={t('confirmExitTitle')}
-                                message={t('confirmExitDesc')}
-                                confirmText={t('confirmExitBtn')}
-                                cancelText={t('cancel')}
-                                isDestructive={true}
-                            />
-
                     </div>
-                    );
+
+                    {/* Settings Modal */}
+                    <SettingsModal
+                        user={user}
+                        isOpen={isSettingsOpen}
+                        onClose={() => setIsSettingsOpen(false)}
+                        onUpdateUser={onUpdateUser}
+                        onNavigate={onNavigate}
+                        onLogout={onLogout}
+                    />
+
+                    {/* Chat Modal */}
+                    <ChatModal
+                        isOpen={chatState.isOpen}
+                        onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))}
+                        recordings={chatState.recordings}
+                        title={chatState.title}
+                        onOpenRecording={(id) => {
+                            setChatState(prev => ({ ...prev, isOpen: false }));
+                            handleSelectRecording(id);
+                        }}
+                    />
+
+                    {/* Alert Modal */}
+                    <AlertModal
+                        isOpen={alertState.isOpen}
+                        onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                        title={alertState.title}
+                        message={alertState.message}
+                        type={alertState.type}
+                    />
+                    {/* Navigation Confirm Modal */}
+                    <ConfirmModal
+                        isOpen={showNavConfirm}
+                        onClose={() => setShowNavConfirm(false)}
+                        onConfirm={() => {
+                            // Force reset
+                            setIsRecording(false);
+                            setRecorderStatus('idle'); // Force idle
+                            setIsEditorOpen(false);
+                            setShowMultiAudioUploader(false);
+
+                            if (pendingAction) {
+                                pendingAction();
+                                setPendingAction(null);
+                            } else {
+                                // Default fallback (Logo Click behavior)
+                                setView('recordings');
+                                setSelectedId(null);
+                                window.history.replaceState({}, '', window.location.pathname);
+                            }
+                        }}
+                        title={t('confirmExitTitle')}
+                        message={t('confirmExitDesc')}
+                        confirmText={t('confirmExitBtn')}
+                        cancelText={t('cancel')}
+                        isDestructive={true}
+                    />
+
+                </div>
+                );
 };
 
-                    export default IntelligenceDashboard;
+                export default IntelligenceDashboard;
