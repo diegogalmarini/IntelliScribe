@@ -763,24 +763,6 @@ export const translations = {
     footer_call_recorder: "Call Recorder",
     footer_contact: "Contact",
 
-    // Contact Page
-    contactTitle: "Contact Us",
-    contactSubtitle: "We're here to help. Send us your questions or feedback.",
-    contactFormName: "Your Name",
-    contactFormEmail: "Email Address",
-    contactFormTopic: "Topic",
-    contactFormSubject: "Subject",
-    contactFormMessage: "How can we help you?",
-    contactSendBtn: "Send Message",
-    contactSending: "Sending...",
-    contactSuccessTitle: "Message Sent",
-    contactSuccessDesc: "We have received your message and will get back to you shortly.",
-    contactTopicSupport: "Support",
-    contactTopicSales: "Sales",
-    contactTopicPartnership: "Partnership",
-    contactTopicFeedback: "Feedback",
-    contactTopicOther: "Other",
-
     // Legal - Privacy Policy
     privacy_title: "Privacy Policy",
     privacy_intro_1: "Welcome to Diktalo ('we', 'us' or 'our'). Diktalo provides an AI-powered voice intelligence platform, including our web application, 'Diktalo Ghostwire' browser extension, and other related services (collectively, the 'Service').",
