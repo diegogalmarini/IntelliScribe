@@ -343,6 +343,14 @@ const AppContent: React.FC = () => {
                 },
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations, // Sync integrations
             }));
+
+            console.log(`[App] Hydrated user state:`, {
+                id: supabaseUser.id,
+                plan: data.plan_id,
+                limit: data.minutes_limit,
+                reset: data.usage_reset_date,
+                periodEnd: data.current_period_end
+            });
         } else if (supabaseUser) {
             setUser(prev => ({
                 ...prev,
