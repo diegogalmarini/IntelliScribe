@@ -291,26 +291,50 @@ export const Users: React.FC = () => {
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 bg-slate-100 dark:bg-white/10 rounded-full h-1.5 overflow-hidden w-24">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all ${user.usagePercentage > 90 ? 'bg-red-500' :
-                                                            user.usagePercentage > 70 ? 'bg-orange-500' :
-                                                                'bg-blue-500'
-                                                            }`}
-                                                        style={{ width: `${Math.min(user.usagePercentage, 100)}%` }}
-                                                    />
+                                            <div className="flex flex-col gap-2">
+                                                {/* Minutes Usage */}
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex justify-between text-[10px] text-slate-500">
+                                                        <span>Mins</span>
+                                                        <span className="font-mono">{user.minutesUsed}/{user.minutesLimit === -1 ? '∞' : user.minutesLimit}m</span>
+                                                    </div>
+                                                    <div className="w-24 h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full rounded-full ${user.usagePercentage > 90 ? 'bg-red-500' : 'bg-blue-500'}`}
+                                                            style={{ width: `${Math.min(user.usagePercentage, 100)}%` }}
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-col text-[10px] font-mono text-slate-500 min-w-[60px] text-right">
-                                                    <span>
-                                                        {user.minutesUsed}/{user.minutesLimit === -1 ? '∞' : user.minutesLimit}m
-                                                    </span>
-                                                    {(user.storageUsed && user.storageUsed > 0) && (
-                                                        <span className="text-slate-400">
-                                                            {user.storageUsed ? (user.storageUsed / 1073741824).toFixed(1) : '0'}GB
-                                                        </span>
-                                                    )}
-                                                </div>
+
+                                                {/* Storage Usage */}
+                                                {(user.storageLimit && user.storageLimit > 0) ? (
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex justify-between text-[10px] text-slate-500">
+                                                            <span>Store</span>
+                                                            <span className="font-mono">
+                                                                {(user.storageUsed / 1073741824).toFixed(1)}/{(user.storageLimit / 1073741824).toFixed(0)}GB
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-24 h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full rounded-full bg-purple-500"
+                                                                style={{ width: `${Math.min((user.storageUsed / user.storageLimit) * 100, 100)}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ) : null}
+
+                                                {/* Days Remaining */}
+                                                {user.trialEndsAt && new Date(user.trialEndsAt) > new Date() && (
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex justify-between text-[10px] text-slate-500">
+                                                            <span>Trial</span>
+                                                            <span className="font-mono text-green-600">
+                                                                {Math.ceil((new Date(user.trialEndsAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}d left
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
 

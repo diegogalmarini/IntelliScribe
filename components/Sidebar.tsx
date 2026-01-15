@@ -287,8 +287,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ></div>
             </div>
 
-            {/* Storage Usage (Only if limit exists, e.g. Paid or Trial) */}
-            {storageLimitBytes > 0 && (
+            )}
+
+            {/* Storage Usage (Show for paid plans even if limit is 0 initially) */}
+            {(storageLimitBytes > 0 || user.subscription.planId !== 'free') && (
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -308,7 +310,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
 
             {/* Trial / Renewal Info */}
-            {daysRemaining !== null && daysRemaining <= 60 && (
+            {daysRemaining !== null && (isManualTrial || daysRemaining <= 60) && (
               <div className={`mt-3 px-2 py-1.5 rounded-lg text-[10px] font-medium flex items-center justify-between ${daysRemaining <= 3 ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
                 }`}>
