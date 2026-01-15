@@ -988,11 +988,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                                     ? `Chat con ${folders.find(f => f.id === selectedFolderId)?.name || 'Carpeta'}`
                                     : (t('askDiktalo') || 'Preguntar a Diktalo')}
                             </span>
-                        </button>
 
-
-
-                        <ProfileAvatar
                             user={user}
                             onClick={() => setIsSettingsOpen(true)}
                         />
