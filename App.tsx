@@ -333,6 +333,7 @@ const AppContent: React.FC = () => {
                     ...prev.subscription,
                     planId: data.plan_id || 'free',
                     status: data.subscription_status || 'active',
+                    currentPeriodEnd: data.current_period_end,
                     minutesLimit: data.minutes_limit || 24,
                     minutesUsed: data.minutes_used || 0,
                     usageResetDate: data.usage_reset_date,
