@@ -78,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             const response = await genAI.getGenerativeModel({
-                model: 'gemini-pro',
+                model: 'gemini-2.0-flash-exp',
             }).generateContent(finalPrompt);
             result = response.response.text() || "No summary generated.";
         }
@@ -111,7 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
             const chat = genAI.getGenerativeModel({
-                model: 'gemini-pro',
+                model: 'gemini-2.0-flash-exp',
                 systemInstruction,
             }).startChat({
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
@@ -175,7 +175,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLanguageName = languageNames[language] || 'English';
 
             const response = await genAI.getGenerativeModel({
-                model: 'gemini-pro',
+                model: 'gemini-2.0-flash-exp',
             }).generateContent({
                 contents: [{
                     parts: [
