@@ -42,6 +42,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const isDragging = useRef(false);
 
     // Auto-scroll
     useEffect(() => {
@@ -246,6 +247,15 @@ ${transcript}
                 top: -window.innerHeight + 600,
                 bottom: 20
             }}
+            onDragStart={() => {
+                isDragging.current = true;
+            }}
+            onDragEnd={() => {
+                // Short timeout to prevent the immediate click from triggering
+                setTimeout(() => {
+                    isDragging.current = false;
+                }, 100);
+            }}
             // MAX Z-INDEX to be above everything (Crisp, etc)
             className={`fixed bottom-6 z-[2147483647] flex flex-col ${sideClasses}`}
         >
@@ -339,7 +349,11 @@ ${transcript}
             <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    if (!isDragging.current) {
+                        setIsOpen(!isOpen);
+                    }
+                }}
                 className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
                     }`}
             >
