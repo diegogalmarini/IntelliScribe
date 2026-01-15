@@ -63,9 +63,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Trial / Cycle Logic
   const isManualTrial = !!user.subscription.trialEndsAt;
   const expirationDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
-  const expirationDate = expirationDateStr ? new Date(expirationDateStr) : null;
+  const expirationDate = (expirationDateStr && !isNaN(Date.parse(expirationDateStr))) ? new Date(expirationDateStr) : null;
 
-  const daysRemaining = expirationDate
+  const daysRemaining = (expirationDate && !isNaN(expirationDate.getTime()))
     ? Math.ceil((expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
 

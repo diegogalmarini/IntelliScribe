@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 // Supabase client library removed to avoid ESM in the dependency issues on Vercel
 
@@ -36,10 +36,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         // Initialize Clients Safely
-        const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-        // Supabase config (using REST API, no client library)
-        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         let result;
@@ -78,12 +77,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
-            const response = await genAI.models.generateContent({
-                model: 'gemini-2.0-flash-exp',
-                contents: finalPrompt,
-                config: { temperature: 0.3 }
-            });
-            result = response.text || "No summary generated.";
+            const response = await genAI.getGenerativeModel({
+                model: 'gemini-1.5-flash',
+            }).generateContent(finalPrompt);
+            result = response.response.text() || "No summary generated.";
         }
 
         // --- Action 2: Chat with Transcript ---
@@ -113,13 +110,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto de grabaciones:\n${finalContext}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible.\n2. Si citas algo, menciona "En la grabación [Título]" o "En la reunión del [Fecha]".\n3. Si analizas múltiples grabaciones, busca patrones y conexiones entre ellas.\n4. Si el usuario pide abrir una grabación, termina con: [OPEN_RECORDING: id].`
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
-            const chat = genAI.chats.create({
-                model: 'gemini-2.0-flash-exp',
-                config: { systemInstruction },
-                history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] }))
+            const chat = genAI.getGenerativeModel({
+                model: 'gemini-1.5-flash',
+                systemInstruction,
+            }).startChat({
+                history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
             });
-            const response = await chat.sendMessage({ message });
-            result = response.text;
+            const response = await chat.sendMessage(message);
+            result = response.response.text();
         }
 
         // --- Action 3: Audio Transcription ---
@@ -176,9 +174,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
             const targetLanguageName = languageNames[language] || 'English';
 
-            const response = await genAI.models.generateContent({
-                model: 'gemini-2.0-flash-exp',
-                contents: {
+            const response = await genAI.getGenerativeModel({
+                model: 'gemini-1.5-flash',
+            }).generateContent({
+                contents: [{
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
                         {
@@ -190,10 +189,10 @@ The final JSON text must only contain ${targetLanguageName}.
 
 Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'.` }
                     ]
-                },
-                config: { responseMimeType: 'application/json' }
+                }],
+                generationConfig: { responseMimeType: 'application/json' }
             });
-            const rawText = response.text || "[]";
+            const rawText = response.response.text() || "[]";
 
             // SANITIZE: Gemini sometimes returns control characters that break JSON parsing
             // This regex replaces unescaped control characters inside strings
@@ -343,20 +342,19 @@ CONTACTO: contacto@diktalo.com`;
 
     Talk to the user using your unique personality and this data.`;
             }
-            const chat = genAI.chats.create({
-                model: 'gemini-2.0-flash-exp',
-                config: {
-                    systemInstruction,
-                    temperature: 0.9 // Higher temperature for more human-like variety
-                },
+            const chat = genAI.getGenerativeModel({
+                model: 'gemini-1.5-flash',
+                systemInstruction,
+                generationConfig: { temperature: 0.9 }
+            }).startChat({
                 history: history.map((h: any) => ({
                     role: h.role === 'user' ? 'user' : 'model',
                     parts: [{ text: h.content }]
                 }))
             });
 
-            const response = await chat.sendMessage({ message });
-            result = response.text;
+            const response = await chat.sendMessage(message);
+            result = response.response.text();
         }
 
         else {
