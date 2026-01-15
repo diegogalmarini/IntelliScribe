@@ -331,7 +331,7 @@ const AppContent: React.FC = () => {
                 role: data.role || 'Member',
                 subscription: {
                     ...prev.subscription,
-                    planId: data.plan_id || 'free',
+                    planId: (data.plan_id?.toLowerCase() || 'free') as any,
                     status: data.subscription_status || 'active',
                     currentPeriodEnd: data.current_period_end,
                     minutesLimit: data.minutes_limit || 24,

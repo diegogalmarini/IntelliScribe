@@ -287,8 +287,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ></div>
             </div>
 
-            {/* Storage Usage (Show for paid/pro plans or if limit > 0) */}
-            {(storageLimitBytes > 0 || user.subscription.planId !== 'free' || user.subscription.minutesLimit > 30) && (
+            {/* Storage Usage (Surfaced for any non-basic configuration) */}
+            {(storageLimitBytes > 0 || String(user.subscription.planId).toLowerCase() !== 'free' || (user.subscription.minutesLimit || 0) > 30) && (
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
