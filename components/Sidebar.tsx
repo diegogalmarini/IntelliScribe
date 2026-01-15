@@ -51,6 +51,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ? Math.min((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100, 100)
     : 0;
 
+  // Defensive Storage Calculation
+  const storageUsedBytes = user.subscription.storageUsed || 0;
+  const storageLimitBytes = user.subscription.storageLimit || 0;
+  const storageUsedGB = (storageUsedBytes / 1073741824).toFixed(1);
+  const storageLimitGB = (storageLimitBytes / 1073741824).toFixed(0);
+  const storagePercent = storageLimitBytes > 0
+    ? Math.min((storageUsedBytes / storageLimitBytes) * 100, 100)
+    : 0;
+
+  // Trial / Cycle Logic
+  const isManualTrial = !!user.subscription.trialEndsAt;
+  const expirationDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
+  const expirationDate = expirationDateStr ? new Date(expirationDateStr) : null;
+
+  const daysRemaining = expirationDate
+    ? Math.ceil((expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+
   return (
     <Fragment>
       {/* Mobile Backdrop */}
@@ -268,6 +286,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 style={{ width: `${usagePercent}%` }}
               ></div>
             </div>
+
+            {/* Storage Usage (Only if limit exists, e.g. Paid or Trial) */}
+            {storageLimitBytes > 0 && (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    {t('storage') || 'Storage'}
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-700 dark:text-slate-300">
+                    {storageUsedGB}/{storageLimitGB} GB
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
+                  <div
+                    className="h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 transition-all"
+                    style={{ width: `${storagePercent}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            {/* Trial / Renewal Info */}
+            {daysRemaining !== null && daysRemaining <= 60 && (
+              <div className={`mt-3 px-2 py-1.5 rounded-lg text-[10px] font-medium flex items-center justify-between ${daysRemaining <= 3 ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                }`}>
+                <span>{isManualTrial ? 'Trial Ends:' : 'Renews:'}</span>
+                <span className="font-bold">{daysRemaining} days</span>
+              </div>
+            )}
+
             {user.subscription.planId === 'free' && (
               <button
                 onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
@@ -320,6 +369,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
       </aside>
-    </Fragment>
+    </Fragment >
   );
 };
