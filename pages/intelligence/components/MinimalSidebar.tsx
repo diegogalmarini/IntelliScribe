@@ -183,12 +183,69 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             <div className="h-1 bg-[#e5e5e5] dark:bg-card-dark rounded-full overflow-hidden">
                                 <div
                                     className={`h-full transition-all ${(user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 90 ? 'bg-red-500' :
-                                        (user.subscription.minutesUsed / user.subscription.minutesLimit) * 100 > 70 ? 'bg-yellow-500' :
-                                            'bg-blue-500'
+                                        String(user.subscription.planId).toLowerCase().includes('plus') ? 'bg-brand-green' :
+                                            String(user.subscription.planId).toLowerCase().includes('business') ? 'bg-brand-blue' :
+                                                String(user.subscription.planId).toLowerCase().includes('pro') ? 'bg-brand-violet' :
+                                                    'bg-blue-500'
                                         }`}
-                                    style={{ width: `${Math.min((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100, 100)}%` }}
+                                    style={{ width: `${Math.min((user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100, 100)}%` }}
                                 />
                             </div>
+
+                            {/* Storage Usage (Surfaced for any non-basic configuration) */}
+                            {((user.subscription.minutesLimit || 0) > 30 || (user.subscription.storageLimit || 0) > 0 || String(user.subscription.planId).toLowerCase() !== 'free') && (
+                                <div className="mt-3 pt-3 border-t border-black/[0.03] dark:border-white/[0.03]">
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {t('storage')}
+                                        </span>
+                                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                            {(user.subscription.storageUsed || 0) / 1024 / 1024 > 1024
+                                                ? `${((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} GB`
+                                                : `${((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(0)} MB`}
+                                            / {user.subscription.storageLimit === -1 ? '∞' :
+                                                (user.subscription.storageLimit || 0) / 1024 / 1024 > 1024
+                                                    ? `${((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(0)} GB`
+                                                    : `${((user.subscription.storageLimit || 0) / 1024 / 1024).toFixed(0)} MB`}
+                                        </span>
+                                    </div>
+                                    <div className="h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-slate-400 dark:bg-slate-500 transition-all duration-500"
+                                            style={{
+                                                width: `${(user.subscription.storageLimit || 0) > 0
+                                                    ? Math.min(((user.subscription.storageUsed || 0) / (user.subscription.storageLimit || 1)) * 100, 100)
+                                                    : 0}%`
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Trial / Cycle Info */}
+                            {(() => {
+                                const expirationDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
+                                const expirationDate = (expirationDateStr && !isNaN(Date.parse(expirationDateStr))) ? new Date(expirationDateStr) : null;
+                                const daysRemaining = (expirationDate && !isNaN(expirationDate.getTime()))
+                                    ? Math.ceil((expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                                    : null;
+
+                                if (daysRemaining === null) return null;
+
+                                return (
+                                    <div className="mt-3 flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${daysRemaining < 3 ? 'bg-red-500 animate-pulse' : 'bg-brand-green'}`} />
+                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                                {user.subscription.trialEndsAt ? t('trialEnds') : t('renewal')}
+                                            </span>
+                                        </div>
+                                        <span className={`text-[10px] font-bold ${daysRemaining < 3 ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-300'}`}>
+                                            {daysRemaining} {t('days_short')}
+                                        </span>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     )}
                 </div>
