@@ -21,6 +21,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
 }) => {
     const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+    const [alignment, setAlignment] = useState<'start' | 'center' | 'end'>(position === 'left' ? 'start' : 'end');
 
     // Select personality once on mount
     const [agent] = useState<Personality>(() => {
@@ -168,8 +169,6 @@ ${transcript}
         }
     };
 
-    const sideClasses = position === 'left' ? 'left-6 items-start' : 'right-6 items-end';
-
     // Parser for Actions
     const renderMessageContent = (content: string) => {
         // Regex to match [[ACTION:TYPE:PAYLOAD1:PAYLOAD2...]]
@@ -242,13 +241,27 @@ ${transcript}
             dragMomentum={false}
             // Better constraints: allow full screen but keep it visible
             dragConstraints={{
-                left: position === 'right' ? -window.innerWidth + 400 : -20,
-                right: position === 'left' ? window.innerWidth - 400 : 20,
-                top: -window.innerHeight + 600,
+                left: -20,
+                right: window.innerWidth - 80,
+                top: -window.innerHeight + 100,
                 bottom: 20
             }}
             onDragStart={() => {
                 isDragging.current = true;
+            }}
+            onDrag={(e, info) => {
+                // Determine alignment based on screen percentage
+                const x = info.point.x;
+                const width = window.innerWidth;
+                const ratio = x / width;
+
+                if (ratio < 0.33) {
+                    setAlignment('start');
+                } else if (ratio < 0.66) {
+                    setAlignment('center');
+                } else {
+                    setAlignment('end');
+                }
             }}
             onDragEnd={() => {
                 // Short timeout to prevent the immediate click from triggering
@@ -257,7 +270,7 @@ ${transcript}
                 }, 100);
             }}
             // MAX Z-INDEX to be above everything (Crisp, etc)
-            className={`fixed bottom-6 z-[2147483647] flex flex-col ${sideClasses}`}
+            className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${position === 'left' ? 'left-6' : 'right-6'}`}
         >
             <AnimatePresence>
                 {isOpen && (
