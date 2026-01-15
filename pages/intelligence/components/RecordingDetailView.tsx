@@ -16,6 +16,7 @@ import { useToast } from '../../../components/Toast';
 import { Image as ImageIcon } from 'lucide-react';
 import { UpgradeModal } from '../../../components/UpgradeModal';
 import { RecordingActions } from './RecordingActions';
+import { PremiumFeatureButton } from './PremiumFeatureButton';
 
 
 interface RecordingDetailViewProps {
@@ -782,14 +783,19 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                         className="hidden"
                                     />
 
-                                    {/* Download Button */}
-                                    <button
+                                    {/* Download Button - Premium Feature */}
+                                    <PremiumFeatureButton
                                         onClick={handleDownloadAudio}
+                                        isFreeUser={isFreeUser}
+                                        onUpgradeClick={() => {
+                                            setUpgradeFeatureName('Descargar Audio');
+                                            setUpgradeModalOpen(true);
+                                        }}
+                                        icon={<Download size={14} />}
                                         className="inline-flex items-center gap-2 px-4 py-2 bg-[#f7f7f8] dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg text-[12px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-[#ebebeb] dark:hover:bg-[#33343d] transition-colors"
                                     >
-                                        <Download size={14} />
                                         {t('downloadAudio')}
-                                    </button>
+                                    </PremiumFeatureButton>
                                 </div>
                             ) : (
                                 <p className="text-[12px] text-[#8e8e8e]">
@@ -1111,6 +1117,12 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                     isOpen={exportOpen}
                     onClose={() => setExportOpen(false)}
                     recording={fullRecording || recording}
+                />
+
+                <UpgradeModal
+                    isOpen={upgradeModalOpen}
+                    onClose={() => setUpgradeModalOpen(false)}
+                    featureName={upgradeFeatureName}
                 />
             </div>
         );
