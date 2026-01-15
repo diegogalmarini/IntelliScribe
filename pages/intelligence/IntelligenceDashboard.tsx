@@ -992,10 +992,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
 
 
-                        <ProfileAvatar
-                            user={user}
-                            onClick={() => setIsSettingsOpen(true)}
-                        />
+
                     </div>
                 </div>
 
