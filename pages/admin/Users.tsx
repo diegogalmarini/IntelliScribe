@@ -243,12 +243,16 @@ export const Users: React.FC = () => {
                                             <div className="flex items-center gap-2 group/date">
                                                 <input
                                                     type="date"
+                                                    min={(() => {
+                                                        const d = new Date();
+                                                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                                                    })()}
                                                     value={user.trialEndsAt ? new Date(user.trialEndsAt).toISOString().split('T')[0] : ''}
                                                     onChange={(e) => handleTrialChange(user.id, e.target.value)}
-                                                    className="bg-transparent border border-transparent group-hover/date:border-slate-200 dark:group-hover/date:border-slate-700 rounded px-1 text-xs text-slate-600 dark:text-slate-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:bg-white dark:focus:bg-black p-1 cursor-pointer transition-all"
+                                                    className="bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-700 dark:text-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:bg-white dark:focus:bg-black cursor-pointer transition-all shadow-sm w-[110px]"
                                                 />
                                                 {user.trialEndsAt && new Date(user.trialEndsAt) > new Date() && (
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" title="Active Trial"></span>
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse shrink-0" title="Active Trial"></span>
                                                 )}
                                                 {!user.trialEndsAt && (
                                                     <span className="text-[10px] text-slate-300 dark:text-slate-600 opacity-0 group-hover/date:opacity-100 transition-opacity">
