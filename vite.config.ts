@@ -47,5 +47,9 @@ export default defineConfig({
         secure: false,
       }
     }
+  },
+  build: {
+    minify: false,
+    sourcemap: true,
   }
 });
