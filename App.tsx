@@ -335,7 +335,10 @@ const AppContent: React.FC = () => {
                     status: data.subscription_status || 'active',
                     minutesLimit: data.minutes_limit || 24,
                     minutesUsed: data.minutes_used || 0,
-                    usageResetDate: data.usage_reset_date
+                    usageResetDate: data.usage_reset_date,
+                    storageUsed: data.storage_used || 0,
+                    storageLimit: data.storage_limit || 0,
+                    trialEndsAt: data.trial_ends_at
                 },
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations, // Sync integrations
             }));
