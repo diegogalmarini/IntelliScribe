@@ -694,6 +694,67 @@ export const databaseService = {
         return true;
     },
 
+    /**
+     * Calculate total size of all Base64 attachments for a user
+     */
+    async calculateAttachmentsUsage(userId: string): Promise<number> {
+        const { data, error } = await supabase
+            .from('recordings')
+            .select('media')
+            .eq('user_id', userId);
+
+        if (error || !data) return 0;
+
+        let totalSize = 0;
+        data.forEach(rec => {
+            const media = rec.media as any[];
+            if (media && Array.isArray(media)) {
+                media.forEach(item => {
+                    if (item.size) {
+                        totalSize += item.size;
+                    } else if (item.url && item.url.startsWith('data:')) {
+                        // Rough estimate for Base64: length * 0.75
+                        totalSize += Math.round(item.url.length * 0.75);
+                    }
+                });
+            }
+        });
+
+        return totalSize;
+    },
+
+    /**
+     * Audit and Sync total storage usage (Bucket Files + DB Attachments)
+     */
+    async syncStorageUsage(userId: string): Promise<number> {
+        try {
+            console.log(`[Database] Starting storage sync for user ${userId}...`);
+
+            // 1. Get size from attachments in DB
+            const dbSize = await this.calculateAttachmentsUsage(userId);
+
+            // 2. Get size from files in Supabase Storage
+            const { getUserBucketUsage } = await import('./storageService');
+            const bucketSize = await getUserBucketUsage(userId);
+
+            const totalSize = dbSize + bucketSize;
+
+            // 3. Update profile
+            const { error } = await supabase
+                .from('profiles')
+                .update({ storage_used: totalSize })
+                .eq('id', userId);
+
+            if (error) throw error;
+
+            console.log(`[Database] Storage sync complete: ${totalSize} bytes`);
+            return totalSize;
+        } catch (err) {
+            console.error('[Database] Failed to sync storage:', err);
+            return 0;
+        }
+    },
+
     // --- USER PROFILE ---
 
     async updateUserProfile(userId: string, updates: Partial<import('../types').UserProfile>): Promise<boolean> {

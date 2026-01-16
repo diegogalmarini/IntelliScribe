@@ -9,6 +9,7 @@ export interface MediaItem {
   timestamp: string;
   url: string;
   name: string;
+  size?: number;
 }
 
 export interface TemporalSegmentMetadata {
