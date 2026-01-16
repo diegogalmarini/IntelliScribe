@@ -3,7 +3,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, ShieldCheck, Smartphone, Monitor } from 'lucide-react';
-import { trackEvent } from '../../utils/analytics';
+import * as Analytics from '../../utils/analytics';
+
 
 export const Hero: React.FC = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,18 +54,26 @@ export const Hero: React.FC = () => {
                 >
                     <Link
                         to="/login"
-                        onClick={() => trackEvent('click_hero_cta_start')}
+                        onClick={() => {
+                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                Analytics.trackEvent('click_hero_cta_start');
+                            }
+                        }}
                         className="w-full sm:w-auto px-10 py-5 bg-primary text-white font-semibold text-lg transition-all shadow-xl hover:shadow-2xl hover:bg-primary-hover flex items-center justify-center gap-2 group rounded-xl"
                     >
+
                         {t('hero_cta_start')}
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
 
                     <button
                         onClick={() => {
-                            trackEvent('click_hero_cta_demo');
+                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                Analytics.trackEvent('click_hero_cta_demo');
+                            }
                             document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
                         }}
+
                         className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-white/5 text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 btn-owner"
                     >
                         <Play className="w-5 h-5 fill-current" />

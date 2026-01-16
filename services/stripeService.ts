@@ -31,7 +31,7 @@ export const stripeService = {
 
         } catch (error) {
             console.error("Stripe Checkout Error:", error);
-            alert("Error initiating checkout. Check console.");
+            throw error;
         }
     }
 };

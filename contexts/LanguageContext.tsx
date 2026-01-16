@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { translations, Language } from '../utils/translations';
+import * as Analytics from '../utils/analytics';
+
 
 interface LanguageContextType {
   language: Language;
@@ -25,12 +26,15 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       localStorage.setItem('diktalo_global_language', lang);
 
       // TRACK: Language Change
-      import('../utils/analytics').then(({ trackEvent, setUserProperties }) => {
-        trackEvent('change_interface_language', { language: lang });
-        setUserProperties({ interface_language: lang });
-      });
+      if (Analytics && typeof Analytics.trackEvent === 'function') {
+        Analytics.trackEvent('change_interface_language', { language: lang });
+        if (typeof Analytics.setUserProperties === 'function') {
+          Analytics.setUserProperties({ interface_language: lang });
+        }
+      }
     }
   };
+
 
   // We need to exposing a method to update state respecting storage is handled by App.tsx, 
   // but we can make internal state update cleaner.

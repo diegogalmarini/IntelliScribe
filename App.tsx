@@ -35,7 +35,7 @@ import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
-import { trackPageView, initGA, trackEvent, setUserProperties } from './utils/analytics';
+import * as Analytics from './utils/analytics';
 import { PublicLayout } from './layouts/PublicLayout';
 const AdminRoute = lazy(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
@@ -113,7 +113,7 @@ const AppContent: React.FC = () => {
             try {
                 const parsed = JSON.parse(savedConsent);
                 if (parsed.analytics) {
-                    initGA();
+                    Analytics.initGA();
                 }
             } catch (e) { /* ignore */ }
         }
@@ -137,13 +137,13 @@ const AppContent: React.FC = () => {
         const newTitle = routeTitles[currentRoute] || 'Diktalo';
         document.title = newTitle;
 
-        trackPageView(location.pathname, newTitle);
+        Analytics.trackPageView(location.pathname, newTitle);
     }, [location.pathname, currentRoute]);
 
     // Sync User Properties to GA4
     useEffect(() => {
         if (supabaseUser && supabaseUser.id) {
-            setUserProperties({
+            Analytics.setUserProperties({
                 interface_language: supabaseUser.language || 'es',
                 transcription_language: supabaseUser.transcriptionLanguage || 'es',
                 user_role: supabaseUser.role || 'Member',
@@ -187,12 +187,6 @@ const AppContent: React.FC = () => {
         }
     }, [location.pathname, location.hash, currentRoute]);
 
-    // --- MOVED UP ---
-
-    // User State Template
-    // --- MOVED UP ---
-    // User state initialization moved to top
-
     // Recordings & Folders State
     const [recordings, setRecordings] = useState<Recording[]>([]);
     const [folders, setFolders] = useState<Folder[]>([
@@ -218,7 +212,9 @@ const AppContent: React.FC = () => {
 
     // Handle Logout defined early for useIdleTimer
     const handleLogout = async () => {
-        trackEvent('logout', { user_id: user.id });
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('logout', { user_id: user.id });
+        }
         await signOut();
         setRecordings([]);
         setIsInitialized(false);
@@ -234,7 +230,6 @@ const AppContent: React.FC = () => {
     });
 
     const handleAppStateChange = (state: { isRecording: boolean; isViewingRecording: boolean; isUploading: boolean }) => {
-        // Only update if changed to avoid loops
         setDashboardState(prev => {
             if (prev.isRecording === state.isRecording &&
                 prev.isViewingRecording === state.isViewingRecording &&
@@ -246,8 +241,6 @@ const AppContent: React.FC = () => {
     };
 
     // --- AUTO LOGOUT PROTECTION ---
-    // 30 minutes = 30 * 60 * 1000 = 1,800,000 ms
-    // Only active if user is logged in
     useIdleTimer({
         timeout: 1800000,
         onIdle: () => {
@@ -284,11 +277,9 @@ const AppContent: React.FC = () => {
             console.log("Profile loaded from DB:", data);
 
             // Sync UI Language
-            // PRIORITY: LocalStorage (Most recent) > DB > Default
             const storedLang = localStorage.getItem(`diktalo_settings_language_${supabaseUser.id}`);
             if (storedLang) {
                 setLanguage(storedLang as 'en' | 'es');
-            } else if (data.language) {
             }
 
             // AUTO-HEAL: If name is generic "User" or missing, try to patch it from Auth Metadata (Google)
@@ -298,17 +289,15 @@ const AppContent: React.FC = () => {
             if ((!currentFirstName || currentFirstName === 'User') && metaFullName) {
                 const parts = metaFullName.split(' ');
                 const realFirstName = parts[0];
-                const realLastName = parts.slice(1).join(' '); // Can be empty string
+                const realLastName = parts.slice(1).join(' ');
 
                 if (realFirstName && realFirstName !== 'User') {
                     console.log(`[App] Auto-healing generic name '${currentFirstName}' to '${realFirstName}'`);
-                    // Fire and forget update
                     databaseService.updateUserProfile(supabaseUser.id, {
                         firstName: realFirstName,
                         lastName: realLastName || data.last_name
                     }).catch(e => console.error("[App] Auto-heal failed", e));
 
-                    // Update local data reference so UI renders correctly immediately
                     data.first_name = realFirstName;
                     if (realLastName) data.last_name = realLastName;
                 }
@@ -323,12 +312,12 @@ const AppContent: React.FC = () => {
                 avatarUrl: data.avatar_url || supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture || prev.avatarUrl,
                 phone: data.phone || prev.phone,
                 phoneVerified: data.phone_verified || false,
-                // Fallback to localStorage if DB fields are missing
                 timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
-                language: (data.language || localStorage.getItem(`diktalo_settings_language_${supabaseUser.id}`) || 'es') as 'en' | 'es', // Persist in state with LS fallback
+                language: (data.language || localStorage.getItem(`diktalo_settings_language_${supabaseUser.id}`) || 'es') as 'en' | 'es',
                 transcriptionLanguage: data.transcription_language || localStorage.getItem(`diktalo_settings_transcription_lang_${supabaseUser.id}`) || prev.transcriptionLanguage,
                 notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
                 role: data.role || 'Member',
+                createdAt: data.created_at,
                 subscription: {
                     ...prev.subscription,
                     planId: (data.plan_id?.toLowerCase().trim().replace(/\s+/g, '_') || 'free') as any,
@@ -341,16 +330,8 @@ const AppContent: React.FC = () => {
                     storageLimit: data.storage_limit || 0,
                     trialEndsAt: data.trial_ends_at
                 },
-                integrations: (data.integrations as IntegrationState[]) || defaultIntegrations, // Sync integrations
+                integrations: (data.integrations as IntegrationState[]) || defaultIntegrations,
             }));
-
-            console.log(`[App] Hydrated user state:`, {
-                id: supabaseUser.id,
-                plan: data.plan_id,
-                limit: data.minutes_limit,
-                reset: data.usage_reset_date,
-                periodEnd: data.current_period_end
-            });
         } else if (supabaseUser) {
             setUser(prev => ({
                 ...prev,
@@ -426,8 +407,21 @@ const AppContent: React.FC = () => {
         // Upload audio to storage if we have a blob
         let audioUrl = audioDataUrl;
         if (audioBlob) {
-            const uploadedUrl = await uploadAudio(audioBlob, supabaseUser.id);
-            if (uploadedUrl) audioUrl = uploadedUrl;
+            try {
+                // Dynamic import to avoid circular dependencies
+                const { convertAudioBlobToMp3 } = await import('./services/audioConcat');
+
+                console.log(`[App] Converting recording to MP3... (Original type: ${audioBlob.type})`);
+                const mp3Blob = await convertAudioBlobToMp3(audioBlob);
+                console.log(`[App] Conversion complete. MP3 Size: ${(mp3Blob.size / 1024 / 1024).toFixed(2)}MB`);
+
+                const uploadedUrl = await uploadAudio(mp3Blob, supabaseUser.id);
+                if (uploadedUrl) audioUrl = uploadedUrl;
+            } catch (convErr) {
+                console.error("[App] MP3 Conversion failed, falling back to original blob", convErr);
+                const uploadedUrl = await uploadAudio(audioBlob, supabaseUser.id);
+                if (uploadedUrl) audioUrl = uploadedUrl;
+            }
         }
 
         if (audioUrl?.startsWith('data:')) {
@@ -486,14 +480,9 @@ const AppContent: React.FC = () => {
 
     const handleUpdateRecording = async (id: string, updates: Partial<Recording>): Promise<void> => {
         await databaseService.updateRecording(id, updates);
-
-        //CRITICAL FIX: Re-fetch from DB instead of merging partial data
-        // Merging loses fields not in 'updates' when base recording is incomplete
         const fullRecording = await databaseService.getRecordingDetails(id);
         if (fullRecording) {
-            setRecordings(prev =>
-                prev.map(rec => rec.id === id ? fullRecording : rec)
-            );
+            setRecordings(prev => prev.map(rec => rec.id === id ? fullRecording : rec));
         }
     };
 
@@ -508,25 +497,22 @@ const AppContent: React.FC = () => {
             fetchProfile();
             fetchData();
             if (!isInitialized) {
-                trackEvent('login_success', { user_id: supabaseUser.id });
+                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                    Analytics.trackEvent('login_success', { user_id: supabaseUser.id });
+                }
             }
             setIsInitialized(true);
 
             // Special Check: If returning from Stripe Payment, poll DB aggressively
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('payment') === 'success') {
-                console.log("💳 Payment success detected! Polling for plan upgrade...");
-                // Poll multiple times because webhooks can have slight latency
+                console.log("\ud83d\udcb3 Payment success detected! Polling for plan upgrade...");
                 const pollIntervals = [1000, 3000, 5000, 8000, 12000];
                 pollIntervals.forEach(ms => setTimeout(() => fetchProfile(), ms));
-
-                // Clear the URL but keep the information for the user session if needed
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
             if (!isRecovery) {
-                // FORCE REDIRECT to Dashboard if user just logged in or is on Home while authenticated
-                // but ONLY if they are not intentionally on the Landing (let's check if they came from login)
                 if (currentRoute === AppRoute.LOGIN) {
                     window.location.href = '/dashboard';
                 }
@@ -541,7 +527,6 @@ const AppContent: React.FC = () => {
                 AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
                 AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS,
                 AppRoute.ADMIN_PLANS,
-                // FIX: Add Intelligence route to protected list
                 AppRoute.INTELLIGENCE
             ];
 
@@ -551,36 +536,27 @@ const AppContent: React.FC = () => {
                 }
             }
         }
-    }, [supabaseUser, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [supabaseUser, authLoading]);
 
     // Polling for Auto-Refresh (every 30s)
-    // CRITICAL FIX: Disable polling on admin routes to prevent state conflicts
     useEffect(() => {
         if (!supabaseUser) return;
-
-        // Don't poll if user is on admin panel (prevents overwriting local edits)
         const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW ||
             currentRoute === AppRoute.ADMIN_USERS ||
             currentRoute === AppRoute.ADMIN_FINANCIALS ||
             currentRoute === AppRoute.ADMIN_PLANS;
 
-        if (isAdminRoute) {
-            console.log('[POLLING] Disabled on admin route to preserve local state');
-            return;
-        }
+        if (isAdminRoute) return;
 
         const intervalId = setInterval(() => {
             fetchData();
-        }, 30000); // 30 seconds
+        }, 30000);
 
         return () => clearInterval(intervalId);
     }, [supabaseUser, fetchData, currentRoute]);
 
-
     // --- HANDLERS ---
-
     const navigate = (route: AppRoute) => {
-        // Update URL to match route for cleaner feel
         const pathMap: Record<string, string> = {
             [AppRoute.LANDING]: '/',
             [AppRoute.LOGIN]: '/login',
@@ -593,12 +569,11 @@ const AppContent: React.FC = () => {
             [AppRoute.TERMS]: '/terms',
             [AppRoute.PRIVACY]: '/privacy',
             [AppRoute.TRUST]: '/trust',
-            [AppRoute.PRICING_COMPARISON]: '/pricing', // NEW
+            [AppRoute.PRICING_COMPARISON]: '/pricing',
             [AppRoute.COOKIES]: '/cookies',
             [AppRoute.RESET_PASSWORD]: '/reset-password',
             [AppRoute.ADMIN_OVERVIEW]: '/admin',
             [AppRoute.ADMIN_USERS]: '/admin/users',
-            [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
             [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
             [AppRoute.ADMIN_PLANS]: '/admin/plans',
             [AppRoute.CONTACT]: '/contact',
@@ -610,14 +585,9 @@ const AppContent: React.FC = () => {
         }
 
         setCurrentRoute(route);
-        // Only close sidebar on mobile to prevent desktop collapse bug
         if (window.innerWidth < 768) {
             setIsSidebarOpen(false);
         }
-    };
-
-    const handleSocialLoginSuccess = (provider: 'Google' | 'Microsoft') => {
-        // Logic moved to Login page
     };
 
     const handleFolderSelect = (folderId: string) => {
@@ -626,20 +596,14 @@ const AppContent: React.FC = () => {
     };
 
     const handleAddFolder = async (name: string) => {
-        // Optimistic update
         const tempId = `folder_${Date.now()}`;
         const newFolder: Folder = {
             id: tempId,
             name: name,
-            type: 'user',
-            icon: 'folder',
-            color: '#3b82f6',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            type: 'user', icon: 'folder', color: '#3b82f6',
+            createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
         };
         setFolders(prev => [...prev, newFolder]);
-
-        // DB Call
         const created = await databaseService.createFolder(name);
         if (created) {
             setFolders(prev => prev.map(f => f.id === tempId ? created : f));
@@ -655,39 +619,18 @@ const AppContent: React.FC = () => {
     };
 
     const handleRenameFolder = async (id: string, newName: string) => {
-        // Optimistic update
         setFolders(prev => prev.map(f => f.id === id ? { ...f, name: newName } : f));
-        // DB update
         await databaseService.renameFolder(id, newName);
-    };
-
-    const handleToggleIntegration = (id: string) => {
-        setIntegrations(prev => prev.map(int =>
-            int.id === id ? { ...int, connected: !int.connected } : int
-        ));
     };
 
     const handleUpdateUser = async (updatedUser: Partial<UserProfile>) => {
         setUser(prev => ({ ...prev, ...updatedUser }));
-
-        // Use supabaseUser.id if user.id is not yet available in state
         const targetUserId = user.id || supabaseUser?.id;
-
-        // Persist to LocalStorage as fallback
         if (targetUserId) {
-            if (updatedUser.timezone) {
-                localStorage.setItem(`diktalo_settings_timezone_${targetUserId}`, updatedUser.timezone);
-            }
-            if (updatedUser.notificationSettings) {
-                localStorage.setItem(`diktalo_settings_notifications_${targetUserId}`, JSON.stringify(updatedUser.notificationSettings));
-            }
-            if (updatedUser.transcriptionLanguage) {
-                localStorage.setItem(`diktalo_settings_transcription_lang_${targetUserId}`, updatedUser.transcriptionLanguage);
-            }
-            if (updatedUser.language) {
-                localStorage.setItem(`diktalo_settings_language_${targetUserId}`, updatedUser.language);
-            }
-            // Attempt DB update
+            if (updatedUser.timezone) localStorage.setItem(`diktalo_settings_timezone_${targetUserId}`, updatedUser.timezone);
+            if (updatedUser.notificationSettings) localStorage.setItem(`diktalo_settings_notifications_${targetUserId}`, JSON.stringify(updatedUser.notificationSettings));
+            if (updatedUser.transcriptionLanguage) localStorage.setItem(`diktalo_settings_transcription_lang_${targetUserId}`, updatedUser.transcriptionLanguage);
+            if (updatedUser.language) localStorage.setItem(`diktalo_settings_language_${targetUserId}`, updatedUser.language);
             await databaseService.updateUserProfile(targetUserId, updatedUser);
         }
     };
@@ -695,15 +638,10 @@ const AppContent: React.FC = () => {
     const handleDeleteRecording = async (id: string) => {
         const recording = recordings.find(r => r.id === id);
         if (!recording || !supabaseUser) return;
-
         const success = await databaseService.deleteRecording(id);
-
         if (success) {
             setRecordings(prev => prev.filter(r => r.id !== id));
             if (activeRecordingId === id) setActiveRecordingId(null);
-            showToast('Recording deleted successfully', 'success');
-        } else {
-            showToast('Failed to delete recording.', 'error');
         }
     };
 
@@ -717,21 +655,8 @@ const AppContent: React.FC = () => {
         await databaseService.updateRecording(id, { folderId: folderId });
     };
 
-    // Old editor removed - use IntelligenceDashboard's InlineEditor instead
-    const handleSelectRecording = async (id: string) => {
-        setActiveRecordingId(id);
-        // Stay in dashboard, IntelligenceDashboard will handle editor view
-        navigate(AppRoute.DASHBOARD);
-
-        const full = await databaseService.getRecordingDetails(id);
-        if (full) {
-            setRecordings(prev => prev.map(r => r.id === id ? full : r));
-        }
-    };
-
     const handleSelectRecordingIntelligence = async (id: string) => {
         setActiveRecordingId(id);
-
         const full = await databaseService.getRecordingDetails(id);
         if (full) {
             setRecordings(prev => prev.map(r => r.id === id ? full : r));
@@ -743,33 +668,18 @@ const AppContent: React.FC = () => {
         return await databaseService.searchRecordings(supabaseUser.id, query);
     };
 
-    // Get the actual object for the editor
     const activeRecording = recordings.find(r => r.id === activeRecordingId);
 
-
-    // --- RENDER ---
-
-    // --- RENDER ---
     const renderPageContent = () => {
         if (authLoading && (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN)) {
             return (
                 <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] transition-colors duration-200">
                     <div className="flex flex-col items-center gap-6 mb-8">
-                        <img
-                            src="/logo-diktalo.svg"
-                            alt="Diktalo"
-                            className="h-20 w-auto animate-pulse dark:brightness-0 dark:invert"
-                        />
+                        <img src="/logo-diktalo.svg" alt="Diktalo" className="h-20 w-auto animate-pulse dark:brightness-0 dark:invert" />
                     </div>
                     <div className="w-32 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <motion.div
-                            className="h-full bg-black dark:bg-white"
-                            initial={{ width: 0 }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-                        />
+                        <motion.div className="h-full bg-black dark:bg-white" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }} />
                     </div>
-                    <p className="text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-wider mt-4 font-medium animate-pulse">Initializing...</p>
                 </div>
             );
         }
@@ -780,157 +690,42 @@ const AppContent: React.FC = () => {
         if (currentRoute === AppRoute.TRUST) return <TrustCenter />;
         if (currentRoute === AppRoute.COOKIES) return <Cookies />;
         if (currentRoute === AppRoute.ABOUT) return <About user={user} />;
-
-        if (currentRoute === AppRoute.CONTACT) {
-            return (
-                <>
-                    <Navbar user={user} onNavigate={navigate} />
-                    <Contact />
-                    <Footer />
-                </>
-            );
-        }
-
+        if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onNavigate={navigate} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 
-        // ========== ADMIN ROUTES (Top Level) ==========
-        const isAdminRoute =
-            currentRoute === AppRoute.ADMIN_OVERVIEW ||
-            currentRoute === AppRoute.ADMIN_USERS ||
-            currentRoute === AppRoute.ADMIN_FINANCIALS ||
-            currentRoute === AppRoute.ADMIN_PLANS;
+        const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW || currentRoute === AppRoute.ADMIN_USERS || currentRoute === AppRoute.ADMIN_FINANCIALS || currentRoute === AppRoute.ADMIN_PLANS;
 
         if (isAdminRoute) {
-            class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-                constructor(props: any) { super(props); this.state = { hasError: false }; }
-                static getDerivedStateFromError(error: any) { return { hasError: true }; }
-                render() {
-                    if (this.state.hasError) return <div className="p-4 text-red-500">Failed to load Admin module. Refresh page.</div>;
-                    return this.props.children;
-                }
-            }
-
             return (
-                <ErrorBoundary>
-                    <Suspense fallback={
-                        <div className="flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-[#050505] transition-colors">
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full" />
-                            </div>
-                        </div>
-                    }>
-                        <AdminRoute onNavigate={navigate}>
-                            <AdminLayout currentRoute={currentRoute} onNavigate={navigate} user={user}>
-                                {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
-                                {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
-                                {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
-                                {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
-                            </AdminLayout>
-                        </AdminRoute>
-                    </Suspense>
-                </ErrorBoundary>
+                <Suspense fallback={<div>Loading...</div>}>
+                    <AdminRoute onNavigate={navigate}>
+                        <AdminLayout currentRoute={currentRoute} onNavigate={navigate} user={user}>
+                            {currentRoute === AppRoute.ADMIN_OVERVIEW && <AdminOverview />}
+                            {currentRoute === AppRoute.ADMIN_USERS && <AdminUsers />}
+                            {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
+                            {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
+                        </AdminLayout>
+                    </AdminRoute>
+                </Suspense>
             );
         }
 
-        // --- AUTHENTICATED/APP LAYOUT ---
         return (
-            <motion.div
-                className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-            >
-                {/* Sidebar */}
-                {currentRoute !== AppRoute.INTELLIGENCE &&
-                    currentRoute !== AppRoute.RECORDING &&
-                    currentRoute !== AppRoute.RESET_PASSWORD &&
-                    currentRoute !== AppRoute.DASHBOARD &&
-                    currentRoute !== AppRoute.SUBSCRIPTION &&
-                    currentRoute !== AppRoute.SETTINGS &&
-                    currentRoute !== AppRoute.INTEGRATIONS &&
-                    currentRoute !== AppRoute.MANUAL && (
-                        <Sidebar
-                            currentRoute={currentRoute}
-                            onNavigate={navigate}
-                            activeFolderId={selectedFolderId}
-                            onSelectFolder={setSelectedFolderId}
-                            folders={folders}
-                            onAddFolder={handleAddFolder}
-                            onDeleteFolder={handleDeleteFolder}
-                            user={user}
-                            isOpen={isSidebarOpen}
-                            onClose={() => setIsSidebarOpen(false)}
+            <motion.div className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && currentRoute !== AppRoute.SETTINGS && currentRoute !== AppRoute.INTEGRATIONS && currentRoute !== AppRoute.MANUAL && (
+                    <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={setSelectedFolderId} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onDeleteFolder={handleDeleteFolder} />
+                )}
+
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+                    {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE || currentRoute === AppRoute.SETTINGS || currentRoute === AppRoute.INTEGRATIONS || currentRoute === AppRoute.SUBSCRIPTION) && (
+                        <IntelligenceDashboard
+                            user={user} recordings={recordings} onNavigate={navigate} activeRecordingId={activeRecordingId} initialSearchQuery={activeSearchQuery} onSelectRecording={handleSelectRecordingIntelligence} onDeleteRecording={handleDeleteRecording} onRenameRecording={handleRenameRecording} onMoveRecording={handleMoveRecording} selectedFolderId={selectedFolderId} folders={folders} onLogout={handleLogout} onSearch={handleSearch} onRecordingComplete={handleRecordingComplete} onUpdateRecording={handleUpdateRecording} initialView={currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' : currentRoute === AppRoute.INTEGRATIONS ? 'integrations' : 'recordings'} initialSettingsOpen={currentRoute === AppRoute.SETTINGS} onSelectFolder={setSelectedFolderId} onUpdateUser={handleUpdateUser} onAppStateChange={handleAppStateChange}
                         />
                     )}
 
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-                    {/* Mobile Header Toggle */}
-                    {currentRoute !== AppRoute.RESET_PASSWORD &&
-                        currentRoute !== AppRoute.DASHBOARD &&
-                        currentRoute !== AppRoute.INTELLIGENCE &&
-                        currentRoute !== AppRoute.SUBSCRIPTION && (
-                            <div className="md:hidden flex items-center p-4 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-border-dark">
-                                <button
-                                    onClick={() => setIsSidebarOpen(true)}
-                                    className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg"
-                                >
-                                    <span className="material-symbols-outlined">menu</span>
-                                </button>
-                                <span className="ml-2 font-bold text-lg text-primary">Diktalo</span>
-                            </div>
-                        )}
-
-                    {(currentRoute === AppRoute.DASHBOARD ||
-                        currentRoute === AppRoute.INTELLIGENCE ||
-                        currentRoute === AppRoute.SETTINGS ||
-                        currentRoute === AppRoute.INTEGRATIONS ||
-                        currentRoute === AppRoute.SUBSCRIPTION) && (
-                            <IntelligenceDashboard
-                                user={user}
-                                recordings={recordings}
-                                onNavigate={navigate}
-                                activeRecordingId={activeRecordingId}
-                                initialSearchQuery={activeSearchQuery}
-                                onSelectRecording={handleSelectRecordingIntelligence}
-                                onDeleteRecording={handleDeleteRecording}
-                                onRenameRecording={handleRenameRecording}
-                                onMoveRecording={handleMoveRecording}
-                                selectedFolderId={selectedFolderId}
-                                folders={folders}
-                                onLogout={handleLogout}
-                                onSearch={handleSearch}
-                                onRecordingComplete={handleRecordingComplete}
-                                onUpdateRecording={handleUpdateRecording}
-                                initialView={
-                                    currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' :
-                                        currentRoute === AppRoute.INTEGRATIONS ? 'integrations' :
-                                            'recordings'
-                                }
-                                initialSettingsOpen={currentRoute === AppRoute.SETTINGS}
-                                onSelectFolder={setSelectedFolderId}
-                                onUpdateUser={handleUpdateUser}
-                                onAppStateChange={handleAppStateChange}
-                            />
-                        )}
-
-                    {currentRoute === AppRoute.MANUAL && (
-                        <ScrollablePage>
-                            <Manual />
-                        </ScrollablePage>
-                    )}
-
-                    {currentRoute === AppRoute.RESET_PASSWORD && (
-                        <div className="flex-1 flex flex-col items-center justify-center p-4">
-                            <ResetPassword onNavigate={navigate} />
-                        </div>
-                    )}
-
-                    {currentRoute === AppRoute.PRICING_COMPARISON && (
-                        <ScrollablePage>
-                            <PricingComparison />
-                        </ScrollablePage>
-                    )}
+                    {currentRoute === AppRoute.MANUAL && <ScrollablePage><Manual /></ScrollablePage>}
+                    {currentRoute === AppRoute.RESET_PASSWORD && <div className="flex-1 flex flex-col items-center justify-center p-4"><ResetPassword onNavigate={navigate} /></div>}
+                    {currentRoute === AppRoute.PRICING_COMPARISON && <ScrollablePage><PricingComparison /></ScrollablePage>}
                 </div>
             </motion.div>
         );
@@ -939,128 +734,16 @@ const AppContent: React.FC = () => {
     return (
         <>
             {renderPageContent()}
-
-            {/* Global VoIP Dialer - Only for Business Plus */}
             {user && user.subscription?.planId === 'business_plus' && (
-                <Dialer
-                    user={user}
-                    showMinimized={
-                        (currentRoute === AppRoute.DASHBOARD ||
-                            currentRoute === AppRoute.INTELLIGENCE ||
-                            currentRoute === AppRoute.SUBSCRIPTION) &&
-                        !dashboardState.isRecording &&
-                        !dashboardState.isViewingRecording &&
-                        !dashboardState.isUploading &&
-                        !new URLSearchParams(location.search).has('action')
-                    }
-                    onNavigate={navigate}
-                    onCallFinished={() => {
-                        fetchData();
-                        setTimeout(fetchData, 2000);
-                        setTimeout(fetchData, 5000);
-                    }}
-                    onUserUpdated={async () => {
-                        const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-                        if (data && !error) {
-                            setUser(prev => ({
-                                ...prev,
-                                phone: data.phone || prev.phone,
-                                phoneVerified: data.phone_verified || false,
-                            }));
-                        }
-                    }}
-                />
+                <Dialer user={user} showMinimized={(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE || currentRoute === AppRoute.SUBSCRIPTION) && !dashboardState.isRecording && !dashboardState.isViewingRecording && !dashboardState.isUploading && !new URLSearchParams(location.search).has('action')} onNavigate={navigate} onCallFinished={() => fetchData()} onUserUpdated={() => fetchProfile()} />
             )}
-
-            {/* Support Bot Integration with Freemium Strategy */}
-            {/* FREE users: Bot only on public pages (Landing, Login, etc.) */}
-            {/* PRO+ users: Bot everywhere, including Dashboard with full transcript */}
             {(() => {
-                const isPaidPlan = user && user.subscription &&
-                    ['pro', 'business', 'business_plus'].includes(user.subscription.planId);
+                const isPaidPlan = user && user.subscription && ['pro', 'business', 'business_plus'].includes(user.subscription.planId);
+                const isPublicPage = [AppRoute.LANDING, AppRoute.LOGIN, AppRoute.TERMS, AppRoute.PRIVACY, AppRoute.TRUST, AppRoute.COOKIES, AppRoute.CONTACT, AppRoute.ABOUT, AppRoute.PRICING_COMPARISON].includes(currentRoute);
+                const isDashboardArea = [AppRoute.DASHBOARD, AppRoute.INTELLIGENCE, AppRoute.SUBSCRIPTION, AppRoute.SETTINGS, AppRoute.INTEGRATIONS, AppRoute.MANUAL].includes(currentRoute);
 
-                const isPublicPage = [
-                    AppRoute.LANDING,
-                    AppRoute.LOGIN,
-                    AppRoute.TERMS,
-                    AppRoute.PRIVACY,
-                    AppRoute.TRUST,
-                    AppRoute.COOKIES,
-                    AppRoute.CONTACT,
-                    AppRoute.ABOUT,
-                    AppRoute.PRICING_COMPARISON
-                ].includes(currentRoute);
-
-                const isDashboardArea = [
-                    AppRoute.DASHBOARD,
-                    AppRoute.INTELLIGENCE,
-                    AppRoute.SUBSCRIPTION,
-                    AppRoute.SETTINGS,
-                    AppRoute.INTEGRATIONS,
-                    AppRoute.MANUAL
-                ].includes(currentRoute);
-
-                // Show bot on public pages for everyone
-                if (isPublicPage) {
-                    return (
-                        <SupportBot
-                            recordings={[]} // No recordings on public pages
-                            user={user}
-                            position="right"
-                            onAction={(type, payload) => {
-                                if (type === 'NAVIGATE' && payload.target) {
-                                    if (payload.target === 'SETTINGS') {
-                                        navigate(AppRoute.SETTINGS);
-                                    } else if (payload.target === 'PLANS') {
-                                        navigate(AppRoute.SUBSCRIPTION);
-                                    } else if (payload.target === 'CONTACT') {
-                                        navigate(AppRoute.CONTACT);
-                                    } else {
-                                        navigate(AppRoute.DASHBOARD);
-                                    }
-                                }
-                            }}
-                        />
-                    );
-                }
-
-                // Show bot in dashboard ONLY for PRO+ users
-                if (isDashboardArea && isPaidPlan) {
-                    return (
-                        <SupportBot
-                            recordings={recordings}
-                            user={user}
-                            activeRecording={activeRecording}
-                            position="left"
-                            initialOffset="left-[280px]"
-                            onAction={(type, payload) => {
-                                if (type === 'OPEN_RECORDING' && payload.id) {
-                                    setActiveRecordingId(payload.id);
-                                    if (currentRoute !== AppRoute.DASHBOARD) {
-                                        navigate(AppRoute.DASHBOARD);
-                                    }
-                                } else if (type === 'NAVIGATE' && payload.target) {
-                                    if (payload.target === 'SETTINGS') {
-                                        navigate(AppRoute.SETTINGS);
-                                    } else if (payload.target === 'PLANS') {
-                                        navigate(AppRoute.SUBSCRIPTION);
-                                    } else if (payload.target === 'CONTACT') {
-                                        navigate(AppRoute.CONTACT);
-                                    } else {
-                                        navigate(AppRoute.DASHBOARD);
-                                    }
-                                } else if (type === 'SEARCH' && payload.query) {
-                                    setActiveSearchQuery(payload.query);
-                                    if (currentRoute !== AppRoute.DASHBOARD) {
-                                        navigate(AppRoute.DASHBOARD);
-                                    }
-                                }
-                            }}
-                        />
-                    );
-                }
-
-                // Don't show bot for FREE users in dashboard
+                if (isPublicPage) return <SupportBot recordings={[]} user={user} position="right" onAction={(type, payload) => navigate(AppRoute.DASHBOARD)} />;
+                if (isDashboardArea && isPaidPlan) return <SupportBot recordings={recordings} user={user} activeRecording={activeRecording} position="left" initialOffset="left-[280px]" onAction={(type, payload) => { if (type === 'OPEN_RECORDING') setActiveRecordingId(payload.id); else navigate(AppRoute.DASHBOARD); }} />;
                 return null;
             })()}
         </>

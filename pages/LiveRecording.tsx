@@ -3,6 +3,8 @@ import { AppRoute, NoteItem, MediaItem } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
+import * as Analytics from '../utils/analytics';
+import { useToast } from '../components/Toast';
 
 interface LiveRecordingProps {
     onNavigate: (route: AppRoute) => void;
@@ -11,6 +13,7 @@ interface LiveRecordingProps {
 
 export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onRecordingComplete }) => {
     const { t } = useLanguage();
+    const { showToast } = useToast();
 
     const loadUser = () => {
         try {
@@ -188,7 +191,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
 
             } catch (err) {
                 console.error("Init error:", err);
-                alert("Microphone access required. Please check your browser settings.");
+                showToast("Microphone access required. Please check your browser settings.", 'error');
             }
         };
         init();

@@ -175,74 +175,76 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                     {user.subscription.minutesLimit === -1 ? (
                         <span className="font-normal">{t('unlimited_label')}</span>
                     ) : (
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between items-center">
-                                <span className="font-normal">{user.subscription.minutesUsed} / {user.subscription.minutesLimit} min</span>
-                                <span className="font-normal">{Math.round((user.subscription.minutesUsed / user.subscription.minutesLimit) * 100)}%</span>
-                            </div>
-                            <div className="h-1 bg-[#e5e5e5] dark:bg-card-dark rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full transition-all ${(user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100 > 90 ? 'bg-red-500' :
-                                        (String(user.subscription.planId).toLowerCase().includes('plus') || (user.subscription.minutesLimit || 0) > 300) ? 'bg-[#D3E97A]' :
-                                            (String(user.subscription.planId).toLowerCase().includes('business') || (user.subscription.minutesLimit || 0) > 60) ? 'bg-[#0055FF]' :
-                                                (String(user.subscription.planId).toLowerCase().includes('pro') || (user.subscription.minutesLimit || 0) > 30) ? 'bg-[#8B5CF6]' :
-                                                    'bg-blue-500'
-                                        }`}
-                                    style={{ width: `${Math.min((user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100, 100)}%` }}
-                                />
-                            </div>
-
-                            {/* Storage Usage (Surfaced for any non-basic configuration) */}
-                            {((user.subscription.minutesLimit || 0) > 30 || (user.subscription.storageLimit || 0) > 0 || String(user.subscription.planId).toLowerCase() !== 'free') && (
-                                <div className="mt-3 pt-3 border-t border-black/[0.03] dark:border-white/[0.03]">
-                                    <div className="flex items-center justify-between mb-1.5">
-                                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            {t('storage')}
-                                        </span>
-                                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            {(user.subscription.storageUsed || 0) / 1024 / 1024 > 1024
-                                                ? `${((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} GB`
-                                                : `${((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(0)} MB`}
-                                            / {user.subscription.storageLimit === -1 ? '∞' :
-                                                (user.subscription.storageLimit || 0) / 1024 / 1024 > 1024
-                                                    ? `${((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(0)} GB`
-                                                    : `${((user.subscription.storageLimit || 0) / 1024 / 1024).toFixed(0)} MB`}
-                                        </span>
-                                    </div>
-                                    <div className="h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-slate-400 dark:bg-slate-500 transition-all duration-500"
-                                            style={{
-                                                width: `${(user.subscription.storageLimit || 0) > 0
-                                                    ? Math.min(((user.subscription.storageUsed || 0) / (user.subscription.storageLimit || 1)) * 100, 100)
-                                                    : 0}%`
-                                            }}
-                                        />
-                                    </div>
+                        <div className="space-y-4">
+                            {/* Minutes Usage */}
+                            <div className="space-y-1.5">
+                                <div className="flex justify-between items-center text-[11px]">
+                                    <span className="font-medium">{user.subscription.minutesUsed} / {user.subscription.minutesLimit} {t('min_short')}</span>
+                                    <span className="font-medium">{Math.min(100, Math.round((user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100))}%</span>
                                 </div>
-                            )}
+                                <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full transition-all duration-500 bg-[#0055FF]"
+                                        style={{ width: `${Math.min(100, (user.subscription.minutesUsed / Math.max(user.subscription.minutesLimit, 1)) * 100)}%` }}
+                                    />
+                                </div>
+                            </div>
 
-                            {/* Trial / Cycle Info */}
+                            {/* Storage Usage */}
+                            <div className="space-y-1.5">
+                                <div className="flex justify-between items-center text-[11px]">
+                                    <span className="font-medium">
+                                        {((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} / {user.subscription.storageLimit === -1 ? '∞' : ((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(1)} GB
+                                    </span>
+                                    <span className="font-medium">
+                                        {(user.subscription.storageLimit || 0) > 0 ? Math.min(100, Math.round(((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)) : 0}%
+                                    </span>
+                                </div>
+                                <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full transition-all duration-500 bg-[#0055FF]"
+                                        style={{
+                                            width: `${(user.subscription.storageLimit || 0) > 0
+                                                ? Math.min(100, ((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)
+                                                : 0}%`
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Days Usage */}
                             {(() => {
-                                const expirationDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
-                                const expirationDate = (expirationDateStr && !isNaN(Date.parse(expirationDateStr))) ? new Date(expirationDateStr) : null;
-                                const daysRemaining = (expirationDate && !isNaN(expirationDate.getTime()))
-                                    ? Math.ceil((expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-                                    : null;
+                                const startDateStr = user.createdAt;
+                                const endDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
 
-                                if (daysRemaining === null) return null;
+                                if (!startDateStr || !endDateStr) return null;
+
+                                const startDate = new Date(startDateStr);
+                                const endDate = new Date(endDateStr);
+                                const now = new Date();
+
+                                // Total duration of the cycle
+                                const totalMs = endDate.getTime() - startDate.getTime();
+                                const totalDays = Math.max(1, Math.ceil(totalMs / (1000 * 60 * 60 * 24)));
+
+                                // Days elapsed since start
+                                const elapsedMs = now.getTime() - startDate.getTime();
+                                const usedDays = Math.max(0, Math.min(totalDays, Math.ceil(elapsedMs / (1000 * 60 * 60 * 24))));
+
+                                const percentage = Math.min(100, Math.round((usedDays / totalDays) * 100));
 
                                 return (
-                                    <div className="mt-3 flex items-center justify-between">
-                                        <div className="flex items-center gap-1.5">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${daysRemaining < 3 ? 'bg-red-500 animate-pulse' : 'bg-brand-green'}`} />
-                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                                                {user.subscription.trialEndsAt ? t('trialEnds') : t('renewal')}
-                                            </span>
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between items-center text-[11px]">
+                                            <span className="font-medium">{usedDays} / {totalDays} {t('days_short')}</span>
+                                            <span className="font-medium">{percentage}%</span>
                                         </div>
-                                        <span className={`text-[10px] font-bold ${daysRemaining < 3 ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-300'}`}>
-                                            {daysRemaining} {t('days_short')}
-                                        </span>
+                                        <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full transition-all duration-500 bg-[#0055FF]"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
                                     </div>
                                 );
                             })()}

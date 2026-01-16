@@ -13,12 +13,11 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Navbar } from '../components/Landing/Navbar';
 import { UserProfile } from '../types';
-import { trackEvent } from '../utils/analytics';
+import * as Analytics from '../utils/analytics';
 
 export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t } = useLanguage();
     const { scrollYProgress } = useScroll();
-    // const [isMenuOpen, setIsMenuOpen] = React.useState(false); // Unused, moved to Navbar
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
@@ -29,29 +28,17 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
         window.scrollTo(0, 0);
     }, []);
 
-    // Helper still needed for internal links if we keep the logic inside Landing to handle hash on load? 
-    // Navbar now handles it via URL hash. Landing just needs sections with IDs.
-    // scrollToSection was used by internal menu but Navbar handles it now.
-    // We can remove scrollToSection unless it's used elsewhere. 
-    // It was only used in the nav we removed.
-
-
     return (
         <div className="landing-page bg-background-light dark:bg-background-dark min-h-screen font-sans transition-colors duration-300">
-            {/* SEO metadata would typically go in Header or via Helmet, assuming main index.html handles base SEO */}
-
-            {/* Reading Progress Bar */}
             <motion.div
                 className="fixed top-0 left-0 right-0 h-1 bg-gradient-brand z-[100] origin-left"
                 style={{ scaleX }}
             />
 
-            {/* Navbar imported from component */}
             <div className="z-50 relative">
                 <Navbar user={user} />
             </div>
 
-            {/* Sections with semantic IDs */}
             <main>
                 <Hero />
 
@@ -75,7 +62,6 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
 
                 <Testimonials />
 
-                {/* FAQ Section */}
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-4xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
@@ -99,7 +85,6 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     </div>
                 </section>
 
-                {/* Latest Insights (Blog) */}
                 <section id="blog" className="py-24 bg-slate-50 dark:bg-slate-950/50">
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
@@ -130,7 +115,6 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     </div>
                 </section>
 
-                {/* Final CTA */}
                 <section className="py-24 md:py-32 bg-primary overflow-hidden relative flex flex-col items-center justify-center text-center">
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 pointer-events-none"></div>
                     <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center">
@@ -142,7 +126,11 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         </h5>
                         <a
                             href="/login"
-                            onClick={() => trackEvent('click_final_cta_start')}
+                            onClick={() => {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('click_final_cta_start');
+                                }
+                            }}
                             className="inline-block px-12 py-5 bg-white text-primary text-sm rounded-full hover:bg-slate-50 transition-all shadow-xl hover:shadow-2xl active:scale-95 mx-auto"
                             style={{ fontWeight: 500, marginTop: '1rem', fontSize: '.9rem' }}
                         >

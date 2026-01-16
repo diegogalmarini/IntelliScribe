@@ -273,7 +273,7 @@ export const exportAsPDF = async (recording: Recording, options: ExportOptions =
         doc.save(`${safeTitle}.pdf`);
     } catch (error) {
         console.error("PDF Export failed", error);
-        alert("Error exporting PDF");
+        throw error;
     } finally {
         if (onComplete) onComplete();
     }
@@ -389,7 +389,7 @@ export const exportAsDoc = (recording: Recording, options: ExportOptions = { inc
         document.body.removeChild(link);
     } catch (error) {
         console.error("Doc Export failed", error);
-        alert("Error exporting Word Doc");
+        throw error;
     } finally {
         if (onComplete) onComplete();
     }

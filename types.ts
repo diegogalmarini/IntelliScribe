@@ -127,6 +127,7 @@ export interface UserProfile {
   avatarUrl: string | null;
   role: string;
   subscription: UserSubscription;
+  createdAt?: string; // Account creation date for usage cycle calculation
 }
 
 
