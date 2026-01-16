@@ -5,6 +5,8 @@ import { supabase } from '../../../lib/supabase';
 import { PlanConfig, UserProfile } from '../../../types';
 import { Check, ChevronDown, Plus, ExternalLink, Minus } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import * as Analytics from '../../../utils/analytics';
+import { useToast } from '../../../components/Toast';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -14,6 +16,7 @@ interface SubscriptionViewProps {
 
 export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
     const { t, language } = useLanguage();
+    const { showToast } = useToast();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [loading, setLoading] = useState<string | null>(null);
     const [plans, setPlans] = useState<PlanConfig[]>([]);
@@ -77,8 +80,15 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
         if (planId === 'free') return; // Downgrades handled via portal
 
         if (!priceId) {
-            alert('Error: Configuration missing for this plan.');
+            showToast('Error: Configuration missing for this plan.', 'error');
             return;
+        }
+
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('checkout_started', {
+                plan_id: planId,
+                interval: billingInterval
+            });
         }
 
         setLoading(planId);
@@ -103,7 +113,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
             if (url) window.location.href = url;
         } catch (error: any) {
             console.error('Error:', error);
-            alert('Error initiating payment: ' + (error.message || 'Check connection.'));
+            showToast('Error initiating payment: ' + (error.message || 'Check connection.'), 'error');
         } finally {
             setLoading(null);
         }

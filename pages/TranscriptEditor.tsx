@@ -12,6 +12,8 @@ import ReactMarkdown from 'react-markdown';
 import { logger } from '../services/loggingService';
 import { WaveformVisualizer } from '../components/WaveformVisualizer';
 import { supabase } from '../lib/supabase';
+import * as Analytics from '../utils/analytics';
+import { useToast } from '../components/Toast';
 
 interface TranscriptEditorProps {
     onNavigate: (route: AppRoute) => void;
@@ -27,6 +29,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
     user
 }) => {
     const { t, language } = useLanguage();
+    const { showToast } = useToast();
 
     // State for the full recording details (Lazy Loaded)
     const [recording, setRecording] = useState<Recording>(initialRecording);
@@ -311,7 +314,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
     const handleTranscribeAudio = async () => {
         if (!signedAudioUrl) {
-            alert(t('audioNotReady') || "Audio not ready");
+            showToast(t('audioNotReady') || "Audio not ready", 'error');
             return;
         }
 
@@ -360,7 +363,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
         } catch (error) {
             logger.error('Failed to transcribe', { error, recordingId: recording.id, language }, user.id);
-            alert("Failed to transcribe audio. Please check your API key.");
+            showToast("Failed to transcribe audio. Please check your API key.", 'error');
         } finally {
             setIsTranscribing(false);
         }
@@ -456,8 +459,15 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
         }
 
         if (!recording.audioUrl) {
-            alert(t('downloadFailed'));
+            showToast(t('downloadFailed'), 'error');
             return;
+        }
+
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('download_audio', {
+                recording_id: recording.id,
+                title: recording.title
+            });
         }
 
         try {
@@ -508,7 +518,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             }
         } catch (err) {
             logger.error('Failed to download audio', { error: err, recordingId: recording.id }, user.id);
-            alert(t('downloadFailed'));
+            showToast(t('downloadFailed'), 'error');
         }
     };
 
@@ -536,7 +546,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
         if (format === 'clipboard') {
             navigator.clipboard.writeText(content).then(() => {
-                alert('Transcript copied to clipboard!');
+                showToast('Transcript copied to clipboard!');
                 setShowExportMenu(false);
             });
             return;

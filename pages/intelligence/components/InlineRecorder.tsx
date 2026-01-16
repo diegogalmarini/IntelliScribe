@@ -3,6 +3,7 @@ import { UserProfile, NoteItem, MediaItem } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { Mic, Square, Pause, Play, Flag, ChevronDown } from 'lucide-react';
 import { useToast } from '../../../components/Toast';
+import * as Analytics from '../../../utils/analytics';
 
 interface InlineRecorderProps {
     user: UserProfile;
@@ -158,14 +159,14 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                 onComplete(audioBlob, secondsRef.current, sessionTitle, notesRef.current, mediaItemsRef.current);
 
                 // TRACK: Recording Complete
-                import('../../../utils/analytics').then(({ trackEvent }) => {
-                    trackEvent('record_complete', {
+                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                    Analytics.trackEvent('record_complete', {
                         duration_seconds: secondsRef.current,
                         mode: recordingMode,
                         notes_count: notesRef.current.length,
                         media_count: mediaItemsRef.current.length
                     });
-                });
+                }
             };
         } catch (e) {
             console.error("Failed to create MediaRecorder", e);
@@ -279,12 +280,12 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
             if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();
 
             // TRACK: Recording Started
-            import('../../../utils/analytics').then(({ trackEvent }) => {
-                trackEvent('start_recording', {
+            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                Analytics.trackEvent('start_recording', {
                     mode: recordingMode,
                     transcription_language: user.transcriptionLanguage || 'es'
                 });
-            });
+            }
         }
     };
 

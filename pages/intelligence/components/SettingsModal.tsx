@@ -14,6 +14,8 @@ import { uploadAvatar } from '../../../services/storageService';
 import { PhoneVerificationModal } from '../../../components/PhoneVerificationModal';
 import { supabase } from '../../../lib/supabase'; // Import Supabase client
 import { useToast } from '../../../components/Toast';
+import * as Analytics from '../../../utils/analytics';
+
 
 interface SettingsModalProps {
     user: UserProfile;
@@ -351,12 +353,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     const confirmLogout = () => {
-        import('../../../utils/analytics').then(({ trackEvent }) => {
-            trackEvent('logout');
-        });
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('logout');
+        }
         onLogout();
         onClose();
     };
+
 
     const handleDeleteAccount = () => {
         console.log('Deleting account for:', user.id);
@@ -784,11 +787,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                     triggerSaveFeedback();
 
                                                     // TRACK: Transcription Language Change
-                                                    import('../../../utils/analytics').then(({ trackEvent, setUserProperties }) => {
-                                                        trackEvent('change_transcription_language', { language: val });
-                                                        setUserProperties({ transcription_language: val });
-                                                    });
+                                                    if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                        Analytics.trackEvent('change_transcription_language', { language: val });
+                                                        if (typeof Analytics.setUserProperties === 'function') {
+                                                            Analytics.setUserProperties({ transcription_language: val });
+                                                        }
+                                                    }
                                                 }}
+
                                                 options={[
                                                     { value: 'es', label: 'Español' },
                                                     { value: 'en', label: 'English' },

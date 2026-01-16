@@ -1,5 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import * as Analytics from '../utils/analytics';
+
 
 export const Footer: React.FC = () => {
     const { t } = useLanguage();
@@ -33,10 +35,11 @@ export const Footer: React.FC = () => {
                     <a
                         href="/manual?id=grabadora-web"
                         onClick={() => {
-                            import('../utils/analytics').then(({ trackEvent }) => {
-                                trackEvent('click_chrome_ext', { location: 'footer' });
-                            });
+                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                Analytics.trackEvent('click_chrome_ext', { location: 'footer' });
+                            }
                         }}
+
                         className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold"
                     >
                         {t('footer_chrome_ext')}

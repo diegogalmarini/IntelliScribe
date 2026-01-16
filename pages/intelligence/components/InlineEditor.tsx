@@ -1217,8 +1217,8 @@ ${fullTranscript}`;
                         <div className="p-5 border-t border-slate-200 dark:border-white/5 flex justify-end gap-3 bg-slate-50 dark:bg-[#0b0f17]">
                             {!summaryError && summary && (
                                 <button
-                                    onClick={() => { navigator.clipboard.writeText(summary); alert('Summary copied!'); }}
-                                    className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                    onClick={() => { navigator.clipboard.writeText(summary); showToast('Summary copied!'); }}
+                                    className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
                                     {t('export')}
                                 </button>
                             )}

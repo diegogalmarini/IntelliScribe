@@ -17,7 +17,8 @@ import { Image as ImageIcon } from 'lucide-react';
 import { UpgradeModal } from '../../../components/UpgradeModal';
 import { RecordingActions } from './RecordingActions';
 import { PremiumFeatureButton } from './PremiumFeatureButton';
-import { trackEvent } from '../../../utils/analytics';
+import * as Analytics from '../../../utils/analytics';
+
 
 
 interface RecordingDetailViewProps {
@@ -266,8 +267,11 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             if (!isPlaying) {
                 audioRef.current.play();
                 setIsPlaying(true);
-                trackEvent('play_from_transcript', { recording_id: recording.id, timestamp });
+                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                    Analytics.trackEvent('play_from_transcript', { recording_id: recording.id, timestamp });
+                }
             }
+
         }
     };
 
@@ -277,8 +281,11 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 audioRef.current.pause();
             } else {
                 audioRef.current.play();
-                trackEvent('play_audio_toggle', { recording_id: recording.id });
+                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                    Analytics.trackEvent('play_audio_toggle', { recording_id: recording.id });
+                }
             }
+
             setIsPlaying(!isPlaying);
         }
     };
@@ -557,8 +564,11 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     const handleExport = () => {
         requiresPremium('Exportar', () => {
             setExportOpen(true);
-            trackEvent('open_export_modal', { recording_id: recording.id });
+            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                Analytics.trackEvent('open_export_modal', { recording_id: recording.id });
+            }
         });
+
     };
 
     const handleDownloadAudio = async () => {
@@ -566,7 +576,10 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             const audioUrlSource = fullRecording?.audioUrl || recording.audioUrl;
             if (!audioUrlSource) return;
 
-            trackEvent('download_audio', { recording_id: recording.id });
+            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                Analytics.trackEvent('download_audio', { recording_id: recording.id });
+            }
+
 
             try {
                 // Extract file extension from the original audio URL

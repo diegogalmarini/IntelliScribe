@@ -23,6 +23,28 @@ interface ConcatenationResult {
     totalDuration: number;
 }
 
+/**
+ * Universal utility to convert any Audio Blob to a compressed MP3
+ * Uses 22050Hz Mono 64kbps for optimal voice quality/size balance
+ */
+export async function convertAudioBlobToMp3(audioBlob: Blob): Promise<Blob> {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    try {
+        const arrayBuffer = await audioBlob.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        // Resample to 22k Mono for consistency
+        const resampledBuffer = await resampleAndMixDown(audioBuffer, 22050);
+
+        // Encode to MP3
+        const mp3Blob = audioBufferToMp3(resampledBuffer, 64);
+
+        return mp3Blob;
+    } finally {
+        await audioContext.close();
+    }
+}
+
 // Helper to convert AudioBuffer to MP3 blob
 function audioBufferToMp3(buffer: AudioBuffer, kbps: number = 64): Blob {
     const sampleRate = buffer.sampleRate;

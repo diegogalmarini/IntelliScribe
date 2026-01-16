@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Personality, PERSONALITIES } from '../../utils/supportPersonalities';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Recording, UserProfile } from '../../types';
+import * as Analytics from '../../utils/analytics';
 
 interface SupportBotProps {
     position?: 'left' | 'right';
@@ -28,24 +29,24 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         const nextState = !isOpen;
         setIsOpen(nextState);
         if (nextState) {
-            import('../../utils/analytics').then(({ trackEvent, setUserProperties }) => {
-                // Set the current agent as a user property for session-long attribution
-                setUserProperties({ active_support_agent: agent.id });
-
-                trackEvent('support_bot_opened', {
+            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                if (typeof Analytics.setUserProperties === 'function') {
+                    Analytics.setUserProperties({ active_support_agent: agent.id });
+                }
+                Analytics.trackEvent('support_bot_opened', {
                     agent_id: agent.id,
                     agent_name: agent.name
                 });
-            });
+            }
         } else {
             // Track when the bot is closed, including engagement depth
-            import('../../utils/analytics').then(({ trackEvent }) => {
-                trackEvent('support_bot_closed', {
+            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                Analytics.trackEvent('support_bot_closed', {
                     agent_id: agent.id,
                     agent_name: agent.name,
                     total_messages: msgCount
                 });
-            });
+            }
         }
     };
     const [alignment, setAlignment] = useState<'start' | 'center' | 'end'>(position === 'left' ? 'start' : 'end');
@@ -105,12 +106,12 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         setIsTyping(true);
 
         // TRACK: Support Bot Message Sent
-        import('../../utils/analytics').then(({ trackEvent }) => {
-            trackEvent('support_bot_message_sent', {
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('support_bot_message_sent', {
                 agent_name: agent.name.es,
                 is_authenticated: !!user?.id
             });
-        });
+        }
 
         try {
             const { supportChat } = await import('../../services/geminiService');
@@ -252,13 +253,13 @@ ${transcript}
                         <button
                             key={`action-${i}`}
                             onClick={() => {
-                                import('../../utils/analytics').then(({ trackEvent }) => {
-                                    trackEvent('support_bot_action_click', {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', {
                                         agent_id: agent.id,
                                         action_type: 'open_recording',
                                         target_id: id
                                     });
-                                });
+                                }
                                 onAction?.(type, { id, title });
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary/20"
@@ -281,13 +282,13 @@ ${transcript}
                         <button
                             key={`action-${i}`}
                             onClick={() => {
-                                import('../../utils/analytics').then(({ trackEvent }) => {
-                                    trackEvent('support_bot_action_click', {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', {
                                         agent_id: agent.id,
                                         action_type: 'navigate',
                                         target_page: target
                                     });
-                                });
+                                }
                                 onAction?.(type, { target });
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -302,13 +303,13 @@ ${transcript}
                         <button
                             key={`action-${i}`}
                             onClick={() => {
-                                import('../../utils/analytics').then(({ trackEvent }) => {
-                                    trackEvent('support_bot_action_click', {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', {
                                         agent_id: agent.id,
                                         action_type: 'search',
                                         query: query
                                     });
-                                });
+                                }
                                 onAction?.(type, { query });
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-all"
@@ -325,12 +326,12 @@ ${transcript}
                             <button
                                 key={`action-${i}`}
                                 onClick={() => {
-                                    import('../../utils/analytics').then(({ trackEvent }) => {
-                                        trackEvent('support_bot_agent_switch', {
+                                    if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                        Analytics.trackEvent('support_bot_agent_switch', {
                                             from_agent: agent.id,
                                             to_agent: nextId
                                         });
-                                    });
+                                    }
                                     localStorage.setItem('diktalo_active_support_agent', nextId);
                                     setAgent(nextAgent);
                                     // Add switch message
@@ -443,13 +444,13 @@ ${transcript}
                                                         onClick={() => {
                                                             if (m.feedback) return;
                                                             setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
-                                                            import('../../utils/analytics').then(({ trackEvent }) => {
-                                                                trackEvent('support_bot_feedback', {
+                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                Analytics.trackEvent('support_bot_feedback', {
                                                                     agent_id: agent.id,
                                                                     type: 'helpful',
                                                                     message_index: i
                                                                 });
-                                                            });
+                                                            }
                                                         }}
                                                         className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
                                                     >
@@ -460,13 +461,13 @@ ${transcript}
                                                         onClick={() => {
                                                             if (m.feedback) return;
                                                             setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
-                                                            import('../../utils/analytics').then(({ trackEvent }) => {
-                                                                trackEvent('support_bot_feedback', {
+                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                Analytics.trackEvent('support_bot_feedback', {
                                                                     agent_id: agent.id,
                                                                     type: 'unhelpful',
                                                                     message_index: i
                                                                 });
-                                                            });
+                                                            }
                                                         }}
                                                         className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
                                                     >
