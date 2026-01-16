@@ -59,3 +59,20 @@ Este documento registra la evolución del proyecto, los hitos alcanzados y el pr
 
 ### 🛡️ Infraestructura y Capacidad
 **Decisión:** Se elevó la recomendación técnica de los límites de Supabase a **250MB por objeto** para permitir grabaciones maratonianas (8h+) y garantizar que el sistema nunca rechace una subida válida.
+### 📄 Recalculación de Almacenamiento y Auditoría de Datos
+**Problema:** Los usuarios con muchas imágenes y audios antiguos veían "0.0 GB" usado, ya que el sistema anterior no trackeaba el tamaño de los adjuntos ni actualizaba el contador retroactivamente.
+**Solución:** 
+- **Auditoría Retroactiva (`syncStorageUsage`):** Implementamos un sistema que recorre tanto los archivos en el bucket como las imágenes en Base64 de la base de datos para sincronizar el perfil del usuario con la realidad.
+- **Tracking de Adjuntos:** Añadimos la propiedad `size` a los `MediaItem` para que cada captura o subida de imagen se sume al límite de almacenamiento en tiempo real.
+- **Resultado:** El usuario ahora tiene una visión honesta y precisa de su consumo de datos.
+
+### 🎨 Sidebar 2.0: Estandarización de Consumo
+**Hito:** Refactorizamos los indicadores de Minutos, Almacenamiento y Días.
+- **Decisión Visual:** Cambiamos los colores genéricos por el azul marca (`#0055FF`) para reforzar la identidad corporativa.
+- **UX:** Implementamos el formato "Uso / Total --- %" y lógica dinámica que muestra MB para consumos pequeños, eliminando el confuso "0.0 GB".
+- **Lógica de Días:** Corregimos el cálculo de días restantes basándonos en la fecha real de creación de la cuenta y los ciclos de renovación de Stripe/Trial.
+
+### 🐛 Estabilización de Producción (Hotfixes)
+- **Contextos React:** Corregimos un `ReferenceError` de `createContext` añadiendo las importaciones faltantes de React.
+- **Prop Drilling:** Solucionamos un crash crítico en el Dashboard donde una prop indefinida (`onUpdateRecording`) bloqueaba la visualización de audios al hacer clic.
+- **Lección:** Las auditorías de tipos en tiempo real y el uso de props opcionales seguros son vitales para prevenir pantallas en blanco en entornos de despliegue rápido.
