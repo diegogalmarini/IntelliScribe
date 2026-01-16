@@ -470,7 +470,6 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             window.open('https://chromewebstore.google.com/detail/gamgfdgjlmnohikeicknbdplagigoeml?utm_source=item-share-cb', '_blank');
         }
     };
-
     const handleRecordingComplete = (audioBlob: Blob, durationSeconds: number, title: string, notes: NoteItem[], media: MediaItem[]) => {
         // Convert blob to base64
         const reader = new FileReader();
@@ -479,6 +478,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const base64Audio = reader.result as string;
 
             try {
+                showToast(t('uploadingAudio') || 'Subiendo grabación...', 'info');
                 const newRecording = await onRecordingComplete(base64Audio, durationSeconds, title, notes, media, audioBlob);
                 setIsRecording(false);
 
@@ -492,7 +492,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 }
             } catch (error: any) {
                 console.error("Error saving recording:", error);
-                alert(`Error al guardar la grabación: ${error.message || 'Error desconocido'}`);
+                showToast(`Error al guardar la grabación: ${error.message || 'Error desconocido'}`, 'error');
                 setIsRecording(false);
             }
         };
@@ -509,10 +509,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             });
 
             // 1. Concatenate audios into single MP3
+            showToast(t('concatenatingAudio') || 'Concatenando archivos de audio...', 'info');
             const audioFiles = files.map(f => f.file);
             const { blob, segmentOffsets, totalDuration } = await concatenateAudios(audioFiles);
 
             // 2. Upload concatenated WAV to Supabase  
+            showToast(t('uploadingAudio') || 'Subiendo audio a la nube...', 'info');
             const audioUrl = await uploadAudio(blob, user.id!);
             if (!audioUrl) throw new Error('Failed to upload audio');
 
@@ -521,6 +523,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             if (!signedUrl) throw new Error('Failed to get signed URL');
 
             // 4. Transcribe the full concatenated audio
+            showToast(t('transcribingAudio') || 'Transcribiendo audio...', 'info');
             const targetLang = user.transcriptionLanguage || 'es';
             const fullTranscription = await transcribeAudio(undefined, 'audio/wav', targetLang, signedUrl);
 

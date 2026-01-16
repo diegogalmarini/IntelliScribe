@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Recording, UserProfile } from '../../../types';
+import { Recording, UserProfile, NoteItem, MediaItem } from '../../../types';
 import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -141,7 +141,37 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
         return text.replace(/```markdown/g, '').replace(/```/g, '').trim();
     };
 
+    // CRITICAL: Load full details from DB and prevent data loss on parent refresh
+    React.useEffect(() => {
+        const loadFullDetails = async () => {
+            if (!recording.id || recording.id.startsWith('temp-')) return;
 
+            console.log(`[RecordingDetailView] Loading full details for: ${recording.id}`);
+            setIsLoadingDetails(true);
+
+            try {
+                // ALWAYS fetch from DB to get segments and summary, even if props are lightweight
+                const detailedRec = await databaseService.getRecordingDetails(recording.id);
+                if (detailedRec) {
+                    console.log(`[RecordingDetailView] Loaded full recording:`, {
+                        id: detailedRec.id,
+                        hasSegments: !!detailedRec.segments?.length,
+                        hasSummary: !!detailedRec.summary
+                    });
+                    setFullRecording(detailedRec);
+                    setSegments(detailedRec.segments || []);
+                    setSummary(detailedRec.summary || '');
+                    setEditedTitle(detailedRec.title);
+                }
+            } catch (err) {
+                console.error("[RecordingDetailView] Error loading details:", err);
+            } finally {
+                setIsLoadingDetails(false);
+            }
+        };
+
+        loadFullDetails();
+    }, [recording.id]);
 
     React.useEffect(() => {
         const loadSignedUrl = async () => {
@@ -190,6 +220,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             setEditedTitle(recording.title);
         }
     }, [recording.title, isEditingTitle]);
+
     React.useEffect(() => {
         const durationSource = fullRecording?.durationSeconds || recording.durationSeconds;
         if (durationSource) {
@@ -523,18 +554,12 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
         if (onAskDiktalo) onAskDiktalo();
     };
 
-
-
-
     const handleExport = () => {
         requiresPremium('Exportar', () => {
             setExportOpen(true);
             trackEvent('open_export_modal', { recording_id: recording.id });
         });
     };
-
-
-
 
     const handleDownloadAudio = async () => {
         requiresPremium('Descargar Audio', async () => {
@@ -577,9 +602,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
         });
     };
 
-
-
-
     const handleImageClick = (e: React.MouseEvent, url: string | null) => {
         e.stopPropagation(); // Prevent timestamp seek if clicked on specific view button
         if (url) setSelectedImage(url);
@@ -610,7 +632,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 </div>
             )}
 
-            {/* Header */}
             {/* Header */}
             <div className="px-4 md:px-6 py-3 border-b border-black/[0.05] dark:border-white/[0.05] shrink-0">
                 <div className="flex items-center justify-between gap-4">
@@ -794,9 +815,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                     const s = (diffSec % 60).toString().padStart(2, '0');
                                     const timeLabel = `${h}:${m}:${s}`;
 
-                                    // Use a hook-derived signed URL map or async load?
-                                    // For simplicity, we'll assume a helper component or state.
-                                    // Actually, we can just use a local component that handles its own signing
                                     return (
                                         <AttachmentThumbnail
                                             key={idx}
@@ -1056,14 +1074,14 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
                                 <ReactMarkdown
                                     components={{
-                                        h1: ({ node, ...props }) => <h1 className="text-[16px] font-bold mb-3 mt-4" {...props} />,
-                                        h2: ({ node, ...props }) => <h2 className="text-[15px] font-semibold mb-2 mt-3" {...props} />,
-                                        h3: ({ node, ...props }) => <h3 className="text-[14px] font-semibold mb-2 mt-3" {...props} />,
-                                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
-                                        ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-2" {...props} />,
-                                        ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-2" {...props} />,
-                                        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-                                        strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+                                        h1: ({ ...props }) => <h1 className="text-[16px] font-bold mb-3 mt-4" {...props} />,
+                                        h2: ({ ...props }) => <h2 className="text-[15px] font-semibold mb-2 mt-3" {...props} />,
+                                        h3: ({ ...props }) => <h3 className="text-[14px] font-semibold mb-2 mt-3" {...props} />,
+                                        p: ({ ...props }) => <p className="mb-2" {...props} />,
+                                        ul: ({ ...props }) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                                        ol: ({ ...props }) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                                        li: ({ ...props }) => <li className="mb-1" {...props} />,
+                                        strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
                                     }}
                                 >
                                     {cleanMarkdown(summary)}
