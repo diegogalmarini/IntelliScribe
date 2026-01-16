@@ -21,7 +21,7 @@ import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
 import { databaseService } from '../../services/databaseService';
 import { notifyNewRecording } from '../../services/emailService';
 import { useToast } from '../../components/Toast';
-import { trackEvent } from '../../utils/analytics';
+import * as Analytics from '../../utils/analytics';
 import { concatenateAudios, timeToSeconds } from '../../services/audioConcat';
 
 interface IntelligenceDashboardProps {
@@ -503,10 +503,12 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             setIsProcessingMultiAudio(true);
 
             // TRACK: Multi-Audio Processing Start
-            trackEvent('process_multi_audio_start', {
-                file_count: files.length,
-                transcription_language: user.transcriptionLanguage || 'es'
-            });
+            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                Analytics.trackEvent('process_multi_audio_start', {
+                    file_count: files.length,
+                    transcription_language: user.transcriptionLanguage || 'es'
+                });
+            }
 
             // 1. Concatenate audios into single MP3
             showToast(t('concatenatingAudio') || 'Concatenando archivos de audio...', 'info');
