@@ -15,9 +15,6 @@ import { ChatModal } from './components/ChatModal';
 import { ConfirmModal } from './components/ConfirmModal'; // Added Import
 import { AlertModal, AlertType } from '../../components/AlertModal';
 import { MessageSquare, LayoutTemplate } from 'lucide-react';
-import { useLanguage } from '../../contexts/LanguageContext';
-import { transcribeAudio } from '../../services/geminiService';
-
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
