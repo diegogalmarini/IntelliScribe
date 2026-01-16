@@ -14,6 +14,14 @@ import { TemplateGallery } from './TemplateGallery';
 import { ChatModal } from './components/ChatModal';
 import { ConfirmModal } from './components/ConfirmModal'; // Added Import
 import { AlertModal, AlertType } from '../../components/AlertModal';
+import { MessageSquare, LayoutTemplate } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { transcribeAudio } from '../../services/geminiService';
+import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
+import { databaseService } from '../../services/databaseService';
+import { notifyNewRecording } from '../../services/emailService';
+import { useToast } from '../../components/Toast';
+import { concatenateAudios, timeToSeconds } from '../../services/audioConcat';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
