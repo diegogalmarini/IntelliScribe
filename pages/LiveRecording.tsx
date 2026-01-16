@@ -482,7 +482,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                         id: Date.now().toString(),
                         timestamp: formatTimeShort(seconds),
                         url: ev.target.result as string,
-                        name: file.name
+                        name: file.name,
+                        size: file.size
                     };
                     setMediaItems(prev => [...prev, newMedia]);
                 }

@@ -332,6 +332,18 @@ const AppContent: React.FC = () => {
                 },
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations,
             }));
+
+            // Sync storage usage if it currently shows 0
+            if (data.storage_used === 0) {
+                databaseService.syncStorageUsage(supabaseUser.id).then(newSize => {
+                    if (newSize > 0) {
+                        setUser(prev => prev ? ({
+                            ...prev,
+                            subscription: prev.subscription ? { ...prev.subscription, storageUsed: newSize } : prev.subscription
+                        }) : null);
+                    }
+                });
+            }
         } else if (supabaseUser) {
             setUser(prev => ({
                 ...prev,
@@ -406,6 +418,7 @@ const AppContent: React.FC = () => {
 
         // Upload audio to storage if we have a blob
         let audioUrl = audioDataUrl;
+        let finalAudioSize = 0;
         if (audioBlob) {
             try {
                 // Dynamic import to avoid circular dependencies
@@ -413,12 +426,14 @@ const AppContent: React.FC = () => {
 
                 console.log(`[App] Converting recording to MP3... (Original type: ${audioBlob.type})`);
                 const mp3Blob = await convertAudioBlobToMp3(audioBlob);
+                finalAudioSize = mp3Blob.size;
                 console.log(`[App] Conversion complete. MP3 Size: ${(mp3Blob.size / 1024 / 1024).toFixed(2)}MB`);
 
                 const uploadedUrl = await uploadAudio(mp3Blob, supabaseUser.id);
                 if (uploadedUrl) audioUrl = uploadedUrl;
             } catch (convErr) {
                 console.error("[App] MP3 Conversion failed, falling back to original blob", convErr);
+                finalAudioSize = audioBlob.size;
                 const uploadedUrl = await uploadAudio(audioBlob, supabaseUser.id);
                 if (uploadedUrl) audioUrl = uploadedUrl;
             }
@@ -428,6 +443,10 @@ const AppContent: React.FC = () => {
             console.warn('[STORAGE_PROTECTION] Blocking Base64 storage.');
             audioUrl = undefined;
         }
+
+        // Calculate total size including media attachments
+        const mediaSize = (media || []).reduce((sum, item) => sum + (item.size || 0), 0);
+        const totalStorageSize = finalAudioSize + mediaSize;
 
         // Create new recording object
         const h = Math.floor(durationSeconds / 3600).toString().padStart(2, '0');
@@ -449,7 +468,10 @@ const AppContent: React.FC = () => {
             summary: null,
             segments: [],
             notes,
-            media
+            media,
+            metadata: {
+                audioFileSize: totalStorageSize
+            }
         };
 
         // Save to database

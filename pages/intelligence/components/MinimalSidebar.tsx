@@ -194,7 +194,10 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             <div className="space-y-1.5">
                                 <div className="flex justify-between items-center text-[11px]">
                                     <span className="font-medium">
-                                        {((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} / {user.subscription.storageLimit === -1 ? '∞' : ((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(1)} GB
+                                        {(user.subscription.storageUsed || 0) / 1024 / 1024 < 1024
+                                            ? `${((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(1)} MB`
+                                            : `${((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} GB`}
+                                        / {user.subscription.storageLimit === -1 ? '∞' : ((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(1)} GB
                                     </span>
                                     <span className="font-medium">
                                         {(user.subscription.storageLimit || 0) > 0 ? Math.min(100, Math.round(((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)) : 0}%

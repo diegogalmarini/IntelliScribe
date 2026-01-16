@@ -220,7 +220,15 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     const audioUrl = await uploadAudio(mp3File, user.id!);
                     if (!audioUrl) throw new Error("Error al subir el archivo.");
 
-                    const recordingData: Recording = { ...optimisticRecording, id: '', description: `Subido: ${file.name}`, audioUrl };
+                    const recordingData: Recording = {
+                        ...optimisticRecording,
+                        id: '',
+                        description: `Subido: ${file.name}`,
+                        audioUrl,
+                        metadata: {
+                            audioFileSize: mp3Blob.size
+                        }
+                    };
                     const createdRecording = await databaseService.createRecording(recordingData);
                     if (!createdRecording) throw new Error("Error al crear el registro.");
 

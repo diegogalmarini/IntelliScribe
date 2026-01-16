@@ -64,6 +64,21 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
  * @param newFileSize - Size of new file in bytes
  * @returns Object with allowed status, current usage, and limit
  */
+export const getUserBucketUsage = async (userId: string): Promise<number> => {
+    try {
+        const { data: files, error } = await supabase.storage
+            .from('recordings')
+            .list(userId, { limit: 1000 });
+
+        if (error) throw error;
+
+        return (files || []).reduce((sum, file) => sum + (file.metadata?.size || 0), 0);
+    } catch (err) {
+        console.error('Error calculating bucket usage:', err);
+        return 0;
+    }
+};
+
 export const checkStorageLimit = async (
     userId: string,
     newFileSize: number
