@@ -624,10 +624,7 @@ export const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             setIsEditorOpen(false); // Show RecordingDetailView
             console.log('[Dashboard] Multi-audio process complete!');
 
-        } catch (error: any) {
-            console.error('[Multi-Audio] Processing failed:', error);
-            alert(`Error al procesar audios: ${error.message}`);
-        } finally {
+
             setIsProcessingMultiAudio(false);
         }
     };

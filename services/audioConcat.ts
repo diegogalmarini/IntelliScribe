@@ -1,5 +1,5 @@
 // Exported for single file compression
-export async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: number = 16000): Promise<AudioBuffer> {
+export async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: number = 12000): Promise<AudioBuffer> {
     // Calculate new length
     const ratio = targetSampleRate / buffer.sampleRate;
     const newLength = Math.round(buffer.length * ratio);
@@ -94,7 +94,7 @@ export async function compressAudioFile(file: File): Promise<Blob> {
     console.log(`[audioConcat] Original: ${audioBuffer.sampleRate}Hz, ${audioBuffer.numberOfChannels}ch, ${audioBuffer.duration.toFixed(1)}s`);
 
     // 2. Resample to 16kHz Mono
-    const resampledBuffer = await resampleAndMixDown(audioBuffer, 16000);
+    const resampledBuffer = await resampleAndMixDown(audioBuffer, 12000);
 
     // 3. Convert to WAV
     const wavBlob = audioBufferToWavInternal(resampledBuffer);
@@ -150,11 +150,11 @@ export const concatenateAudios = async (audioFiles: File[]): Promise<Concatenati
         }
         segmentOffsets.pop(); // Remove the last cumulative duration which is the total duration
 
-        console.log(`[audioConcat] Resampling to 16kHz Mono... (Original: ${concatenatedBuffer.sampleRate}Hz, ${numberOfChannels}ch)`);
+        console.log(`[audioConcat] Resampling to 12kHz Mono... (Original: ${concatenatedBuffer.sampleRate}Hz, ${numberOfChannels}ch)`);
 
         // 5. Resample to 16kHz Mono to drastically reduce size
         // 46MB (44.1k Stereo) -> ~5MB (16k Mono)
-        const resampledBuffer = await resampleAndMixDown(concatenatedBuffer, 16000);
+        const resampledBuffer = await resampleAndMixDown(concatenatedBuffer, 12000);
 
         console.log('[audioConcat] Encoding to WAV...');
         const audioBlob = audioBufferToWavInternal(resampledBuffer);
