@@ -38,6 +38,7 @@ interface IntelligenceDashboardProps {
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
     onSearch?: (query: string) => Promise<Recording[]>;
     onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => Promise<Recording | void> | void;
+    onUpdateRecording: (id: string, updates: Partial<Recording>) => Promise<void>;
     activeRecordingId?: string | null;
     initialSearchQuery?: string;
     onSelectFolder?: (folderId: string | null) => void;
@@ -61,6 +62,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onUpdateUser,
     onSearch,
     onRecordingComplete,
+    onUpdateRecording,
     activeRecordingId,
     initialSearchQuery = '',
     onSelectFolder,
