@@ -5,6 +5,7 @@ interface WelcomeTourProps {
     onComplete: () => void;
     onStartBot: () => void;
     language?: 'en' | 'es';
+    initialStep?: number;
 }
 
 interface Step {
@@ -50,11 +51,24 @@ const STEPS: Step[] = [
             es: "Chatea conmigo cuando quieras para buscar en tu historial, renombrar archivos o preguntar sobre tus reuniones."
         },
         position: 'left'
+    },
+    {
+        targetId: 'folder-list-section',
+        title: { en: 'Organize with Projects', es: 'Organiza con Proyectos' },
+        description: {
+            en: "Create folders and projects to keep your recordings organized. You can drag and drop here.",
+            es: "Crea carpetas y proyectos para mantener tus audios organizados. Puedes arrastrar y soltar aquí."
+        },
+        position: 'right'
     }
 ];
 
-export const WelcomeTour: React.FC<WelcomeTourProps> = ({ onComplete, onStartBot, language = 'es' }) => {
-    const [currentStep, setCurrentStep] = useState(0);
+export const WelcomeTour: React.FC<WelcomeTourProps> = ({ onComplete, onStartBot, language = 'es', initialStep = 0 }) => {
+    const [currentStep, setCurrentStep] = useState(initialStep);
+
+    useEffect(() => {
+        setCurrentStep(initialStep);
+    }, [initialStep]);
     const [isVisible, setIsVisible] = useState(true);
 
     const step = STEPS[currentStep];
@@ -83,7 +97,7 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({ onComplete, onStartBot
     return (
         <AnimatePresence>
             {isVisible && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+                <div className="fixed inset-0 z-[2147483647] flex items-center justify-center pointer-events-none">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}

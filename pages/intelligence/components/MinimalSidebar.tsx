@@ -257,17 +257,19 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             </div>
 
             {/* FOLDER LIST INTEGRATION */}
-            {onSelectFolder && (
-                <FolderList
-                    onSelectFolder={onSelectFolder}
-                    selectedFolderId={selectedFolderId || null}
-                    userId={user?.id}
-                    folders={folders}
-                    onCreateFolder={onAddFolder}
-                    onRenameFolder={onRenameFolder}
-                    onDeleteFolder={onDeleteFolder}
-                />
-            )}
+            <div id="folder-list-section">
+                {onSelectFolder && (
+                    <FolderList
+                        onSelectFolder={onSelectFolder}
+                        selectedFolderId={selectedFolderId || null}
+                        userId={user?.id}
+                        folders={folders}
+                        onCreateFolder={onAddFolder}
+                        onRenameFolder={onRenameFolder}
+                        onDeleteFolder={onDeleteFolder}
+                    />
+                )}
+            </div>
 
             <div className="my-2 border-t border-black/[0.05] dark:border-white/[0.05]"></div>
 
