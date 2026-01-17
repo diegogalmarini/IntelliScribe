@@ -84,3 +84,12 @@ Este documento registra la evolución del proyecto, los hitos alcanzados y el pr
 **Problema:** Errores 404 recurrentes al usar modelos específicos como `gemini-1.5-flash-latest` en versiones de API beta.
 **Solución:** Centralización en `constants/ai.ts` y lógica de fallback en `api/ai.ts`.
 **Regla:** El Agente no debe hardcodear modelos. Si un modelo falla, el sistema debe intentar el siguiente en la lista de prioridades automáticamente. Esto previene interrupciones de servicio por cambios externos de Google.
+
+### 🧠 Memoria Híbrida y Modelo de Partner (Support Bot)
+**Problema:** El chat del asistente se reseteaba al cambiar de audio, rompiendo la fluidez, y el usuario se sentía "atrapado" con el mismo agente (Camila).
+**Solución:** Implementamos un sistema de memoria y equipo coordinado.
+- **Memoria Híbrida:** El historial visual persiste entre audios, pero la IA recibe un aviso interno de "Cambio de Contexto" para saber sobre qué audio está hablando el usuario en cada momento.
+- **Modelo de Partner (Handoff):** Pasamos de un agente genérico a un equipo que se deriva tareas. Si un agente es de producto y detecta una duda técnica, ofrece pasar la consulta a un experto técnico (Klaus/Alex) mediante botones de acción.
+- **Selección Profesional:** La elección del asistente se movió a **Ajustes**, permitiendo al usuario definir su compañero de IA permanente pero con la posibilidad de rotar cuando lo desee.
+- **Escaner Profundo (Precisión):** Instruimos a la IA para que priorice siempre la **transcripción completa** sobre el resumen para evitar respuestas "vagas" que no encuentran detalles específicos.
+**Filosofía:** El asistente ya no es solo una ayuda, es un equipo de expertos con "vidas virtuales" y relaciones entre ellos.
