@@ -1,20 +1,32 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GEMINI_CONFIG } from '../constants/ai';
+import fs from 'fs';
+import path from 'path';
+
+// Consolidated Configuration to ensure serverless reliability
+const GEMINI_CONFIG = {
+    apiVersion: 'v1beta',
+    modelPriorities: [
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro'
+    ],
+    actions: {
+        summary: { preferredModel: 'gemini-2.0-flash-exp', temperature: 0.7 },
+        chat: { preferredModel: 'gemini-2.0-flash-exp', temperature: 0.8 },
+        support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 },
+        transcription: { preferredModel: 'gemini-2.0-flash-exp', temperature: 0.1 }
+    }
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // ... headers and basic validation ...
+    // CORS configuration
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     const { action, payload, language = 'en' } = req.body;
     console.log(`[AI_API] Request received. Action: ${action}`);
@@ -23,39 +35,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({ error: 'Server Error: Missing GEMINI_API_KEY in environment variables.' });
+        return res.status(500).json({ error: 'Server Error: Missing GEMINI_API_KEY.' });
     }
     if (!supabaseUrl || !supabaseServiceKey) {
-        return res.status(500).json({ error: 'Server Error: Missing SUPABASE_URL or SERVICE_ROLE_KEY.' });
+        return res.status(500).json({ error: 'Server Error: Missing Supabase config.' });
     }
 
     try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
         /**
-         * Helper to get a model with automatic fallback if the preferred one fails.
+         * Helper to execute an AI task with automatic fallback.
+         * The task itself is retried with different models.
          */
-        const getModelWithFallback = async (actionType: keyof typeof GEMINI_CONFIG.actions, systemInstruction?: string) => {
+        const runWithFallback = async (actionType: keyof typeof GEMINI_CONFIG.actions, systemInstruction: string | undefined, task: (model: any, config: any) => Promise<any>) => {
             const config = GEMINI_CONFIG.actions[actionType];
             const modelsToTry = [config.preferredModel, ...GEMINI_CONFIG.modelPriorities.filter(m => m !== config.preferredModel)];
 
             let lastError = null;
             for (const modelName of modelsToTry) {
                 try {
-                    console.log(`[AI_API] Attempting to use model: ${modelName} for action: ${actionType}`);
+                    console.log(`[AI_API] Trying ${modelName} for ${actionType}`);
                     const model = genAI.getGenerativeModel({
                         model: modelName,
                         systemInstruction,
+                        generationConfig: { temperature: config.temperature }
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
 
-                    // Basic check to see if model exists (optional, usually sendMessage/generateContent will fail)
-                    return model;
-                } catch (err) {
-                    console.warn(`[AI_API] Model ${modelName} failed or not found. Trying next...`, err);
+                    return await task(model, config);
+                } catch (err: any) {
+                    console.warn(`[AI_API] Model ${modelName} failed: ${err.message}. Trying next...`);
                     lastError = err;
                 }
             }
-            throw lastError || new Error(`All models failed for action: ${actionType}`);
+            throw lastError || new Error(`All models failed for: ${actionType}`);
         };
 
         let result;
@@ -91,9 +104,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
-            const model = await getModelWithFallback('summary');
-            const response = await model.generateContent(finalPrompt);
-            result = response.response.text() || "No summary generated.";
+            result = await runWithFallback('summary', undefined, async (model) => {
+                const response = await model.generateContent(finalPrompt);
+                return response.response.text() || "No summary generated.";
+            });
         }
 
         // --- Action 2: Chat with Transcript ---
@@ -119,12 +133,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto de grabaciones:\n${finalContext}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible.\n2. Si citas algo, menciona "En la grabación [Título]" o "En la reunión del [Fecha]".\n3. Si analizas múltiples grabaciones, busca patrones y conexiones entre ellas.\n4. Si el usuario pide abrir una grabación, termina con: [OPEN_RECORDING: id].`
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
-            const model = await getModelWithFallback('chat', systemInstruction);
-            const chat = model.startChat({
-                history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
+            result = await runWithFallback('chat', systemInstruction, async (model) => {
+                const chat = model.startChat({
+                    history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
+                });
+                const response = await chat.sendMessage(message);
+                return response.response.text();
             });
-            const response = await chat.sendMessage(message);
-            result = response.response.text();
         }
 
         // --- Action 3: Audio Transcription ---
@@ -167,29 +182,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
             const targetLanguageName = languageNames[language] || 'English';
 
-            const model = await getModelWithFallback('transcription');
-            const response = await model.generateContent({
-                contents: [{
-                    parts: [
-                        { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
-                        {
-                            text: `Transcribe this audio conversation. 
+            result = await runWithFallback('transcription', undefined, async (model) => {
+                const response = await model.generateContent({
+                    contents: [{
+                        parts: [
+                            { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
+                            {
+                                text: `Transcribe this audio conversation. 
  CRITICAL INSTRUCTION: The output MUST be entirely in ${targetLanguageName}. 
  If the audio contains any other language, you MUST translate it accurately into ${targetLanguageName} while transcribing. 
  The final JSON text must only contain ${targetLanguageName}.
  Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'.` }
-                    ]
-                }],
-                generationConfig: { responseMimeType: 'application/json' }
+                        ]
+                    }],
+                    generationConfig: { responseMimeType: 'application/json' }
+                });
+                return response.response.text() || "[]";
             });
-            const rawText = response.response.text() || "[]";
 
-            let sanitizedText = rawText;
+            let sanitizedText = result;
             try {
-                result = JSON.parse(rawText);
+                result = JSON.parse(sanitizedText);
             } catch (parseError) {
                 console.warn('[AI_API] JSON parse failed, attempting to sanitize control characters...');
-                sanitizedText = rawText.replace(/[\x00-\x1F\x7F]/g, (char) => {
+                sanitizedText = sanitizedText.replace(/[\x00-\x1F\x7F]/g, (char) => {
                     if (char === '\n' || char === '\r' || char === '\t') return char;
                     return '';
                 });
@@ -216,8 +232,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             let knowledgeBase = coreTruths;
             try {
-                const fs = await import('fs');
-                const path = await import('path');
                 const kbPath = path.join(process.cwd(), 'public/docs/chatbot-training/knowledge-base.json');
                 if (fs.existsSync(kbPath)) {
                     const kbContent = fs.readFileSync(kbPath, 'utf-8');
@@ -247,13 +261,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 lastRole = currentRole;
             }
 
-            const model = await getModelWithFallback('support', systemInstruction);
-            const chat = model.startChat({
-                history: validHistory
+            result = await runWithFallback('support', systemInstruction, async (model) => {
+                const chat = model.startChat({
+                    history: validHistory
+                });
+                const response = await chat.sendMessage(message);
+                return response.response.text();
             });
-
-            const response = await chat.sendMessage(message);
-            result = response.response.text();
         }
 
         else {
