@@ -92,13 +92,21 @@ export const SupportBot: React.FC<SupportBotProps> = ({
             const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
             setMessages([{ role: 'bot', content: greeting }]);
         } else if (activeRecording?.id && activeRecording.id !== prevRecordingId.current) {
-            // Context switch: Keep messages but add a divider
+            // Context switch: Keep messages but avoid multiple consecutive dividers
             console.log(`[SupportBot] Context Switch Detected: ${activeRecording.id}`);
             const dividerText = language === 'en'
                 ? `--- New Context: ${activeRecording.title} ---`
                 : `--- Nuevo Contexto: ${activeRecording.title} ---`;
 
-            setMessages(prev => [...prev, { role: 'system', content: dividerText }]);
+            setMessages(prev => {
+                // If the last message is already a divider, replace it instead of adding a new one
+                if (prev.length > 0 && prev[prev.length - 1].role === 'system') {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = { role: 'system', content: dividerText };
+                    return newMessages;
+                }
+                return [...prev, { role: 'system', content: dividerText }];
+            });
         }
 
         prevRecordingId.current = activeRecording?.id || null;
@@ -443,8 +451,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                 }
                             }}
                             className={`mt-3 w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${isSearching
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 shadow-sm'
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 shadow-sm'
                                 }`}
                         >
                             <span className={`material-symbols-outlined text-sm ${isSearching ? 'animate-spin' : ''}`}>
