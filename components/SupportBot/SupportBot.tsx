@@ -92,21 +92,9 @@ export const SupportBot: React.FC<SupportBotProps> = ({
             const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
             setMessages([{ role: 'bot', content: greeting }]);
         } else if (activeRecording?.id && activeRecording.id !== prevRecordingId.current) {
-            // Context switch: Keep messages but avoid multiple consecutive dividers
+            // Context switch: Silent update (don't add message)
             console.log(`[SupportBot] Context Switch Detected: ${activeRecording.id}`);
-            const dividerText = language === 'en'
-                ? `--- New Context: ${activeRecording.title} ---`
-                : `--- Nuevo Contexto: ${activeRecording.title} ---`;
-
-            setMessages(prev => {
-                // If the last message is already a divider, replace it instead of adding a new one
-                if (prev.length > 0 && prev[prev.length - 1].role === 'system') {
-                    const newMessages = [...prev];
-                    newMessages[newMessages.length - 1] = { role: 'system', content: dividerText };
-                    return newMessages;
-                }
-                return [...prev, { role: 'system', content: dividerText }];
-            });
+            // We only log it, the activeRecording context is already available to the AI via props/prompt
         }
 
         prevRecordingId.current = activeRecording?.id || null;

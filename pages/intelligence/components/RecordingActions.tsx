@@ -7,7 +7,7 @@ interface RecordingActionsProps {
     isTranscribing: boolean;
     isGeneratingSummary: boolean;
     onTranscribe: () => void;
-    onGenerateSummary: (template: string, language: string) => void;
+    onGenerateSummary: () => void;
     onSaveNotes: () => void;
     onExport: () => void;
     onDelete: () => void;
@@ -49,9 +49,9 @@ export const RecordingActions: React.FC<RecordingActionsProps> = ({
 
             {/* Summarize - AI Feature */}
             <button
-                onClick={() => onGenerateSummary('general', language)}
+                onClick={onGenerateSummary}
                 disabled={isGeneratingSummary}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#0d0d0d] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[#1f1f1f] dark:text-[#ececec] bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors shadow-sm disabled:opacity-50"
                 title={t('summarize')}
             >
                 {isGeneratingSummary ? (
