@@ -78,7 +78,7 @@ const AppContent: React.FC = () => {
     // --- STATE INITIALIZATION ---
     // Moved to top to avoid ReferenceError
     const { user: supabaseUser, signOut, loading: authLoading } = useAuth();
-    const { t, setLanguage } = useLanguage();
+    const { t, setLanguage, language } = useLanguage();
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -127,15 +127,15 @@ const AppContent: React.FC = () => {
         // 2. Track Route Changes & Update Title
         const routeTitles: Record<string, string> = {
             [AppRoute.LANDING]: 'Diktalo - AI Meeting Assistant',
-            [AppRoute.LOGIN]: 'Iniciar Sesión | Diktalo',
+            [AppRoute.LOGIN]: `${language === 'en' ? 'Log In' : 'Iniciar Sesión'} | Diktalo`,
             [AppRoute.DASHBOARD]: 'Dashboard | Diktalo',
             [AppRoute.INTELLIGENCE]: 'Intelligence Hub | Diktalo',
-            [AppRoute.PRICING_COMPARISON]: 'Planes y Precios | Diktalo',
-            [AppRoute.ABOUT]: 'Sobre Nosotros | Diktalo',
-            [AppRoute.CONTACT]: 'Contacto | Diktalo',
-            [AppRoute.TERMS]: 'Términos de Servicio | Diktalo',
-            [AppRoute.PRIVACY]: 'Privacidad | Diktalo',
-            [AppRoute.RESET_PASSWORD]: 'Restablecer Contraseña | Diktalo',
+            [AppRoute.PRICING_COMPARISON]: `${language === 'en' ? 'Plans & Pricing' : 'Planes y Precios'} | Diktalo`,
+            [AppRoute.ABOUT]: `${language === 'en' ? 'About Us' : 'Sobre Nosotros'} | Diktalo`,
+            [AppRoute.CONTACT]: `${language === 'en' ? 'Contact' : 'Contacto'} | Diktalo`,
+            [AppRoute.TERMS]: `${language === 'en' ? 'Terms of Service' : 'Términos de Servicio'} | Diktalo`,
+            [AppRoute.PRIVACY]: `${language === 'en' ? 'Privacy' : 'Privacidad'} | Diktalo`,
+            [AppRoute.RESET_PASSWORD]: `${language === 'en' ? 'Reset Password' : 'Restablecer Contraseña'} | Diktalo`,
         };
 
         const newTitle = routeTitles[currentRoute] || 'Diktalo';
@@ -363,6 +363,14 @@ const AppContent: React.FC = () => {
             }));
         }
     }, [supabaseUser]);
+
+    // SYNC: Keep LanguageContext in sync with User Profile
+    useEffect(() => {
+        if (user.language && user.language !== language) {
+            console.log(`[App] Syncing LanguageContext to: ${user.language}`);
+            setLanguage(user.language);
+        }
+    }, [user.language, language]);
 
     const fetchData = React.useCallback(async () => {
         if (!supabaseUser) return;
