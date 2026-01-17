@@ -340,8 +340,9 @@ const AppContent: React.FC = () => {
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations,
             }));
 
-            // TRIGGER TOUR: If user is new and hasn't completed the tour
-            if (!data.has_completed_tour && !isTourOpen) {
+            // TRIGGER TOUR: If user is new and hasn't completed the tour (and hasn't dismissed it in this browser)
+            const tourSeen = localStorage.getItem(`diktalo_tour_seen_${supabaseUser.id}`);
+            if (!data.has_completed_tour && !isTourOpen && !tourSeen) {
                 // Wait a bit for the UI to settle before showing the tour
                 setTimeout(() => setIsTourOpen(true), 2000);
             }
@@ -683,6 +684,7 @@ const AppContent: React.FC = () => {
             if (updatedUser.notificationSettings) localStorage.setItem(`diktalo_settings_notifications_${targetUserId}`, JSON.stringify(updatedUser.notificationSettings));
             if (updatedUser.transcriptionLanguage) localStorage.setItem(`diktalo_settings_transcription_lang_${targetUserId}`, updatedUser.transcriptionLanguage);
             if (updatedUser.language) localStorage.setItem(`diktalo_settings_language_${targetUserId}`, updatedUser.language);
+            if (updatedUser.hasCompletedTour) localStorage.setItem(`diktalo_tour_seen_${targetUserId}`, 'true');
             await databaseService.updateUserProfile(targetUserId, updatedUser);
         }
     };
@@ -726,6 +728,7 @@ const AppContent: React.FC = () => {
         setIsTourOpen(false);
         setIsBotForceOpen(false);
         if (user.id) {
+            localStorage.setItem(`diktalo_tour_seen_${user.id}`, 'true');
             handleUpdateUser({ hasCompletedTour: true });
         }
     };
