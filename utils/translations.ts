@@ -159,6 +159,8 @@ export const translations = {
     startGuidedTourAction: "Start Guided Tour!",
     wasThisHelpful: "Was this helpful?",
     showMeWhere: "Show me where",
+    deepSearchAction: "Search in all recordings",
+    deepSearchStatus: "Searching in your digital brain...",
 
     // Dashboard / Home
     welcomeUser: "Good morning, {name}",
@@ -1149,6 +1151,8 @@ export const translations = {
     startGuidedTourAction: "¡Comenzar Tour Guiado!",
     wasThisHelpful: "¿Te resultó útil?",
     showMeWhere: "Muéstrame dónde",
+    deepSearchAction: "Buscar en todos mis audios",
+    deepSearchStatus: "Buscando en tu cerebro digital...",
 
     // Dashboard / Home
     welcomeUser: "Hola, {name}",

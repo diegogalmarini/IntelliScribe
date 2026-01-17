@@ -788,5 +788,103 @@ export const databaseService = {
         }
         console.log(`[Database] User profile updated successfully for ${userId}`);
         return true;
+    },
+
+    // --- SEMANTIC SEARCH (Phase 4) ---
+
+    /**
+     * Generates and saves an embedding for a recording to enable semantic search
+     */
+    async syncRecordingEmbedding(recordingId: string): Promise<boolean> {
+        try {
+            const { generateTextEmbedding } = await import('./geminiService');
+
+            // 1. Get recording details
+            const recording = await this.getRecordingDetails(recordingId);
+            if (!recording) return false;
+
+            // 2. Prepare text for embedding (priority: summary > transcript)
+            const textToEmbed = recording.summary ||
+                recording.segments?.map(s => s.text).join(' ').substring(0, 5000) ||
+                recording.title;
+
+            if (!textToEmbed) return false;
+
+            // 3. Generate embedding
+            const embedding = await generateTextEmbedding(textToEmbed);
+            if (!embedding || embedding.length === 0) return false;
+
+            // 4. Save to recording_embeddings
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return false;
+
+            // Check if recording belongs to user (Security)
+            const { data: ownerCheck } = await supabase
+                .from('recordings')
+                .select('user_id')
+                .eq('id', recordingId)
+                .single();
+
+            if (ownerCheck?.user_id !== user.id) {
+                logger.error('Attempted to sync embedding for recording not owned by user', { recordingId, userId: user.id });
+                return false;
+            }
+
+            const { error } = await supabase
+                .from('recording_embeddings')
+                .upsert({
+                    recording_id: recordingId,
+                    user_id: user.id,
+                    content: textToEmbed.substring(0, 2000), // Snippet for debugging
+                    embedding: embedding
+                }, { onConflict: 'recording_id' });
+
+            if (error) {
+                logger.error('Error saving embedding to database', { error, recordingId });
+                return false;
+            }
+
+            console.log(`[Database] Semantic embedding synced for recording ${recordingId}`);
+            return true;
+        } catch (err) {
+            logger.error('Critical failure in syncRecordingEmbedding', { err, recordingId });
+            return false;
+        }
+    },
+
+    /**
+     * Performs semantic search using pgvector similarity
+     */
+    async semanticSearchRecordings(query: string, matchThreshold: number = 0.4, matchCount: number = 5): Promise<any[]> {
+        try {
+            const { generateTextEmbedding } = await import('./geminiService');
+
+            // 1. Generate embedding for query
+            const queryEmbedding = await generateTextEmbedding(query);
+            if (!queryEmbedding || queryEmbedding.length === 0) return [];
+
+            // 2. Get current user
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return [];
+
+            // 3. Call match_recordings RPC in Supabase
+            const { data, error } = await supabase.rpc('match_recordings', {
+                query_embedding: queryEmbedding,
+                match_threshold: matchThreshold,
+                match_count: matchCount,
+                p_user_id: user.id
+            });
+
+            if (error) {
+                logger.error('Error in match_recordings RPC execution', { error, query });
+                return [];
+            }
+
+            logger.info(`[Database] Semantic search found ${data?.length || 0} matches for: "${query}"`);
+            return data || [];
+        } catch (err) {
+            logger.error('Critical failure in semanticSearchRecordings', { err, query });
+            return [];
+        }
     }
 };

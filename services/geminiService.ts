@@ -92,3 +92,13 @@ export const supportChat = async (
     throw error; // Propagate error to see what's happening
   }
 };
+
+export const generateTextEmbedding = async (text: string): Promise<number[]> => {
+  try {
+    const result = await callAIEndpoint('embed', { text }, 'en');
+    return result || [];
+  } catch (error) {
+    console.error("Embedding generation failed:", error);
+    return [];
+  }
+};
