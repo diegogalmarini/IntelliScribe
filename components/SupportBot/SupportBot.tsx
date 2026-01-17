@@ -544,208 +544,207 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                 }
             }
         }
-    }
-    return elements;
-};
+        return elements;
+    };
 
-const renderSystemMessage = (content: string) => {
-    return (
-        <div className="flex justify-center my-4">
-            <div className="px-4 py-1.5 bg-slate-200 dark:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider backdrop-blur-sm">
-                {content}
+    const renderSystemMessage = (content: string) => {
+        return (
+            <div className="flex justify-center my-4">
+                <div className="px-4 py-1.5 bg-slate-200 dark:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider backdrop-blur-sm">
+                    {content}
+                </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
-return (
-    <motion.div
-        drag
-        dragMomentum={false}
-        // Better constraints: allow full screen but keep it visible
-        dragConstraints={{
-            left: -400,
-            right: window.innerWidth - 80,
-            top: -window.innerHeight + 100,
-            bottom: 20
-        }}
-        onDragStart={() => {
-            isDragging.current = true;
-        }}
-        onDrag={(e, info) => {
-            // Determine alignment based on screen percentage
-            const x = info.point.x;
-            const width = window.innerWidth;
-            const ratio = x / width;
+    return (
+        <motion.div
+            drag
+            dragMomentum={false}
+            // Better constraints: allow full screen but keep it visible
+            dragConstraints={{
+                left: -400,
+                right: window.innerWidth - 80,
+                top: -window.innerHeight + 100,
+                bottom: 20
+            }}
+            onDragStart={() => {
+                isDragging.current = true;
+            }}
+            onDrag={(e, info) => {
+                // Determine alignment based on screen percentage
+                const x = info.point.x;
+                const width = window.innerWidth;
+                const ratio = x / width;
 
-            if (ratio < 0.33) {
-                setAlignment('start');
-            } else if (ratio < 0.66) {
-                setAlignment('center');
-            } else {
-                setAlignment('end');
-            }
-        }}
-        onDragEnd={() => {
-            // Short timeout to prevent the immediate click from triggering
-            setTimeout(() => {
-                isDragging.current = false;
-            }, 100);
-        }}
-        // ABOVE EVERYTHING
-        className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${initialOffset || (position === 'left' ? 'left-6' : 'right-6')}`}
-    >
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                    className="w-[350px] md:w-[400px] h-[550px] bg-white dark:bg-slate-900 shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col mb-4 pointer-events-auto"
-                >
-                    {/* Header - Drag Handle */}
-                    <div className="bg-primary p-6 text-white flex items-center justify-between cursor-grab active:cursor-grabbing select-none">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
-                                <img
-                                    src={agent.avatar}
-                                    alt={agent.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-sm">{agent.name} - {t('support') || 'Support'}</h3>
-                                <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsOpen(false);
-                            }}
-                            className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
-                        >
-                            <span className="material-symbols-outlined">close</span>
-                        </button>
-                    </div>
-
-                    {/* Messages Area */}
-                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-transparent">
-                        {messages.map((m, i) => {
-                            if (m.role === 'system') return <React.Fragment key={i}>{renderSystemMessage(m.content)}</React.Fragment>;
-
-                            return (
-                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
-                                    <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
-                                        ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
-                                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
-                                        }`}>
-                                        {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
-
-                                        {/* Feedback Icons for bot messages */}
-                                        {m.role === 'bot' && (
-                                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            if (m.feedback) return;
-                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
-                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                                                Analytics.trackEvent('support_bot_feedback', {
-                                                                    agent_id: agent.id,
-                                                                    type: 'helpful',
-                                                                    message_index: i
-                                                                });
-                                                            }
-                                                        }}
-                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
-                                                    >
-                                                        <span className="material-symbols-outlined text-sm">thumb_up</span>
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            if (m.feedback) return;
-                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
-                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                                                Analytics.trackEvent('support_bot_feedback', {
-                                                                    agent_id: agent.id,
-                                                                    type: 'unhelpful',
-                                                                    message_index: i
-                                                                });
-                                                            }
-                                                        }}
-                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
-                                                    >
-                                                        <span className="material-symbols-outlined text-sm">thumb_down</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                        {isTyping && (
-                            <div className="flex justify-start">
-                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none">
-                                    <div className="flex gap-1">
-                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></span>
-                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Input Area */}
-                    <form onSubmit={handleSend} className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Escribe tu pregunta..."
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing/focusing
-                                className="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary transition-all dark:text-white"
-                            />
-                            <button
-                                type="submit"
-                                disabled={!input.trim() || isTyping}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-primary rounded-lg text-white flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all font-bold"
-                            >
-                                <span className="material-symbols-outlined text-lg">arrow_upward</span>
-                            </button>
-                        </div>
-                        <p className="text-[10px] text-center text-slate-400 mt-2">
-                            {agent.name} usa inteligencia artificial para ayudarte.
-                        </p>
-                    </form>
-                </motion.div>
-            )
-            }
-        </AnimatePresence >
-
-        {/* Bubble Toggle */}
-        <motion.button
-            id="support-bot-trigger"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => {
-                if (!isDragging.current) {
-                    toggleOpen();
+                if (ratio < 0.33) {
+                    setAlignment('start');
+                } else if (ratio < 0.66) {
+                    setAlignment('center');
+                } else {
+                    setAlignment('end');
                 }
             }}
-            className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
-                }`}
+            onDragEnd={() => {
+                // Short timeout to prevent the immediate click from triggering
+                setTimeout(() => {
+                    isDragging.current = false;
+                }, 100);
+            }}
+            // ABOVE EVERYTHING
+            className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${initialOffset || (position === 'left' ? 'left-6' : 'right-6')}`}
         >
-            <span className="material-symbols-outlined text-3xl">
-                {isOpen ? 'close' : 'chat_bubble'}
-            </span>
-        </motion.button >
-    </motion.div >
-);
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                        className="w-[350px] md:w-[400px] h-[550px] bg-white dark:bg-slate-900 shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col mb-4 pointer-events-auto"
+                    >
+                        {/* Header - Drag Handle */}
+                        <div className="bg-primary p-6 text-white flex items-center justify-between cursor-grab active:cursor-grabbing select-none">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
+                                    <img
+                                        src={agent.avatar}
+                                        alt={agent.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm">{agent.name} - {t('support') || 'Support'}</h3>
+                                    <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsOpen(false);
+                                }}
+                                className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        {/* Messages Area */}
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-transparent">
+                            {messages.map((m, i) => {
+                                if (m.role === 'system') return <React.Fragment key={i}>{renderSystemMessage(m.content)}</React.Fragment>;
+
+                                return (
+                                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
+                                        <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
+                                            ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
+                                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
+                                            }`}>
+                                            {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
+
+                                            {/* Feedback Icons for bot messages */}
+                                            {m.role === 'bot' && (
+                                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (m.feedback) return;
+                                                                setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
+                                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                    Analytics.trackEvent('support_bot_feedback', {
+                                                                        agent_id: agent.id,
+                                                                        type: 'helpful',
+                                                                        message_index: i
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">thumb_up</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (m.feedback) return;
+                                                                setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
+                                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                    Analytics.trackEvent('support_bot_feedback', {
+                                                                        agent_id: agent.id,
+                                                                        type: 'unhelpful',
+                                                                        message_index: i
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">thumb_down</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {isTyping && (
+                                <div className="flex justify-start">
+                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none">
+                                        <div className="flex gap-1">
+                                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Input Area */}
+                        <form onSubmit={handleSend} className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Escribe tu pregunta..."
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing/focusing
+                                    className="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary transition-all dark:text-white"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!input.trim() || isTyping}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-primary rounded-lg text-white flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all font-bold"
+                                >
+                                    <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                                </button>
+                            </div>
+                            <p className="text-[10px] text-center text-slate-400 mt-2">
+                                {agent.name} usa inteligencia artificial para ayudarte.
+                            </p>
+                        </form>
+                    </motion.div>
+                )
+                }
+            </AnimatePresence >
+
+            {/* Bubble Toggle */}
+            <motion.button
+                id="support-bot-trigger"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                    if (!isDragging.current) {
+                        toggleOpen();
+                    }
+                }}
+                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
+                    }`}
+            >
+                <span className="material-symbols-outlined text-3xl">
+                    {isOpen ? 'close' : 'chat_bubble'}
+                </span>
+            </motion.button >
+        </motion.div >
+    );
 };
