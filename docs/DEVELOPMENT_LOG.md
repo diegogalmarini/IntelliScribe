@@ -79,3 +79,8 @@ Este documento registra la evolución del proyecto, los hitos alcanzados y el pr
 ### 🛡️ Filosofía de Colaboración: Proactividad Total del Agente
 **Mandato del Usuario (Ene 2026):** El Agente (Antigravity) debe siempre tomar la iniciativa para realizar cualquier tarea técnica que reduzca la carga de trabajo del usuario (builds, empaquetado, correcciones concurrentes), siempre que sea más rápido y eficiente. 
 **Regla de Oro:** "Haz todo lo que me quite trabajo a mí y puedas hacerlo tú más rápido y mejor".
+
+### 🤖 Arquitectura Auto-Sanable (Model Agnostic)
+**Problema:** Errores 404 recurrentes al usar modelos específicos como `gemini-1.5-flash-latest` en versiones de API beta.
+**Solución:** Centralización en `constants/ai.ts` y lógica de fallback en `api/ai.ts`.
+**Regla:** El Agente no debe hardcodear modelos. Si un modelo falla, el sistema debe intentar el siguiente en la lista de prioridades automáticamente. Esto previene interrupciones de servicio por cambios externos de Google.

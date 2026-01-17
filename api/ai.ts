@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { GEMINI_CONFIG } from '../constants/ai';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS configuration
+    // ... headers and basic validation ...
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -30,6 +31,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+        /**
+         * Helper to get a model with automatic fallback if the preferred one fails.
+         */
+        const getModelWithFallback = async (actionType: keyof typeof GEMINI_CONFIG.actions, systemInstruction?: string) => {
+            const config = GEMINI_CONFIG.actions[actionType];
+            const modelsToTry = [config.preferredModel, ...GEMINI_CONFIG.modelPriorities.filter(m => m !== config.preferredModel)];
+
+            let lastError = null;
+            for (const modelName of modelsToTry) {
+                try {
+                    console.log(`[AI_API] Attempting to use model: ${modelName} for action: ${actionType}`);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        systemInstruction,
+                    }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+
+                    // Basic check to see if model exists (optional, usually sendMessage/generateContent will fail)
+                    return model;
+                } catch (err) {
+                    console.warn(`[AI_API] Model ${modelName} failed or not found. Trying next...`, err);
+                    lastError = err;
+                }
+            }
+            throw lastError || new Error(`All models failed for action: ${actionType}`);
+        };
+
         let result;
 
         // --- Action 1: Meeting Summary ---
@@ -63,9 +91,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
-            const response = await genAI.getGenerativeModel({
-                model: 'gemini-2.0-flash-exp',
-            }).generateContent(finalPrompt);
+            const model = await getModelWithFallback('summary');
+            const response = await model.generateContent(finalPrompt);
             result = response.response.text() || "No summary generated.";
         }
 
@@ -92,10 +119,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto de grabaciones:\n${finalContext}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible.\n2. Si citas algo, menciona "En la grabación [Título]" o "En la reunión del [Fecha]".\n3. Si analizas múltiples grabaciones, busca patrones y conexiones entre ellas.\n4. Si el usuario pide abrir una grabación, termina con: [OPEN_RECORDING: id].`
                 : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
-            const chat = genAI.getGenerativeModel({
-                model: 'gemini-2.0-flash-exp',
-                systemInstruction,
-            }).startChat({
+            const model = await getModelWithFallback('chat', systemInstruction);
+            const chat = model.startChat({
                 history: history.map((h: any) => ({ role: h.role, parts: [{ text: h.text }] })),
             });
             const response = await chat.sendMessage(message);
@@ -142,9 +167,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
             const targetLanguageName = languageNames[language] || 'English';
 
-            const response = await genAI.getGenerativeModel({
-                model: 'gemini-2.0-flash-exp',
-            }, { apiVersion: 'v1beta' }).generateContent({
+            const model = await getModelWithFallback('transcription');
+            const response = await model.generateContent({
                 contents: [{
                     parts: [
                         { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
@@ -223,11 +247,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 lastRole = currentRole;
             }
 
-            const chat = genAI.getGenerativeModel({
-                model: 'gemini-1.5-flash-latest',
-                systemInstruction,
-                generationConfig: { temperature: 0.9 }
-            }, { apiVersion: 'v1beta' }).startChat({
+            const model = await getModelWithFallback('support', systemInstruction);
+            const chat = model.startChat({
                 history: validHistory
             });
 
