@@ -111,6 +111,29 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         }
     }, [messages, isTyping, isOpen]);
 
+    const handleRotateAgent = () => {
+        // Find agents that are NOT the current one
+        const others = PERSONALITIES.filter(p => p.id !== agent.id);
+        const random = others[Math.floor(Math.random() * others.length)];
+
+        // Save and update
+        localStorage.setItem('diktalo_active_support_agent', random.id);
+        setAgent(random);
+
+        // Reset chat for the new personality to avoid confusion
+        const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+        const greeting = language === 'en' ? random.greeting.en(time, day) : random.greeting.es(time, day);
+        setMessages([{ role: 'bot', content: greeting }]);
+
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('support_bot_agent_rotated', {
+                from: agent.id,
+                to: random.id
+            });
+        }
+    };
+
     const handleSend = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (!input.trim() || isTyping) return;
@@ -178,17 +201,20 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
     - ESTILO/TONO: ${tone}
     - RESPUESTAS: Sé concreto, directo y amigable.
     - TUS CAPACIDADES: Puedes buscar en los audios del usuario, decirles su plan actual, y ayudarles a navegar por la app.
-    - BÚSQUEDA: Para buscar un audio, lee los Títulos Y Resúmenes del contexto. Si el usuario pregunta por un tema o persona (ej. "Javi") que aparece en un resumen pero no en el título, dale el audio correspondiente.
+    - BÚSQUEDA: Para buscar un audio, lee los Títulos Y Resúmenes del contexto.
+    - PRECISIÓN: Si hay un AUDIO ABIERTO y el usuario pregunta por algo específico (nombres, frases, temas, saludos), DEBES buscar en la TRANSCRIPCIÓN COMPLETA antes de responder. NO te limites al resumen. Si está en la transcripción pero no en el resumen, cítalo igualmente.
     - ACCIONES (SOLO SI EL USUARIO LO PIDE):
         1. Abrir audio: [[ACTION:OPEN_RECORDING:ID_DEL_AUDIO:TITULO_DEL_AUDIO]]
         2. Navegar a sección: [[ACTION:NAVIGATE:SETTINGS]] o [[ACTION:NAVIGATE:PLANS]].
-        3. Búsqueda Profunda: Si NO encuentras lo que pide en los 10 audios del CONTEXTO, usa [[ACTION:SEARCH:termino_de_busqueda]] para buscar en todo el historial.
+        3. Búsqueda Profunda: Si NO encuentras lo que pide en los 10 audios del CONTEXTO ni en la transcripción del audio abierto, usa [[ACTION:SEARCH:termino_de_busqueda]].
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
       ${userContext}
       GRABACIONES RECIENTES (Título y fragmento de resumen):
-      ${recordingsList || 'Sin grabaciones aún.'}${activeRecordingContext}
+      ${recordingsList || 'Sin grabaciones aún.'}
+      
+      ${activeRecordingContext}
     - RELACIONES: ${relations}. Nati Pol es nuestra Directora Creativa y jefa.
     - IMPORTANTE: Si el usuario NO está autenticado, NO asumas que tiene plan 'free'. Explícale que debe crear cuenta para acceder a funciones.
     
@@ -205,15 +231,18 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
     - TONE/STYLE: ${tone}
     - RESPONSES: Be concrete and friendly.
     - CAPABILITIES: You can search recordings, tell users their current plan, and help navigate the app.
-    - SEARCH: Search Titles AND Summaries. If context doesn't match, use Deep Search.
+    - SEARCH: Search Titles AND Summaries.
+    - PRECISION: If there is an AUDIO ABIERTO, you MUST look into the TRANSCRIPCIÓN COMPLETA before saying you can't find something. Don't rely only on summaries for the active recording.
     - ACTIONS (ONLY IF REQUESTED):
         1. Open audio: [[ACTION:OPEN_RECORDING:RECORDING_ID:RECORDING_TITLE]]
         2. Navigate: [[ACTION:NAVIGATE:SETTINGS]] or [[ACTION:NAVIGATE:PLANS]].
-        3. Deep Search: [[ACTION:SEARCH:query]] if not in recent context.
+        3. Deep Search: [[ACTION:SEARCH:query]] if not in recent context or transcript.
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
-      ${recordingsList || 'No recordings yet.'}${activeRecordingContext}
+      ${recordingsList || 'No recordings yet.'}
+      
+      ${activeRecordingContext}
     - RELATIONS: ${relations}. Nati Pol is our Creative Director and boss.
     - IMPORTANT: If the user is NOT authenticated, do NOT assume they have a 'free' plan. Explain they need to create an account to access features.
     
@@ -443,15 +472,27 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                     <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
                                 </div>
                             </div>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsOpen(false);
-                                }}
-                                className="hover:rotate-90 transition-transform p-1 rounded-full hover:bg-white/10"
-                            >
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRotateAgent();
+                                    }}
+                                    title={language === 'es' ? 'Cambiar Agente' : 'Change Agent'}
+                                    className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-xl">shuffle</span>
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsOpen(false);
+                                    }}
+                                    className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
+                                >
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Messages Area */}
