@@ -46,6 +46,7 @@ interface IntelligenceDashboardProps {
     onAddFolder?: (name: string) => Promise<void>;
     onRenameFolder?: (id: string, name: string) => Promise<void>;
     onDeleteFolder?: (id: string) => Promise<void>;
+    onAction?: (type: string, payload?: any) => void;
 }
 
 const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -69,7 +70,8 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onAppStateChange,
     onAddFolder,
     onRenameFolder,
-    onDeleteFolder
+    onDeleteFolder,
+    onAction
 }) => {
     const { t, language } = useLanguage();
     const { showToast } = useToast();
@@ -459,7 +461,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} /> : <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />}
                 </div>
             </div>
-            <SettingsModal user={user} isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onUpdateUser={onUpdateUser} onNavigate={onNavigate} onLogout={onLogout} />
+            <SettingsModal user={user} isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onUpdateUser={onUpdateUser} onNavigate={onNavigate} onLogout={onLogout} onAction={onAction} />
             <ChatModal isOpen={chatState.isOpen} onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))} recordings={chatState.recordings} title={chatState.title} onOpenRecording={handleSelectRecording} />
             <AlertModal isOpen={alertState.isOpen} onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} title={alertState.title} message={alertState.message} type={alertState.type} />
             <ConfirmModal isOpen={showNavConfirm} onClose={() => setShowNavConfirm(false)} onConfirm={() => { setIsRecording(false); setRecorderStatus('idle'); setView('recordings'); setSelectedId(null); }} title={t('confirmExitTitle')} message={t('confirmExitDesc')} confirmText={t('confirmExitBtn')} cancelText={t('cancel')} isDestructive={true} />
