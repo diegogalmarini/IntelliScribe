@@ -726,7 +726,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                         isGeneratingSummary={isGenerating}
                         canTranscribe={!!(fullRecording?.audioUrl || recording.audioUrl)}
                         onTranscribe={handleTranscribeAudio}
-                        onGenerateSummary={handleGenerateSummary}
+                        onGenerateSummary={handleAnalyze}
                         onSaveNotes={handleSaveNotes}
                         onExport={handleExport}
                         onDelete={() => setShowDeleteConfirm(true)}
