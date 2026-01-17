@@ -424,8 +424,23 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     const hasSummary = summary && summary.trim().length > 0;
 
     const handleTranscribeAudio = async () => {
-        if (!signedAudioUrl) {
-            showToast("Audio URL not available.", 'error');
+        let currentSignedUrl = signedAudioUrl;
+
+        // RETRY LOGIC: If signedUrl is missing, try to generate it now
+        if (!currentSignedUrl) {
+            const urlSource = fullRecording?.audioUrl || recording.audioUrl;
+            if (urlSource) {
+                console.log('[RecordingDetail] Audio URL missing, attempting to generate signed URL...');
+                const url = await getSignedAudioUrl(urlSource);
+                if (url) {
+                    currentSignedUrl = url;
+                    setSignedAudioUrl(url);
+                }
+            }
+        }
+
+        if (!currentSignedUrl) {
+            showToast("Audio URL not available. Please wait or refresh.", 'error');
             return;
         }
 
@@ -691,16 +706,14 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
                     {/* Action Buttons - Refactored with Premium Gates */}
                     <RecordingActions
-                        isFreeUser={isFreeUser}
                         isTranscribing={isTranscribing}
+                        isGeneratingSummary={isGenerating}
+                        canTranscribe={!!(fullRecording?.audioUrl || recording.audioUrl)}
                         onTranscribe={handleTranscribeAudio}
-                        onAnalyze={handleAnalyze}
+                        onGenerateSummary={handleGenerateSummary}
+                        onSaveNotes={handleSaveNotes}
                         onExport={handleExport}
-                        onShowUpgrade={(featureName) => {
-                            setUpgradeFeatureName(featureName);
-                            setUpgradeModalOpen(true);
-                        }}
-                        canTranscribe={!!signedAudioUrl}
+                        onDelete={() => setShowDeleteConfirm(true)}
                     />
                 </div>
             </div>
