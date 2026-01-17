@@ -25,6 +25,7 @@ interface SettingsModalProps {
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
     onNavigate: (route: AppRoute) => void;
     onLogout: () => void;
+    onAction?: (type: string, payload?: any) => void;
 }
 
 type Section = 'account' | 'preferences' | 'notifications' | 'integrations' | 'custom_vocabulary' | 'private_cloud' | 'developer' | 'help' | 'about' | 'admin' | 'security';
@@ -119,7 +120,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onClose,
     onUpdateUser,
     onNavigate,
-    onLogout
+    onLogout,
+    onAction
 }) => {
     const [selectedSection, setSelectedSection] = useState<Section>('account');
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -850,18 +852,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             const agent = PERSONALITIES.find(p => p.id === selectedAgentId);
                                             if (!agent) return null;
                                             return (
-                                                <div className="flex gap-4">
-                                                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20">
-                                                        <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-sm font-bold text-slate-900 dark:text-white">{agent.name}</span>
-                                                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded-full font-bold uppercase">{agent.role}</span>
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="flex gap-4">
+                                                        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20">
+                                                            <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
                                                         </div>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed italic">
-                                                            "{language === 'en' ? agent.bio.en : agent.bio.es}"
-                                                        </p>
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-sm font-bold text-slate-900 dark:text-white">{agent.name}</span>
+                                                                <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded-full font-bold uppercase">{agent.role}</span>
+                                                            </div>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed italic">
+                                                                "{language === 'en' ? agent.bio.en : agent.bio.es}"
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-2 border-t border-slate-200/50 dark:border-white/5">
+                                                        <button
+                                                            onClick={() => {
+                                                                if (onAction) {
+                                                                    onAction('START_TOUR');
+                                                                    onClose();
+                                                                }
+                                                            }}
+                                                            className="flex items-center gap-2 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors uppercase tracking-wider"
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                                                            {t('startGuidedTourAction') || 'Lanzar Tour Guiado'}
+                                                        </button>
                                                     </div>
                                                 </div>
                                             );
