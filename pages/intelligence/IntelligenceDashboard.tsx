@@ -450,7 +450,9 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         >
                             <span className="material-symbols-outlined text-lg">help</span>
                         </button>
-                        <ProfileAvatar user={user} onClick={() => setIsSettingsOpen(true)} />
+                        <div id="user-profile-button">
+                            <ProfileAvatar user={user} onClick={() => setIsSettingsOpen(true)} />
+                        </div>
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">

@@ -249,6 +249,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         6. Organizar: [[ACTION:CREATE_FOLDER:NOMBRE]] o [[ACTION:MOVE_TO_FOLDER:ID_DEL_AUDIO:ID_DE_CARPETA]]
         7. Iniciar Tour: [[ACTION:START_TOUR]] (Todo el tour)
         8. Mostrar Sección Específica: [[ACTION:START_TOUR:INDEX]] (0:Bienvenida, 1:Grabadora, 2:Hub, 3:Chat, 4:Proyectos). Usa 4 si preguntan por proyectos/carpetas.
+        9. Resaltar Elemento: [[ACTION:HIGHLIGHT:ID]]. Usa esto para señalar algo. IDs disponibles: 'dialer-button' (Grabar), 'intelligence-hub' (Dashboard), 'support-bot-trigger' (Chat), 'folder-list-section' (Proyectos), 'user-profile-button' (Ajustes).
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
@@ -287,6 +288,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         6. Organize: [[ACTION:CREATE_FOLDER:NAME]] or [[ACTION:MOVE_TO_FOLDER:ID:FOLDER_ID]]
         7. Start Tour: [[ACTION:START_TOUR]] (Full tour)
         8. Show Specific Section: [[ACTION:START_TOUR:INDEX]] (0:Welcome, 1:Recorder, 2:Hub, 3:Chat, 4:Projects). Use 4 if they ask about projects/folders.
+        9. Highlight Element: [[ACTION:HIGHLIGHT:ID]]. Use this to point at something. Available IDs: 'dialer-button' (Record), 'intelligence-hub' (Dashboard), 'support-bot-trigger' (Chat), 'folder-list-section' (Projects), 'user-profile-button' (Settings).
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
@@ -464,6 +466,23 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                         >
                             <span className="material-symbols-outlined text-sm">auto_awesome</span>
                             {t('startGuidedTourAction')}
+                        </button>
+                    );
+                } else if (type === 'HIGHLIGHT') {
+                    const id = actionData[1];
+                    elements.push(
+                        <button
+                            key={`action-${i}`}
+                            onClick={() => {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', { action_type: 'highlight', target_id: id });
+                                }
+                                onAction?.('HIGHLIGHT', { id });
+                            }}
+                            className="mt-3 w-full py-2.5 px-4 bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
+                        >
+                            <span className="material-symbols-outlined text-sm">visibility</span>
+                            {t('showMeWhere')}
                         </button>
                     );
                 } else if (type === 'DELETE_RECORDING') {

@@ -24,6 +24,7 @@ import { databaseService } from './services/databaseService';
 import { notifyNewRecording } from './services/emailService';
 import { SupportBot } from './components/SupportBot/SupportBot';
 import { WelcomeTour } from './components/GuidedTour/WelcomeTour';
+import { VisualHighlighter } from './components/GuidedTour/VisualHighlighter';
 import { Navbar } from './components/Landing/Navbar';
 import { Footer } from './components/Footer';
 import { Landing } from './pages/Landing';
@@ -85,6 +86,7 @@ const AppContent: React.FC = () => {
     const [isTourOpen, setIsTourOpen] = useState(false);
     const [tourInitialStep, setTourInitialStep] = useState(0);
     const [isBotForceOpen, setIsBotForceOpen] = useState(false);
+    const [highlightId, setHighlightId] = useState<string | null>(null);
 
     // User State Template
     const defaultUser: UserProfile = {
@@ -821,6 +823,8 @@ const AppContent: React.FC = () => {
                             } else if (type === 'START_TOUR') {
                                 setTourInitialStep(payload?.stepIndex || 0);
                                 setIsTourOpen(true);
+                            } else if (type === 'HIGHLIGHT') {
+                                setHighlightId(payload.id);
                             } else {
                                 navigate(AppRoute.DASHBOARD);
                             }
@@ -837,6 +841,7 @@ const AppContent: React.FC = () => {
                     initialStep={tourInitialStep}
                 />
             )}
+            <VisualHighlighter targetId={highlightId} onClose={() => setHighlightId(null)} />
         </>
     );
 };
