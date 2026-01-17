@@ -66,14 +66,16 @@ export const SupportBot: React.FC<SupportBotProps> = ({
     const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string; feedback?: 'up' | 'down' }[]>([]);
     const [msgCount, setMsgCount] = useState(0);
 
-    // Initialize greeting
+    // Initialize greeting & Handle Context Switch
     useEffect(() => {
-        console.log(`[SupportBot] Mounted. Route: ${window.location.pathname}, Position: ${position}`);
+        console.log(`[SupportBot] Context Refresh. Active Recording: ${activeRecording?.id || 'None'}`);
         const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
         const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
+
+        // When switching recordings, we reset the chat to ensure context purity
         setMessages([{ role: 'bot', content: greeting }]);
-    }, [agent, language]);
+    }, [agent, language, activeRecording?.id]);
 
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
