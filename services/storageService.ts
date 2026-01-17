@@ -5,7 +5,7 @@ export const getSignedAudioUrl = async (path: string): Promise<string | null> =>
     try {
         // DEFENSIVE CHECK: Ensure path is defined and not empty
         if (!path || typeof path !== 'string') {
-            console.error('[Storage] Invalid path provided to getSignedAudioUrl:', path);
+            console.error('[Storage] Invalid path provided to getSignedAudioUrl. Path Type:', typeof path, 'Value:', path);
             return null;
         }
 

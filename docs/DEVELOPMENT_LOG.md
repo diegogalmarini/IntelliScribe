@@ -76,3 +76,6 @@ Este documento registra la evolución del proyecto, los hitos alcanzados y el pr
 - **Contextos React:** Corregimos un `ReferenceError` de `createContext` añadiendo las importaciones faltantes de React.
 - **Prop Drilling:** Solucionamos un crash crítico en el Dashboard donde una prop indefinida (`onUpdateRecording`) bloqueaba la visualización de audios al hacer clic.
 - **Lección:** Las auditorías de tipos en tiempo real y el uso de props opcionales seguros son vitales para prevenir pantallas en blanco en entornos de despliegue rápido.
+### 🛡️ Filosofía de Colaboración: Proactividad Total del Agente
+**Mandato del Usuario (Ene 2026):** El Agente (Antigravity) debe siempre tomar la iniciativa para realizar cualquier tarea técnica que reduzca la carga de trabajo del usuario (builds, empaquetado, correcciones concurrentes), siempre que sea más rápido y eficiente. 
+**Regla de Oro:** "Haz todo lo que me quite trabajo a mí y puedas hacerlo tú más rápido y mejor".

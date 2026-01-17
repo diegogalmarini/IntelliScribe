@@ -45,8 +45,8 @@ async function startRecording(streamId: string, sendResponse: (response: any) =>
 
         audioChunks = [];
 
-        // Capture the tab audio stream
-        audioStream = await navigator.mediaDevices.getUserMedia({
+        // 1. Capture the tab audio stream
+        const tabStream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 mandatory: {
                     chromeMediaSource: 'tab',
@@ -56,12 +56,46 @@ async function startRecording(streamId: string, sendResponse: (response: any) =>
             video: false
         } as any);
 
+        // 2. Capture the microphone audio stream
+        let micStream: MediaStream | null = null;
+        try {
+            micStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+                video: false
+            });
+            console.log('[Offscreen] Mic stream captured successfully');
+        } catch (micError) {
+            console.warn('[Offscreen] Could not capture microphone. Recording tab only.', micError);
+        }
+
+        // 3. Mix Streams using AudioContext
+        const audioContext = new AudioContext();
+        const dest = audioContext.createMediaStreamDestination();
+
+        // Source: Tab
+        const tabSource = audioContext.createMediaStreamSource(tabStream);
+        tabSource.connect(dest);
+
+        // Source: Mic (if available)
+        if (micStream) {
+            const micSource = audioContext.createMediaStreamSource(micStream);
+            micSource.connect(dest);
+        }
+
         // --- NEW: Audio Monitoring ---
         // Create an audio element to play the stream so the user can hear it
+        // We use the tab stream here to avoid echoing the user's own voice
         const audioMonitor = document.createElement('audio');
-        audioMonitor.srcObject = audioStream;
+        audioMonitor.srcObject = tabStream;
         audioMonitor.play().catch(e => console.error('[Offscreen] Audio monitor play failed:', e));
-        (window as any).audioMonitor = audioMonitor; // Keep reference
+        (window as any).audioMonitor = audioMonitor;
+
+        // 4. Use mixed stream for recorder
+        audioStream = dest.stream;
 
         recorder = new MediaRecorder(audioStream, {
             mimeType: 'audio/webm;codecs=opus'
@@ -75,6 +109,8 @@ async function startRecording(streamId: string, sendResponse: (response: any) =>
 
         recorder.onstop = async () => {
             console.log('[Offscreen] Recorder stopped');
+            // Cleanup audio context if needed (though we usually stop tracks manualy)
+            audioContext.close().catch(() => { });
         };
 
         recorder.start(1000); // Collect data every 1s
