@@ -23,6 +23,7 @@ import { supabase } from './lib/supabase';
 import { databaseService } from './services/databaseService';
 import { notifyNewRecording } from './services/emailService';
 import { SupportBot } from './components/SupportBot/SupportBot';
+import { WelcomeTour } from './components/GuidedTour/WelcomeTour';
 import { Navbar } from './components/Landing/Navbar';
 import { Footer } from './components/Footer';
 import { Landing } from './pages/Landing';
@@ -81,6 +82,8 @@ const AppContent: React.FC = () => {
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isTourOpen, setIsTourOpen] = useState(false);
+    const [isBotForceOpen, setIsBotForceOpen] = useState(false);
 
     // User State Template
     const defaultUser: UserProfile = {
@@ -330,8 +333,15 @@ const AppContent: React.FC = () => {
                     storageLimit: data.storage_limit || 0,
                     trialEndsAt: data.trial_ends_at
                 },
+                hasCompletedTour: data.has_completed_tour || false,
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations,
             }));
+
+            // TRIGGER TOUR: If user is new and hasn't completed the tour
+            if (!data.has_completed_tour && !isTourOpen) {
+                // Wait a bit for the UI to settle before showing the tour
+                setTimeout(() => setIsTourOpen(true), 2000);
+            }
 
             // Sync storage usage if it currently shows 0
             if (data.storage_used === 0) {
@@ -692,6 +702,14 @@ const AppContent: React.FC = () => {
 
     const activeRecording = recordings.find(r => r.id === activeRecordingId);
 
+    const handleTourComplete = () => {
+        setIsTourOpen(false);
+        setIsBotForceOpen(false);
+        if (user.id) {
+            handleUpdateUser({ hasCompletedTour: true });
+        }
+    };
+
     const renderPageContent = () => {
         if (authLoading && (currentRoute === AppRoute.LANDING || currentRoute === AppRoute.LOGIN)) {
             return (
@@ -764,10 +782,42 @@ const AppContent: React.FC = () => {
                 const isPublicPage = [AppRoute.LANDING, AppRoute.LOGIN, AppRoute.TERMS, AppRoute.PRIVACY, AppRoute.TRUST, AppRoute.COOKIES, AppRoute.CONTACT, AppRoute.ABOUT, AppRoute.PRICING_COMPARISON].includes(currentRoute);
                 const isDashboardArea = [AppRoute.DASHBOARD, AppRoute.INTELLIGENCE, AppRoute.SUBSCRIPTION, AppRoute.SETTINGS, AppRoute.INTEGRATIONS, AppRoute.MANUAL].includes(currentRoute);
 
-                if (isPublicPage) return <SupportBot recordings={[]} user={user} position="right" onAction={(type, payload) => navigate(AppRoute.DASHBOARD)} />;
-                if (isDashboardArea && isPaidPlan) return <SupportBot recordings={recordings} user={user} activeRecording={activeRecording} position="left" initialOffset="left-[280px]" onAction={(type, payload) => { if (type === 'OPEN_RECORDING') setActiveRecordingId(payload.id); else navigate(AppRoute.DASHBOARD); }} />;
+                if (isPublicPage) return <SupportBot recordings={[]} folders={folders} user={user} position="right" onAction={(type, payload) => navigate(AppRoute.DASHBOARD)} />;
+                if (isDashboardArea && isPaidPlan) return (
+                    <SupportBot
+                        recordings={recordings}
+                        folders={folders}
+                        user={user}
+                        activeRecording={activeRecording}
+                        position="left"
+                        initialOffset="left-[280px]"
+                        isForceOpen={isBotForceOpen}
+                        onAction={(type, payload) => {
+                            if (type === 'OPEN_RECORDING') {
+                                setActiveRecordingId(payload.id);
+                            } else if (type === 'DELETE_RECORDING') {
+                                handleDeleteRecording(payload.id);
+                            } else if (type === 'RENAME_RECORDING') {
+                                handleRenameRecording(payload.id, payload.title);
+                            } else if (type === 'CREATE_FOLDER') {
+                                handleAddFolder(payload.name);
+                            } else if (type === 'MOVE_TO_FOLDER') {
+                                handleMoveRecording(payload.recordingId, payload.folderId);
+                            } else {
+                                navigate(AppRoute.DASHBOARD);
+                            }
+                        }}
+                    />
+                );
                 return null;
             })()}
+            {isTourOpen && (
+                <WelcomeTour
+                    onComplete={handleTourComplete}
+                    onStartBot={() => setIsBotForceOpen(true)}
+                    language={user?.language || 'es'}
+                />
+            )}
         </>
     );
 };

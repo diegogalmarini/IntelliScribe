@@ -769,6 +769,8 @@ export const databaseService = {
         if (updates.language !== undefined) dbUpdates.language = updates.language; // Display language persistence
         if (updates.transcriptionLanguage !== undefined) dbUpdates.transcription_language = updates.transcriptionLanguage;
         if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
+        if (updates.activeSupportAgentId !== undefined) dbUpdates.active_agent_id = updates.activeSupportAgentId;
+        if (updates.hasCompletedTour !== undefined) dbUpdates.has_completed_tour = updates.hasCompletedTour;
         if (updates.subscription?.planId !== undefined) dbUpdates.plan_id = updates.subscription.planId;
 
         if (Object.keys(dbUpdates).length === 0) return true;

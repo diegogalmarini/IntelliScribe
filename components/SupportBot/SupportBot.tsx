@@ -8,22 +8,33 @@ import * as Analytics from '../../utils/analytics';
 interface SupportBotProps {
     position?: 'left' | 'right';
     recordings?: Recording[];
+    folders?: any[]; // For organizational actions
     user?: UserProfile;
     activeRecording?: Recording; // NEW: Full context of currently viewed recording
     initialOffset?: string; // NEW: Custom initial position (e.g. left-[280px])
     onAction?: (action: string, payload: any) => void;
+    isForceOpen?: boolean; // NEW: Allow external trigger to show the bot
 }
 
 export const SupportBot: React.FC<SupportBotProps> = ({
     position = 'right',
     recordings = [],
+    folders = [],
     user,
     activeRecording,
     initialOffset,
-    onAction
+    onAction,
+    isForceOpen = false
 }) => {
     const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+
+    // EFFECT: Handle external force open (e.g. for tours)
+    useEffect(() => {
+        if (isForceOpen && !isOpen) {
+            setIsOpen(true);
+        }
+    }, [isForceOpen]);
 
     const toggleOpen = () => {
         const nextState = !isOpen;
@@ -91,23 +102,29 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         prevRecordingId.current = activeRecording?.id || null;
     }, [agent, language, activeRecording?.id]);
 
-    // EFFECT: Sync agent with localStorage when opening or when changed externally
+    // EFFECT: Sync agent with profile or localStorage when opening or when changed externally
     useEffect(() => {
         if (isOpen) {
-            const savedId = localStorage.getItem('diktalo_active_support_agent');
+            // Priority: 1. User Profile (Supabase) | 2. LocalStorage (Legacy/Draft)
+            const profileAgentId = user?.activeSupportAgentId;
+            const savedId = profileAgentId || localStorage.getItem('diktalo_active_support_agent');
+
             if (savedId && savedId !== agent.id) {
                 const newAgent = PERSONALITIES.find(p => p.id === savedId);
                 if (newAgent) {
                     setAgent(newAgent);
-                    // Reset greeting for the new agent
+                    // Reset greeting for the new agent to maintain brand consistency
                     const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
                     const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
                     const newGreeting = language === 'en' ? newAgent.greeting.en(time, day) : newAgent.greeting.es(time, day);
                     setMessages([{ role: 'bot', content: newGreeting }]);
+
+                    // Keep localStorage in sync for extra redundancy
+                    localStorage.setItem('diktalo_active_support_agent', savedId);
                 }
             }
         }
-    }, [isOpen, agent.id, language]);
+    }, [isOpen, agent.id, language, user?.activeSupportAgentId]);
 
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -211,6 +228,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                 return `- ID: ${r.id}, Título: ${r.title}${speakers}${r.summary ? `, Resumen: ${r.summary.substring(0, 200)}...` : ''}`;
             }).join('\n');
 
+            const foldersList = (folders || []).map(f => `- ID: ${f.id}, Nombre: ${f.name}`).join('\n');
+
             const systemPromptOverride = langKey === 'es'
                 ? `PERSONALIDAD Y BIO:
     - Eres ${agent.name}, ${agent.age} años, vives en ${agent.city}.
@@ -225,12 +244,19 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         1. Abrir audio: [[ACTION:OPEN_RECORDING:ID_DEL_AUDIO:TITULO_DEL_AUDIO]]
         2. Navegar a sección: [[ACTION:NAVIGATE:SETTINGS]] o [[ACTION:NAVIGATE:PLANS]].
         3. Búsqueda Profunda: Si NO encuentras lo que pide en los 10 audios del CONTEXTO ni en la transcripción del audio abierto, usa [[ACTION:SEARCH:termino_de_busqueda]].
+        4. Borrar audio: [[ACTION:DELETE_RECORDING:ID_DEL_AUDIO]]
+        5. Renombrar audio: [[ACTION:RENAME_RECORDING:ID_DEL_AUDIO:NUEVO_TITULO]]
+        6. Organizar: [[ACTION:CREATE_FOLDER:NOMBRE]] o [[ACTION:MOVE_TO_FOLDER:ID_DEL_AUDIO:ID_DE_CARPETA]]
+        7. Iniciar Tour Guiado: [[ACTION:START_TOUR]] (Usa esto si el usuario está perdido o pide ayuda/tour).
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
       ${userContext}
       GRABACIONES RECIENTES (Título y fragmento de resumen):
       ${recordingsList || 'Sin grabaciones aún.'}
+      
+      CARPETAS ACTUALES:
+      ${foldersList || 'Sin carpetas (excepto root).'}
       
       ${activeRecordingContext}
     - RELACIONES: ${relations}. Nati Pol es nuestra Directora Creativa y jefa.
@@ -255,6 +281,10 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         1. Open audio: [[ACTION:OPEN_RECORDING:RECORDING_ID:RECORDING_TITLE]]
         2. Navigate: [[ACTION:NAVIGATE:SETTINGS]] or [[ACTION:NAVIGATE:PLANS]].
         3. Deep Search: [[ACTION:SEARCH:query]] if not in recent context or transcript.
+        4. Delete audio: [[ACTION:DELETE_RECORDING:ID]]
+        5. Rename audio: [[ACTION:RENAME_RECORDING:ID:NEW_TITLE]]
+        6. Organize: [[ACTION:CREATE_FOLDER:NAME]] or [[ACTION:MOVE_TO_FOLDER:ID:FOLDER_ID]]
+        7. Start Guided Tour: [[ACTION:START_TOUR]] (Use this if user is lost or asks for help/tour).
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
@@ -414,209 +444,308 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                             </button>
                         );
                     }
+                } else if (type === 'START_TOUR') {
+                    elements.push(
+                        <button
+                            key={`action-${i}`}
+                            onClick={() => {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', {
+                                        agent_id: agent.id,
+                                        action_type: 'start_tour'
+                                    });
+                                }
+                                onAction?.('START_TOUR', {});
+                            }}
+                            className="mt-3 w-full py-2.5 px-4 bg-indigo-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
+                        >
+                            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                            ¡Comenzar Tour Guiado!
+                        </button>
+                    );
+                } else if (type === 'DELETE_RECORDING') {
+                    const id = actionData[1];
+                    const rec = recordings.find(r => r.id === id);
+                    if (rec) {
+                        elements.push(
+                            <button
+                                key={`action-${i}`}
+                                onClick={() => {
+                                    if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                        Analytics.trackEvent('support_bot_action_click', { action_type: 'delete_recording', recording_id: id });
+                                    }
+                                    onAction?.('DELETE_RECORDING', { id });
+                                }}
+                                className="mt-3 w-full py-2.5 px-4 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-all border border-red-200 dark:border-red-900/30"
+                            >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                Confirmar: Borrar "{rec.title}"
+                            </button>
+                        );
+                    }
+                } else if (type === 'RENAME_RECORDING') {
+                    const id = actionData[1];
+                    const newTitle = actionData[2];
+                    const rec = recordings.find(r => r.id === id);
+                    if (rec) {
+                        elements.push(
+                            <button
+                                key={`action-${i}`}
+                                onClick={() => {
+                                    if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                        Analytics.trackEvent('support_bot_action_click', { action_type: 'rename_recording', recording_id: id, new_title: newTitle });
+                                    }
+                                    onAction?.('RENAME_RECORDING', { id, title: newTitle });
+                                }}
+                                className="mt-3 w-full py-2.5 px-4 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-all border border-blue-200 dark:border-blue-900/30"
+                            >
+                                <span className="material-symbols-outlined text-sm">edit</span>
+                                Confirmar: Renombrar a "{newTitle}"
+                            </button>
+                        );
+                    }
+                } else if (type === 'CREATE_FOLDER' || type === 'CREATE_PROJECT') {
+                    const name = actionData[1];
+                    elements.push(
+                        <button
+                            key={`action-${i}`}
+                            onClick={() => {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', { action_type: 'create_folder', folder_name: name });
+                                }
+                                onAction?.('CREATE_FOLDER', { name });
+                            }}
+                            className="mt-3 w-full py-2.5 px-4 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-200 transition-all border border-emerald-200 dark:border-emerald-900/30"
+                        >
+                            <span className="material-symbols-outlined text-sm">create_new_folder</span>
+                            Confirmar: Crear carpeta "{name}"
+                        </button>
+                    );
+                } else if (type === 'MOVE_TO_FOLDER' || type === 'MOVE_TO_PROJECT') {
+                    const recId = actionData[1];
+                    const folderId = actionData[2];
+                    const rec = recordings.find(r => r.id === recId);
+
+                    elements.push(
+                        <button
+                            key={`action-${i}`}
+                            onClick={() => {
+                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                    Analytics.trackEvent('support_bot_action_click', { action_type: 'move_to_folder', recording_id: recId, folder_id: folderId });
+                                }
+                                onAction?.('MOVE_TO_FOLDER', { recordingId: recId, folderId });
+                            }}
+                            className="mt-3 w-full py-2.5 px-4 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-200 transition-all border border-amber-200 dark:border-amber-900/30"
+                        >
+                            <span className="material-symbols-outlined text-sm">drive_file_move</span>
+                            {rec ? `Mover "${rec.title}"` : 'Mover a carpeta'}
+                        </button>
+                    );
                 }
             }
         }
-        return elements;
-    };
+    }
+    return elements;
+};
 
-    const renderSystemMessage = (content: string) => {
-        return (
-            <div className="flex justify-center my-4">
-                <div className="px-4 py-1.5 bg-slate-200 dark:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider backdrop-blur-sm">
-                    {content}
-                </div>
-            </div>
-        );
-    };
-
+const renderSystemMessage = (content: string) => {
     return (
-        <motion.div
-            drag
-            dragMomentum={false}
-            // Better constraints: allow full screen but keep it visible
-            dragConstraints={{
-                left: -400,
-                right: window.innerWidth - 80,
-                top: -window.innerHeight + 100,
-                bottom: 20
-            }}
-            onDragStart={() => {
-                isDragging.current = true;
-            }}
-            onDrag={(e, info) => {
-                // Determine alignment based on screen percentage
-                const x = info.point.x;
-                const width = window.innerWidth;
-                const ratio = x / width;
+        <div className="flex justify-center my-4">
+            <div className="px-4 py-1.5 bg-slate-200 dark:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider backdrop-blur-sm">
+                {content}
+            </div>
+        </div>
+    );
+};
 
-                if (ratio < 0.33) {
-                    setAlignment('start');
-                } else if (ratio < 0.66) {
-                    setAlignment('center');
-                } else {
-                    setAlignment('end');
-                }
-            }}
-            onDragEnd={() => {
-                // Short timeout to prevent the immediate click from triggering
-                setTimeout(() => {
-                    isDragging.current = false;
-                }, 100);
-            }}
-            // ABOVE EVERYTHING
-            className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${initialOffset || (position === 'left' ? 'left-6' : 'right-6')}`}
-        >
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="w-[350px] md:w-[400px] h-[550px] bg-white dark:bg-slate-900 shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col mb-4 pointer-events-auto"
-                    >
-                        {/* Header - Drag Handle */}
-                        <div className="bg-primary p-6 text-white flex items-center justify-between cursor-grab active:cursor-grabbing select-none">
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
-                                    <img
-                                        src={agent.avatar}
-                                        alt={agent.name}
-                                        className="w-full h-full object-cover"
-                                    />
+return (
+    <motion.div
+        drag
+        dragMomentum={false}
+        // Better constraints: allow full screen but keep it visible
+        dragConstraints={{
+            left: -400,
+            right: window.innerWidth - 80,
+            top: -window.innerHeight + 100,
+            bottom: 20
+        }}
+        onDragStart={() => {
+            isDragging.current = true;
+        }}
+        onDrag={(e, info) => {
+            // Determine alignment based on screen percentage
+            const x = info.point.x;
+            const width = window.innerWidth;
+            const ratio = x / width;
+
+            if (ratio < 0.33) {
+                setAlignment('start');
+            } else if (ratio < 0.66) {
+                setAlignment('center');
+            } else {
+                setAlignment('end');
+            }
+        }}
+        onDragEnd={() => {
+            // Short timeout to prevent the immediate click from triggering
+            setTimeout(() => {
+                isDragging.current = false;
+            }, 100);
+        }}
+        // ABOVE EVERYTHING
+        className={`fixed bottom-6 z-[2147483647] flex flex-col items-${alignment} ${initialOffset || (position === 'left' ? 'left-6' : 'right-6')}`}
+    >
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                    className="w-[350px] md:w-[400px] h-[550px] bg-white dark:bg-slate-900 shadow-2xl rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 flex flex-col mb-4 pointer-events-auto"
+                >
+                    {/* Header - Drag Handle */}
+                    <div className="bg-primary p-6 text-white flex items-center justify-between cursor-grab active:cursor-grabbing select-none">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
+                                <img
+                                    src={agent.avatar}
+                                    alt={agent.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-sm">{agent.name} - {t('support') || 'Support'}</h3>
+                                <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsOpen(false);
+                            }}
+                            className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+
+                    {/* Messages Area */}
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-transparent">
+                        {messages.map((m, i) => {
+                            if (m.role === 'system') return <React.Fragment key={i}>{renderSystemMessage(m.content)}</React.Fragment>;
+
+                            return (
+                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
+                                    <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
+                                        ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
+                                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
+                                        }`}>
+                                        {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
+
+                                        {/* Feedback Icons for bot messages */}
+                                        {m.role === 'bot' && (
+                                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (m.feedback) return;
+                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
+                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                Analytics.trackEvent('support_bot_feedback', {
+                                                                    agent_id: agent.id,
+                                                                    type: 'helpful',
+                                                                    message_index: i
+                                                                });
+                                                            }
+                                                        }}
+                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">thumb_up</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (m.feedback) return;
+                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
+                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                Analytics.trackEvent('support_bot_feedback', {
+                                                                    agent_id: agent.id,
+                                                                    type: 'unhelpful',
+                                                                    message_index: i
+                                                                });
+                                                            }
+                                                        }}
+                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">thumb_down</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-sm">{agent.name} - {t('support') || 'Support'}</h3>
-                                    <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
+                            );
+                        })}
+                        {isTyping && (
+                            <div className="flex justify-start">
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none">
+                                    <div className="flex gap-1">
+                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                                    </div>
                                 </div>
                             </div>
+                        )}
+                    </div>
+
+                    {/* Input Area */}
+                    <form onSubmit={handleSend} className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Escribe tu pregunta..."
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing/focusing
+                                className="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary transition-all dark:text-white"
+                            />
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsOpen(false);
-                                }}
-                                className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
+                                type="submit"
+                                disabled={!input.trim() || isTyping}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-primary rounded-lg text-white flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all font-bold"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <span className="material-symbols-outlined text-lg">arrow_upward</span>
                             </button>
                         </div>
+                        <p className="text-[10px] text-center text-slate-400 mt-2">
+                            {agent.name} usa inteligencia artificial para ayudarte.
+                        </p>
+                    </form>
+                </motion.div>
+            )
+            }
+        </AnimatePresence >
 
-                        {/* Messages Area */}
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-transparent">
-                            {messages.map((m, i) => {
-                                if (m.role === 'system') return <React.Fragment key={i}>{renderSystemMessage(m.content)}</React.Fragment>;
-
-                                return (
-                                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
-                                        <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
-                                            ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
-                                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
-                                            }`}>
-                                            {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
-
-                                            {/* Feedback Icons for bot messages */}
-                                            {m.role === 'bot' && (
-                                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                if (m.feedback) return;
-                                                                setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
-                                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                                                    Analytics.trackEvent('support_bot_feedback', {
-                                                                        agent_id: agent.id,
-                                                                        type: 'helpful',
-                                                                        message_index: i
-                                                                    });
-                                                                }
-                                                            }}
-                                                            className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
-                                                        >
-                                                            <span className="material-symbols-outlined text-sm">thumb_up</span>
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                if (m.feedback) return;
-                                                                setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
-                                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                                                    Analytics.trackEvent('support_bot_feedback', {
-                                                                        agent_id: agent.id,
-                                                                        type: 'unhelpful',
-                                                                        message_index: i
-                                                                    });
-                                                                }
-                                                            }}
-                                                            className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
-                                                        >
-                                                            <span className="material-symbols-outlined text-sm">thumb_down</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            {isTyping && (
-                                <div className="flex justify-start">
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none">
-                                        <div className="flex gap-1">
-                                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></span>
-                                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Input Area */}
-                        <form onSubmit={handleSend} className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Escribe tu pregunta..."
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing/focusing
-                                    className="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary transition-all dark:text-white"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!input.trim() || isTyping}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-primary rounded-lg text-white flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all font-bold"
-                                >
-                                    <span className="material-symbols-outlined text-lg">arrow_upward</span>
-                                </button>
-                            </div>
-                            <p className="text-[10px] text-center text-slate-400 mt-2">
-                                {agent.name} usa inteligencia artificial para ayudarte.
-                            </p>
-                        </form>
-                    </motion.div>
-                )
+        {/* Bubble Toggle */}
+        <motion.button
+            id="support-bot-trigger"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+                if (!isDragging.current) {
+                    toggleOpen();
                 }
-            </AnimatePresence >
-
-            {/* Bubble Toggle */}
-            < motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                    if (!isDragging.current) {
-                        toggleOpen();
-                    }
-                }}
-                className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
-                    }`}
-            >
-                <span className="material-symbols-outlined text-3xl">
-                    {isOpen ? 'close' : 'chat_bubble'}
-                </span>
-            </motion.button >
-        </motion.div >
-    );
+            }}
+            className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
+                }`}
+        >
+            <span className="material-symbols-outlined text-3xl">
+                {isOpen ? 'close' : 'chat_bubble'}
+            </span>
+        </motion.button >
+    </motion.div >
+);
 };

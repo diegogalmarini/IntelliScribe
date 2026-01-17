@@ -157,7 +157,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }));
         // Update local state when user prop changes from above
         setTranscriptionLang(user.transcriptionLanguage || 'es');
-    }, [user.phone, user.timezone, user.transcriptionLanguage]);
+        if (user.activeSupportAgentId) {
+            setSelectedAgentId(user.activeSupportAgentId);
+        }
+    }, [user.phone, user.timezone, user.transcriptionLanguage, user.activeSupportAgentId]);
 
     // EFFECT: Fetch API Token when Developer section is selected
     useEffect(() => {
@@ -223,7 +226,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const [isMobile, setIsMobile] = useState(false);
 
     // Support Agent State
-    const [selectedAgentId, setSelectedAgentId] = useState(localStorage.getItem('diktalo_active_support_agent') || 'camila_s');
+    const [selectedAgentId, setSelectedAgentId] = useState(user.activeSupportAgentId || localStorage.getItem('diktalo_active_support_agent') || 'camila_s');
 
     // Initial check for mobile
     useEffect(() => {
@@ -823,6 +826,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                             value={selectedAgentId}
                                             onChange={(val) => {
                                                 setSelectedAgentId(val);
+                                                handleUpdateUser({ activeSupportAgentId: val });
                                                 localStorage.setItem('diktalo_active_support_agent', val);
                                                 triggerSaveFeedback();
                                                 if (Analytics && typeof Analytics.trackEvent === 'function') {

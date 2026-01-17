@@ -423,7 +423,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const activeRecording = (selectedId && tempRecording?.id === selectedId) ? tempRecording : recordings.find(r => r.id === selectedId) || searchResults.find(r => r.id === selectedId);
 
     return (
-        <div className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
+        <div id="intelligence-hub" className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
             <input ref={fileInputRef} type="file" accept="audio/*,.mp3,.wav,.m4a,.webm" onChange={handleFileUpload} className="hidden" />
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-surface-dark shadow-2xl transform transition-transform duration-300 md:hidden ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <MinimalSidebar recordings={displayedRecordings} selectedId={selectedId} onSelectRecording={handleSelectRecording} onNewRecording={handleNewRecording} userFirstName={user?.firstName || 'Usuario'} user={user} searchQuery={searchQuery} onSearchChange={setSearchQuery} onRenameRecording={onRenameRecording} onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }} onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)} folders={folders} selectedFolderId={selectedFolderId} onSelectFolder={handleSelectFolder} onLogoClick={handleLogoClick} currentView={view} onViewChange={setView} isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(false)} isRecording={isRecording} onAddFolder={onAddFolder} onRenameFolder={onRenameFolder} onDeleteFolder={onDeleteFolder} />

@@ -126,6 +126,8 @@ export interface UserProfile {
     };
   };
   avatarUrl: string | null;
+  activeSupportAgentId?: string; // Global assistant persistence
+  hasCompletedTour?: boolean; // Global onboarding status
   role: string;
   subscription: UserSubscription;
   createdAt?: string; // Account creation date for usage cycle calculation
