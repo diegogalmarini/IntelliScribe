@@ -91,6 +91,24 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         prevRecordingId.current = activeRecording?.id || null;
     }, [agent, language, activeRecording?.id]);
 
+    // EFFECT: Sync agent with localStorage when opening or when changed externally
+    useEffect(() => {
+        if (isOpen) {
+            const savedId = localStorage.getItem('diktalo_active_support_agent');
+            if (savedId && savedId !== agent.id) {
+                const newAgent = PERSONALITIES.find(p => p.id === savedId);
+                if (newAgent) {
+                    setAgent(newAgent);
+                    // Reset greeting for the new agent
+                    const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
+                    const newGreeting = language === 'en' ? newAgent.greeting.en(time, day) : newAgent.greeting.es(time, day);
+                    setMessages([{ role: 'bot', content: newGreeting }]);
+                }
+            }
+        }
+    }, [isOpen, agent.id, language]);
+
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -223,7 +241,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
     2. Si el usuario pregunta "¿Cuál es mi plan?", díselo (${user?.subscription?.planId}) y ofrece ayuda para cambiarlo si quiere.
     3. Si pregunta cómo cambiar el idioma o ir a ajustes, dile cómo y ponle el botón: [[ACTION:NAVIGATE:SETTINGS]].
     4. Si tiene un problema técnico que tú no puedes resolver o pide hablar con un humano, indícale que puede contactar con soporte y usa: [[ACTION:NAVIGATE:CONTACT]].
-    5. DERIVACIÓN: Si el usuario es muy técnico y eres Isabella, ofrece pasarle con Alex o Klaus. Si es muy creativo y eres Klaus, ofrece pasarle con Nati Pol. Para derivar usa: [[ACTION:SWITCH_AGENT:ID_DEL_AGENTE]].`
+    - DERIVACIÓN: Si el usuario es muy técnico y eres Isabella o Camila, reconoce que tu perfil es de producto/ventas y ofrece pasarle con Alex (Security) o Klaus (Systems). Si es muy creativo y eres Klaus, ofrece pasarle con Nati Pol (Creative Guide). Sé proactivo: si detectas una necesidad fuera de tu área, sugiere al compañero experto. Para derivar usa: [[ACTION:SWITCH_AGENT:ID_DEL_AGENTE]].`
                 : `PERSONALITY & BIO:
     - You are ${agent.name}, ${agent.age} years old, living in ${agent.city}.
     - ROLE: ${agent.role} at Diktalo.
@@ -251,7 +269,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
     2. If user asks "What is my plan?", tell them (${user?.subscription?.planId}) and offer help.
     3. If they ask about language or settings, use [[ACTION:NAVIGATE:SETTINGS]].
     4. If they need human support or technical help you can't provide, use: [[ACTION:NAVIGATE:CONTACT]].
-    5. REFERRALS: If the user is very technical and you are Isabella, offer to switch to Alex or Klaus. If they are very creative and you are Klaus, offer to switch to Nati Pol. To refer, use: [[ACTION:SWITCH_AGENT:AGENT_ID]].`;
+    - REFERRALS: If the user is very technical and you are Isabella or Camila, admit your profile is product/sales focused and offer to switch to Alex (Security) or Klaus (Systems). If they are very creative and you are Klaus, offer to switch to Nati Pol (Creative Guide). If you detect a need outside your area, proactively suggest the expert peer. To refer, use: [[ACTION:SWITCH_AGENT:AGENT_ID]].`;
 
             const response = await supportChat(userMsg, messages, language, systemPromptOverride);
 
@@ -472,27 +490,15 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                     <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRotateAgent();
-                                    }}
-                                    title={language === 'es' ? 'Cambiar Agente' : 'Change Agent'}
-                                    className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-xl">shuffle</span>
-                                </button>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsOpen(false);
-                                    }}
-                                    className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
-                                >
-                                    <span className="material-symbols-outlined">close</span>
-                                </button>
-                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsOpen(false);
+                                }}
+                                className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
                         </div>
 
                         {/* Messages Area */}

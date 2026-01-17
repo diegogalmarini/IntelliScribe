@@ -425,6 +425,9 @@ export const translations = {
     settings_admin: "Admin Panel",
     settings_help: "Help Center",
     settings_about: "About Diktalo",
+    settings_personal_assistant: "Personal Assistant",
+    assistant_selection_label: "Your Diktalo companion",
+    assistant_selection_desc: "Choose who you want to accompany you in the chat.",
 
     // Plans Page
     plans_header: "Choose Your Plan",
@@ -1450,6 +1453,9 @@ export const translations = {
     settings_admin: "Panel Admin",
     settings_help: "Centro de Ayuda",
     settings_about: "Sobre Diktalo",
+    settings_personal_assistant: "Asistente Personal",
+    assistant_selection_label: "Tu compañero Diktalo",
+    assistant_selection_desc: "Elige quién quieres que te acompañe en el chat.",
 
     // Account Section
     account_header: "Cuenta",
