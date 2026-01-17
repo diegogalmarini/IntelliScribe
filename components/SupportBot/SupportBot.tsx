@@ -248,6 +248,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         7. Iniciar Tour: [[ACTION:START_TOUR]] (Todo el tour)
         8. Mostrar Sección Específica: [[ACTION:START_TOUR:INDEX]] (0:Bienvenida, 1:Grabadora, 2:Hub, 3:Chat, 4:Proyectos). Usa 4 si preguntan por proyectos/carpetas.
         9. Resaltar Elemento: [[ACTION:HIGHLIGHT:ID]]. Usa esto para señalar algo. IDs disponibles: 'dialer-button' (Grabar), 'intelligence-hub' (Dashboard), 'support-bot-trigger' (Chat), 'folder-list-section' (Proyectos), 'user-profile-button' (Ajustes).
+        10. Navegar a Dashboard/Audios: [[ACTION:NAVIGATE:DASHBOARD]] o [[ACTION:NAVIGATE:INTELLIGENCE]].
+    - INSTRUCCIONES DE GRABACIÓN: Para iniciar una grabación, el usuario debe hacer clic en el botón redondo (Mic) en la barra inferior. Para DETENER, debe MANTENER PRESIONADO el botón de cuadrado por 3 SEGUNDOS.
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
@@ -266,7 +268,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
     1. Usa tu personalidad. CERO negritas (**).
     2. Si el usuario pregunta "¿Cuál es mi plan?", díselo (${user?.subscription?.planId}) y ofrece ayuda para cambiarlo si quiere.
     3. Si pregunta cómo cambiar el idioma o ir a ajustes, dile cómo y ponle el botón: [[ACTION:NAVIGATE:SETTINGS]].
-    4. Si tiene un problema técnico que tú no puedes resolver o pide hablar con un humano, indícale que puede contactar con soporte y usa: [[ACTION:NAVIGATE:CONTACT]].
+    4. NO USES ENLACES MARKDOWN como [texto](url). Son difíciles de leer en este chat. Si quieres referenciar una página, usa la URL limpia o un [[ACTION:NAVIGATE:TARGET]].
+    5. Si tiene un problema técnico que tú no puedes resolver o pide hablar con un humano, indícale que puede contactar con soporte y usa: [[ACTION:NAVIGATE:CONTACT]].
     - DERIVACIÓN: Si el usuario es muy técnico y eres Isabella o Camila, reconoce que tu perfil es de producto/ventas y ofrece pasarle con Alex (Security) o Klaus (Systems). Si es muy creativo y eres Klaus, ofrece pasarle con Nati Pol (Creative Guide). Sé proactivo: si detectas una necesidad fuera de tu área, sugiere al compañero experto. Para derivar usa: [[ACTION:SWITCH_AGENT:ID_DEL_AGENTE]].`
                 : `PERSONALITY & BIO:
     - You are ${agent.name}, ${agent.age} years old, living in ${agent.city}.
@@ -287,6 +290,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         7. Start Tour: [[ACTION:START_TOUR]] (Full tour)
         8. Show Specific Section: [[ACTION:START_TOUR:INDEX]] (0:Welcome, 1:Recorder, 2:Hub, 3:Chat, 4:Projects). Use 4 if they ask about projects/folders.
         9. Highlight Element: [[ACTION:HIGHLIGHT:ID]]. Use this to point at something. Available IDs: 'dialer-button' (Record), 'intelligence-hub' (Dashboard), 'support-bot-trigger' (Chat), 'folder-list-section' (Projects), 'user-profile-button' (Settings).
+        10. Navigate to Dashboard: [[ACTION:NAVIGATE:DASHBOARD]] or [[ACTION:NAVIGATE:INTELLIGENCE]].
+    - RECORDING INSTRUCTIONS: To start recording, click the Mic button. To STOP, you MUST HOLD the stop button for 3 SECONDS.
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
@@ -300,7 +305,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
     1. Use your uniquely personality. NO bolding (**).
     2. If user asks "What is my plan?", tell them (${user?.subscription?.planId}) and offer help.
     3. If they ask about language or settings, use [[ACTION:NAVIGATE:SETTINGS]].
-    4. If they need human support or technical help you can't provide, use: [[ACTION:NAVIGATE:CONTACT]].
+    4. DO NOT USE MARKDOWN LINKS like [text](url). Use plain URLs or [[ACTION:NAVIGATE:TARGET]].
+    5. If they need human support or technical help you can't provide, use: [[ACTION:NAVIGATE:CONTACT]].
     - REFERRALS: If the user is very technical and you are Isabella or Camila, admit your profile is product/sales focused and offer to switch to Alex (Security) or Klaus (Systems). If they are very creative and you are Klaus, offer to switch to Nati Pol (Creative Guide). If you detect a need outside your area, proactively suggest the expert peer. To refer, use: [[ACTION:SWITCH_AGENT:AGENT_ID]].`;
 
             const response = await supportChat(userMsg, messages, language, systemPromptOverride);
@@ -369,8 +375,15 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                     );
                 } else if (type === 'NAVIGATE') {
                     const target = actionData[1];
-                    let label = target === 'SETTINGS' ? 'Ir a Ajustes' : (target === 'PLANS' ? 'Ver Planes' : `Ir a ${target}`);
-                    let icon = target === 'SETTINGS' ? 'settings' : 'payments';
+                    let label = target === 'SETTINGS' ? (language === 'en' ? 'Settings' : 'Ir a Ajustes') :
+                        target === 'PLANS' ? (language === 'en' ? 'View Plans' : 'Ver Planes') :
+                            target === 'DASHBOARD' || target === 'INTELLIGENCE' ? (language === 'en' ? 'Go to Dashboard' : 'Ir al Dashboard') :
+                                `Ir a ${target}`;
+
+                    let icon = target === 'SETTINGS' ? 'settings' :
+                        target === 'PLANS' ? 'payments' :
+                            target === 'DASHBOARD' || target === 'INTELLIGENCE' ? 'dashboard' :
+                                'navigation';
 
                     if (target === 'CONTACT') {
                         label = language === 'en' ? 'Contact Support' : 'Contactar Soporte (Email)';
