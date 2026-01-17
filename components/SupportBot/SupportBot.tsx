@@ -4,6 +4,7 @@ import { Personality, PERSONALITIES } from '../../utils/supportPersonalities';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Recording, UserProfile } from '../../types';
 import * as Analytics from '../../utils/analytics';
+import { databaseService } from '../../services/databaseService';
 
 interface SupportBotProps {
     position?: 'left' | 'right';
@@ -28,6 +29,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
 }) => {
     const { t, language = 'es' } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
     // EFFECT: Handle external force open (e.g. for tours)
     useEffect(() => {
@@ -403,7 +405,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                     elements.push(
                         <button
                             key={`action-${i}`}
-                            onClick={() => {
+                            disabled={isSearching}
+                            onClick={async () => {
                                 if (Analytics && typeof Analytics.trackEvent === 'function') {
                                     Analytics.trackEvent('support_bot_action_click', {
                                         agent_id: agent.id,
@@ -411,12 +414,43 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                         query: query
                                     });
                                 }
-                                onAction?.(type, { query });
+
+                                setIsSearching(true);
+                                try {
+                                    const results = await databaseService.semanticSearchRecordings(query);
+                                    if (results && results.length > 0) {
+                                        let resultText = language === 'en'
+                                            ? `I found ${results.length} related recordings in your history:`
+                                            : `He encontrado ${results.length} audios relacionados en tu historial:`;
+
+                                        // Generate search result message with action buttons
+                                        let content = resultText + '\n\n';
+                                        results.forEach((res: any) => {
+                                            content += `[[ACTION:OPEN_RECORDING:${res.recording_id}:${res.content.substring(0, 50)}...]]\n`;
+                                        });
+
+                                        setMessages(prev => [...prev, { role: 'bot', content }]);
+                                    } else {
+                                        const noResults = language === 'en'
+                                            ? "I couldn't find anything related in your deep history either."
+                                            : "No he podido encontrar nada relacionado en tu historial profundo tampoco.";
+                                        setMessages(prev => [...prev, { role: 'bot', content: noResults }]);
+                                    }
+                                } catch (err) {
+                                    console.error("Deep search failed:", err);
+                                } finally {
+                                    setIsSearching(false);
+                                }
                             }}
-                            className="mt-3 w-full py-2.5 px-4 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-all"
+                            className={`mt-3 w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${isSearching
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 shadow-sm'
+                                }`}
                         >
-                            <span className="material-symbols-outlined text-sm">search</span>
-                            Buscar "{query}" en historial
+                            <span className={`material-symbols-outlined text-sm ${isSearching ? 'animate-spin' : ''}`}>
+                                {isSearching ? 'progress_activity' : 'search'}
+                            </span>
+                            {isSearching ? t('deepSearchStatus') : t('deepSearchAction')}
                         </button>
                     );
                 } else if (type === 'SWITCH_AGENT') {

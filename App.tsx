@@ -523,6 +523,15 @@ const AppContent: React.FC = () => {
 
     const handleUpdateRecording = async (id: string, updates: Partial<Recording>): Promise<void> => {
         await databaseService.updateRecording(id, updates);
+
+        // Semantic Search Indexing (Phase 4): Sync embeddings if content changed
+        if (updates.summary || updates.segments) {
+            console.log(`[App] Syncing semantic embedding for recording ${id}...`);
+            databaseService.syncRecordingEmbedding(id).catch(err =>
+                console.error('[App] Failed to sync embedding:', err)
+            );
+        }
+
         const fullRecording = await databaseService.getRecordingDetails(id);
         if (fullRecording) {
             setRecordings(prev => prev.map(rec => rec.id === id ? fullRecording : rec));
