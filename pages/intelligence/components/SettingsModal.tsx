@@ -15,6 +15,7 @@ import { PhoneVerificationModal } from '../../../components/PhoneVerificationMod
 import { supabase } from '../../../lib/supabase'; // Import Supabase client
 import { useToast } from '../../../components/Toast';
 import * as Analytics from '../../../utils/analytics';
+import { PERSONALITIES } from '../../../utils/supportPersonalities';
 
 
 interface SettingsModalProps {
@@ -220,6 +221,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Mobile Menu State
     const [showMenu, setShowMenu] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
+
+    // Support Agent State
+    const [selectedAgentId, setSelectedAgentId] = useState(localStorage.getItem('diktalo_active_support_agent') || 'camila_s');
 
     // Initial check for mobile
     useEffect(() => {
@@ -797,10 +801,67 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                                 options={[
                                                     { value: 'es', label: 'Español' },
-                                                    { value: 'en', label: 'English' },
+                                                    { value: 'en', label: 'English' }
                                                 ]}
                                             />
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
+
+                                {/* Support Agent Selection */}
+                                <div>
+                                    <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('settings_personal_assistant')}</h2>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{t('assistant_selection_label')}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('assistant_selection_desc')}</p>
+                                        </div>
+                                        <CustomSelect
+                                            className="w-full md:w-56"
+                                            value={selectedAgentId}
+                                            onChange={(val) => {
+                                                setSelectedAgentId(val);
+                                                localStorage.setItem('diktalo_active_support_agent', val);
+                                                triggerSaveFeedback();
+                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                    Analytics.trackEvent('settings_agent_changed', { agent_id: val });
+                                                }
+                                                // We don't force a reload, the SupportBot component will pick it up on next open or sync
+                                            }}
+                                            options={PERSONALITIES.map(p => ({
+                                                value: p.id,
+                                                label: p.name,
+                                                icon: (
+                                                    <div className="w-5 h-5 rounded-full overflow-hidden mr-1 border border-slate-200 dark:border-white/10">
+                                                        <img src={p.avatar} alt="" className="w-full h-full object-cover" />
+                                                    </div>
+                                                )
+                                            }))}
+                                        />
+                                    </div>
+                                    <div className="mt-4 p-4 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5 animate-in slide-in-from-top-2 duration-300">
+                                        {(() => {
+                                            const agent = PERSONALITIES.find(p => p.id === selectedAgentId);
+                                            if (!agent) return null;
+                                            return (
+                                                <div className="flex gap-4">
+                                                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20">
+                                                        <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="text-sm font-bold text-slate-900 dark:text-white">{agent.name}</span>
+                                                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded-full font-bold uppercase">{agent.role}</span>
+                                                        </div>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed italic">
+                                                            "{language === 'en' ? agent.bio.en : agent.bio.es}"
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>
