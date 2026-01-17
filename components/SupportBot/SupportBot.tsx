@@ -63,18 +63,32 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         return random;
     });
 
-    const [messages, setMessages] = useState<{ role: 'user' | 'bot'; content: string; feedback?: 'up' | 'down' }[]>([]);
+    const [messages, setMessages] = useState<{ role: 'user' | 'bot' | 'system'; content: string; feedback?: 'up' | 'down' }[]>([]);
     const [msgCount, setMsgCount] = useState(0);
+
+    // Track previous recording to detect switches without reset
+    const prevRecordingId = useRef<string | null>(activeRecording?.id || null);
 
     // Initialize greeting & Handle Context Switch
     useEffect(() => {
-        console.log(`[SupportBot] Context Refresh. Active Recording: ${activeRecording?.id || 'None'}`);
         const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
-        const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
 
-        // When switching recordings, we reset the chat to ensure context purity
-        setMessages([{ role: 'bot', content: greeting }]);
+        if (messages.length === 0) {
+            // Initial greeting
+            const greeting = language === 'en' ? agent.greeting.en(time, day) : agent.greeting.es(time, day);
+            setMessages([{ role: 'bot', content: greeting }]);
+        } else if (activeRecording?.id && activeRecording.id !== prevRecordingId.current) {
+            // Context switch: Keep messages but add a divider
+            console.log(`[SupportBot] Context Switch Detected: ${activeRecording.id}`);
+            const dividerText = language === 'en'
+                ? `--- New Context: ${activeRecording.title} ---`
+                : `--- Nuevo Contexto: ${activeRecording.title} ---`;
+
+            setMessages(prev => [...prev, { role: 'system', content: dividerText }]);
+        }
+
+        prevRecordingId.current = activeRecording?.id || null;
     }, [agent, language, activeRecording?.id]);
 
     const [input, setInput] = useState('');
@@ -136,13 +150,17 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                 const speakers = activeRecording.metadata?.speakers ? activeRecording.metadata.speakers.join(', ') : 'Desconocido';
                 activeRecordingContext = `
 
-AUDIO ACTUALMENTE ABIERTO:
+AUDIO ACTUALMENTE ABIERTO (PRIORIDAD ALTA):
+ID: ${activeRecording.id}
 Título: ${activeRecording.title}
 Oradores: ${speakers}
 Resumen: ${activeRecording.summary || 'Sin resumen'}
 
-TRANSCRIPCIÓN COMPLETA:
+TRANSCRIPCIÓN COMPLETA DEL AUDIO ABIERTO:
 ${transcript}
+
+SITUACIÓN: El usuario está viendo este audio ahora mismo. Si pregunta "quién habla" o "de qué trata el audio", se refiere a este AUDIO ABIERTO.
+MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este chat, reconoce que tienes memoria de ello pero sugiérele volver a abrir ese audio específico si necesita un análisis profundo.
 `;
             }
 
@@ -355,6 +373,16 @@ ${transcript}
         return elements;
     };
 
+    const renderSystemMessage = (content: string) => {
+        return (
+            <div className="flex justify-center my-4">
+                <div className="px-4 py-1.5 bg-slate-200 dark:bg-white/10 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider backdrop-blur-sm">
+                    {content}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <motion.div
             drag
@@ -428,59 +456,63 @@ ${transcript}
 
                         {/* Messages Area */}
                         <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 dark:bg-transparent">
-                            {messages.map((m, i) => (
-                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
-                                    <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
-                                        ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
-                                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
-                                        }`}>
-                                        {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
+                            {messages.map((m, i) => {
+                                if (m.role === 'system') return <React.Fragment key={i}>{renderSystemMessage(m.content)}</React.Fragment>;
 
-                                        {/* Feedback Icons for bot messages */}
-                                        {m.role === 'bot' && (
-                                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            if (m.feedback) return;
-                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
-                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                                                Analytics.trackEvent('support_bot_feedback', {
-                                                                    agent_id: agent.id,
-                                                                    type: 'helpful',
-                                                                    message_index: i
-                                                                });
-                                                            }
-                                                        }}
-                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
-                                                    >
-                                                        <span className="material-symbols-outlined text-sm">thumb_up</span>
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            if (m.feedback) return;
-                                                            setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
-                                                            if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                                                Analytics.trackEvent('support_bot_feedback', {
-                                                                    agent_id: agent.id,
-                                                                    type: 'unhelpful',
-                                                                    message_index: i
-                                                                });
-                                                            }
-                                                        }}
-                                                        className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
-                                                    >
-                                                        <span className="material-symbols-outlined text-sm">thumb_down</span>
-                                                    </button>
+                                return (
+                                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} group`}>
+                                        <div className={`max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed ${m.role === 'user'
+                                            ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/20'
+                                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none'
+                                            }`}>
+                                            {m.role === 'bot' ? renderMessageContent(m.content) : <p>{m.content}</p>}
+
+                                            {/* Feedback Icons for bot messages */}
+                                            {m.role === 'bot' && (
+                                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (m.feedback) return;
+                                                                setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'up' } : msg));
+                                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                    Analytics.trackEvent('support_bot_feedback', {
+                                                                        agent_id: agent.id,
+                                                                        type: 'helpful',
+                                                                        message_index: i
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">thumb_up</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (m.feedback) return;
+                                                                setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, feedback: 'down' } : msg));
+                                                                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                                                                    Analytics.trackEvent('support_bot_feedback', {
+                                                                        agent_id: agent.id,
+                                                                        type: 'unhelpful',
+                                                                        message_index: i
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">thumb_down</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                             {isTyping && (
                                 <div className="flex justify-start">
                                     <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 rounded-tl-none">
