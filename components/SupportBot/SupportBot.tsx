@@ -442,7 +442,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                 className="mt-3 w-full py-2.5 px-4 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all border border-slate-200 dark:border-white/10"
                             >
                                 <span className="material-symbols-outlined text-sm">person_add</span>
-                                Hablar con {nextAgent.name}
+                                {t('talkToAgent').replace('{name}', nextAgent.name)}
                             </button>
                         );
                     }
@@ -463,7 +463,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                             className="mt-3 w-full py-2.5 px-4 bg-indigo-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
                         >
                             <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                            ¡Comenzar Tour Guiado!
+                            {t('startGuidedTourAction')}
                         </button>
                     );
                 } else if (type === 'DELETE_RECORDING') {
@@ -482,7 +482,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                 className="mt-3 w-full py-2.5 px-4 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-all border border-red-200 dark:border-red-900/30"
                             >
                                 <span className="material-symbols-outlined text-sm">delete</span>
-                                Confirmar: Borrar "{rec.title}"
+                                {t('confirmDeleteRecording').replace('{title}', rec.title)}
                             </button>
                         );
                     }
@@ -503,7 +503,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                 className="mt-3 w-full py-2.5 px-4 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-all border border-blue-200 dark:border-blue-900/30"
                             >
                                 <span className="material-symbols-outlined text-sm">edit</span>
-                                Confirmar: Renombrar a "{newTitle}"
+                                {t('confirmRenameRecording').replace('{title}', newTitle)}
                             </button>
                         );
                     }
@@ -521,7 +521,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                             className="mt-3 w-full py-2.5 px-4 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-200 transition-all border border-emerald-200 dark:border-emerald-900/30"
                         >
                             <span className="material-symbols-outlined text-sm">create_new_folder</span>
-                            Confirmar: Crear carpeta "{name}"
+                            {t('confirmCreateFolder').replace('{title}', name)}
                         </button>
                     );
                 } else if (type === 'MOVE_TO_FOLDER' || type === 'MOVE_TO_PROJECT') {
@@ -541,7 +541,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                             className="mt-3 w-full py-2.5 px-4 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-200 transition-all border border-amber-200 dark:border-amber-900/30"
                         >
                             <span className="material-symbols-outlined text-sm">drive_file_move</span>
-                            {rec ? `Mover "${rec.title}"` : 'Mover a carpeta'}
+                            {rec ? t('confirmDeleteRecording').replace('Delete', 'Move').replace('Borrar', 'Mover').replace('{title}', rec.title) : t('moveToFolderAction')}
                         </button>
                     );
                 }
@@ -616,8 +616,10 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                     />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">{agent.name} - {t('support') || 'Support'}</h3>
-                                    <p className="text-[10px] opacity-70">En línea (Asistente Diktalo)</p>
+                                    <h3 className="font-bold text-sm">{agent.name} - {t('support')}</h3>
+                                    <p className="text-[10px] opacity-70">
+                                        {t('onlineAssistant')}
+                                    </p>
                                 </div>
                             </div>
                             <button
@@ -647,7 +649,9 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                             {/* Feedback Icons for bot messages */}
                                             {m.role === 'bot' && (
                                                 <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span className="text-[10px] text-slate-400">¿Te resultó útil?</span>
+                                                    <span className="text-[10px] text-slate-400">
+                                                        {t('wasThisHelpful')}
+                                                    </span>
                                                     <div className="flex gap-2">
                                                         <button
                                                             type="button"
@@ -708,7 +712,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                             <div className="relative">
                                 <input
                                     type="text"
-                                    placeholder="Escribe tu pregunta..."
+                                    placeholder={t('typeQuestionPlaceholder')}
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onPointerDown={(e) => e.stopPropagation()} // Prevent drag while typing/focusing
@@ -723,7 +727,7 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                 </button>
                             </div>
                             <p className="text-[10px] text-center text-slate-400 mt-2">
-                                {agent.name} usa inteligencia artificial para ayudarte.
+                                {t('usesAiToHelp').replace('{name}', agent.name)}
                             </p>
                         </form>
                     </motion.div>

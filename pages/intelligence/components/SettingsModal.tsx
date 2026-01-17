@@ -878,9 +878,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <h2 className="text-xl font-normal text-slate-900 dark:text-white mb-6">{t('notify_email_header')}</h2>
                                     <div className="space-y-6">
                                         {[
-                                            { id: 'newRecording', label: 'New recording', desc: 'Get notified when a new recording is finished.' },
-                                            { id: 'weeklyDigest', label: 'Weekly digest', desc: 'Get a weekly summary of your recording activity.' },
-                                            { id: 'marketing', label: 'Product updates', desc: 'Receive news about new features and updates.' },
+                                            { id: 'newRecording', label: t('notifyNewRecording'), desc: t('notifyNewRecordingDesc') },
+                                            { id: 'weeklyDigest', label: t('notifyWeeklyDigest'), desc: t('notifyWeeklyDigestDesc') },
+                                            { id: 'marketing', label: t('notifyMarketing'), desc: t('notifyMarketingDesc') },
                                         ].map(item => (
                                             <div key={item.id} className="flex items-center justify-between">
                                                 <div>
@@ -1131,7 +1131,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 <Database size={20} className="text-slate-300 dark:text-slate-600" />
                                             </div>
                                             <p className="text-xs text-slate-400 dark:text-slate-500">
-                                                Add custom terms to improve transcription accuracy.
+                                                {t('vocab_terms_desc')}
                                             </p>
                                         </div>
                                     ) : (
