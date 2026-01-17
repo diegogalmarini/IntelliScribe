@@ -114,6 +114,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     // Upgrade Modal State
     const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
     const [upgradeFeatureName, setUpgradeFeatureName] = useState('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     // CRITICAL: Local state for data that often goes missing in lightweight props
     const [fullRecording, setFullRecording] = useState<Recording | null>(null);
@@ -583,7 +584,22 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 Analytics.trackEvent('open_export_modal', { recording_id: recording.id });
             }
         });
+    };
 
+    const handleSaveNotes = () => {
+        console.log("handleSaveNotes: To be implemented");
+    };
+
+    const handleDelete = async () => {
+        if (!recording.id) return;
+        try {
+            await onUpdateRecording?.(recording.id, { status: 'Draft' });
+            showToast(t('recordingDeleted'), 'success');
+        } catch (error) {
+            showToast(t('errorDeletingRecording'), 'error');
+        } finally {
+            setShowDeleteConfirm(false);
+        }
     };
 
     const handleDownloadAudio = async () => {
@@ -1140,6 +1156,34 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                 onClose={() => setUpgradeModalOpen(false)}
                 featureName={upgradeFeatureName}
             />
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#1a1a1b] rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-white/10">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                            ¿Eliminar grabación?
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            Esta acción moverá la grabación a borradores y no se podrá ver en el panel principal.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
