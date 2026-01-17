@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { VisualHighlighter } from './VisualHighlighter';
 
 interface WelcomeTourProps {
     onComplete: () => void;
@@ -160,11 +161,9 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({ onComplete, onStartBot
                             </div>
                         </div>
                     </motion.div>
-
-                    {/* Target Highlighter (Optional visual cue) */}
-                    <div id="tour-highlighter" className="hidden" />
                 </div>
             )}
+            {isVisible && <VisualHighlighter targetId={step.targetId === 'tour-welcome' ? null : step.targetId} duration={999999} />}
         </AnimatePresence>
     );
 };

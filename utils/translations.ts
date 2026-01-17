@@ -158,6 +158,7 @@ export const translations = {
     moveToFolderAction: "Move to folder",
     startGuidedTourAction: "Start Guided Tour!",
     wasThisHelpful: "Was this helpful?",
+    showMeWhere: "Show me where",
 
     // Dashboard / Home
     welcomeUser: "Good morning, {name}",
@@ -1147,6 +1148,7 @@ export const translations = {
     moveToFolderAction: "Mover a carpeta",
     startGuidedTourAction: "¡Comenzar Tour Guiado!",
     wasThisHelpful: "¿Te resultó útil?",
+    showMeWhere: "Muéstrame dónde",
 
     // Dashboard / Home
     welcomeUser: "Hola, {name}",
