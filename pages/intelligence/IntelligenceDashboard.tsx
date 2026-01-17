@@ -435,7 +435,23 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-background-dark">
                     <div className="flex items-center gap-3">{!isSidebarOpen && <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500 rounded-lg"><LayoutTemplate size={20} /></button>}<button onClick={() => window.location.reload()} className="p-2 text-slate-500 md:hidden"><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.3L2.5 16" /></svg></button>{view === 'subscription' && <button onClick={() => setView('recordings')} className="p-2 text-slate-500"><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" /></svg></button>}</div>
-                    <div className="flex items-center gap-3"><button onClick={() => handleAskDiktalo(displayedRecordings)} className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-full"><MessageSquare className="w-3.5 h-3.5" /><span className="hidden md:inline">{t('askDiktalo') || 'Preguntar a Diktalo'}</span></button><ProfileAvatar user={user} onClick={() => setIsSettingsOpen(true)} /></div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => handleAskDiktalo(displayedRecordings)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-full"
+                        >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            <span className="hidden md:inline">{t('askDiktalo') || 'Preguntar a Diktalo'}</span>
+                        </button>
+                        <button
+                            onClick={() => onAction?.('START_TOUR')}
+                            className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                            title={t('startTour') || 'Iniciar Tour'}
+                        >
+                            <span className="material-symbols-outlined text-lg">help</span>
+                        </button>
+                        <ProfileAvatar user={user} onClick={() => setIsSettingsOpen(true)} />
+                    </div>
                 </div>
                 <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
                     {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} /> : <EmptyStateClean userName={user?.firstName || 'Usuario'} onAction={handleAction} />}

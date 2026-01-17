@@ -247,7 +247,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         4. Borrar audio: [[ACTION:DELETE_RECORDING:ID_DEL_AUDIO]]
         5. Renombrar audio: [[ACTION:RENAME_RECORDING:ID_DEL_AUDIO:NUEVO_TITULO]]
         6. Organizar: [[ACTION:CREATE_FOLDER:NOMBRE]] o [[ACTION:MOVE_TO_FOLDER:ID_DEL_AUDIO:ID_DE_CARPETA]]
-        7. Iniciar Tour Guiado: [[ACTION:START_TOUR]] (Usa esto si el usuario está perdido o pide ayuda/tour).
+        7. Iniciar Tour: [[ACTION:START_TOUR]] (Todo el tour)
+        8. Mostrar Sección Específica: [[ACTION:START_TOUR:INDEX]] (0:Bienvenida, 1:Grabadora, 2:Hub, 3:Chat, 4:Proyectos). Usa 4 si preguntan por proyectos/carpetas.
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
@@ -284,7 +285,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         4. Delete audio: [[ACTION:DELETE_RECORDING:ID]]
         5. Rename audio: [[ACTION:RENAME_RECORDING:ID:NEW_TITLE]]
         6. Organize: [[ACTION:CREATE_FOLDER:NAME]] or [[ACTION:MOVE_TO_FOLDER:ID:FOLDER_ID]]
-        7. Start Guided Tour: [[ACTION:START_TOUR]] (Use this if user is lost or asks for help/tour).
+        7. Start Tour: [[ACTION:START_TOUR]] (Full tour)
+        8. Show Specific Section: [[ACTION:START_TOUR:INDEX]] (0:Welcome, 1:Recorder, 2:Hub, 3:Chat, 4:Projects). Use 4 if they ask about projects/folders.
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:
@@ -455,7 +457,8 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
                                         action_type: 'start_tour'
                                     });
                                 }
-                                onAction?.('START_TOUR', {});
+                                const tourIdx = parseInt(actionData[1]) || 0;
+                                onAction?.('START_TOUR', { stepIndex: tourIdx });
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-indigo-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
                         >

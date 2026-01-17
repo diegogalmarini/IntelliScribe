@@ -83,6 +83,7 @@ const AppContent: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState(false); // Guard for data fetching loop
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isTourOpen, setIsTourOpen] = useState(false);
+    const [tourInitialStep, setTourInitialStep] = useState(0);
     const [isBotForceOpen, setIsBotForceOpen] = useState(false);
 
     // User State Template
@@ -756,10 +757,16 @@ const AppContent: React.FC = () => {
                     <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={setSelectedFolderId} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onDeleteFolder={handleDeleteFolder} />
                 )}
 
-                <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+                <div id="tour-welcome" className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                     {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE || currentRoute === AppRoute.SETTINGS || currentRoute === AppRoute.INTEGRATIONS || currentRoute === AppRoute.SUBSCRIPTION) && (
                         <IntelligenceDashboard
                             user={user} recordings={recordings} onNavigate={navigate} activeRecordingId={activeRecordingId} initialSearchQuery={activeSearchQuery} onSelectRecording={handleSelectRecordingIntelligence} onDeleteRecording={handleDeleteRecording} onRenameRecording={handleRenameRecording} onMoveRecording={handleMoveRecording} selectedFolderId={selectedFolderId} folders={folders} onLogout={handleLogout} onSearch={handleSearch} onRecordingComplete={handleRecordingComplete} onUpdateRecording={handleUpdateRecording} initialView={currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' : currentRoute === AppRoute.INTEGRATIONS ? 'integrations' : 'recordings'} initialSettingsOpen={currentRoute === AppRoute.SETTINGS} onSelectFolder={setSelectedFolderId} onUpdateUser={handleUpdateUser} onAppStateChange={handleAppStateChange}
+                            onAction={(type, payload) => {
+                                if (type === 'START_TOUR') {
+                                    setTourInitialStep(payload?.stepIndex || 0);
+                                    setIsTourOpen(true);
+                                }
+                            }}
                         />
                     )}
 
@@ -803,6 +810,9 @@ const AppContent: React.FC = () => {
                                 handleAddFolder(payload.name);
                             } else if (type === 'MOVE_TO_FOLDER') {
                                 handleMoveRecording(payload.recordingId, payload.folderId);
+                            } else if (type === 'START_TOUR') {
+                                setTourInitialStep(payload?.stepIndex || 0);
+                                setIsTourOpen(true);
                             } else {
                                 navigate(AppRoute.DASHBOARD);
                             }
@@ -816,6 +826,7 @@ const AppContent: React.FC = () => {
                     onComplete={handleTourComplete}
                     onStartBot={() => setIsBotForceOpen(true)}
                     language={user?.language || 'es'}
+                    initialStep={tourInitialStep}
                 />
             )}
         </>
