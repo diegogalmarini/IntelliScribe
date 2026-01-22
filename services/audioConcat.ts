@@ -1,4 +1,15 @@
+// @ts-ignore
 import * as lamejs from 'lamejs';
+
+// Fix for iOS/Safari: lamejs might expect MPEGMode to be globally available
+if (typeof window !== 'undefined' && !(window as any).MPEGMode) {
+    (window as any).MPEGMode = {
+        STEREO: 0,
+        JOINT_STEREO: 1,
+        DUAL_CHANNEL: 2,
+        MONO: 3
+    };
+}
 
 // Exported for single file compression
 export async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: number = 22050): Promise<AudioBuffer> {
