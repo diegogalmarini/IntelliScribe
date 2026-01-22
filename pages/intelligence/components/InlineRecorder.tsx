@@ -533,15 +533,22 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                                 onMouseDown={() => startHold('stop')}
                                                 onMouseUp={cancelHold}
                                                 onMouseLeave={cancelHold}
-                                                onTouchStart={() => startHold('stop')}
-                                                onTouchEnd={cancelHold}
+                                                onTouchStart={(e) => { e.preventDefault(); startHold('stop'); }}
+                                                onTouchEnd={(e) => { e.preventDefault(); cancelHold(); }}
+                                                onContextMenu={(e) => e.preventDefault()}
+                                                style={{
+                                                    WebkitUserSelect: 'none',
+                                                    userSelect: 'none',
+                                                    WebkitTouchCallout: 'none',
+                                                    touchAction: 'manipulation'
+                                                }}
                                                 className="w-14 h-14 rounded-full bg-[#1f1f1f] dark:bg-white text-white dark:text-[#1f1f1f] flex items-center justify-center transition-all active:scale-95 z-10 relative"
                                                 title={t('holdToStop')}
                                             >
                                                 <Square size={24} />
                                             </button>
-                                            <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
-                                                {t('holdToStop')}
+                                            <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
+                                                MANTÉN PARA<br />DETENER (3S)
                                             </p>
                                         </div>
 
@@ -568,16 +575,23 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                                 onMouseDown={() => !isPaused && startHold('pause')}
                                                 onMouseUp={cancelHold}
                                                 onMouseLeave={cancelHold}
-                                                onTouchStart={() => !isPaused && startHold('pause')}
-                                                onTouchEnd={cancelHold}
+                                                onTouchStart={(e) => { e.preventDefault(); !isPaused && startHold('pause'); }}
+                                                onTouchEnd={(e) => { e.preventDefault(); cancelHold(); }}
+                                                onContextMenu={(e) => e.preventDefault()}
                                                 onClick={handleResumeTap}
+                                                style={{
+                                                    WebkitUserSelect: 'none',
+                                                    userSelect: 'none',
+                                                    WebkitTouchCallout: 'none',
+                                                    touchAction: 'manipulation'
+                                                }}
                                                 className="w-14 h-14 rounded-full bg-[#8e8e8e] hover:bg-[#444746] text-white flex items-center justify-center transition-all active:scale-95 z-10 relative"
                                                 title={isPaused ? t('tapToResume') : t('holdToPause')}
                                             >
                                                 {isPaused ? <Play size={24} /> : <Pause size={24} />}
                                             </button>
-                                            <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
-                                                {isPaused ? 'Resume' : 'Hold 2s'}
+                                            <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
+                                                {isPaused ? 'TOCA PARA REANUDAR' : <>MANTÉN PARA<br />PAUSA (2S)</>}
                                             </p>
                                         </div>
                                     </>

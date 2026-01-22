@@ -350,8 +350,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     };
 
     // --- HOLD TO ACTION LOGIC ---
-    const HOLD_DURATION_PAUSE = 2000;
-    const HOLD_DURATION_STOP = 3000;
+    const HOLD_DURATION_PAUSE = 2000; // 2 Seconds
+    const HOLD_DURATION_STOP = 3000;  // 3 Seconds
 
     const startHold = (type: 'pause' | 'stop') => {
         if (holdTimerRef.current) return;
@@ -774,12 +774,21 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                     onMouseDown={() => startHold('stop')}
                                                     onMouseUp={cancelHold}
                                                     onMouseLeave={cancelHold}
-                                                    onTouchStart={() => startHold('stop')}
-                                                    onTouchEnd={cancelHold}
+                                                    onTouchStart={(e) => { e.preventDefault(); startHold('stop'); }}
+                                                    onTouchEnd={(e) => { e.preventDefault(); cancelHold(); }}
+                                                    onContextMenu={(e) => e.preventDefault()}
+                                                    style={{
+                                                        WebkitUserSelect: 'none',
+                                                        userSelect: 'none',
+                                                        WebkitTouchCallout: 'none',
+                                                        touchAction: 'manipulation'
+                                                    }}
                                                     className="size-14 md:size-16 rounded-full bg-slate-900 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title="Hold to Stop">
                                                     <span className="material-symbols-outlined text-2xl md:text-3xl">stop</span>
                                                 </button>
-                                                <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">Hold to stop</p>
+                                                <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
+                                                    MANTÉN PARA<br />DETENER (3S)
+                                                </p>
                                             </div>
 
                                             {/* PAUSE / RESUME BUTTON */}
@@ -805,14 +814,21 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                     onMouseDown={() => !isPaused && startHold('pause')}
                                                     onMouseUp={cancelHold}
                                                     onMouseLeave={cancelHold}
-                                                    onTouchStart={() => !isPaused && startHold('pause')}
-                                                    onTouchEnd={cancelHold}
+                                                    onTouchStart={(e) => { e.preventDefault(); !isPaused && startHold('pause'); }}
+                                                    onTouchEnd={(e) => { e.preventDefault(); cancelHold(); }}
+                                                    onContextMenu={(e) => e.preventDefault()}
                                                     onClick={handleResumeTap}
-                                                    className={`size-20 md:size-24 rounded-full ${isPaused ? 'bg-red-500 shadow-red-500/40' : 'bg-red-500 shadow-red-500/20'} hover:bg-red-600 shadow-xl text-white flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 z-10 relative`} title={isPaused ? "Tap to Resume" : "Hold to Pause"}>
-                                                    <span className="material-symbols-outlined text-5xl md:text-6xl">{isPaused ? 'play_arrow' : 'pause'}</span>
+                                                    style={{
+                                                        WebkitUserSelect: 'none',
+                                                        userSelect: 'none',
+                                                        WebkitTouchCallout: 'none',
+                                                        touchAction: 'manipulation'
+                                                    }}
+                                                    className="size-14 md:size-16 rounded-full bg-slate-400 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title={isPaused ? "Tap to Resume" : "Hold to Pause"}>
+                                                    <span className="material-symbols-outlined text-2xl md:text-3xl">{isPaused ? 'play_arrow' : 'pause'}</span>
                                                 </button>
-                                                <p className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
-                                                    {isPaused ? 'Tap to resume' : 'Hold to pause'}
+                                                <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
+                                                    {isPaused ? 'TOCA PARA REANUDAR' : <>MANTÉN PARA<br />PAUSA (2S)</>}
                                                 </p>
                                             </div>
                                         </>
