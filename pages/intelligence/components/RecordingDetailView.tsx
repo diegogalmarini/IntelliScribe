@@ -31,6 +31,7 @@ interface RecordingDetailViewProps {
     onUpdateSegment?: (index: number, updates: Partial<{ speaker: string; text: string }>, currentSegments?: any[]) => void;
     onUpdateRecording?: (recordingId: string, updates: Partial<Recording>) => void;
     onAskDiktalo?: () => void;
+    onDelete?: (recordingId: string) => void;
 }
 
 // Subcomponent to handle individual image signing
@@ -87,7 +88,7 @@ const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageC
     );
 };
 
-export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo }: RecordingDetailViewProps) => {
+export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onRename, onUpdateSpeaker, onUpdateSummary, onUpdateSegment, onUpdateRecording, onAskDiktalo, onDelete }: RecordingDetailViewProps) => {
     const { t, language } = useLanguage();
     const { showToast } = useToast();
     const [isPlaying, setIsPlaying] = useState(false);
@@ -593,8 +594,15 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     const handleDelete = async () => {
         if (!recording.id) return;
         try {
-            await onUpdateRecording?.(recording.id, { status: 'Draft' });
-            showToast(t('recordingDeleted'), 'success');
+            if (onDelete) {
+                onDelete(recording.id);
+                // No need for toast here as parent likely handles it or we can keep it
+                showToast(t('recordingDeleted'), 'success');
+            } else {
+                // Fallback soft-delete if onDelete is missing
+                await onUpdateRecording?.(recording.id, { status: 'Draft' });
+                showToast(t('recordingDeleted'), 'success');
+            }
         } catch (error) {
             showToast(t('errorDeletingRecording'), 'error');
         } finally {
