@@ -452,20 +452,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
         const backupSegments = [...segments];
 
         try {
-            // Fetch audio content as base64
-            const response = await fetch(signedAudioUrl);
-            const blob = await response.blob();
-            const reader = new FileReader();
-
-            const base64Promise = new Promise<string>((resolve) => {
-                reader.onloadend = () => {
-                    const base64 = (reader.result as string).split(',')[1];
-                    resolve(base64);
-                };
-            });
-            reader.readAsDataURL(blob);
-            const base64 = await base64Promise;
-
             let mimeType = 'audio/mp3';
             const audioUrlSource = fullRecording?.audioUrl || recording.audioUrl;
             if (audioUrlSource?.endsWith('.webm')) mimeType = 'audio/webm';
@@ -474,8 +460,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
             // Transcribe using Gemini service
             const targetLang = user.transcriptionLanguage || 'es';
-            console.log('[RecordingDetailView] Regenerating with language:', targetLang, '(user pref:', user.transcriptionLanguage, ')');
-            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
+            const result = await transcribeAudio(undefined, mimeType, targetLang, currentSignedUrl);
 
             // CRITICAL: Only update if we got valid results
             if (!result || result.length === 0) {
