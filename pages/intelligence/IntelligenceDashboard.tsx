@@ -148,7 +148,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleSelectFolder = (folderId: string | null) => {
         onSelectFolder?.(folderId);
         setView('recordings');
-        setIsSidebarOpen(false);
+        if (isMobile) setIsSidebarOpen(false);
     };
 
     const handleAskDiktalo = (recs: Recording[], title: string = t('askDiktalo') || 'Preguntar a Diktalo') => {
