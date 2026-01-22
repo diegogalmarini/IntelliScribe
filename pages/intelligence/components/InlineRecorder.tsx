@@ -547,8 +547,8 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                             >
                                                 <Square size={24} />
                                             </button>
-                                            <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
-                                                MANTÉN PARA<br />DETENER (3S)
+                                            <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-normal text-black dark:text-white uppercase whitespace-nowrap transition-opacity text-center mt-2 leading-tight">
+                                                Hold (3s)
                                             </p>
                                         </div>
 
@@ -590,8 +590,8 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                             >
                                                 {isPaused ? <Play size={24} /> : <Pause size={24} />}
                                             </button>
-                                            <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-[#8e8e8e] uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
-                                                {isPaused ? 'TOCA PARA REANUDAR' : <>MANTÉN PARA<br />PAUSA (2S)</>}
+                                            <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-normal text-black dark:text-white uppercase whitespace-nowrap transition-opacity text-center mt-2 leading-tight">
+                                                {isPaused ? 'Resume' : 'Hold (2s)'}
                                             </p>
                                         </div>
                                     </>

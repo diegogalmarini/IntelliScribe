@@ -786,8 +786,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                     className="size-14 md:size-16 rounded-full bg-slate-900 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title="Hold to Stop">
                                                     <span className="material-symbols-outlined text-2xl md:text-3xl">stop</span>
                                                 </button>
-                                                <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
-                                                    MANTÉN PARA<br />DETENER (3S)
+                                                <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-normal text-black dark:text-white uppercase whitespace-nowrap transition-opacity text-center mt-2 leading-tight">
+                                                    Hold (3s)
                                                 </p>
                                             </div>
 
@@ -827,8 +827,8 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                     className="size-14 md:size-16 rounded-full bg-slate-400 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title={isPaused ? "Tap to Resume" : "Hold to Pause"}>
                                                     <span className="material-symbols-outlined text-2xl md:text-3xl">{isPaused ? 'play_arrow' : 'pause'}</span>
                                                 </button>
-                                                <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity text-center mt-2 leading-tight">
-                                                    {isPaused ? 'TOCA PARA REANUDAR' : <>MANTÉN PARA<br />PAUSA (2S)</>}
+                                                <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-normal text-black dark:text-white uppercase whitespace-nowrap transition-opacity text-center mt-2 leading-tight">
+                                                    {isPaused ? 'Resume' : 'Hold (2s)'}
                                                 </p>
                                             </div>
                                         </>
