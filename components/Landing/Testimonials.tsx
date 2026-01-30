@@ -90,7 +90,7 @@ export const Testimonials: React.FC = () => {
 
         const interval = setInterval(() => {
             setTick(prev => prev + 1);
-        }, 30000); // 30 seconds as requested
+        }, 15000); // 15 seconds as requested
 
         return () => clearInterval(interval);
     }, [shuffledPool]);
