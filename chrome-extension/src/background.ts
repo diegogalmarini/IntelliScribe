@@ -96,6 +96,21 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                 return { success: false, error: error.message };
             }
         }
+
+        if (message.action === 'SYNC_SESSION') {
+            console.log('[Background] Syncing session from content script...');
+            const { session } = message;
+            if (session && session.access_token) {
+                await chrome.storage.local.set({
+                    authToken: session.access_token,
+                    refreshToken: session.refresh_token || null,
+                    // Optionally update Supabase config if provided in sync (though usually injected)
+                });
+                console.log('[Background] Session synced successfully.');
+                return { success: true };
+            }
+            return { success: false, error: 'Invalid session data' };
+        }
         return { success: false, error: 'Unknown action' };
     };
 
@@ -169,7 +184,7 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
         } catch (refreshError: any) {
             console.error('[Background] Could not recover from auth failure:', refreshError.message);
             // Friendly error message
-            throw new Error('Tu sesión ha expirado. Por favor actualiza tu token desde el Dashboard.');
+            throw new Error('E101: Tu sesión ha expirado y el refresco automático falló. Por favor abre la web de Diktalo para sincronizar.');
         }
     }
 

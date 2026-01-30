@@ -21,6 +21,7 @@
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.26",
     "get-audio-duration": "^4.0.1",
+    "idb": "^8.0.3",
     "jspdf": "^3.0.4",
     "lamejs": "^1.2.1",
     "lucide-react": "^0.562.0",

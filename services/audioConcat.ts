@@ -36,7 +36,8 @@ interface ConcatenationResult {
 
 /**
  * Universal utility to convert any Audio Blob to a compressed MP3
- * Uses 22050Hz Mono 64kbps for optimal voice quality/size balance
+ * Uses 22050Hz Mono 64kbps for optimal voice quality/size balance.
+ * Uses a Web Worker to avoid freezing the main thread.
  */
 export async function convertAudioBlobToMp3(audioBlob: Blob): Promise<Blob> {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -47,65 +48,66 @@ export async function convertAudioBlobToMp3(audioBlob: Blob): Promise<Blob> {
         // Resample to 22k Mono for consistency
         const resampledBuffer = await resampleAndMixDown(audioBuffer, 22050);
 
-        // Encode to MP3
-        const mp3Blob = audioBufferToMp3(resampledBuffer, 64);
-
-        return mp3Blob;
+        // Encode to MP3 using Worker
+        return await audioBufferToMp3Worker(resampledBuffer, 64);
     } finally {
         await audioContext.close();
     }
 }
 
-// Helper to convert AudioBuffer to MP3 blob
-function audioBufferToMp3(buffer: AudioBuffer, kbps: number = 64): Blob {
-    const sampleRate = buffer.sampleRate;
-    const channels = buffer.numberOfChannels;
+/**
+ * Worker-based MP3 encoding to prevent UI freezes
+ */
+export async function audioBufferToMp3Worker(buffer: AudioBuffer, kbps: number = 64): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+        try {
+            // Import worker using Vite syntax
+            const worker = new Worker(new URL('./audioEncoder.worker.ts', import.meta.url), { type: 'module' });
+            const mp3Data: Uint8Array[] = [];
 
-    // LameJS works with Int16Array
-    const encoder = new (lamejs as any).Mp3Encoder(channels, sampleRate, kbps);
-    const mp3Data: any[] = [];
+            worker.onmessage = (e) => {
+                const { type, payload } = e.data;
+                if (type === 'CHUNK') {
+                    mp3Data.push(new Uint8Array(payload));
+                } else if (type === 'DONE') {
+                    worker.terminate();
+                    resolve(new Blob(mp3Data, { type: 'audio/mp3' }));
+                }
+            };
 
-    // Process in chunks to avoid memory pressure
-    const sampleBlockSize = 1152;
+            worker.onerror = (err) => {
+                worker.terminate();
+                reject(err);
+            };
 
-    if (channels === 2) {
-        const left = buffer.getChannelData(0);
-        const right = buffer.getChannelData(1);
+            const sampleRate = buffer.sampleRate;
+            const channels = buffer.numberOfChannels;
 
-        for (let i = 0; i < left.length; i += sampleBlockSize) {
-            const leftChunk = left.subarray(i, i + sampleBlockSize);
-            const rightChunk = right.subarray(i, i + sampleBlockSize);
+            worker.postMessage({
+                type: 'INIT',
+                payload: { sampleRate, channels, kbps }
+            });
 
-            // Convert Float32 to Int16
-            const leftInt16 = new Int16Array(leftChunk.length);
-            const rightInt16 = new Int16Array(rightChunk.length);
+            // Process in larger chunks for efficiency but avoid memory overflow
+            const sampleBlockSize = 16384;
+            const left = buffer.getChannelData(0);
+            const right = channels === 2 ? buffer.getChannelData(1) : null;
 
-            for (let j = 0; j < leftChunk.length; j++) {
-                leftInt16[j] = leftChunk[j] < 0 ? leftChunk[j] * 32768 : leftChunk[j] * 32767;
-                rightInt16[j] = rightChunk[j] < 0 ? rightChunk[j] * 32768 : rightChunk[j] * 32767;
+            for (let i = 0; i < left.length; i += sampleBlockSize) {
+                const leftChunk = left.slice(i, i + sampleBlockSize);
+                const rightChunk = right ? right.slice(i, i + sampleBlockSize) : null;
+
+                worker.postMessage({
+                    type: 'ENCODE',
+                    payload: { left: leftChunk, right: rightChunk }
+                });
             }
 
-            const mp3buf = encoder.encodeBuffer(leftInt16, rightInt16);
-            if (mp3buf.length > 0) mp3Data.push(mp3buf);
+            worker.postMessage({ type: 'FINISH' });
+        } catch (err) {
+            reject(err);
         }
-    } else {
-        const mono = buffer.getChannelData(0);
-        for (let i = 0; i < mono.length; i += sampleBlockSize) {
-            const chunk = mono.subarray(i, i + sampleBlockSize);
-            const int16 = new Int16Array(chunk.length);
-            for (let j = 0; j < chunk.length; j++) {
-                int16[j] = Math.max(-1, Math.min(1, chunk[j]));
-                int16[j] = int16[j] < 0 ? int16[j] * 32768 : int16[j] * 32767;
-            }
-            const mp3buf = encoder.encodeBuffer(int16);
-            if (mp3buf.length > 0) mp3Data.push(mp3buf);
-        }
-    }
-
-    const mp3buf = encoder.flush();
-    if (mp3buf.length > 0) mp3Data.push(mp3buf);
-
-    return new Blob(mp3Data, { type: 'audio/mp3' });
+    });
 }
 
 /**
@@ -128,7 +130,7 @@ export async function compressAudioFile(file: File): Promise<Blob> {
     const resampledBuffer = await resampleAndMixDown(audioBuffer, 22050);
 
     // 3. Convert to MP3
-    const mp3Blob = audioBufferToMp3(resampledBuffer, 64);
+    const mp3Blob = await audioBufferToMp3Worker(resampledBuffer, 64);
 
     const compressedSizeMB = (mp3Blob.size / 1024 / 1024).toFixed(1);
     console.log(`[audioConcat] MP3 Compressed: ${originalSizeMB}MB -> ${compressedSizeMB}MB (${((1 - mp3Blob.size / file.size) * 100).toFixed(0)}% reduction)`);
@@ -179,15 +181,15 @@ export const concatenateAudios = async (audioFiles: File[]): Promise<Concatenati
             offset += buffer.length;
             segmentOffsets.push(offset / concatenatedBuffer.sampleRate); // Add cumulative duration
         }
-        segmentOffsets.pop(); // Remove the last cumulative duration which is the total duration
+        segmentOffsets.push(totalDuration); // Ensure final offset is included
 
         console.log(`[audioConcat] Resampling to 22kHz Mono... (Original: ${concatenatedBuffer.sampleRate}Hz, ${numberOfChannels}ch)`);
 
         // 5. Resample to 22kHz Mono
         const resampledBuffer = await resampleAndMixDown(concatenatedBuffer, 22050);
 
-        console.log('[audioConcat] Encoding to MP3...');
-        const audioBlob = audioBufferToMp3(resampledBuffer, 64);
+        console.log('[audioConcat] Encoding to MP3 via Worker...');
+        const audioBlob = await audioBufferToMp3Worker(resampledBuffer, 64);
 
         console.log(`[audioConcat] MP3 Encoding complete, blob size: ${audioBlob.size} bytes (~${(audioBlob.size / 1024 / 1024).toFixed(2)} MB)`);
 

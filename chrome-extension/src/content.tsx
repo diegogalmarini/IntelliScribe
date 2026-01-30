@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 const MicIcon = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /><line x1="8" x2="16" y1="22" y2="22" /></svg>;
 const CameraIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>;
 const UploadIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>;
+const CheckIcon = ({ size = 12 }: { size?: number }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
 
 // Styles
 const css = `
@@ -101,7 +102,23 @@ const DraggableOverlay: React.FC = () => {
             }
         });
 
-        return () => chrome.runtime.onMessage.removeListener(listener);
+        // --- AUTH SYNC BRIDGE ---
+        const syncListener = (event: any) => {
+            console.log('[ContentScript] Received session sync event');
+            const session = event.detail;
+            if (session && session.access_token) {
+                chrome.runtime.sendMessage({
+                    action: 'SYNC_SESSION',
+                    session: session
+                });
+            }
+        };
+        window.addEventListener('DIKTALO_SESSION_SYNC', syncListener);
+
+        return () => {
+            chrome.runtime.onMessage.removeListener(listener);
+            window.removeEventListener('DIKTALO_SESSION_SYNC', syncListener);
+        };
     }, []);
 
     // Timer Logic
@@ -312,6 +329,9 @@ const DraggableOverlay: React.FC = () => {
                 {/* Token Config */}
                 {isConfigExpanded && !isRecording && (
                     <div className="token-area">
+                        <div style={{ fontSize: '11px', color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <CheckIcon size={12} /> Autosync Activado
+                        </div>
                         <input
                             type="password"
                             className="input-compact"
@@ -319,7 +339,7 @@ const DraggableOverlay: React.FC = () => {
                             value={authToken}
                             onChange={e => setAuthToken(e.target.value)}
                         />
-                        <button className="btn-save-compact" onClick={handleSaveToken}>Guardar</button>
+                        <button className="btn-save-compact" onClick={handleSaveToken}>Guardar Manual</button>
                     </div>
                 )}
 

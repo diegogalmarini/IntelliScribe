@@ -21,6 +21,9 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
     const [isPaused, setIsPaused] = useState(false);
     const [seconds, setSeconds] = useState(0);
     const secondsRef = useRef(0);
+    const [recordingId, setRecordingId] = useState<string | null>(null);
+    const recordingIdRef = useRef<string | null>(null);
+    const chunkCounterRef = useRef(0);
 
     // Hold interaction states
     const [holdType, setHoldType] = useState<'pause' | 'stop' | null>(null);
@@ -145,8 +148,18 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
             mediaRecorderRef.current = mediaRecorder;
             audioChunksRef.current = [];
 
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) audioChunksRef.current.push(event.data);
+            mediaRecorder.ondataavailable = async (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+
+                    // SAVE TO INDEXEDDB FOR RECOVERY
+                    if (recordingIdRef.current) {
+                        const { recordingStorage } = await import('../../../services/recordingStorage');
+                        recordingStorage.saveChunk(recordingIdRef.current, chunkCounterRef.current++, event.data).catch(e => {
+                            console.error("[InlineRecorder] Failed to save chunk to IndexedDB:", e);
+                        });
+                    }
+                }
             };
 
             mediaRecorder.onstop = () => {
@@ -157,6 +170,13 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                 const type = mimeTypeRef.current || 'audio/webm';
                 const audioBlob = new Blob(audioChunksRef.current, { type });
                 onComplete(audioBlob, secondsRef.current, sessionTitle, notesRef.current, mediaItemsRef.current);
+
+                // CLEANUP INDEXEDDB ON SUCCESS
+                if (recordingIdRef.current) {
+                    import('../../../services/recordingStorage').then(({ recordingStorage }) => {
+                        recordingStorage.clearRecording(recordingIdRef.current!);
+                    });
+                }
 
                 // TRACK: Recording Complete
                 if (Analytics && typeof Analytics.trackEvent === 'function') {
@@ -273,8 +293,12 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
     const startRecording = () => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'inactive') {
             secondsRef.current = 0;
-            setSeconds(0);
-            mediaRecorderRef.current.start(1000);
+            const newRid = `rec_${Date.now()}`;
+            setRecordingId(newRid);
+            recordingIdRef.current = newRid;
+            chunkCounterRef.current = 0;
+
+            mediaRecorderRef.current.start(2000); // Trigger dataavailable every 2s
             setIsRecording(true);
             onStateChange?.('recording');
             if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();
@@ -304,9 +328,12 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
         setIsPaused(!isPaused);
     };
 
+    const [isProcessing, setIsProcessing] = useState(false);
+
     const stopRecording = () => {
         shouldSaveRef.current = true;
         setIsRecording(false);
+        setIsProcessing(true); // Signal processing start
         onStateChange?.('idle');
         if (mediaRecorderRef.current) mediaRecorderRef.current.stop();
     };
@@ -489,6 +516,15 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                                 }`}>
                                 {formatTime(seconds)}
                             </div>
+
+                            {isProcessing && (
+                                <div className="mb-6 flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 animate-pulse">
+                                    <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <div className="w-2 h-2 rounded-full bg-current animate-bounce" style={{ animationDelay: '300ms' }} />
+                                    <span className="text-sm font-medium ml-2">{t('processingAudio') || 'Procesando audio...'}</span>
+                                </div>
+                            )}
 
                             <div className="flex items-center justify-center gap-4">
                                 {isRecording && (

@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Diktalo - AI Voice Recorder & Transcriber",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Graba, transcribe y resume tus reuniones y notas de voz con Inteligencia Artificial.",
     "permissions": [
         "tabCapture",

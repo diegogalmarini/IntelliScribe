@@ -47,6 +47,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setSession(session);
                 setUser(session?.user ?? null);
                 setLoading(false);
+
+                // --- EXTENSION SYNC BRIDGE ---
+                // Dispatch event for content script to pick up
+                if (session) {
+                    window.dispatchEvent(new CustomEvent('DIKTALO_SESSION_SYNC', {
+                        detail: {
+                            access_token: session.access_token,
+                            refresh_token: session.refresh_token,
+                            expires_at: session.expires_at,
+                            user: session.user
+                        }
+                    }));
+                }
             }
         });
 
