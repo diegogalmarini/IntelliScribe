@@ -101,9 +101,9 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
 
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-7xl mx-auto px-4 relative z-10">
-                        <div className="text-center mb-16">
-                            <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">{t('faqHeader')}</p>
-                            <h3 className="h2 home text-slate-900 dark:text-white max-w-2xl mx-auto">{t('landing_faq_title')}</h3>
+                        <div className="text-center mb-16 px-4">
+                            <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest text-center">{t('faqHeader')}</p>
+                            <h3 className="h2 home text-slate-900 dark:text-white max-w-2xl mx-auto text-center">{t('landing_faq_title')}</h3>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4 items-start">
@@ -115,7 +115,13 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                 { q: t('faqTeamQ'), a: t('faqTeamA') },
                                 { q: t('faqLanguagesQ'), a: t('faqLanguagesA') },
                                 { q: t('faqExtensionQ'), a: t('faqExtensionA') },
-                                { q: t('faqIntegrationsQ'), a: t('faqIntegrationsA') }
+                                { q: t('faqIntegrationsQ'), a: t('faqIntegrationsA') },
+                                { q: t('faqDiarizationQ'), a: t('faqDiarizationA') },
+                                { q: t('faqMobileQ'), a: t('faqMobileA') },
+                                { q: t('faqTrainingQ'), a: t('faqTrainingA') },
+                                { q: t('faqUploadLimitQ'), a: t('faqUploadLimitA') },
+                                { q: t('faqSupportQ'), a: t('faqSupportA') },
+                                { q: t('faqBillingChangeQ'), a: t('faqBillingChangeA') }
                             ].map((item, idx) => (
                                 <FAQItem key={idx} question={item.q} answer={item.a} />
                             ))}
