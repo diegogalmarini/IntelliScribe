@@ -15,15 +15,13 @@ import { Navbar } from '../components/Landing/Navbar';
 import { UserProfile } from '../types';
 import * as Analytics from '../utils/analytics';
 
-const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-
+const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onToggle: () => void }> = ({ question, answer, isOpen, onToggle }) => {
     return (
         <div
             className={`group border-b border-slate-100 dark:border-white/5 transition-all duration-300 ${isOpen ? 'pb-6' : 'pb-0'}`}
         >
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={onToggle}
                 className="w-full py-6 flex items-center justify-between text-left focus:outline-none"
             >
                 <h4 className={`text-base md:text-lg font-bold transition-colors duration-300 ${isOpen ? 'text-primary' : 'text-slate-900 dark:text-white group-hover:text-primary'}`}>
@@ -54,6 +52,7 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, ans
 
 export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t } = useLanguage();
+    const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
@@ -101,9 +100,9 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
 
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
                     <div className="max-w-7xl mx-auto px-4 relative z-10">
-                        <div className="text-center mb-16 px-4">
-                            <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest text-center">{t('faqHeader')}</p>
-                            <h3 className="h2 home text-slate-900 dark:text-white max-w-2xl mx-auto text-center">{t('landing_faq_title')}</h3>
+                        <div className="flex flex-col items-center justify-center text-center mb-16 px-4">
+                            <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">{t('faqHeader')}</p>
+                            <h3 className="h2 home text-slate-900 dark:text-white w-full text-center">{t('landing_faq_title')}</h3>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4 items-start">
@@ -123,7 +122,13 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                 { q: t('faqSupportQ'), a: t('faqSupportA') },
                                 { q: t('faqBillingChangeQ'), a: t('faqBillingChangeA') }
                             ].map((item, idx) => (
-                                <FAQItem key={idx} question={item.q} answer={item.a} />
+                                <FAQItem
+                                    key={idx}
+                                    question={item.q}
+                                    answer={item.a}
+                                    isOpen={openFaqIndex === idx}
+                                    onToggle={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
+                                />
                             ))}
                         </div>
                     </div>
