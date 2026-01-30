@@ -644,16 +644,6 @@ export const translations = {
     footerSupport: "Support",
     footerContact: "Contact Us",
 
-    // New Testimonials
-    testim1Name: "Dr. Ana Lopez",
-    testim1Role: "Cardiology Resident",
-    testim1Body: "I used to spend 2 hours transcribing SOAP notes. With Diktalo, I record (with permission) and have the report in the EHR in seconds. Pure magic.",
-    testim2Name: "Carlos Mendez",
-    testim2Role: "VP of Sales, TechFlow",
-    testim2Body: "Automatic BANT analysis changed our CRM game. My team doesn't take notes anymore; they just sell. The VoIP dialer integration is huge.",
-    testim3Name: "Elena R.",
-    testim3Role: "Investigative Journalist",
-    testim3Body: "Accuracy in mixed English/Spanish is superior to anything else. Knowing my sources are secure on encrypted servers is vital.",
 
     // Expanded FAQs
     faqPrivQ: "Are my recordings private?",
@@ -1636,16 +1626,6 @@ export const translations = {
     footerSupport: "Soporte",
     footerContact: "Contacto",
 
-    // New Testimonials
-    testim1Name: "Dra. Ana López",
-    testim1Role: "Residente de Cardiología",
-    testim1Body: "Antes pasaba 2 horas transcribiendo notas SOAP. Con Diktalo, grabo la consulta (con permiso) y tengo el reporte en el EHR en segundos. Es magia pura.",
-    testim2Name: "Carlos Méndez",
-    testim2Role: "VP de Ventas, TechFlow",
-    testim2Body: "El análisis BANT automático ha cambiado nuestro CRM. Mi equipo ya no toma notas, solo vende. La integración con el marcador VoIP es un plus enorme.",
-    testim3Name: "Elena R.",
-    testim3Role: "Periodista de Investigación",
-    testim3Body: "La precisión en inglés y español mezclados es superior a cualquier otra herramienta. Y saber que mis fuentes están seguras en servers encriptados es vital.",
 
     // Expanded FAQs
     faqPrivQ: "¿Mis grabaciones son privadas?",
