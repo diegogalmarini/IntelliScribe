@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { testimonialsData, Testimonial } from '../../utils/testimonialsData';
@@ -13,31 +13,8 @@ const shuffleArray = (array: any[]) => {
     return shuffled;
 };
 
-// Independent Slot Component for "raindrop" effect
-const TestimonialSlot: React.FC<{ initialIndex: number, pool: Testimonial[] }> = ({ initialIndex, pool }) => {
-    const [currentIndex, setCurrentIndex] = useState(initialIndex);
-    const [nextPoolIndex, setNextPoolIndex] = useState((initialIndex + 3) % pool.length);
-
-    useEffect(() => {
-        if (pool.length === 0) return;
-
-        // Random interval between 4s and 8s for "raindrop" effect
-        const scheduleNext = () => {
-            const delay = 4000 + Math.random() * 4000;
-            return setTimeout(() => {
-                setCurrentIndex(nextPoolIndex);
-                setNextPoolIndex(prev => (prev + 1) % pool.length);
-                timer = scheduleNext();
-            }, delay);
-        };
-
-        let timer = scheduleNext();
-        return () => clearTimeout(timer);
-    }, [pool, nextPoolIndex]);
-
-    const testimonial = pool[currentIndex];
-    if (!testimonial) return null;
-
+// Stateless Presentation Component
+const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }) => {
     return (
         <div className="relative w-full">
             <AnimatePresence mode="wait">
@@ -98,10 +75,49 @@ const TestimonialSlot: React.FC<{ initialIndex: number, pool: Testimonial[] }> =
 export const Testimonials: React.FC = () => {
     const { t } = useLanguage();
     const [shuffledPool, setShuffledPool] = useState<Testimonial[]>([]);
+    const [visibleIndices, setVisibleIndices] = useState<number[]>([0, 1, 2]);
+    const [nextPoolIndex, setNextPoolIndex] = useState(3);
+    const [tick, setTick] = useState(0);
 
+    // Initialize shuffled pool
     useEffect(() => {
         setShuffledPool(shuffleArray(testimonialsData));
     }, []);
+
+    // Change one card every 30 seconds
+    useEffect(() => {
+        if (shuffledPool.length === 0) return;
+
+        const interval = setInterval(() => {
+            setTick(prev => prev + 1);
+        }, 30000); // 30 seconds as requested
+
+        return () => clearInterval(interval);
+    }, [shuffledPool]);
+
+    // Handle rotation with duplicate prevention
+    useEffect(() => {
+        if (tick === 0 || shuffledPool.length === 0) return;
+
+        const slotToUpdate = (tick - 1) % 3;
+
+        setVisibleIndices(prev => {
+            const nextVisibility = [...prev];
+            let candidateIndex = nextPoolIndex % shuffledPool.length;
+
+            // Safety check: ensure the new index isn't already visible in other slots
+            // With 57 testimonials and 3 slots, this is almost always true, 
+            // but we add it for robustness.
+            while (nextVisibility.includes(candidateIndex)) {
+                candidateIndex = (candidateIndex + 1) % shuffledPool.length;
+            }
+
+            nextVisibility[slotToUpdate] = candidateIndex;
+            return nextVisibility;
+        });
+
+        setNextPoolIndex(prev => (prev + 1) % shuffledPool.length);
+    }, [tick, shuffledPool]);
 
     if (shuffledPool.length === 0) return null;
 
@@ -116,9 +132,12 @@ export const Testimonials: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                    <TestimonialSlot initialIndex={0} pool={shuffledPool} />
-                    <TestimonialSlot initialIndex={1} pool={shuffledPool} />
-                    <TestimonialSlot initialIndex={2} pool={shuffledPool} />
+                    {visibleIndices.map((poolIndex, slot) => (
+                        <TestimonialCard
+                            key={`slot-${slot}`}
+                            testimonial={shuffledPool[poolIndex]}
+                        />
+                    ))}
                 </div>
             </div>
         </section>
