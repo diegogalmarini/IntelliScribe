@@ -63,13 +63,13 @@ export const Testimonials: React.FC = () => {
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[420px]">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                     {[0, 1, 2].map((slot) => {
                         const testimonial = shuffledPool[slotIndices[slot]];
                         if (!testimonial) return null;
 
                         return (
-                            <div key={`slot-${slot}`} className="relative h-full">
+                            <div key={`slot-${slot}`} className="relative">
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={testimonial.id}
@@ -80,7 +80,7 @@ export const Testimonials: React.FC = () => {
                                             duration: 0.8,
                                             ease: "easeInOut"
                                         }}
-                                        className="bg-white dark:bg-background-dark p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 flex flex-col h-full relative"
+                                        className="bg-white dark:bg-background-dark p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5 flex flex-col relative"
                                     >
                                         <div className="flex items-center gap-4 mb-6">
                                             <div className="relative">
@@ -92,16 +92,14 @@ export const Testimonials: React.FC = () => {
                                                         (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(testimonial.name)}&background=random`;
                                                     }}
                                                 />
-                                                <div className="absolute -bottom-1 -right-1 bg-green-500 size-3 rounded-full border-2 border-white dark:border-background-dark" title="Usuario Verificado" />
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900 dark:text-white text-sm">{testimonial.name}</h4>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{testimonial.role}</p>
+                                            <div className="flex flex-col">
+                                                <h4 className="font-bold text-slate-900 dark:text-white text-sm leading-tight">{testimonial.name}</h4>
+                                                <p className="text-[0.7rem] text-slate-500 font-bold uppercase tracking-tight mt-0.5">{testimonial.role}</p>
                                             </div>
                                         </div>
 
                                         <div className="flex gap-0.5 mb-4 items-center">
-                                            <span className="text-amber-500 font-bold text-xs mr-2">{testimonial.stars}.0</span>
                                             <div className="flex gap-0.5">
                                                 {Array.from({ length: 5 }).map((_, s) => (
                                                     <span
@@ -118,7 +116,7 @@ export const Testimonials: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm font-medium italic italic-quote flex-1">
+                                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm font-medium italic italic-quote">
                                             "{testimonial.body}"
                                         </p>
                                     </motion.div>
