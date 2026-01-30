@@ -380,6 +380,16 @@ const AppContent: React.FC = () => {
         setIsLoadingData(true);
         try {
             console.log(`[DEBUG] Fetching data for user: ${supabaseUser.id}`);
+
+            // CHECK FOR UNFINISHED RECORDINGS IN INDEXEDDB
+            const { recordingStorage } = await import('./services/recordingStorage');
+            const unfinished = await recordingStorage.getUnfinishedRecordings();
+            if (unfinished.length > 0) {
+                console.log(`[App] Found ${unfinished.length} unfinished recordings. Attempting recovery...`);
+                // For now, we just log it and perhaps we could show a toast or automatic recovery
+                // In a future phase, we could show a modal to the user
+            }
+
             const [dbFolders, dbRecordings] = await Promise.all([
                 databaseService.getFolders(supabaseUser.id),
                 databaseService.getRecordings(supabaseUser.id)

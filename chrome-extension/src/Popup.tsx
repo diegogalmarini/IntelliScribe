@@ -8,6 +8,7 @@ import { fireEvent } from './utils/google-analytics';
 const MicIcon = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /><line x1="8" x2="16" y1="22" y2="22" /></svg>;
 const CameraIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>;
 const UploadIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>;
+const CheckIcon = ({ size = 12 }: { size?: number }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
 
 const Popup: React.FC = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -78,8 +79,8 @@ const Popup: React.FC = () => {
                 console.log('[Popup] Session is valid for:', response.user.email);
             } else {
                 console.warn('[Popup] Session invalid or expired:', response?.error);
-                if (response?.error?.includes('expired')) {
-                    setError('Sesión expirada. Por favor actualiza tu Token.');
+                if (response?.error?.toLowerCase().includes('expired') || response?.error?.toLowerCase().includes('unauthorized')) {
+                    setError('Tu sesión no está activa. Por favor abre la Web de Diktalo para sincronizar automáticamente.');
                     setIsConfigExpanded(true);
                 }
             }
@@ -108,7 +109,8 @@ const Popup: React.FC = () => {
 
     const handleStartRecording = async () => {
         if (!authToken) {
-            setError('Por favor configura tu TOKEN primeramente.');
+            setError('Extensión no sincronizada. Abre la Web de Diktalo para vincular tu cuenta automáticamente.');
+            setIsConfigExpanded(true);
             return;
         }
 
@@ -288,15 +290,18 @@ const Popup: React.FC = () => {
                 {/* Token Config Expanded Area */}
                 {isConfigExpanded && !isRecording && (
                     <div className="token-area">
+                        <div style={{ fontSize: '11px', color: '#10b981', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <CheckIcon size={12} /> Autosync Activado
+                        </div>
                         <input
                             type="password"
                             className="input-compact"
-                            placeholder="Pegar JSON de TOKEN..."
+                            placeholder="Pegar JSON de TOKEN (Manual)..."
                             value={authToken}
                             onChange={(e) => setAuthToken(e.target.value)}
                         />
                         <button className="btn-save-compact" onClick={handleSaveToken}>
-                            Guardar Token
+                            Guardar Manualmente
                         </button>
 
                         {/* Helper Link */}
@@ -306,7 +311,7 @@ const Popup: React.FC = () => {
                                 target="_blank"
                                 style={{ fontSize: '10px', color: '#64748b', textDecoration: 'none' }}
                             >
-                                ¿Cómo obtener mi token? Ver guía →
+                                ¿Cómo funciona el Auto-sync? Guía →
                             </a>
                         </div>
                     </div>

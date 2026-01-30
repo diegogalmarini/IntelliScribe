@@ -43,3 +43,17 @@ Este documento registra la evolución del proyecto durante la **Fase 4: Búsqued
     - **Detail View Deletion:** Reparado el flujo de borrado en la vista de detalle de grabaciones; ahora se sincroniza correctamente con la base de datos y la barra lateral.
 - **Auditoría de Sistema:** Realizada revisión técnica completa (Frontend/Backend/APIs) para asegurar la integridad previa al despliegue masivo. Lanzamiento aprobado.
 - **GitHub Sync:** Todas las mejoras integradas en la rama `main`.
+
+---
+
+## 📅 30 Enero 2026: Modernización del Núcleo de IA
+
+### 🤖 Migración a Gemini 2.5 Flash & Pro (Estable)
+**Objetivo:** Asegurar la longevidad del sistema y mejorar la calidad de las respuestas antes de la depreciación de Gemini 2.0.
+
+- **Auditoría de Modelos:** Identificada dependencia de modelos experimentales (`gemini-2.0-flash-exp`). Se detectó que Google dará de baja estas versiones el 31 de marzo de 2026.
+- **Actualización a Producción (v2.5):**
+    - **Motor de Procesamiento:** Implementado **Gemini 2.5 Flash** para transcripciones, resúmenes automáticos y el bot de soporte. Esto garantiza estabilidad y menor latencia.
+    - **Mejora de Inteligencia (Chat):** Actualizado el modelo de chat a **Gemini 2.5 Pro**, habilitando un razonamiento superior para análisis complejos de grabaciones y una ventana de contexto de 1M de tokens.
+- **Robustez del Servicio:** Refinada la lógica de *fallback* en el backend (`api/ai.ts`) para priorizar modelos estables y asegurar continuidad de servicio.
+- **Documentación Técnica:** Creado análisis profundo sobre la hoja de ruta de Google Gemini (v2.5, v3) y recomendaciones para futuras integraciones.

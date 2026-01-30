@@ -7,15 +7,15 @@ import path from 'path';
 const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
     modelPriorities: [
-        'gemini-2.0-flash-exp',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro'
+        'gemini-2.5-flash',
+        'gemini-2.5-pro',
+        'gemini-1.5-flash'
     ],
     actions: {
-        summary: { preferredModel: 'gemini-2.0-flash-exp', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-2.0-flash-exp', temperature: 0.8 },
-        support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 },
-        transcription: { preferredModel: 'gemini-2.0-flash-exp', temperature: 0.1 },
+        summary: { preferredModel: 'gemini-2.5-flash', temperature: 0.7 },
+        chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
+        support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 },
+        transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 },
         embed: { preferredModel: 'text-embedding-004' }
     }
 };
