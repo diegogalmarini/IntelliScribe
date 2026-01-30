@@ -40,9 +40,9 @@ const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }
                                 }}
                             />
                         </div>
-                        <div className="flex flex-col">
-                            <h4 className="font-bold text-slate-900 dark:text-white text-sm leading-none">{testimonial.name}</h4>
-                            <p className="text-[0.7rem] text-slate-500 font-bold uppercase tracking-tight mt-0.5">{testimonial.role}</p>
+                        <div className="flex flex-col justify-center">
+                            <div className="font-bold text-slate-900 dark:text-white text-sm leading-none">{testimonial.name}</div>
+                            <div className="text-[0.7rem] text-slate-500 font-bold uppercase tracking-tight leading-none mt-0.5">{testimonial.role}</div>
                         </div>
                     </div>
 
