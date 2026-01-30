@@ -15,6 +15,43 @@ import { Navbar } from '../components/Landing/Navbar';
 import { UserProfile } from '../types';
 import * as Analytics from '../utils/analytics';
 
+const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <div
+            className={`group border-b border-slate-100 dark:border-white/5 transition-all duration-300 ${isOpen ? 'pb-6' : 'pb-0'}`}
+        >
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full py-6 flex items-center justify-between text-left focus:outline-none"
+            >
+                <h4 className={`text-base md:text-lg font-bold transition-colors duration-300 ${isOpen ? 'text-primary' : 'text-slate-900 dark:text-white group-hover:text-primary'}`}>
+                    {question}
+                </h4>
+                <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-primary text-white rotate-45' : 'bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary'}`}>
+                    <span className="material-symbols-outlined text-[20px]">add</span>
+                </div>
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                    >
+                        <p className="text-sm md:text-[15px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium pr-12">
+                            {answer}
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t } = useLanguage();
     const { scrollYProgress } = useScroll();
@@ -63,23 +100,24 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                 <Testimonials />
 
                 <section id="faq" className="py-24 bg-white dark:bg-background-dark relative overflow-hidden">
-                    <div className="max-w-4xl mx-auto px-4 relative z-10">
+                    <div className="max-w-7xl mx-auto px-4 relative z-10">
                         <div className="text-center mb-16">
-                            <p className="text-xs font-bold text-slate-500 mb-3">{t('landing_faq_title')}</p>
-                            <h3 className="h2 home text-slate-900 dark:text-white">{t('landing_faq_title')}</h3>
+                            <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">{t('faqHeader')}</p>
+                            <h3 className="h2 home text-slate-900 dark:text-white max-w-2xl mx-auto">{t('landing_faq_title')}</h3>
                         </div>
-                        <div className="space-y-4">
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4 items-start">
                             {[
                                 { q: t('faqPrivQ'), a: t('faqPrivA') },
                                 { q: t('faqHardwareQ'), a: t('faqHardwareA') },
                                 { q: t('faqPlansQ'), a: t('faqPlansA') },
                                 { q: t('faqExportQ'), a: t('faqExportA') },
-                                { q: t('faqTeamQ'), a: t('faqTeamA') }
+                                { q: t('faqTeamQ'), a: t('faqTeamA') },
+                                { q: t('faqLanguagesQ'), a: t('faqLanguagesA') },
+                                { q: t('faqExtensionQ'), a: t('faqExtensionA') },
+                                { q: t('faqIntegrationsQ'), a: t('faqIntegrationsA') }
                             ].map((item, idx) => (
-                                <div key={idx} className="p-6 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl transition-all hover:bg-white dark:hover:bg-white/10">
-                                    <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">{item.q}</h4>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{item.a}</p>
-                                </div>
+                                <FAQItem key={idx} question={item.q} answer={item.a} />
                             ))}
                         </div>
                     </div>
