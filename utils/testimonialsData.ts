@@ -210,7 +210,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "26",
-        name: "Chris Evans",
+        name: "Christopher E.",
         role: "Agile Coach",
         body: "Retrospectives are finally documented without being boring. The AI-generated action items are remarkably on point. Team alignment has never been clearer.",
         image: "https://xsgames.co/randomusers/assets/avatars/male/26.jpg",
@@ -338,7 +338,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "42",
-        name: "Mariah Carey",
+        name: "Mariah J.",
         role: "Music Producer",
         body: "Capturing lyrical ideas and melody notes instantly is key. The cloud sync between my phone and studio computer works perfectly. It's how I write now.",
         image: "https://xsgames.co/randomusers/assets/avatars/female/42.jpg",
@@ -346,7 +346,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "43",
-        name: "Luis Figo",
+        name: "Luis F.",
         role: "Co-founder, Sports Analytics",
         body: "Nuestras reuniones tácticas ahora se quedan grabadas.",
         image: "https://xsgames.co/randomusers/assets/avatars/male/43.jpg",
@@ -354,7 +354,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "44",
-        name: "Samantha Fox",
+        name: "Samantha F.",
         role: "Public Relations Officer",
         body: "In a PR crisis, every word matters. Diktalo provides the verbatim record we need for fact-checking and official statements. Essential for crisis management at scale.",
         image: "https://xsgames.co/randomusers/assets/avatars/female/44.jpg",
@@ -386,7 +386,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "48",
-        name: "Oliver Twist",
+        name: "Oliver T.",
         role: "Archive Specialist",
         body: "Digitizing old voice records and indexing them by content? Impressive bulk handling.",
         image: "https://xsgames.co/randomusers/assets/avatars/male/48.jpg",
@@ -402,7 +402,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "50",
-        name: "Will Smithson",
+        name: "Will S.",
         role: "Junior Broker",
         body: "Diktalo is my secret vault of knowledge.",
         image: "https://xsgames.co/randomusers/assets/avatars/male/50.jpg",
@@ -418,7 +418,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "52",
-        name: "Barry Allen",
+        name: "Barry A.",
         role: "Forensic Accountant",
         body: "The search capability is king. Finding a specific figure mentioned in a 3-hour audit call takes seconds now. My billing reviews are 90% faster.",
         image: "https://xsgames.co/randomusers/assets/avatars/male/52.jpg",
@@ -434,7 +434,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "54",
-        name: "Liam Neeson",
+        name: "Liam N.",
         role: "Security Consultant",
         body: "Data sovereignty is a must for us. Diktalo's approach to encryption and private cloud sync is exactly what we needed. I've audited many tools, this one is legit.",
         image: "https://xsgames.co/randomusers/assets/avatars/male/54.jpg",
@@ -450,7 +450,7 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "56",
-        name: "Zoe Kravitz",
+        name: "Zoe K.",
         role: "Creative Director",
         body: "Vibe is everything. Diktalo lets me capture the vibe of a meeting without the sterility of minute-taking. It keeps the creative juice flowing without interruption.",
         image: "https://xsgames.co/randomusers/assets/avatars/female/56.jpg",
@@ -458,10 +458,10 @@ export const testimonialsData: Testimonial[] = [
     },
     {
         id: "57",
-        name: "Pablo Motos",
+        name: "Javier M.",
         role: "Presentador TV",
         body: "Lo usamos para preparar las entrevistas. Súper rápido.",
-        image: "https://xsgames.co/randomusers/assets/avatars/male/57.jpg",
+        image: "https://xsgames.co/randomusers/assets/avatars/male/71.jpg",
         stars: 5
     }
 ];
