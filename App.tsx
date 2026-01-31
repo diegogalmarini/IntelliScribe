@@ -36,6 +36,7 @@ import { Cookies } from './pages/legal/Cookies';
 import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { Roadmap } from './pages/Roadmap';
+import { Blog } from './pages/Blog';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import * as Analytics from './utils/analytics';
@@ -69,6 +70,7 @@ const AppContent: React.FC = () => {
         if (path === '/contact') return AppRoute.CONTACT;
         if (path === '/about') return AppRoute.ABOUT;
         if (path === '/roadmap') return AppRoute.ROADMAP;
+        if (path === '/blog' || path.startsWith('/blog/')) return path.includes('/', 6) ? AppRoute.BLOG_POST : AppRoute.BLOG;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         if (path === '/intelligence') return AppRoute.INTELLIGENCE;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
@@ -141,6 +143,8 @@ const AppContent: React.FC = () => {
             [AppRoute.PRIVACY]: `${language === 'en' ? 'Privacy' : 'Privacidad'} | Diktalo`,
             [AppRoute.RESET_PASSWORD]: `${language === 'en' ? 'Reset Password' : 'Restablecer Contraseña'} | Diktalo`,
             [AppRoute.ROADMAP]: `Roadmap | Diktalo`,
+            [AppRoute.BLOG]: `Blog | Diktalo`,
+            [AppRoute.BLOG_POST]: `Artículos | Diktalo`,
         };
 
         const newTitle = routeTitles[currentRoute] || 'Diktalo';
@@ -191,6 +195,7 @@ const AppContent: React.FC = () => {
         else if (path === '/admin/plans') newRoute = AppRoute.ADMIN_PLANS;
         else if (path === '/contact') newRoute = AppRoute.CONTACT;
         else if (path === '/roadmap') newRoute = AppRoute.ROADMAP;
+        else if (path === '/blog' || path.startsWith('/blog/')) newRoute = path.includes('/', 6) ? AppRoute.BLOG_POST : AppRoute.BLOG;
 
         if (newRoute !== currentRoute) {
             setCurrentRoute(newRoute);
@@ -645,7 +650,9 @@ const AppContent: React.FC = () => {
             [AppRoute.ADMIN_PLANS]: '/admin/plans',
             [AppRoute.CONTACT]: '/contact',
             [AppRoute.ABOUT]: '/about',
-            [AppRoute.ROADMAP]: '/roadmap'
+            [AppRoute.ROADMAP]: '/roadmap',
+            [AppRoute.BLOG]: '/blog',
+            [AppRoute.BLOG_POST]: '/blog' // Detail is handled by params
         };
 
         if (pathMap[route]) {
@@ -769,6 +776,7 @@ const AppContent: React.FC = () => {
         if (currentRoute === AppRoute.COOKIES) return <Cookies />;
         if (currentRoute === AppRoute.ABOUT) return <About user={user} />;
         if (currentRoute === AppRoute.ROADMAP) return <Roadmap user={user} />;
+        if (currentRoute === AppRoute.BLOG || currentRoute === AppRoute.BLOG_POST) return <Blog user={user} />;
         if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onNavigate={navigate} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 
