@@ -159,7 +159,9 @@ export enum AppRoute {
   PRICING_COMPARISON = 'pricing-comparison', // NEW
   CONTACT = 'contact', // NEW
   ABOUT = 'about',
-  ROADMAP = 'roadmap'
+  ROADMAP = 'roadmap',
+  BLOG = 'blog',
+  BLOG_POST = 'blog-post'
 }
 
 // ========== ADMIN TYPES ==========

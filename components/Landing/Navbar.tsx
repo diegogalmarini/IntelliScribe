@@ -72,7 +72,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                             <button onClick={() => handleNavClick('solutions')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_solutions')}</button>
                             <button onClick={() => handleNavClick('pricing')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_plans')}</button>
                             <button onClick={() => handleNavClick('faq')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</button>
-                            <button onClick={() => handleNavClick('blog')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Blog</button>
+                            <button onClick={() => navigate('/blog')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Blog</button>
                             <button onClick={() => navigate('/contact')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_contact')}</button>
                         </nav>
 
