@@ -51,6 +51,65 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     </motion.div>
                 </section>
 
+                {/* Why Choose Section */}
+                <section className="max-w-7xl mx-auto px-4 mb-32">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[3rem] p-12 md:p-20 shadow-2xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full -mr-48 -mt-48 transition-colors"></div>
+
+                        <div className="relative z-10">
+                            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-10 leading-tight">
+                                {t('why_title')}
+                            </h2>
+                            <div className="space-y-6">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        className="flex items-start gap-4 group"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
+                                            <span className="material-symbols-outlined font-bold">check</span>
+                                        </div>
+                                        <p className="text-lg font-bold text-slate-700 dark:text-slate-200 pt-1">
+                                            {t(`why_item${i}` as any)}
+                                        </p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="relative z-10 bg-gradient-brand p-10 rounded-[2.5rem] shadow-xl text-white">
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="px-3 py-1 rounded-full bg-white/20 text-[0.65rem] font-black uppercase tracking-widest leading-none">Limitado</span>
+                            </div>
+                            <h3 className="text-3xl font-black mb-4">
+                                {t('early_title')}
+                            </h3>
+                            <p className="text-blue-100 font-medium mb-8 leading-relaxed">
+                                {t('early_desc')}
+                            </p>
+
+                            <div className="bg-white/10 p-6 rounded-2xl border border-white/20 mb-8">
+                                <p className="text-sm font-bold mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-sm">share</span>
+                                    {t('early_action')}
+                                </p>
+                                <div className="flex gap-2">
+                                    <button className="flex-1 py-3 bg-white text-primary font-black rounded-xl text-sm shadow-sm hover:bg-blue-50 transition-all">
+                                        {t('early_cta')}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <p className="text-[0.65rem] text-blue-200/60 font-medium uppercase tracking-tighter">
+                                * Código aplicado automáticamente en el checkout de Stripe tras verificar acción.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Team Section */}
                 <section className="max-w-7xl mx-auto px-4 mb-32">
                     <h2 className="h2 home text-slate-900 dark:text-white text-center mb-16 underline decoration-primary/30 decoration-4 underline-offset-8">
