@@ -25,6 +25,7 @@ export const Footer: React.FC = () => {
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('navFeatures')}</h4>
                     <a href="#features" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('feat1Title')}</a>
                     <a href="#features" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('feat2Title')}</a>
+                    <a href="/roadmap" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('roadmap_title')}</a>
                     <a href="#pricing" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('navPricing')}</a>
                 </div>
 

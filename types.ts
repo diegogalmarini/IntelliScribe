@@ -158,7 +158,8 @@ export enum AppRoute {
   COOKIES = 'cookies',
   PRICING_COMPARISON = 'pricing-comparison', // NEW
   CONTACT = 'contact', // NEW
-  ABOUT = 'about'
+  ABOUT = 'about',
+  ROADMAP = 'roadmap'
 }
 
 // ========== ADMIN TYPES ==========
