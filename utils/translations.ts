@@ -618,7 +618,7 @@ export const translations = {
     heroTitle: "Master Your Conversations with Global AI",
     heroSubtitle: "Integrated VoIP calls, 112+ languages, and enterprise-grade transcription. Your invisible assistant for meetings and calls, no hardware required.",
     heroCTA: "Start for Free",
-    heroReview: "Trusted by 10,000+ professionals worldwide",
+    heroReview: "Used by professionals in Spain and Europe",
 
     // Hero Metrics
     metricMins: "Minutes Transcribed",
@@ -723,8 +723,8 @@ export const translations = {
     hero_subtitle: "Record on mobile, decide on web. Diktalo unifies calls, recordings, and tasks into a single operating system of intelligence.",
     hero_cta_start: "Start for Free",
     hero_cta_demo: "Watch Demo",
-    hero_badge_compliance: "SOC2 & GDPR Ready",
-    hero_badge_mobile: "iOS & Android PWA",
+    hero_badge_compliance: "GDPR Compliant · AES-256 Encryption",
+    hero_badge_mobile: "Works on any mobile, no install required",
     hero_badge_desktop: "Web Desktop",
 
     // Landing Page (NEW)
@@ -1619,7 +1619,7 @@ export const translations = {
     heroTitle: "Domina tus Conversaciones con IA Global",
     heroSubtitle: "Llamadas VoIP integradas, más de 112 idiomas y transcripción de nivel empresarial. Tu asistente invisible para reuniones y llamadas, sin hardware adicional.",
     heroCTA: "Comenzar Gratis",
-    heroReview: "Confiado por más de 10,000 profesionales en todo el mundo",
+    heroReview: "Usado por profesionales en España y Europa",
 
     // Hero Metrics
     metricMins: "Minutos Transcritos",
@@ -1723,8 +1723,8 @@ export const translations = {
     hero_subtitle: "Graba en el móvil, decide en la web. Diktalo unifica llamadas, grabaciones y tareas en un solo sistema operativo de inteligencia.",
     hero_cta_start: "Empezar gratis",
     hero_cta_demo: "Ver demo",
-    hero_badge_compliance: "SOC2 & GDPR Ready",
-    hero_badge_mobile: "iOS & Android PWA",
+    hero_badge_compliance: "GDPR Compliant · Encriptación AES-256",
+    hero_badge_mobile: "Funciona en cualquier móvil, sin instalar nada",
     hero_badge_desktop: "Web Desktop",
 
     // Landing Page (NEW)
