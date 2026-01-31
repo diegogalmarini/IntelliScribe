@@ -17,7 +17,7 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
             name: "Nati Pol",
             role: t('about_nati_role'),
             bio: t('about_nati_bio'),
-            image: "/images/nati-pol.png",
+            image: "/images/nati-pol.webp",
             skills: ["BANT Analysis", "CRM Integration", "Nordic Hiking"]
         },
         {
