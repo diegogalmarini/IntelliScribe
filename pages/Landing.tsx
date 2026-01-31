@@ -14,6 +14,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { Navbar } from '../components/Landing/Navbar';
 import { UserProfile } from '../types';
 import * as Analytics from '../utils/analytics';
+import { faqPool, FAQItemData } from '../utils/faqData';
 
 const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onToggle: () => void }> = ({ question, answer, isOpen, onToggle }) => {
     return (
@@ -51,9 +52,34 @@ const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onT
 };
 
 export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
+    const [selectedFaqs, setSelectedFaqs] = React.useState<FAQItemData[]>([]);
     const { scrollYProgress } = useScroll();
+
+    // Intelligent FAQ Selection Logic
+    useEffect(() => {
+        // 1. Sort by priority
+        const sorted = [...faqPool].sort((a, b) => b.priority - a.priority);
+
+        // 2. Separate into tiers
+        const essentials = sorted.slice(0, 10); // Top 10 by priority
+        const rest = sorted.slice(10);
+
+        const finalSelection: FAQItemData[] = [];
+
+        // Pick 6 from top priority (Essentials/Trending)
+        const essentialSample = [...essentials].sort(() => 0.5 - Math.random()).slice(0, 6);
+        finalSelection.push(...essentialSample);
+
+        // Pick 8 from the rest (Discovery)
+        const discoverySample = [...rest].sort(() => 0.5 - Math.random()).slice(0, 8);
+        finalSelection.push(...discoverySample);
+
+        // Shuffle the final 14 for true variety
+        setSelectedFaqs(finalSelection.sort(() => 0.5 - Math.random()));
+    }, []);
+
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
@@ -106,26 +132,11 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4 items-start">
-                            {[
-                                { q: t('faqPrivQ'), a: t('faqPrivA') },
-                                { q: t('faqHardwareQ'), a: t('faqHardwareA') },
-                                { q: t('faqPlansQ'), a: t('faqPlansA') },
-                                { q: t('faqExportQ'), a: t('faqExportA') },
-                                { q: t('faqTeamQ'), a: t('faqTeamA') },
-                                { q: t('faqLanguagesQ'), a: t('faqLanguagesA') },
-                                { q: t('faqExtensionQ'), a: t('faqExtensionA') },
-                                { q: t('faqIntegrationsQ'), a: t('faqIntegrationsA') },
-                                { q: t('faqDiarizationQ'), a: t('faqDiarizationA') },
-                                { q: t('faqMobileQ'), a: t('faqMobileA') },
-                                { q: t('faqTrainingQ'), a: t('faqTrainingA') },
-                                { q: t('faqUploadLimitQ'), a: t('faqUploadLimitA') },
-                                { q: t('faqSupportQ'), a: t('faqSupportA') },
-                                { q: t('faqBillingChangeQ'), a: t('faqBillingChangeA') }
-                            ].map((item, idx) => (
+                            {selectedFaqs.map((item, idx) => (
                                 <FAQItem
-                                    key={idx}
-                                    question={item.q}
-                                    answer={item.a}
+                                    key={item.id}
+                                    question={language === 'es' ? item.es.question : item.en.question}
+                                    answer={language === 'es' ? item.es.answer : item.en.answer}
                                     isOpen={openFaqIndex === idx}
                                     onToggle={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
                                 />
