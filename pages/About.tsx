@@ -93,6 +93,48 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     </div>
                 </section>
 
+                {/* Roadmap Section */}
+                <section className="max-w-7xl mx-auto px-4 mb-32">
+                    <div className="bg-slate-50 dark:bg-white/5 rounded-[3rem] p-12 md:p-20 border border-slate-200 dark:border-white/10">
+                        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
+                            <div className="max-w-xl">
+                                <h2 className="h2 home text-slate-900 dark:text-white mb-6">
+                                    {t('roadmap_title')}
+                                </h2>
+                                <p className="text-slate-600 dark:text-slate-400 font-medium">
+                                    {t('roadmap_subtitle')}
+                                </p>
+                            </div>
+                            <a href="/roadmap" className="px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:shadow-primary/20 transition-all">
+                                Ver Detalles
+                            </a>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <div className="text-primary font-black mb-2">Q1</div>
+                                <div className="text-slate-900 dark:text-white font-bold mb-2">Beta Pública ✅</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400">{t('roadmap_q1_title')}</div>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <div className="text-primary font-black mb-2">Q2</div>
+                                <div className="text-slate-900 dark:text-white font-bold mb-2">SOC 2 Type II 🔄</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400">{t('roadmap_q2_title')}</div>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <div className="text-primary font-black mb-2">Q3</div>
+                                <div className="text-slate-900 dark:text-white font-bold mb-2">Developer API ⏳</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400">{t('roadmap_q3_title')}</div>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <div className="text-primary font-black mb-2">Q4</div>
+                                <div className="text-slate-900 dark:text-white font-bold mb-2">Integraciones ⏳</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400">{t('roadmap_q4_title')}</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Philosophy Section */}
                 <section className="max-w-5xl mx-auto px-4">
                     <motion.div
