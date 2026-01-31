@@ -177,12 +177,12 @@ export const Roadmap: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     <div className="p-12 rounded-[3rem] bg-gradient-brand text-white shadow-2xl relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
                         <div className="relative z-10">
-                            <h2 className="text-3xl font-black mb-6">Want to suggest a feature?</h2>
+                            <h2 className="text-3xl font-black mb-6">{t('roadmap_suggest_title')}</h2>
                             <p className="text-blue-100 mb-10 max-w-md mx-auto font-medium">
-                                We're building Diktalo for you. Join our beta community and help us shape the future of AI intelligence.
+                                {t('roadmap_suggest_desc')}
                             </p>
                             <button className="px-8 py-4 bg-white text-primary font-black rounded-2xl hover:bg-blue-50 transition-colors shadow-lg">
-                                Join Beta Community
+                                {t('roadmap_suggest_cta')}
                             </button>
                         </div>
                     </div>

@@ -802,7 +802,7 @@ export const translations = {
     // Roadmap Page
     roadmap_title: "Product Roadmap 2026",
     roadmap_subtitle: "Transparent and ambitious. Follow our journey to redefine conversational intelligence.",
-    roadmap_q1_title: "Beta pública",
+    roadmap_q1_title: "Public Beta",
     roadmap_q1_date: "2026 Q1",
     roadmap_q1_desc: "Opening Diktalo to all professionals with multi-audio, Voip Dialer, and Ghostwire support.",
     roadmap_q2_title: "SOC 2 Type II",
@@ -817,6 +817,22 @@ export const translations = {
     roadmap_status_done: "Done",
     roadmap_status_progress: "In Progress",
     roadmap_status_upcoming: "Upcoming",
+
+    // Why Choose Diktalo
+    why_title: "Why choose Diktalo?",
+    why_item1: "Created by someone who understands the problem",
+    why_item2: "Real privacy: your data never trains AI",
+    why_item3: "Integrated telephony, no other app needed",
+    why_item4: "Direct support with the founder",
+
+    // Early Adopter Offer
+    early_title: "Early Adopter Plan",
+    early_desc: "50% discount for the first 100 users.",
+    early_action: "Share on social media to get your code",
+    early_cta: "Get My 50% Off",
+    roadmap_suggest_title: "Want to suggest a feature?",
+    roadmap_suggest_desc: "We're building Diktalo for you. Join our beta community and help us shape the future of AI intelligence.",
+    roadmap_suggest_cta: "Join Beta Community",
     privacy_s1_desc: "We collect information to provide, improve, and protect our Services.",
     privacy_s1_sub1_title: "1.1 Information you provide",
     privacy_s1_sub1_li1: "Account Information: When you register, we collect your name, email address, password (encrypted), and optionally your phone number and profile picture.",
@@ -2001,7 +2017,7 @@ export const translations = {
     // Roadmap Page
     roadmap_title: "Hoja de Ruta 2026",
     roadmap_subtitle: "Transparente y ambicioso. Sigue nuestra evolución para redefinir la inteligencia conversacional.",
-    roadmap_q1_title: "Beta pública",
+    roadmap_q1_title: "Beta Pública",
     roadmap_q1_date: "2026 Q1",
     roadmap_q1_desc: "Diktalo abierto a todos los profesionales con soporte para multi-audio, Marcador VoIP y Ghostwire.",
     roadmap_q2_title: "SOC 2 Type II",
@@ -2010,11 +2026,27 @@ export const translations = {
     roadmap_q3_title: "API para desarrolladores",
     roadmap_q3_date: "2026 Q3",
     roadmap_q3_desc: "Permitiendo a los desarrolladores construir flujos de inteligencia personalizados usando el motor de Diktalo.",
-    roadmap_q4_title: "Integraciones nativas",
+    roadmap_q4_title: "Integraciones Nativas",
     roadmap_q4_date: "2026 Q4",
     roadmap_q4_desc: "Sincronización directa y bidireccional con Salesforce, HubSpot y Microsoft Dynamics.",
     roadmap_status_done: "Completado",
     roadmap_status_progress: "En curso",
     roadmap_status_upcoming: "Próximamente",
+
+    // Why Choose Diktalo
+    why_title: "¿Por qué elegir Diktalo?",
+    why_item1: "Creado por alguien que entiende el problema",
+    why_item2: "Privacidad real: tus datos nunca entrenan IA",
+    why_item3: "Telefonía integrada, no necesitas otra app",
+    why_item4: "Soporte directo con el fundador",
+
+    // Early Adopter Offer
+    early_title: "Plan 'Early Adopter'",
+    early_desc: "50% de descuento para los primeros 100 usuarios.",
+    early_action: "Comparte la app en RRSS para recibir tu código",
+    early_cta: "Conseguir mi 50%",
+    roadmap_suggest_title: "¿Quieres sugerir una función?",
+    roadmap_suggest_desc: "Estamos construyendo Diktalo para ti. Únete a nuestra comunidad beta y ayúdanos a dar forma al futuro de la inteligencia artificial.",
+    roadmap_suggest_cta: "Unirme a la Comunidad Beta",
   }
 };
