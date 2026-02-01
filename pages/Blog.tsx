@@ -220,6 +220,12 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
 
     const renderPost = (post: BlogPost) => (
         <div className="pt-32 pb-24">
+            {post.jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: post.jsonLd }}
+                />
+            )}
             <div className="max-w-4xl mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, x: -10 }}
