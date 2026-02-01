@@ -248,6 +248,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
 
+          {/* Current Plan Section (Clickable) */}
+          <div className="mx-3 mb-3">
+            <button
+              onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
+              className="w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 border border-slate-200 dark:border-border-dark rounded-xl p-4 hover:shadow-md transition-all group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  {t('currentPlan') || 'Plan Actual'}
+                </span>
+                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-[16px]">
+                  arrow_forward
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`size-2 rounded-full ${user.subscription.planId === 'pro' ? 'bg-brand-violet' : user.subscription.planId === 'business' ? 'bg-brand-blue' : user.subscription.planId === 'business_plus' ? 'bg-brand-green' : 'bg-brand-grey'}`}></span>
+                <p className="text-sm font-bold text-slate-900 dark:text-white uppercase">
+                  {user.subscription.planId === 'pro' ? t('planPro') : user.subscription.planId === 'business' ? t('planBiz') : user.subscription.planId === 'business_plus' ? t('planBizPlus') : t('planFree')}
+                </p>
+              </div>
+            </button>
+          </div>
+
           {/* Usage Stats (Freemium Feature) */}
           <div className="mx-3 mt-2 mb-4 bg-slate-100 dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 group relative">
             <div className="flex items-center justify-between mb-2">
