@@ -42,11 +42,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         // Listen for changes on auth state (logged in, signed out, etc.)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (mounted) {
                 setSession(session);
                 setUser(session?.user ?? null);
                 setLoading(false);
+
+                // Track login activity
+                if (event === 'SIGNED_IN' && session?.user) {
+                    import('../utils/authTracking').then(({ trackLogin }) => {
+                        trackLogin(session.user.id);
+                    });
+                }
 
                 // --- EXTENSION SYNC BRIDGE ---
                 // Dispatch event for content script to pick up

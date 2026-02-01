@@ -158,6 +158,26 @@ export const Users: React.FC = () => {
         ? users
         : users.filter(u => u.planId === filterPlan);
 
+    const formatRelativeTime = (dateStr: string | null | undefined) => {
+        if (!dateStr) return 'Never';
+        try {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = now.getTime() - date.getTime();
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString();
+        } catch (e) {
+            return 'Invalid';
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -223,6 +243,7 @@ export const Users: React.FC = () => {
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Usage</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-red-500">Last Login</th>
                                 <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -344,8 +365,23 @@ export const Users: React.FC = () => {
                                             </span>
                                         </td>
 
-                                        <td className="px-6 py-4 text-sm text-slate-500">
+                                        <td className="px-6 py-4 text-sm text-slate-500 font-mono">
                                             {new Date(user.createdAt).toLocaleDateString()}
+                                        </td>
+
+                                        <td className="px-6 py-4 text-sm text-slate-500">
+                                            <div className="font-medium text-slate-700 dark:text-slate-300">
+                                                {formatRelativeTime(user.lastLoginAt)}
+                                            </div>
+                                            {user.lastDeviceType && (
+                                                <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                                                    <span className="material-symbols-outlined text-[10px] scale-75">
+                                                        {user.lastDeviceType === 'Mobile' ? 'smartphone' :
+                                                            user.lastDeviceType === 'Tablet' ? 'tablet' : 'desktop_windows'}
+                                                    </span>
+                                                    {user.lastDeviceType}
+                                                </div>
+                                            )}
                                         </td>
 
                                         <td className="px-6 py-4">

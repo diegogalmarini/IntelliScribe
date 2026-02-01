@@ -158,13 +158,98 @@ export const adminService = {
                 usagePercentage: profile.minutes_limit > 0
                     ? Math.round((profile.minutes_used / profile.minutes_limit) * 100)
                     : 0,
-                createdAt: profile.created_at
+                createdAt: profile.created_at,
+                lastLoginAt: profile.last_login_at,
+                lastDeviceType: profile.last_device_type
             }));
 
             return { users, total: count || 0 };
         } catch (error) {
             console.error('[adminService] Exception in getAllUsers:', error);
             return { users: [], total: 0 };
+        }
+    },
+
+    /**
+     * Get detailed analytics for the new dashboard
+     */
+    async getAnalyticsStats(): Promise<any> {
+        try {
+            // 1. Fetch Plan Distribution
+            const { data: profiles, error: pError } = await supabase
+                .from('profiles')
+                .select('plan_id, last_device_type, minutes_used, storage_used');
+
+            if (pError) throw pError;
+
+            // 2. Fetch Recording Stats (Chrome Extension, Multi-audio)
+            const { data: recordings, error: rError } = await supabase
+                .from('recordings')
+                .select('id, metadata, tags, status');
+
+            if (rError) throw rError;
+
+            // Aggregate Device Distribution
+            const devices: Record<string, number> = { Mobile: 0, Desktop: 0, Tablet: 0, Unknown: 0 };
+            profiles.forEach(p => {
+                const type = p.last_device_type || 'Unknown';
+                devices[type] = (devices[type] || 0) + 1;
+            });
+
+            // Aggregate Plan Distribution
+            const plans: Record<string, number> = { free: 0, pro: 0, business: 0, business_plus: 0 };
+            profiles.forEach(p => {
+                plans[p.plan_id || 'free'] = (plans[p.plan_id || 'free'] || 0) + 1;
+            });
+
+            // Feature Adoption
+            const extensionRecordings = recordings.filter(r =>
+                r.metadata?.source === 'chrome-extension' ||
+                (typeof r.metadata === 'string' && r.metadata.includes('chrome-extension'))
+            ).length;
+
+            const multiAudioRecordings = recordings.filter(r =>
+                r.metadata?.type === 'multi-audio' || r.metadata?.segments?.length > 1
+            ).length;
+
+            const liveRecordings = recordings.filter(r =>
+                r.tags?.includes('Captura en vivo') ||
+                r.tags?.includes('live') ||
+                r.description === 'Sesión de captura en vivo'
+            ).length;
+
+            const uploadRecordings = recordings.filter(r =>
+                r.tags?.includes('upload') || r.tags?.includes('manual')
+            ).length;
+
+            const usersWithRecordings = new Set(recordings.filter(r => r.user_id).map(r => r.user_id)).size;
+
+            return {
+                deviceDistribution: Object.entries(devices).map(([name, value]) => ({ name, value })),
+                planDistribution: Object.entries(plans).map(([name, value]) => {
+                    const total = profiles.length || 1;
+                    return {
+                        name,
+                        value,
+                        percentage: Math.round((value / total) * 100)
+                    };
+                }),
+                featureAdoption: {
+                    extensionUsage: extensionRecordings,
+                    multiAudioUsage: multiAudioRecordings,
+                    liveUsage: liveRecordings,
+                    uploadUsage: uploadRecordings,
+                    totalRecordings: recordings.length
+                },
+                usageMetrics: {
+                    totalMinutes: profiles.reduce((sum, p) => sum + (p.minutes_used || 0), 0),
+                    totalStorageGB: profiles.reduce((sum, p) => sum + (p.storage_used || 0), 0) / 1073741824,
+                    activeRecorders: usersWithRecordings
+                }
+            };
+        } catch (error) {
+            console.error('[adminService] Exception in getAnalyticsStats:', error);
+            return null;
         }
     },
 

@@ -5,6 +5,7 @@ import {
     Users,
     CreditCard,
     Tag,
+    BarChart,
     Menu,
     X,
     Shield,
@@ -51,6 +52,11 @@ export const AdminLayout: React.FC<Props> = ({
             route: AppRoute.ADMIN_PLANS,
             icon: Tag,
             label: 'Plans & Pricing',
+        },
+        {
+            route: AppRoute.ADMIN_ANALYTICS,
+            icon: BarChart,
+            label: 'Analytics',
         }
     ];
 
@@ -109,8 +115,8 @@ export const AdminLayout: React.FC<Props> = ({
                                     if (window.innerWidth < 768) setIsSidebarOpen(false);
                                 }}
                                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors ${isActive
-                                        ? 'bg-[#f0f0f0] dark:bg-[#1a1a1a] text-[#0d0d0d] dark:text-white font-medium'
-                                        : 'text-[#676767] dark:text-[#c5c5c5] hover:bg-[#f7f7f8] dark:hover:bg-white/[0.05]'
+                                    ? 'bg-[#f0f0f0] dark:bg-[#1a1a1a] text-[#0d0d0d] dark:text-white font-medium'
+                                    : 'text-[#676767] dark:text-[#c5c5c5] hover:bg-[#f7f7f8] dark:hover:bg-white/[0.05]'
                                     }`}
                             >
                                 <item.icon size={16} strokeWidth={isActive ? 2 : 1.5} />

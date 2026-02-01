@@ -131,6 +131,8 @@ export interface UserProfile {
   role: string;
   subscription: UserSubscription;
   createdAt?: string; // Account creation date for usage cycle calculation
+  lastLoginAt?: string; // ISO timestamp
+  lastDeviceType?: string; // Mobile, Desktop, Tablet, etc.
 }
 
 
@@ -153,6 +155,7 @@ export enum AppRoute {
   ADMIN_USERS = 'admin-users',
   ADMIN_FINANCIALS = 'admin-financials',
   ADMIN_PLANS = 'admin-plans', // <--- NUEVA RUTA AGREGADA
+  ADMIN_ANALYTICS = 'admin-analytics',
   INTELLIGENCE = 'intelligence', // NEW: Intelligence Dashboard (testing)
   TRUST = 'trust',
   COOKIES = 'cookies',
@@ -195,6 +198,8 @@ export interface AdminUser {
   storageLimit?: number;
   trialEndsAt?: string;
   createdAt: string;
+  lastLoginAt?: string;
+  lastDeviceType?: string;
 }
 
 export interface PhoneCall {
