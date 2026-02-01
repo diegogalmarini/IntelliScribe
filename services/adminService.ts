@@ -178,7 +178,9 @@ export const adminService = {
             // Call the serverless API (works both in local dev and production)
             const response = await fetch('/api/admin-stats');
             if (!response.ok) {
-                throw new Error(`Failed to fetch stats: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                console.error('[adminService] API Error:', response.status, errorData);
+                throw new Error(errorData.error || `Failed to fetch stats: ${response.statusText}`);
             }
             const data = await response.json();
 
