@@ -31,13 +31,9 @@ export const AdminLayout: React.FC<Props> = ({
 }) => {
     // Default open on desktop, closed on mobile (matching standard behavior if we want)
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Mobile state
+    const [isCollapsed, setIsCollapsed] = React.useState(false); // Desktop collapse state
 
     const navItems = [
-        {
-            route: AppRoute.ADMIN_OVERVIEW,
-            icon: LayoutDashboard,
-            label: 'Overview',
-        },
         { label: 'Overview', icon: LayoutDashboard, route: AppRoute.ADMIN_OVERVIEW },
         { label: 'Users', icon: Users, route: AppRoute.ADMIN_USERS },
         { label: 'Financials', icon: CreditCard, route: AppRoute.ADMIN_FINANCIALS },
