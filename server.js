@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import twilio from 'twilio';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { EmailTemplates } from './utils/emailTemplates.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -239,6 +240,61 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: err.message }));
             }
         });
+    } else if (req.url === '/api/send-email' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+            try {
+                const { type, payload, to } = JSON.parse(body);
+                console.log(`[API] Sending email type: ${type} to: ${to}`);
+
+                if (!resend) {
+                    console.warn('[API] Resend not configured. Mocking email send.');
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: true, mocked: true }));
+                    return;
+                }
+
+                let subject = '';
+                let html = '';
+
+                switch (type) {
+                    case 'new_recording':
+                        subject = '✨ Tu grabación está lista';
+                        html = EmailTemplates.newRecording(
+                            payload.userName,
+                            payload.recordingTitle,
+                            payload.duration,
+                            payload.date,
+                            payload.dashboardUrl
+                        );
+                        break;
+                    case 'welcome':
+                        subject = 'Bienvenido a Diktalo 🚀';
+                        html = EmailTemplates.welcome(payload.userName, payload.dashboardUrl);
+                        break;
+                    default:
+                        throw new Error('Invalid email type');
+                }
+
+                await resend.emails.send({
+                    from: 'Diktalo <noreply@diktalo.com>',
+                    to: [to],
+                    subject: subject,
+                    html: html
+                });
+
+                console.log('[API] Email sent successfully via Resend');
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true }));
+
+            } catch (err) {
+                console.error('Email Error:', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: err.message }));
+            }
+        });
+
     } else if (req.url === '/api/newsletter-subscribe' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -262,17 +318,18 @@ const server = http.createServer(async (req, res) => {
 
                 if (dbError) throw dbError;
 
+                const confirmLink = `http://localhost:5173/confirm-subscription?token=${data.confirmation_token}`;
+
                 if (resend) {
-                    const confirmLink = `http://localhost:5173/confirm-subscription?token=${data.confirmation_token}`;
                     await resend.emails.send({
                         from: 'Diktalo <noreply@diktalo.com>',
                         to: [email],
-                        subject: 'Confirma tu suscripción - Local Dev',
-                        html: `<p>Haz clic aquí para confirmar: <a href="${confirmLink}">${confirmLink}</a></p>`
+                        subject: 'Confirma tu suscripción',
+                        html: EmailTemplates.newsletterConfirmation(confirmLink)
                     });
-                    console.log('[API] Confirmation email sent (mock/resend)');
+                    console.log('[API] Confirmation email sent (Resend)');
                 } else {
-                    console.warn('[API] Resend not configured. Link:', `http://localhost:5173/confirm-subscription?token=${data.confirmation_token}`);
+                    console.warn('[API] Resend not configured. Confirmation Link:', confirmLink);
                 }
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });

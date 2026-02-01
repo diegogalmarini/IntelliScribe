@@ -60,6 +60,10 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
         {
             id: 'sophie_l',
             name: "Sophie Lefebvre",
+            role: "AI ETHICS & COMPLIANCE",
+            avatar: "/images/avatars/sophie.webp",
+            city: "PARIS",
+            languages: ["Francés", "Inglés", "Español"],
             bio: {
                 es: "Experta en ética empresarial y cumplimiento estricto de la privacidad de datos. Superviso que cada interacción en Diktalo respete los más altos estándares de seguridad. Especialista multilingüe enfocada en el impacto positivo de la tecnología.",
                 en: "Expert in business ethics and strict data privacy compliance. I oversee that every interaction in Diktalo respects the highest security standards. Multilingual specialist focused on the positive impact of technology."
