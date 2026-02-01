@@ -234,7 +234,7 @@ export const Users: React.FC = () => {
             {/* Users Table */}
             <div className="bg-white dark:bg-[#0A0D13] border border-slate-200 dark:border-[#1f1f1f] rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left border-separate border-spacing-0">
                         <thead>
                             <tr className="bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-[#1f1f1f]">
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
@@ -243,8 +243,8 @@ export const Users: React.FC = () => {
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Usage</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-red-500">Last Login</th>
-                                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-blue-500 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-[#1f1f1f]">Last Login</th>
+                                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider sticky right-0 bg-slate-50 dark:bg-[#050505] z-10 border-b border-l border-slate-200 dark:border-[#1f1f1f] shadow-[-1px_0_0_0_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-[#1f1f1f]">
@@ -384,8 +384,8 @@ export const Users: React.FC = () => {
                                             )}
                                         </td>
 
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <td className="px-6 py-4 sticky right-0 bg-white dark:bg-[#0A0D13] z-10 border-b border-l border-slate-100 dark:border-[#1f1f1f] shadow-[-4px_0_12px_rgba(0,0,0,0.03)]">
+                                            <div className="flex items-center justify-end gap-1">
                                                 <button
                                                     onClick={() => {
                                                         setSelectedUser(user);
