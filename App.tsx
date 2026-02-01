@@ -777,6 +777,7 @@ const AppContent: React.FC = () => {
         if (currentRoute === AppRoute.PRIVACY) return <Privacy />;
         if (currentRoute === AppRoute.TRUST) return <TrustCenter />;
         if (currentRoute === AppRoute.COOKIES) return <Cookies />;
+        if (currentRoute === AppRoute.PRICING_COMPARISON) return <ScrollablePage><PricingComparison /></ScrollablePage>; // MOVED HERE
         if (currentRoute === AppRoute.ABOUT) return <About user={user} />;
         if (currentRoute === AppRoute.ROADMAP) return <Roadmap user={user} />;
         if (currentRoute === AppRoute.BLOG || currentRoute === AppRoute.BLOG_POST) {
@@ -828,7 +829,6 @@ const AppContent: React.FC = () => {
 
                     {currentRoute === AppRoute.MANUAL && <ScrollablePage><Manual /></ScrollablePage>}
                     {currentRoute === AppRoute.RESET_PASSWORD && <div className="flex-1 flex flex-col items-center justify-center p-4"><ResetPassword onNavigate={navigate} /></div>}
-                    {currentRoute === AppRoute.PRICING_COMPARISON && <ScrollablePage><PricingComparison /></ScrollablePage>}
                 </div>
             </motion.div>
         );
