@@ -69,7 +69,7 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
 
     const pathParts = location.pathname.split('/');
     const currentSlug = pathParts[2];
-    const currentPost = blogPosts.find(p => p.slug === currentSlug);
+    const currentPost = blogPosts ? blogPosts.find(p => p.slug === currentSlug) : null;
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -323,20 +323,12 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
     );
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0b0f17] transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-[#0b0f17] transition-colors duration-300 gpu-accelerated">
             <Navbar user={user} onNavigate={handleNavigate} />
 
-            <AnimatePresence mode="wait">
-                <motion.main
-                    key={location.pathname}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                >
-                    {currentPost ? renderPost(currentPost) : renderIndex()}
-                </motion.main>
-            </AnimatePresence>
+            <main className="w-full">
+                {currentPost ? renderPost(currentPost) : renderIndex()}
+            </main>
 
             <Footer />
         </div>
