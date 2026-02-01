@@ -179,6 +179,30 @@ export interface AdminStats {
   grossProfit: number;
   mrrGrowth: number; // % vs last month
   userGrowth: number; // % vs last month
+  // Analytics data (merged from Analytics page)
+  revenue?: {
+    mrr: number;
+    balance: number;
+    currency: string;
+  };
+  costs?: {
+    twilio: number;
+    google: number;
+  };
+  planDistribution?: Array<{ name: string; value: number; percentage: number }>;
+  deviceDistribution?: Array<{ name: string; value: number }>;
+  featureAdoption?: {
+    extensionUsage: number;
+    multiAudioUsage: number;
+    liveUsage: number;
+    uploadUsage: number;
+    totalRecordings: number;
+  };
+  usageMetrics?: {
+    totalMinutes: number;
+    totalStorageGB: number;
+    activeRecorders: number;
+  };
 }
 
 export interface AdminUser {

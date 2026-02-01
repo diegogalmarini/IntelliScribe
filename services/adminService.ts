@@ -40,7 +40,7 @@ export const adminService = {
     },
 
     /**
-     * Get comprehensive statistics for Overview dashboard
+     * Get comprehensive statistics for Overview dashboard (merged with analytics)
      */
     async getStats(): Promise<AdminStats | null> {
         try {
@@ -56,7 +56,7 @@ export const adminService = {
 
             if (!profiles) return null;
 
-            // Plan pricing
+            // Plan pricing (NOTE: These are fake - all users are beta/trial)
             const PLAN_PRICES: Record<string, number> = {
                 'free': 0,
                 'pro': 15,
@@ -64,7 +64,7 @@ export const adminService = {
                 'business_plus': 49
             };
 
-            // Calculate MRR
+            // Calculate MRR (will be 0 in beta)
             const mrr = profiles
                 .filter(p => p.subscription_status === 'active')
                 .reduce((sum, p) => sum + (PLAN_PRICES[p.plan_id] || 0), 0);
@@ -93,6 +93,35 @@ export const adminService = {
             const userGrowth = totalUsers > 0 ? (newUsersThisMonth / totalUsers) * 100 : 0;
             const mrrGrowth = 5;
 
+            // Fetch analytics data from serverless API
+            let analyticsData: any = {};
+            try {
+                const response = await fetch('/api/admin-stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    analyticsData = {
+                        revenue: data.revenue,
+                        costs: data.costs,
+                        planDistribution: data.distribution.plans,
+                        deviceDistribution: data.distribution.devices,
+                        featureAdoption: {
+                            extensionUsage: data.features.extension,
+                            multiAudioUsage: data.features.multiAudio,
+                            liveUsage: data.features.live,
+                            uploadUsage: data.features.upload,
+                            totalRecordings: data.features.total
+                        },
+                        usageMetrics: {
+                            totalMinutes: data.usage.minutes,
+                            totalStorageGB: data.usage.storage,
+                            activeRecorders: data.usage.activeUsers
+                        }
+                    };
+                }
+            } catch (apiError) {
+                console.warn('[adminService] Analytics API failed, using partial data:', apiError);
+            }
+
             return {
                 mrr: Math.round(mrr * 100) / 100,
                 totalUsers,
@@ -101,7 +130,8 @@ export const adminService = {
                 estimatedCost: Math.round(estimatedCost * 100) / 100,
                 grossProfit: Math.round(grossProfit * 100) / 100,
                 mrrGrowth: Math.round(mrrGrowth * 10) / 10,
-                userGrowth: Math.round(userGrowth * 10) / 10
+                userGrowth: Math.round(userGrowth * 10) / 10,
+                ...analyticsData
             };
         } catch (error) {
             console.error('[adminService] Exception in getStats:', error);

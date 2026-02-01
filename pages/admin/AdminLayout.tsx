@@ -36,9 +36,7 @@ export const AdminLayout: React.FC<Props> = ({
     const navItems = [
         { label: 'Overview', icon: LayoutDashboard, route: AppRoute.ADMIN_OVERVIEW },
         { label: 'Users', icon: Users, route: AppRoute.ADMIN_USERS },
-        { label: 'Financials', icon: CreditCard, route: AppRoute.ADMIN_FINANCIALS },
         { label: 'Plans', icon: Tag, route: AppRoute.ADMIN_PLANS },
-        { label: 'Analytics', icon: BarChart, route: AppRoute.ADMIN_ANALYTICS },
     ];
 
     return (

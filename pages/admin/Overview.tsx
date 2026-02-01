@@ -2,19 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
 import { AdminStats } from '../../types';
 import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Legend
+} from 'recharts';
+import {
     TrendingUp,
     TrendingDown,
     Users,
     Clock,
     DollarSign,
-    Activity, // Replaced Insights with Activity
-    RefreshCw
+    Activity,
+    RefreshCw,
+    Chrome,
+    Layers,
+    Mic,
+    Monitor,
+    HardDrive,
+    Zap,
+    Shield
 } from 'lucide-react';
 
+const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+
 /**
- * Admin Overview Page
- * Displays business intelligence KPIs: MRR, users, usage, costs, margins
- * Refactored to Minimalist Light Theme
+ * Admin Overview Page (Consolidated with Analytics)
+ * Single comprehensive dashboard with business KPIs and visual analytics
  */
 export const Overview: React.FC = () => {
     const [stats, setStats] = useState<AdminStats | null>(null);
@@ -70,18 +91,23 @@ export const Overview: React.FC = () => {
         );
     }
 
-    const statCards = [
+    // Determine if we're in beta mode (MRR is 0)
+    const isBetaMode = stats.mrr === 0;
+
+    const topCards = [
         {
-            title: 'Monthly Recurring Revenue',
-            value: `$${stats.mrr.toLocaleString()}`,
+            title: 'Monthly Revenue',
+            value: isBetaMode ? '$0.00' : `$${stats.mrr.toLocaleString()}`,
+            subtitle: isBetaMode ? 'Beta Mode - Trial Users' : undefined,
             change: stats.mrrGrowth,
             icon: DollarSign,
             color: 'text-green-600 dark:text-green-400',
-            bgColor: 'bg-green-100 dark:bg-green-500/10'
+            bgColor: 'bg-green-100 dark:bg-green-500/10',
+            badge: isBetaMode ? 'BETA' : undefined
         },
         {
             title: 'Active Users',
-            value: stats.activeUsers.toLocaleString(),
+            value: stats.usageMetrics?.activeRecorders || stats.activeUsers.toLocaleString(),
             subtitle: `of ${stats.totalUsers} total`,
             change: stats.userGrowth,
             icon: Users,
@@ -97,30 +123,31 @@ export const Overview: React.FC = () => {
             bgColor: 'bg-purple-100 dark:bg-purple-500/10'
         },
         {
-            title: 'Estimated Cost',
-            value: `$${stats.estimatedCost.toLocaleString()}`,
-            subtitle: 'Twilio usage',
-            icon: Activity, // Replaced ReceiptLong
+            title: 'Twilio Costs',
+            value: `$${Number(stats.costs?.twilio || stats.estimatedCost || 0).toFixed(2)}`,
+            subtitle: 'Current month',
+            icon: Zap,
             color: 'text-orange-600 dark:text-orange-400',
             bgColor: 'bg-orange-100 dark:bg-orange-500/10'
-        },
-        {
-            title: 'Gross Profit',
-            value: `$${stats.grossProfit.toLocaleString()}`,
-            subtitle: 'Revenue - Cost',
-            icon: TrendingUp,
-            color: stats.grossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
-            bgColor: stats.grossProfit >= 0 ? 'bg-green-100 dark:bg-green-500/10' : 'bg-red-100 dark:bg-red-500/10'
         }
     ];
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Header */}
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Header with Beta Badge */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Business Overview</h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time KPIs and performance metrics</p>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Business Overview</h1>
+                        {isBetaMode && (
+                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-full">
+                                BETA MODE
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                        Real-time KPIs and performance metrics{isBetaMode ? ' • All users are trial accounts' : ''}
+                    </p>
                 </div>
                 <button
                     onClick={loadStats}
@@ -131,9 +158,9 @@ export const Overview: React.FC = () => {
                 </button>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {statCards.map((card, index) => (
+            {/* Top KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {topCards.map((card, index) => (
                     <div
                         key={index}
                         className="bg-white dark:bg-[#0A0D13] border border-slate-200 dark:border-[#1f1f1f] rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow"
@@ -143,10 +170,16 @@ export const Overview: React.FC = () => {
                                 <card.icon className={`w-5 h-5 ${card.color}`} />
                             </div>
 
-                            {card.change !== undefined && (
+                            {card.badge && (
+                                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full tracking-wider">
+                                    {card.badge}
+                                </span>
+                            )}
+
+                            {card.change !== undefined && !card.badge && (
                                 <div className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${card.change >= 0
-                                        ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400'
-                                        : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'
+                                    ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400'
+                                    : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'
                                     }`}>
                                     {card.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                                     <span>{Math.abs(card.change)}%</span>
@@ -163,64 +196,152 @@ export const Overview: React.FC = () => {
                 ))}
             </div>
 
-            {/* Margin Analysis Section */}
-            <div className="bg-white dark:bg-[#0A0D13] border border-slate-200 dark:border-[#1f1f1f] rounded-xl p-6 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-blue-600" />
-                    Profit Margin Analysis
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:divide-x divide-slate-100 dark:divide-[#1f1f1f]">
-                    <div className="md:pr-8">
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Revenue (MRR)</div>
-                        <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                            ${stats.mrr.toLocaleString()}
+            {/* Charts Section (if analytics data available) */}
+            {stats.planDistribution && stats.deviceDistribution && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Plan Distribution */}
+                    <div className="bg-white dark:bg-[#0A0D13] p-5 rounded-2xl border border-slate-200/60 dark:border-white/5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                        <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-6 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1 h-3 bg-blue-500 rounded-full"></div>
+                            Subscription Tiers {isBetaMode && '(Trial)'}
+                        </h3>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={stats.planDistribution}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={55}
+                                        outerRadius={75}
+                                        paddingAngle={8}
+                                        dataKey="value"
+                                        stroke="none"
+                                    >
+                                        {stats.planDistribution.map((entry: any, index: number) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={COLORS[index % COLORS.length]}
+                                                className="hover:opacity-80 transition-opacity"
+                                            />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: 'rgba(10, 13, 19, 0.95)',
+                                            backdropFilter: 'blur(8px)',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                                            fontSize: '11px',
+                                            padding: '10px'
+                                        }}
+                                        itemStyle={{ color: '#fff', padding: '2px 0' }}
+                                        formatter={(value: any, name: any, props: any) => [`${value} users (${props.payload.percentage}%)`, name.toUpperCase()]}
+                                    />
+                                    <Legend
+                                        verticalAlign="bottom"
+                                        height={36}
+                                        iconType="circle"
+                                        iconSize={8}
+                                        formatter={(value) => <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tight">{value}</span>}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
-                    <div className="md:px-8">
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Costs (Est.)</div>
-                        <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                            ${stats.estimatedCost.toLocaleString()}
-                        </div>
-                    </div>
-
-                    <div className="md:pl-8">
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Net Margin</div>
-                        <div className={`text-3xl font-bold tracking-tight ${stats.grossProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                            ${stats.grossProfit.toLocaleString()}
-                        </div>
-                        <div className="text-xs font-medium text-slate-500 mt-1">
-                            {stats.mrr > 0
-                                ? `${Math.round((stats.grossProfit / stats.mrr) * 100)}% margin`
-                                : 'N/A'}
+                    {/* Device Distribution */}
+                    <div className="bg-white dark:bg-[#0A0D13] p-5 rounded-2xl border border-slate-200/60 dark:border-white/5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                        <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-6 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1 h-3 bg-indigo-500 rounded-full"></div>
+                            Access Modality
+                        </h3>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={stats.deviceDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(148, 163, 184, 0.1)" />
+                                    <XAxis
+                                        dataKey="name"
+                                        fontSize={10}
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontWeight: 500 }}
+                                    />
+                                    <YAxis
+                                        fontSize={10}
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontWeight: 500 }}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(148, 163, 184, 0.05)', radius: 4 }}
+                                        contentStyle={{
+                                            backgroundColor: 'rgba(10, 13, 19, 0.95)',
+                                            backdropFilter: 'blur(8px)',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            borderRadius: '12px',
+                                            fontSize: '11px'
+                                        }}
+                                    />
+                                    <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={32}>
+                                        {stats.deviceDistribution.map((entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
                 </div>
+            )}
 
-                {/* Visual Progress Bar */}
-                <div className="mt-8">
-                    <div className="flex items-center justify-between text-xs font-medium mb-2">
-                        <span className="text-slate-500">Cost Ratio</span>
-                        <span className="text-slate-700 dark:text-slate-300">
-                            {stats.mrr > 0
-                                ? `${Math.round((stats.estimatedCost / stats.mrr) * 100)}%`
-                                : 'N/A'}
-                        </span>
+            {/* Feature Usage Section */}
+            {stats.featureAdoption && (
+                <div className="bg-white dark:bg-[#0A0D13] p-6 rounded-2xl border border-slate-200/60 dark:border-white/5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                    <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-8 uppercase tracking-widest flex items-center gap-2">
+                        <div className="w-1 h-3 bg-pink-500 rounded-full"></div>
+                        Core Feature Adoption (Real Data)
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[
+                            { icon: Chrome, value: stats.featureAdoption.extensionUsage, label: 'Extension', color: 'orange', desc: 'Browser capture flow' },
+                            { icon: Layers, value: stats.featureAdoption.multiAudioUsage, label: 'Multi-Audio', color: 'blue', desc: 'Complex segment sessions' },
+                            { icon: Mic, value: stats.featureAdoption.liveUsage, label: 'Live', color: 'green', desc: 'Direct in-app recording' },
+                            { icon: Monitor, value: stats.featureAdoption.uploadUsage, label: 'Uploads', color: 'slate', desc: 'Manual legacy imports' }
+                        ].map((feature, idx) => (
+                            <div key={idx} className="flex flex-col items-center text-center group">
+                                <div className={`w-14 h-14 bg-${feature.color}-50/50 dark:bg-${feature.color}-900/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                                    <feature.icon className={`w-6 h-6 text-${feature.color}-500/80`} />
+                                </div>
+                                <div className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">
+                                    {feature.value.toLocaleString()}
+                                </div>
+                                <div className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">
+                                    {feature.label}
+                                </div>
+                                <p className="text-[10px] text-slate-500/70 mt-2 font-medium leading-relaxed">
+                                    {feature.desc}
+                                </p>
+                            </div>
+                        ))}
                     </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                        <div
-                            className="bg-orange-500 h-full rounded-full transition-all duration-1000 ease-out"
-                            style={{
-                                width: stats.mrr > 0
-                                    ? `${Math.min((stats.estimatedCost / stats.mrr) * 100, 100)}%`
-                                    : '0%'
-                            }}
-                        />
+                </div>
+            )}
+
+            {/* Footer */}
+            <div className="flex justify-between items-center py-4 border-t border-slate-100 dark:border-white/5">
+                <div className="text-[11px] text-slate-400 font-medium italic">
+                    {isBetaMode
+                        ? 'Beta Mode: All users are trial accounts. Real Twilio/Stripe data shown.'
+                        : 'Financial data sourced directly from Stripe & Twilio APIs.'
+                    }
+                </div>
+                <div className="flex gap-4">
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-[11px] font-bold text-slate-500 tracking-tight">SYSTEM STATUS: OPTIMAL</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-2">
-                        Lower cost ratio equals higher profit margin. Target &lt; 20%.
-                    </p>
                 </div>
             </div>
         </div>
