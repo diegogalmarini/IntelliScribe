@@ -464,6 +464,20 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         >
                             <span className="material-symbols-outlined text-lg">help</span>
                         </button>
+
+                        {/* Plan Badge (Quick Access) */}
+                        <button
+                            onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
+                            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group"
+                            title="Ver planes"
+                        >
+                            <span className={`size-2 rounded-full ${user.subscription.planId === 'pro' ? 'bg-purple-500' : user.subscription.planId === 'business' ? 'bg-blue-500' : user.subscription.planId === 'business_plus' ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                                {user.subscription.planId === 'pro' ? t('planPro') || 'Pro' : user.subscription.planId === 'business' ? t('planBiz') || 'Business' : user.subscription.planId === 'business_plus' ? t('planBizPlus') || 'Business+' : t('planFree') || 'Free'}
+                            </span>
+                            <span className="material-symbols-outlined text-slate-400 text-sm group-hover:text-primary transition-colors">arrow_forward</span>
+                        </button>
+
                         <div id="user-profile-button">
                             <ProfileAvatar user={user} onClick={() => setIsSettingsOpen(true)} />
                         </div>
