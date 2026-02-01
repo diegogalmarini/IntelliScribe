@@ -37,6 +37,7 @@ import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { Roadmap } from './pages/Roadmap';
 import { Blog } from './pages/Blog';
+import { SubscriptionConfirm } from './pages/SubscriptionConfirm';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import * as Analytics from './utils/analytics';
@@ -72,6 +73,7 @@ const AppContent: React.FC = () => {
         if (path === '/about') return AppRoute.ABOUT;
         if (path === '/roadmap') return AppRoute.ROADMAP;
         if (path === '/blog' || path.startsWith('/blog/')) return path.includes('/', 6) ? AppRoute.BLOG_POST : AppRoute.BLOG;
+        if (path === '/confirm-subscription') return AppRoute.CONFIRM_SUBSCRIPTION;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
         if (path === '/intelligence') return AppRoute.INTELLIGENCE;
         return AppRoute.LANDING; // Root or any other path defaults to Landing
@@ -784,6 +786,7 @@ const AppContent: React.FC = () => {
                 </ErrorBoundary>
             );
         }
+        if (currentRoute === AppRoute.CONFIRM_SUBSCRIPTION) return <SubscriptionConfirm />;
         if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onNavigate={navigate} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 

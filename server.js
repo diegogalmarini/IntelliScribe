@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import twilio from 'twilio';
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +25,13 @@ try {
 } catch (e) {
     console.error('Error loading .env.local', e);
 }
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const resendKey = process.env.RESEND_API_KEY;
+
+const supabase = (supabaseUrl && supabaseServiceKey) ? createClient(supabaseUrl, supabaseServiceKey) : null;
+const resend = resendKey ? new Resend(resendKey) : null;
 
 const PORT = 3001;
 
@@ -230,6 +239,71 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: err.message }));
             }
         });
+    } else if (req.url === '/api/newsletter-subscribe' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+            try {
+                const { email, legalAccepted } = JSON.parse(body);
+                console.log('[API] Newsletter subscribe:', email);
+
+                if (!supabase) throw new Error('Supabase not configured in server.js');
+
+                const { data, error: dbError } = await supabase
+                    .from('newsletter_subscriptions')
+                    .upsert({
+                        email,
+                        status: 'pending',
+                        legal_accepted: legalAccepted,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'email' })
+                    .select('confirmation_token')
+                    .single();
+
+                if (dbError) throw dbError;
+
+                if (resend) {
+                    const confirmLink = `http://localhost:5173/confirm-subscription?token=${data.confirmation_token}`;
+                    await resend.emails.send({
+                        from: 'Diktalo <noreply@diktalo.com>',
+                        to: [email],
+                        subject: 'Confirma tu suscripción - Local Dev',
+                        html: `<p>Haz clic aquí para confirmar: <a href="${confirmLink}">${confirmLink}</a></p>`
+                    });
+                    console.log('[API] Confirmation email sent (mock/resend)');
+                } else {
+                    console.warn('[API] Resend not configured. Link:', `http://localhost:5173/confirm-subscription?token=${data.confirmation_token}`);
+                }
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true }));
+            } catch (err) {
+                console.error('Newsletter Error:', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: err.message }));
+            }
+        });
+    } else if (req.url.startsWith('/api/newsletter-confirm') && req.method === 'GET') {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const token = url.searchParams.get('token');
+        console.log('[API] Newsletter confirm token:', token);
+
+        try {
+            if (!supabase) throw new Error('Supabase not configured');
+            const { data, error } = await supabase
+                .from('newsletter_subscriptions')
+                .update({ status: 'confirmed' })
+                .eq('confirmation_token', token)
+                .select();
+
+            if (error || !data.length) throw new Error('Invalid token');
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true }));
+        } catch (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        }
     } else {
         res.writeHead(404);
         res.end(JSON.stringify({ error: 'Not found' }));

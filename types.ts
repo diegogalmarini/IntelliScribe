@@ -161,7 +161,8 @@ export enum AppRoute {
   ABOUT = 'about',
   ROADMAP = 'roadmap',
   BLOG = 'blog',
-  BLOG_POST = 'blog-post'
+  BLOG_POST = 'blog-post',
+  CONFIRM_SUBSCRIPTION = 'confirm-subscription'
 }
 
 // ========== ADMIN TYPES ==========

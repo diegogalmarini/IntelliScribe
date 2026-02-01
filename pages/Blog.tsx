@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/Landing/Navbar';
 import { Footer } from '../components/Footer';
@@ -18,7 +18,9 @@ import {
     Share2,
     Twitter,
     Linkedin,
-    Link as LinkIcon
+    Link as LinkIcon,
+    Loader2,
+    Check
 } from 'lucide-react';
 
 interface BlogProps {
@@ -67,6 +69,12 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    // Newsletter state
+    const [subEmail, setSubEmail] = useState('');
+    const [subAccepted, setSubAccepted] = useState(false);
+    const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [subMessage, setSubMessage] = useState('');
+
     const pathParts = location.pathname.split('/');
     const currentSlug = pathParts[2];
     const currentPost = blogPosts ? blogPosts.find(p => p.slug === currentSlug) : null;
@@ -83,6 +91,37 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
     const handleNavigate = (path: string) => {
         if (path === '/') navigate('/');
         else navigate(path);
+    };
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!subEmail || !subAccepted) return;
+
+        setSubStatus('loading');
+        try {
+            const response = await fetch('/api/newsletter-subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: subEmail,
+                    legalAccepted: subAccepted,
+                    metadata: { path: location.pathname }
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setSubStatus('success');
+                setSubMessage(data.alreadySubscribed
+                    ? '¡Ya estás suscrito!'
+                    : '¡Gracias! Revisa tu email para confirmar la suscripción.');
+            } else {
+                throw new Error(data.error || 'Error al suscribir');
+            }
+        } catch (error: any) {
+            setSubStatus('error');
+            setSubMessage(error.message);
+        }
     };
 
     const readingTime = (text: string) => {
@@ -303,20 +342,67 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
                     <p className="text-slate-600 dark:text-slate-400 mb-10 max-w-md mx-auto leading-relaxed font-light">
                         Únase a los líderes que ya están transformando su flujo de trabajo conversacional en una ventaja competitiva.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto relative z-10">
-                        <input
-                            type="email"
-                            placeholder="tu@email.com"
-                            className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white transition-all shadow-inner"
-                        />
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-primary text-white font-bold py-4 px-10 rounded-2xl hover:bg-primary-dark shadow-xl hover:shadow-primary/20 transition-all whitespace-nowrap"
+
+                    {subStatus === 'success' ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 p-6 rounded-3xl max-w-md mx-auto"
                         >
-                            Suscribirme
-                        </motion.button>
-                    </div>
+                            <div className="flex items-center justify-center gap-3 text-emerald-600 dark:text-emerald-400 font-bold mb-2">
+                                <Check size={24} />
+                                {subMessage}
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <form onSubmit={handleSubscribe} className="max-w-xl mx-auto relative z-10">
+                            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                                <input
+                                    type="email"
+                                    required
+                                    value={subEmail}
+                                    onChange={(e) => setSubEmail(e.target.value)}
+                                    placeholder="tu@email.com"
+                                    disabled={subStatus === 'loading'}
+                                    className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-white transition-all shadow-inner disabled:opacity-50"
+                                />
+                                <motion.button
+                                    type="submit"
+                                    disabled={!subAccepted || subStatus === 'loading'}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="bg-primary text-white font-bold py-4 px-10 rounded-2xl hover:bg-primary-dark shadow-xl hover:shadow-primary/20 transition-all whitespace-nowrap disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center min-w-[160px]"
+                                >
+                                    {subStatus === 'loading' ? (
+                                        <Loader2 size={24} className="animate-spin" />
+                                    ) : (
+                                        'Suscribirme'
+                                    )}
+                                </motion.button>
+                            </div>
+
+                            <div className="flex items-start gap-3 px-4 text-left">
+                                <div className="relative flex items-center mt-1">
+                                    <input
+                                        type="checkbox"
+                                        id="legal"
+                                        checked={subAccepted}
+                                        onChange={(e) => setSubAccepted(e.target.checked)}
+                                        className="w-5 h-5 rounded border-slate-300 dark:border-white/10 text-primary focus:ring-primary bg-white dark:bg-slate-900 transition-all cursor-pointer accent-primary"
+                                    />
+                                </div>
+                                <label htmlFor="legal" className="text-xs text-slate-500 dark:text-slate-400 leading-normal cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+                                    Acepto recibir comunicaciones de Diktalo y confirmo que he leído la <a href="/privacy" className="text-primary hover:underline font-semibold">Política de Privacidad</a>.
+                                </label>
+                            </div>
+
+                            {subStatus === 'error' && (
+                                <p className="mt-4 text-rose-500 text-sm font-medium">
+                                    {subMessage}
+                                </p>
+                            )}
+                        </form>
+                    )}
                 </motion.div>
             </div>
         </div>

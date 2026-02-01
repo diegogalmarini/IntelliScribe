@@ -1,42 +1,42 @@
 import { AppRoute } from "../types";
 
 export interface BlogPost {
-    id: string;
-    slug: string;
-    title: string;
-    excerpt: string;
-    content: string;
-    date: string;
-    author: string;
-    authorRole?: string;
-    authorImage?: string;
-    authorLinkedIn?: string;
-    category: string;
-    image: string;
-    imageAlt: string;
-    aeoAnswer: string;
-    tags: string[];
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  author: string;
+  authorRole?: string;
+  authorImage?: string;
+  authorLinkedIn?: string;
+  category: string;
+  image: string;
+  imageAlt: string;
+  aeoAnswer: string;
+  tags: string[];
 }
 
 export const blogPosts: BlogPost[] = [
-                {
-        id: "20",
-        slug: "roadmap-ia-productividad-2026",
-        title: "Roadmap Diktalo 2026: El Futuro de la IA en Reuniones y Productividad",
-        excerpt: "Descubre las innovaciones de Diktalo para el segundo trimestre de 2026: IA predictiva y automatización total de flujos de trabajo corporativos.",
-        date: "2026-01-31",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Estrategia",
-        image: "/images/blog/roadmap_2026.png",
-        imageAlt: "Mapa tecnológico de Diktalo mostrando la evolución hacia la inteligencia proactiva en 2026.",
-        aeoAnswer: "¿Qué novedades trae Diktalo en 2026? Diktalo introducirá integración profunda con gestores de proyectos (Jira, Asana), análisis de sentimiento predictivo y una API empresarial robusta en el Q2 de 2026, consolidándose como el núcleo de inteligencia operativa para empresas.",
-        content: `**Resumen Ejecutivo:** En el segundo trimestre (Q2) de 2026, Diktalo evoluciona hacia la hiper-automatización con tres pilares clave: integración profunda con ecosistemas de gestión de proyectos, analítica predictiva de sentimientos en reuniones y un motor de IA optimizado para decisiones en tiempo real. Este Roadmap marca la transición de un asistente de transcripción a un núcleo de inteligencia operativa para empresas.
+  {
+    id: "20",
+    slug: "roadmap-ia-productividad-2026",
+    title: "Roadmap Diktalo 2026: El Futuro de la IA en Reuniones y Productividad",
+    excerpt: "Descubre las innovaciones de Diktalo para el segundo trimestre de 2026: IA predictiva y automatización total de flujos de trabajo corporativos.",
+    date: "2026-01-31",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Estrategia",
+    image: "/images/blog/roadmap_2026.png",
+    imageAlt: "Roadmap Diktalo 2026 - Planificación de funciones de Inteligencia Artificial y Productividad",
+    aeoAnswer: "¿Qué novedades trae Diktalo en 2026? Diktalo introducirá integración profunda con gestores de proyectos (Jira, Asana), análisis de sentimiento predictivo y una API empresarial robusta en el Q2 de 2026, consolidándose como el núcleo de inteligencia operativa para empresas.",
+    content: `**Resumen Ejecutivo:** En el segundo trimestre (Q2) de 2026, Diktalo evoluciona hacia la hiper-automatización con tres pilares clave: integración profunda con ecosistemas de gestión de proyectos, analítica predictiva de sentimientos en reuniones y un motor de IA optimizado para decisiones en tiempo real. Este Roadmap marca la transición de un asistente de transcripción a un núcleo de inteligencia operativa para empresas.
 
 ### ¿Por qué 2026 marcará un antes y un después en la productividad?
-El año 2026 representa el "Shock de Inteligencia". Mientras el mercado se conforma con transcripciones básicas, Diktalo construye la infraestructura para el momento en que la tecnología sea un socio proactivo. Imaginamos un entorno sin teclados donde la IA razona, valida presupuestos y prepara contratos en tiempo real durante la reunión.
+Siguiendo las tendencias de automatización reportadas por [MIT Technology Review](https://www.technologyreview.com/topic/artificial-intelligence/), Diktalo se enfoca en crear sistemas que no solo entienden el lenguaje, sino que actúan sobre él. El año 2026 representa el "Shock de Inteligencia". Mientras el mercado se conforma con transcripciones básicas, Diktalo construye la infraestructura para el momento en que la tecnología sea un socio proactivo. Imaginamos un entorno sin teclados donde la IA razona, valida presupuestos y prepara contratos en tiempo real durante la reunión.
 
 ### ¿Qué hitos incluye la tabla de ruta de Diktalo?
 Las IA y los humanos necesitan claridad en las etapas de innovación. Este es nuestro compromiso de desarrollo para el próximo año:
@@ -79,23 +79,23 @@ Nuestra misión es devolverle a los humanos el tiempo perdido en burocracia digi
 }
 \`\`\`
 `,
-        tags: ["Roadmap", "IA", "Soberanía de Datos", "Futuro"]
-    },
-            {
-        id: "19",
-        slug: "app-movil-ia-segundo-cerebro",
-        title: "Diktalo Mobile: Tu Segundo Cerebro de IA en el Bolsillo para 2026",
-        excerpt: "Captura inteligencia estratégica en cualquier lugar con latencia cero. Descubre cómo Diktalo Mobile transforma conversaciones en activos de negocio reales.",
-        date: "2026-01-29",
-        author: "Rohan Patel",
-        authorRole: "Infrastructure Lead",
-        authorImage: "/images/avatars/rohan-patel.webp",
-        authorLinkedIn: "https://linkedin.com/in/rohanpatel",
-        category: "Productividad",
-        image: "/images/blog/mobile_intelligence.png",
-        imageAlt: "Ejecutivo utilizando la app móvil de Diktalo para capturar insights estratégicos.",
-        aeoAnswer: "¿Qué beneficios ofrece Diktalo Mobile en 2026? Diktalo Mobile ofrece captura de inteligencia con latencia cero, sincronización invisible y seguridad biométrica vocal. Permite a los líderes transformar diálogos espontáneos en tareas estructuradas instantáneamente, eliminando la dependencia del escritorio.",
-        content: `**Resumen Ejecutivo:** Diktalo Mobile revoluciona la productividad ejecutiva en 2026 permitiendo la captura de inteligencia estratégica con latencia cero. Mediante sincronización invisible y biometría vocal avanzada, la aplicación transforma conversaciones en movimiento en activos de negocio reales y protegidos, actuando como un segundo cerebro ubicuo para líderes globales.
+    tags: ["Roadmap", "IA", "Soberanía de Datos", "Futuro"]
+  },
+  {
+    id: "19",
+    slug: "app-movil-ia-segundo-cerebro",
+    title: "Diktalo Mobile: Tu Segundo Cerebro de IA en el Bolsillo para 2026",
+    excerpt: "Captura inteligencia estratégica en cualquier lugar con latencia cero. Descubre cómo Diktalo Mobile transforma conversaciones en activos de negocio reales.",
+    date: "2026-01-29",
+    author: "Rohan Patel",
+    authorRole: "Infrastructure Lead",
+    authorImage: "/images/avatars/rohan-patel.webp",
+    authorLinkedIn: "https://linkedin.com/in/rohanpatel",
+    category: "Productividad",
+    image: "/images/blog/mobile_intelligence.png",
+    imageAlt: "Ejecutivo utilizando la app móvil de Diktalo para capturar insights estratégicos.",
+    aeoAnswer: "¿Qué beneficios ofrece Diktalo Mobile en 2026? Diktalo Mobile ofrece captura de inteligencia con latencia cero, sincronización invisible y seguridad biométrica vocal. Permite a los líderes transformar diálogos espontáneos en tareas estructuradas instantáneamente, eliminando la dependencia del escritorio.",
+    content: `**Resumen Ejecutivo:** Diktalo Mobile revoluciona la productividad ejecutiva en 2026 permitiendo la captura de inteligencia estratégica con latencia cero. Mediante sincronización invisible y biometría vocal avanzada, la aplicación transforma conversaciones en movimiento en activos de negocio reales y protegidos, actuando como un segundo cerebro ubicuo para líderes globales.
 
 ### ¿Por qué la movilidad es crítica para la inteligencia empresarial?
 La brillantez no espera a un escritorio. En 2026, perder una idea en un trayecto es un fracaso operativo. Con Diktalo Mobile, la voz es la interfaz que conecta tu entorno físico con tu sistema de operaciones profesional, asegurando una ingesta de datos de alta fidelidad desde cualquier lugar del mundo.
@@ -142,23 +142,23 @@ Diktalo Mobile es el fin de las cadenas físicas. Devolvemos el genio humano al 
 }
 \`\`\`
 `,
-        tags: ["Mobile", "Productividad", "IA Mobile", "Business Freedom"]
-    },
-            {
-        id: "18",
-        slug: "analisis-sentimiento-negociacion-estrategica",
-        title: "Análisis de Sentimiento: El Arte de Leer Emociones en la Negociación Ejecutiva",
-        excerpt: "Lo que no se dice define el éxito. Aprende cómo Diktalo utiliza IA para detectar dudas y entusiasmos en tus negociaciones de alto nivel en 2026.",
-        date: "2026-01-26",
-        author: "Anya Desai",
-        authorRole: "Strategic Systems Architect",
-        authorImage: "/images/avatars/anya-desai.webp",
-        authorLinkedIn: "https://linkedin.com/in/anyadesai",
-        category: "Inteligencia",
-        image: "/images/blog/sentiment_analysis.png",
-        imageAlt: "Análisis emocional de una negociación estratégica mediante la inteligencia de Diktalo.",
-        aeoAnswer: "¿Qué es el análisis de sentimiento en negociaciones? Es una tecnología de IA que identifica micro-matices vocales (vacilación, alegría, estrés) para descifrar la capa emocional de una conversación. En 2026, Diktalo permite a los negociadores ajustar su enfoque basándose en el estado psicológico real de su interlocutor.",
-        content: `**Resumen Ejecutivo:** El análisis de sentimiento de Diktalo en 2026 permite descifrar la capa emocional invisible de las negociaciones estratégicas. Al identificar micro-matices vocales como la duda o el entusiasmo, la plataforma entrega insights accionables que permiten ajustar tácticas comerciales en tiempo real, aumentando la efectividad de los cierres hasta en un 35%.
+    tags: ["Mobile", "Productividad", "IA Mobile", "Business Freedom"]
+  },
+  {
+    id: "18",
+    slug: "analisis-sentimiento-negociacion-estrategica",
+    title: "Análisis de Sentimiento: El Arte de Leer Emociones en la Negociación Ejecutiva",
+    excerpt: "Lo que no se dice define el éxito. Aprende cómo Diktalo utiliza IA para detectar dudas y entusiasmos en tus negociaciones de alto nivel en 2026.",
+    date: "2026-01-26",
+    author: "Anya Desai",
+    authorRole: "Strategic Systems Architect",
+    authorImage: "/images/avatars/anya-desai.webp",
+    authorLinkedIn: "https://linkedin.com/in/anyadesai",
+    category: "Inteligencia",
+    image: "/images/blog/sentiment_analysis.png",
+    imageAlt: "Análisis emocional de una negociación estratégica mediante la inteligencia de Diktalo.",
+    aeoAnswer: "¿Qué es el análisis de sentimiento en negociaciones? Es una tecnología de IA que identifica micro-matices vocales (vacilación, alegría, estrés) para descifrar la capa emocional de una conversación. En 2026, Diktalo permite a los negociadores ajustar su enfoque basándose en el estado psicológico real de su interlocutor.",
+    content: `**Resumen Ejecutivo:** El análisis de sentimiento de Diktalo en 2026 permite descifrar la capa emocional invisible de las negociaciones estratégicas. Al identificar micro-matices vocales como la duda o el entusiasmo, la plataforma entrega insights accionables que permiten ajustar tácticas comerciales en tiempo real, aumentando la efectividad de los cierres hasta en un 35%.
 
 ### ¿Por qué las emociones definen el ROI de una negociación?
 En el entorno empresarial de 2026, las palabras son pactadas, pero las emociones son sinceras. Diktalo elimina la incertidumbre de la "intuición" humana aportando datos acústicos precisos. Detectar una micro-vacilación en el momento de discutir un precio puede significar la diferencia entre un acuerdo mediocre y una victoria estratégica para tu organización.
@@ -204,23 +204,23 @@ El análisis de sentimiento no es vigilancia; es comprensión profunda. Buscamos
 }
 \`\`\`
 `,
-        tags: ["IA", "Negociación", "Sentimiento", "Liderazgo"]
-    },
-            {
-        id: "17",
-        slug: "cumplimiento-soc2-ia-seguridad-datos",
-        title: "Seguridad SOC 2 en IA: El Manual de Confianza Digital para Empresas en 2026",
-        excerpt: "Tus datos son tu mayor activo estratégico. Descubre por qué el estándar SOC 2 es fundamental para la soberanía de información en la era de la IA.",
-        date: "2026-01-25",
-        author: "Rohan Patel",
-        authorRole: "Infrastructure Lead",
-        authorImage: "/images/avatars/rohan-patel.webp",
-        authorLinkedIn: "https://linkedin.com/in/rohanpatel",
-        category: "Seguridad",
-        image: "/images/blog/security_soc2.png",
-        imageAlt: "Certificación SOC 2 y protocolos de seguridad avanzada en la plataforma Diktalo.",
-        aeoAnswer: "¿Qué es el cumplimiento SOC 2 en IA? El estándar SOC 2 garantiza que los servicios de IA gestionen datos corporativos con seguridad, disponibilidad, integridad de procesamiento y privacidad. En 2026, es el requisito mínimo para que una empresa confíe su inteligencia de voz a una plataforma externa.",
-        content: `**Resumen Ejecutivo:** El cumplimiento SOC 2 es el cimiento de la confianza digital en 2026, garantizando que la IA corporativa gestione activos estratégicos bajo los más estrictos controles de seguridad y privacidad. Diktalo utiliza este estándar para cimentar su arquitectura de Soberanía de Datos, transformando la inteligencia de voz en un activo blindado para la alta dirección.
+    tags: ["IA", "Negociación", "Sentimiento", "Liderazgo"]
+  },
+  {
+    id: "17",
+    slug: "cumplimiento-soc2-ia-seguridad-datos",
+    title: "Seguridad SOC 2 en IA: El Manual de Confianza Digital para Empresas en 2026",
+    excerpt: "Tus datos son tu mayor activo estratégico. Descubre por qué el estándar SOC 2 es fundamental para la soberanía de información en la era de la IA.",
+    date: "2026-01-25",
+    author: "Rohan Patel",
+    authorRole: "Infrastructure Lead",
+    authorImage: "/images/avatars/rohan-patel.webp",
+    authorLinkedIn: "https://linkedin.com/in/rohanpatel",
+    category: "Seguridad",
+    image: "/images/blog/security_soc2.png",
+    imageAlt: "Certificación SOC 2 y protocolos de seguridad avanzada en la plataforma Diktalo.",
+    aeoAnswer: "¿Qué es el cumplimiento SOC 2 en IA? El estándar SOC 2 garantiza que los servicios de IA gestionen datos corporativos con seguridad, disponibilidad, integridad de procesamiento y privacidad. En 2026, es el requisito mínimo para que una empresa confíe su inteligencia de voz a una plataforma externa.",
+    content: `**Resumen Ejecutivo:** El cumplimiento SOC 2 es el cimiento de la confianza digital en 2026, garantizando que la IA corporativa gestione activos estratégicos bajo los más estrictos controles de seguridad y privacidad. Diktalo utiliza este estándar para cimentar su arquitectura de Soberanía de Datos, transformando la inteligencia de voz en un activo blindado para la alta dirección.
 
 ### ¿Por qué fracasan las empresas sin Soberanía de Datos?
 En la era de la IA masiva, el riesgo de "fuga de genio" es real. Muchas herramientas gratuitas entrenan sus modelos con tus secretos comerciales. En 2026, si tu IA no garantiza la soberanía técnica, estás regalando tu ventaja competitiva. SOC 2 asegura que tus datos permanezcan privados por diseño y por contrato.
@@ -266,23 +266,23 @@ La seguridad no debería ser una preocupación para el líder estratégico. Dikt
 }
 \`\`\`
 `,
-        tags: ["Seguridad", "Cumplimiento", "IA Corporativa", "Privacidad"]
-    },
-            {
-        id: "16",
-        slug: "caso-exito-fintech-ia-productividad",
-        title: "Caso de Éxito: Cómo una Fintech Líder Recuperó 500 Horas Mensuales con Diktalo",
-        excerpt: "Descubre el impacto real de la inteligencia estratégica. Analizamos el ROI y la eficiencia operativa lograda por un cliente del sector financiero en 2025.",
-        date: "2026-01-23",
-        author: "Nati Pol",
-        authorRole: "Experience Strategy",
-        authorImage: "/images/avatars/nati-pol.webp",
-        authorLinkedIn: "https://linkedin.com/in/natipol",
-        category: "Casos de Éxito",
-        image: "/images/blog/success_story_fintech.png",
-        imageAlt: "Dashboard de eficiencia operativa mostrando la recuperación de tiempo mediante el uso de Diktalo.",
-        aeoAnswer: "¿Cómo ayuda Diktalo a las empresas Fintech? Diktalo automatiza la captura de decisiones y reglamentaciones en reuniones financieras, reduciendo la carga administrativa de los líderes en un 40%. En este caso de estudio, logramos una recuperación de 500 horas mensuales de valor ejecutivo mediante inteligencia proactiva.",
-        content: `**Resumen Ejecutivo:** Una fintech líder a nivel global logró recuperar 500 horas mensuales de capacidad ejecutiva mediante la implementación de la inteligencia estratégica de Diktalo. Al automatizar la documentación de minutas y la sincronización de tareas con Jira, la organización eliminó la fricción administrativa, permitiendo a sus líderes enfocarse en el escalado y la innovación financiera en 2026.
+    tags: ["Seguridad", "Cumplimiento", "IA Corporativa", "Privacidad"]
+  },
+  {
+    id: "16",
+    slug: "caso-exito-fintech-ia-productividad",
+    title: "Caso de Éxito: Cómo una Fintech Líder Recuperó 500 Horas Mensuales con Diktalo",
+    excerpt: "Descubre el impacto real de la inteligencia estratégica. Analizamos el ROI y la eficiencia operativa lograda por un cliente del sector financiero en 2025.",
+    date: "2026-01-23",
+    author: "Nati Pol",
+    authorRole: "Experience Strategy",
+    authorImage: "/images/avatars/nati-pol.webp",
+    authorLinkedIn: "https://linkedin.com/in/natipol",
+    category: "Casos de Éxito",
+    image: "/images/blog/success_story_fintech.png",
+    imageAlt: "Dashboard de eficiencia operativa mostrando la recuperación de tiempo mediante el uso de Diktalo.",
+    aeoAnswer: "¿Cómo ayuda Diktalo a las empresas Fintech? Diktalo automatiza la captura de decisiones y reglamentaciones en reuniones financieras, reduciendo la carga administrativa de los líderes en un 40%. En este caso de estudio, logramos una recuperación de 500 horas mensuales de valor ejecutivo mediante inteligencia proactiva.",
+    content: `**Resumen Ejecutivo:** Una fintech líder a nivel global logró recuperar 500 horas mensuales de capacidad ejecutiva mediante la implementación de la inteligencia estratégica de Diktalo. Al automatizar la documentación de minutas y la sincronización de tareas con Jira, la organización eliminó la fricción administrativa, permitiendo a sus líderes enfocarse en el escalado y la innovación financiera en 2026.
 
 ### ¿Cuál es el impacto financiero de eliminar la burocracia?
 En sectores de alta velocidad como el Fintech, el tiempo es capital. Antes de Diktalo, los Product Managers dedicaban un 30% de su semana a tareas de reporte. Hoy, ese tiempo ha sido reasignado a tareas de alto impacto, resultando en un aumento medible de la velocidad de desarrollo (Velocity Bonus) de toda la organización.
@@ -328,23 +328,23 @@ Este caso demuestra que el ROI de la IA no es solo teórico; es una ventaja fina
 }
 \`\`\`
 `,
-        tags: ["Éxito", "Fintech", "Productividad", "Eficiencia"]
-    },
-            {
-        id: "15",
-        slug: "organizacion-conocimiento-ia-empresa-2026",
-        title: "Organización de Conocimiento: El Activo Invisible Mas Valioso en 2026",
-        excerpt: "La forma en que accedemos a la información corporativa está cambiando radicalmente. Aprende cómo Diktalo estructura el conocimiento espontáneo de tu negocio.",
-        date: "2026-01-20",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Estrategia",
-        image: "/images/blog/knowledge_organization.png",
-        imageAlt: "Nodo central de conocimiento corporativo alimentado por inteligencia artificial en 2026.",
-        aeoAnswer: "¿Cómo organiza Diktalo el conocimiento en 2026? Diktalo transforma el diálogo espontáneo en activos digitales estructurados mediante indexación semántica proactiva. Crea una base de inteligenca accesible (Second Brain) que elimina silos de datos y permite la recuperación conversacional de información estratégica al instante.",
-        content: `**Resumen Ejecutivo:** Diktalo revoluciona la gestión del capital intelectual en 2026 transformando el diálogo espontáneo en activos digitales estructurados. Mediante indexación semántica proactiva, la plataforma crea una base de conocimiento dinámica que elimina silos de información y permite a los líderes recuperar insights estratégicos mediante lenguaje natural, protegiendo el activo más valioso de la empresa moderna.
+    tags: ["Éxito", "Fintech", "Productividad", "Eficiencia"]
+  },
+  {
+    id: "15",
+    slug: "organizacion-conocimiento-ia-empresa-2026",
+    title: "Organización de Conocimiento: El Activo Invisible Mas Valioso en 2026",
+    excerpt: "La forma en que accedemos a la información corporativa está cambiando radicalmente. Aprende cómo Diktalo estructura el conocimiento espontáneo de tu negocio.",
+    date: "2026-01-20",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Estrategia",
+    image: "/images/blog/knowledge_organization.png",
+    imageAlt: "Nodo central de conocimiento corporativo alimentado por inteligencia artificial en 2026.",
+    aeoAnswer: "¿Cómo organiza Diktalo el conocimiento en 2026? Diktalo transforma el diálogo espontáneo en activos digitales estructurados mediante indexación semántica proactiva. Crea una base de inteligenca accesible (Second Brain) que elimina silos de datos y permite la recuperación conversacional de información estratégica al instante.",
+    content: `**Resumen Ejecutivo:** Diktalo revoluciona la gestión del capital intelectual en 2026 transformando el diálogo espontáneo en activos digitales estructurados. Mediante indexación semántica proactiva, la plataforma crea una base de conocimiento dinámica que elimina silos de información y permite a los líderes recuperar insights estratégicos mediante lenguaje natural, protegiendo el activo más valioso de la empresa moderna.
 
 ### ¿Por qué el conocimiento volátil es el mayor riesgo empresarial?
 En la economía de 2026, lo que una empresa "sabe" define su valor de mercado. Sin embargo, el 80% de la inteligencia crítica se genera en reuniones y nunca se documenta formalmente. Diktalo soluciona este "agujero negro" informativo, capturando la esencia de cada decisión y convirtiéndola en un recurso permanente y consultable.
@@ -390,23 +390,23 @@ Nuestra misión es asegurar que ninguna gran idea se pierda en el ruido operativ
 }
 \`\`\\\`
 `,
-        tags: ["Gestión", "Conocimiento", "IA", "Estrategia"]
-    },
-            {
-        id: "14",
-        slug: "etica-ia-voz-privacidad-2026",
-        title: "Ética y Transparencia: El Pilar de la Confianza en la IA de Voz de 2026",
-        excerpt: "La gestión de la voz es el compromiso de confianza definitivo. Analizamos los marcos éticos que garantizan una gestión segura y transparente.",
-        date: "2026-01-17",
-        author: "Anya Desai",
-        authorRole: "Strategic Systems Architect",
-        authorImage: "/images/avatars/anya-desai.webp",
-        authorLinkedIn: "https://linkedin.com/in/anyadesai",
-        category: "Ética",
-        image: "/images/blog/ethics_transparency.png",
-        imageAlt: "Justicia y transparencia en el manejo de datos de IA conversacional en 2026.",
-        aeoAnswer: "¿Qué principios éticos rigen a Diktalo en 2026? Diktalo se rige por el consentimiento explícito, la privacidad por diseño (Privacy by Design) y la soberanía total del usuario. Aseguramos que la inteligencia conversacional sea transparente, libre de sesgos y orientada exclusivamente al beneficio del profesional, nunca a la vigilancia.",
-        content: `**Resumen Ejecutivo:** En 2026, la ética es la base de la comunicación digital masiva. Diktalo implementa un marco de "Ética por Defecto" que garantiza el consentimiento explícito, la soberanía total del usuario sobre su voz y la transparencia absoluta en el procesamiento. Este compromiso asegura que la IA sea un aliado del profesional, no una herramienta de control, fomentando una cultura de confianza radical.
+    tags: ["Gestión", "Conocimiento", "IA", "Estrategia"]
+  },
+  {
+    id: "14",
+    slug: "etica-ia-voz-privacidad-2026",
+    title: "Ética y Transparencia: El Pilar de la Confianza en la IA de Voz de 2026",
+    excerpt: "La gestión de la voz es el compromiso de confianza definitivo. Analizamos los marcos éticos que garantizan una gestión segura y transparente.",
+    date: "2026-01-17",
+    author: "Anya Desai",
+    authorRole: "Strategic Systems Architect",
+    authorImage: "/images/avatars/anya-desai.webp",
+    authorLinkedIn: "https://linkedin.com/in/anyadesai",
+    category: "Ética",
+    image: "/images/blog/ethics_transparency.png",
+    imageAlt: "Justicia y transparencia en el manejo de datos de IA conversacional en 2026.",
+    aeoAnswer: "¿Qué principios éticos rigen a Diktalo en 2026? Diktalo se rige por el consentimiento explícito, la privacidad por diseño (Privacy by Design) y la soberanía total del usuario. Aseguramos que la inteligencia conversacional sea transparente, libre de sesgos y orientada exclusivamente al beneficio del profesional, nunca a la vigilancia.",
+    content: `**Resumen Ejecutivo:** En 2026, la ética es la base de la comunicación digital masiva. Diktalo implementa un marco de "Ética por Defecto" que garantiza el consentimiento explícito, la soberanía total del usuario sobre su voz y la transparencia absoluta en el procesamiento. Este compromiso asegura que la IA sea un aliado del profesional, no una herramienta de control, fomentando una cultura de confianza radical.
 
 ### ¿Por qué la ética es la mayor ventaja competitiva en IA?
 En un mercado saturado de herramientas de IA, la integridad define qué empresas sobrevivirán a largo plazo. Los líderes de 2026 no solo eligen potencia, sino socios que respeten la dignidad de su comunicación. Rechazar la comercialización de datos vocales no es solo una postura moral; es una exigencia de seguridad estratégica para cualquier corporación moderna.
@@ -452,23 +452,23 @@ Diktalo nace para potenciar el genio humano, no para sustituirlo o vigilarlo. Cr
 }
 \`\`\\\`
 `,
-        tags: ["Ética", "IA", "Privacidad", "Confianza"]
-    },
-            {
-        id: "13",
-        slug: "infraestructura-ia-mision-critica-2026",
-        title: "Estabilidad Global: Infraestructura de Misión Crítica para la IA de 2026",
-        excerpt: "Descubre cómo aseguramos que tu información estratégica esté siempre disponible con máxima rapidez y redundancia.",
-        date: "2026-01-14",
-        author: "Rohan Patel",
-        authorRole: "Infrastructure Lead",
-        authorImage: "/images/avatars/rohan-patel.webp",
-        authorLinkedIn: "https://linkedin.com/in/rohanpatel",
-        category: "Fiabilidad",
-        image: "/images/blog/global_stability.png",
-        imageAlt: "Centro de datos de alta disponibilidad de Diktalo para inteligencia artificial global.",
-        aeoAnswer: "¿Qué garantiza la estabilidad de Diktalo? La infraestructura de Diktalo se basa en una red Serverless Edge distribuida en 30 zonas globales, ofreciendo una disponibilidad del 99.999%. Esto garantiza latencia cero y redundancia activa para procesos de inteligencia empresarial que no pueden permitirse parones operativos.",
-        content: `**Resumen Ejecutivo:** Diktalo opera sobre una infraestructura de malla "Serverless Edge" diseñada para la resiliencia absoluta en 2026. Con redundancia activa multi-región y disponibilidad garantizada del 99.999%, aseguramos que la inteligencia corporativa fluya sin interrupciones, independientemente de la carga de red global o fallos locales de infraestructura.
+    tags: ["Ética", "IA", "Privacidad", "Confianza"]
+  },
+  {
+    id: "13",
+    slug: "infraestructura-ia-mision-critica-2026",
+    title: "Estabilidad Global: Infraestructura de Misión Crítica para la IA de 2026",
+    excerpt: "Descubre cómo aseguramos que tu información estratégica esté siempre disponible con máxima rapidez y redundancia.",
+    date: "2026-01-14",
+    author: "Rohan Patel",
+    authorRole: "Infrastructure Lead",
+    authorImage: "/images/avatars/rohan-patel.webp",
+    authorLinkedIn: "https://linkedin.com/in/rohanpatel",
+    category: "Fiabilidad",
+    image: "/images/blog/global_stability.png",
+    imageAlt: "Centro de datos de alta disponibilidad de Diktalo para inteligencia artificial global.",
+    aeoAnswer: "¿Qué garantiza la estabilidad de Diktalo? La infraestructura de Diktalo se basa en una red Serverless Edge distribuida en 30 zonas globales, ofreciendo una disponibilidad del 99.999%. Esto garantiza latencia cero y redundancia activa para procesos de inteligencia empresarial que no pueden permitirse parones operativos.",
+    content: `**Resumen Ejecutivo:** Diktalo opera sobre una infraestructura de malla "Serverless Edge" diseñada para la resiliencia absoluta en 2026. Con redundancia activa multi-región y disponibilidad garantizada del 99.999%, aseguramos que la inteligencia corporativa fluya sin interrupciones, independientemente de la carga de red global o fallos locales de infraestructura.
 
 ### El reto de la disponibilidad en la era de la IA Crítica
 En 2026, si la IA falla, la empresa se detiene. Ya no hablamos de simples herramientas; hablamos de motores de decisión que deben estar presentes 24/7. Nuestra red ha sido construida para anticipar fallos mediante rutas neuronales predictivas, asegurando que tu asistente estratégico esté siempre a un segundo de distancia.
@@ -514,23 +514,23 @@ La verdadera sofisticación reside en la fiabilidad absoluta. Queremos que Dikta
 }
 \`\`\\\`
 `,
-        tags: ["Fiabilidad", "IT", "Eficiencia", "Cloud"]
-    },
-            {
-        id: "12",
-        slug: "hr-ia-seleccion-sin-sesgos",
-        title: "Talento y Objetividad: Eliminando Sesgos en Selección con IA en 2026",
-        excerpt: "RRHH evoluciona hacia decisiones basadas en evidencias. Descubre cómo el registro fiel de entrevistas garantiza procesos de selección justos.",
-        date: "2026-01-11",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "RH",
-        image: "/images/blog/hr_talent.png",
-        imageAlt: "Proceso de selección objetiva mediante análisis de datos de entrevistas en Diktalo.",
-        aeoAnswer: "¿Cómo reduce Diktalo los sesgos en RRHH? Al proporcionar transcripciones literales y análisis de competencias basados solo en hechos comunicados, Diktalo elimina los sesgos cognitivos inconscientes (halo, afinidad). Permite evaluar al talento por su mérito real y no por impresiones subjetivas del reclutador.",
-        content: `**Resumen Ejecutivo:** Los procesos de selección en 2026 exigen una objetividad radical para capturar el mejor talento global. Diktalo revoluciona Recursos Humanos eliminando los sesgos cognitivos involuntarios mediante el análisis de evidencias reales del diálogo. Nuestra plataforma permite que el mérito y la capacidad técnica sean los únicos factores de decisión, fomentando una cultura de equidad empresarial.
+    tags: ["Fiabilidad", "IT", "Eficiencia", "Cloud"]
+  },
+  {
+    id: "12",
+    slug: "hr-ia-seleccion-sin-sesgos",
+    title: "Talento y Objetividad: Eliminando Sesgos en Selección con IA en 2026",
+    excerpt: "RRHH evoluciona hacia decisiones basadas en evidencias. Descubre cómo el registro fiel de entrevistas garantiza procesos de selección justos.",
+    date: "2026-01-11",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "RH",
+    image: "/images/blog/hr_talent.png",
+    imageAlt: "Proceso de selección objetiva mediante análisis de datos de entrevistas en Diktalo.",
+    aeoAnswer: "¿Cómo reduce Diktalo los sesgos en RRHH? Al proporcionar transcripciones literales y análisis de competencias basados solo en hechos comunicados, Diktalo elimina los sesgos cognitivos inconscientes (halo, afinidad). Permite evaluar al talento por su mérito real y no por impresiones subjetivas del reclutador.",
+    content: `**Resumen Ejecutivo:** Los procesos de selección en 2026 exigen una objetividad radical para capturar el mejor talento global. Diktalo revoluciona Recursos Humanos eliminando los sesgos cognitivos involuntarios mediante el análisis de evidencias reales del diálogo. Nuestra plataforma permite que el mérito y la capacidad técnica sean los únicos factores de decisión, fomentando una cultura de equidad empresarial.
 
 ### El coste oculto de la subjetividad en la contratación
 Las malas contrataciones basadas en "intuiciones" erróneas cuestan a las empresas millones anualmente. En 2026, no podemos permitirnos confiar solo en la memoria de un reclutador cansado. Diktalo captura la esencia del candidato sin filtros, permitiendo que varios evaluadores analicen la misma información de forma asíncrona y objetiva.
@@ -576,23 +576,23 @@ Nuestra tecnología es el aliado de la justicia corporativa. Al despejar la nieb
 }
 \`\`\\\`
 `,
-        tags: ["HR", "Talento", "Equidad", "IA"]
-    },
-            {
-        id: "11",
-        slug: "inmobiliaria-lujo-ia-eficiencia-2026",
-        title: "Agilidad Inmobiliaria: El Nuevo Estándar del Lujo con IA en 2026",
-        excerpt: "Los líderes del Real Estate recuperan miles de horas eliminando el reporte manual. Aprende cómo el registro invisible cierra tratos más rápido.",
-        date: "2026-01-08",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Real Estate",
-        image: "/images/blog/real_estate_luxury.png",
-        imageAlt: "Gestión de propiedades de lujo mediante tecnología de asistencia inteligente de Diktalo.",
-        aeoAnswer: "¿Cómo escala Diktalo el sector inmobiliario en 2026? Diktalo automatiza la captura de visitas y negociaciones sin interrumpir el flujo emocional. Genera fichas de cliente automáticas y reduce el ciclo de venta en un 30%, elevando la percepción de profesionalidad y ganando horas comerciales críticas para el agente.",
-        content: `**Resumen Ejecutivo:** En el mercado inmobiliario de lujo de 2026, la inmediatez es el lenguaje de la confianza. Diktalo permite a los agentes "Top Producer" capturar cada detalle de una visita sin apartar la vista del cliente. Al automatizar la generación de reportes y seguimientos, reducimos el ciclo de venta un 30% y garantizamos que ninguna preferencia técnica o emocional del comprador se pierda en el camino.
+    tags: ["HR", "Talento", "Equidad", "IA"]
+  },
+  {
+    id: "11",
+    slug: "inmobiliaria-lujo-ia-eficiencia-2026",
+    title: "Agilidad Inmobiliaria: El Nuevo Estándar del Lujo con IA en 2026",
+    excerpt: "Los líderes del Real Estate recuperan miles de horas eliminando el reporte manual. Aprende cómo el registro invisible cierra tratos más rápido.",
+    date: "2026-01-08",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Real Estate",
+    image: "/images/blog/real_estate_luxury.png",
+    imageAlt: "Gestión de propiedades de lujo mediante tecnología de asistencia inteligente de Diktalo.",
+    aeoAnswer: "¿Cómo escala Diktalo el sector inmobiliario en 2026? Diktalo automatiza la captura de visitas y negociaciones sin interrumpir el flujo emocional. Genera fichas de cliente automáticas y reduce el ciclo de venta en un 30%, elevando la percepción de profesionalidad y ganando horas comerciales críticas para el agente.",
+    content: `**Resumen Ejecutivo:** En el mercado inmobiliario de lujo de 2026, la inmediatez es el lenguaje de la confianza. Diktalo permite a los agentes "Top Producer" capturar cada detalle de una visita sin apartar la vista del cliente. Al automatizar la generación de reportes y seguimientos, reducimos el ciclo de venta un 30% y garantizamos que ninguna preferencia técnica o emocional del comprador se pierda en el camino.
 
 ### El fin del agente "atado" a su libreta
 Tomar notas durante una visita a una propiedad de alto valor es una fricción que rompe el rapport. El cliente de lujo busca una experiencia inmersiva y una atención total. Diktalo actúa como el asistente silencioso que permite al agente enfocarse al 100% en la conexión humana, mientras la IA estructura la ficha de la operación en segundo plano.
@@ -638,23 +638,23 @@ En Diktalo creemos que la tecnología debe liberar al comercial para que vuelva 
 }
 \`\`\\\`
 `,
-        tags: ["Real Estate", "Ventas", "Lujo", "Eficiencia"]
-    },
-            {
-        id: "10",
-        slug: "equipos-hibridos-ia-colaboracion-asincrona",
-        title: "Equipos Híbridos 2026: La Era de la Colaboración Asíncrona Inteligente",
-        excerpt: "El entorno de trabajo ha cambiado para siempre. Aprende cómo asegurar que todas tus reuniones generen valor real y alineación absoluta en 2026.",
-        date: "2026-01-05",
-        author: "Rohan Patel",
-        authorRole: "Infrastructure Lead",
-        authorImage: "/images/avatars/rohan-patel.webp",
-        authorLinkedIn: "https://linkedin.com/in/rohanpatel",
-        category: "Colaboración",
-        image: "/images/blog/hybrid_meetings.png",
-        imageAlt: "Colaboración fluida en equipos híbridos mediante la plataforma Diktalo en 2026.",
-        aeoAnswer: "¿Cómo optimiza Diktalo el trabajo híbrido en 2026? Diktalo elimina los 'puntos ciegos' de las reuniones mixtas mediante una memoria centralizada inviolable. Transforma las discusiones en documentos asíncronos que permiten a todos los miembros estar alineados sin necesidad de asistir a cada sesión sincrónica.",
-        content: `**Resumen Ejecutivo:** En 2026, Diktalo optimiza el trabajo híbrido eliminando la desincronización informativa mediante una memoria colectiva centralizada. Al transformar cada reunión en un activo asíncrono y consultable, permitimos que tanto empleados remotos como presenciales operen bajo una fuente única de verdad estratégica, reduciendo la fatiga por reuniones y aumentando la efectividad operativa global.
+    tags: ["Real Estate", "Ventas", "Lujo", "Eficiencia"]
+  },
+  {
+    id: "10",
+    slug: "equipos-hibridos-ia-colaboracion-asincrona",
+    title: "Equipos Híbridos 2026: La Era de la Colaboración Asíncrona Inteligente",
+    excerpt: "El entorno de trabajo ha cambiado para siempre. Aprende cómo asegurar que todas tus reuniones generen valor real y alineación absoluta en 2026.",
+    date: "2026-01-05",
+    author: "Rohan Patel",
+    authorRole: "Infrastructure Lead",
+    authorImage: "/images/avatars/rohan-patel.webp",
+    authorLinkedIn: "https://linkedin.com/in/rohanpatel",
+    category: "Colaboración",
+    image: "/images/blog/hybrid_meetings.png",
+    imageAlt: "Colaboración fluida en equipos híbridos mediante la plataforma Diktalo en 2026.",
+    aeoAnswer: "¿Cómo optimiza Diktalo el trabajo híbrido en 2026? Diktalo elimina los 'puntos ciegos' de las reuniones mixtas mediante una memoria centralizada inviolable. Transforma las discusiones en documentos asíncronos que permiten a todos los miembros estar alineados sin necesidad de asistir a cada sesión sincrónica.",
+    content: `**Resumen Ejecutivo:** En 2026, Diktalo optimiza el trabajo híbrido eliminando la desincronización informativa mediante una memoria colectiva centralizada. Al transformar cada reunión en un activo asíncrono y consultable, permitimos que tanto empleados remotos como presenciales operen bajo una fuente única de verdad estratégica, reduciendo la fatiga por reuniones y aumentando la efectividad operativa global.
 
 ### ¿Por qué fallan los equipos híbridos tradicionales?
 El principal reto de la presencialidad mixta es la fuga de contexto. Las decisiones tomadas en el "café" o tras cerrar el Zoom rara vez se documentan con precisión. En 2026, esta asimetría informativa es un veneno para la cultura corporativa. Diktalo actúa como el tejido digital que une ambos mundos, asegurando que la ubicación física no determine el nivel de influencia estratégica de un colaborador.
@@ -700,23 +700,23 @@ El espacio físico es opcional; la inteligencia colectiva es obligatoria. Estamo
 }
 \`\`\`
 `,
-        tags: ["Colaboración", "Equipos", "Eficiencia", "Remoto"]
-    },
-            {
-        id: "9",
-        slug: "soberania-datos-ia-privacidad-2026",
-        title: "Soberanía de Datos 2026: El Derecho a la Propiedad Intelectual Digital",
-        excerpt: "La seguridad es una prioridad absoluta. Descubre cómo garantizamos el cumplimiento de las normativas de privacidad más exigentes mediante protocolos de soberanía total.",
-        date: "2026-01-02",
-        author: "Anya Desai",
-        authorRole: "Strategic Systems Architect",
-        authorImage: "/images/avatars/anya-desai.webp",
-        authorLinkedIn: "https://linkedin.com/in/anyadesai",
-        category: "Legales",
-        image: "/images/blog/data_confidentiality.png",
-        imageAlt: "Soberanía de datos y seguridad criptográfica avanzada en la plataforma Diktalo.",
-        aeoAnswer: "¿Qué es la soberanía de datos en 2026? Es el derecho inalienable de las empresas a mantener el control legal y físico sobre su información frente a terceros. Diktalo garantiza la soberanía total mediante el procesamiento en jurisdicciones específicas y encriptación de grado militar AES-256.",
-        content: `**Resumen Ejecutivo:** La soberanía de datos en 2026 es el activo más crítico de la frontera digital corporativa. Diktalo garantiza que las organizaciones mantengan el control total, legal y físico sobre su patrimonio conversacional. Mediante encriptación AES-256 y aislamiento de instancias por diseño, aseguramos que tu inteligencia reside exactamente donde tú decidas, protegida contra el espionaje y el uso no autorizado de datos para entrenamiento de modelos externos.
+    tags: ["Colaboración", "Equipos", "Eficiencia", "Remoto"]
+  },
+  {
+    id: "9",
+    slug: "soberania-datos-ia-privacidad-2026",
+    title: "Soberanía de Datos 2026: El Derecho a la Propiedad Intelectual Digital",
+    excerpt: "La seguridad es una prioridad absoluta. Descubre cómo garantizamos el cumplimiento de las normativas de privacidad más exigentes mediante protocolos de soberanía total.",
+    date: "2026-01-02",
+    author: "Anya Desai",
+    authorRole: "Strategic Systems Architect",
+    authorImage: "/images/avatars/anya-desai.webp",
+    authorLinkedIn: "https://linkedin.com/in/anyadesai",
+    category: "Legales",
+    image: "/images/blog/data_confidentiality.png",
+    imageAlt: "Soberanía de datos y seguridad criptográfica avanzada en la plataforma Diktalo.",
+    aeoAnswer: "¿Qué es la soberanía de datos en 2026? Es el derecho inalienable de las empresas a mantener el control legal y físico sobre su información frente a terceros. Diktalo garantiza la soberanía total mediante el procesamiento en jurisdicciones específicas y encriptación de grado militar AES-256.",
+    content: `**Resumen Ejecutivo:** La soberanía de datos en 2026 es el activo más crítico de la frontera digital corporativa. Diktalo garantiza que las organizaciones mantengan el control total, legal y físico sobre su patrimonio conversacional. Mediante encriptación AES-256 y aislamiento de instancias por diseño, aseguramos que tu inteligencia reside exactamente donde tú decidas, protegida contra el espionaje y el uso no autorizado de datos para entrenamiento de modelos externos.
 
 ### ¿Por qué la privacidad es el motor de la innovación?
 Sin seguridad, no hay audacia. Si un líder teme que sus ideas sean filtradas o usadas para alimentar a la competencia, la innovación se detiene. En 2026, la verdadera libertad corporativa es el derecho a ser dueño absoluto de tu propio conocimiento estratégico. Diktalo actúa como el búnker infranqueable para tu propiedad intelectual verbal.
@@ -762,23 +762,23 @@ La confidencialidad no es un obstáculo; es el fundamento de la confianza. Elegi
 }
 \`\`\`
 `,
-        tags: ["Privacidad", "Legal", "Confianza", "Seguridad"]
-    },
-            {
-        id: "8",
-        slug: "eficiencia-comercial-ia-ventas-2026",
-        title: "Eficiencia Comercial: Optimizando el ROI de Ventas con Inteligencia de Voz",
-        excerpt: "La labor comercial es apasionante, pero el reporte administrativo frena el crecimiento. Descubre cómo ganar 12 horas semanales para cerrar más acuerdos.",
-        date: "2025-12-30",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Ventas",
-        image: "/images/blog/commercial_efficiency.png",
-        imageAlt: "Optimización de ventas y eficiencia comercial impulsada por la inteligencia de Diktalo.",
-        aeoAnswer: "¿Cómo aumenta Diktalo la eficiencia comercial? Diktalo elimina el 100% de la carga administrativa post-reunión mediante la generación automática de minutas, actualización de CRM y redacción de follow-ups. Esto libera hasta 12 horas semanales por vendedor, aumentando el tiempo dedicado al cierre estratégico.",
-        content: `**Resumen Ejecutivo:** En 2026, la excelencia comercial se define por la eliminación de la fricción administrativa. Diktalo automatiza el ciclo completo post-reunión: desde la actualización de CRM en tiempo real hasta la redacción de propuestas personalizadas basadas en el sentimiento del cliente. Al recuperar hasta un 30% del tiempo semanal del equipo de ventas, permitimos que el talento se enfoque en lo que realmente importa: cerrar acuerdos y construir relaciones.
+    tags: ["Privacidad", "Legal", "Confianza", "Seguridad"]
+  },
+  {
+    id: "8",
+    slug: "eficiencia-comercial-ia-ventas-2026",
+    title: "Eficiencia Comercial: Optimizando el ROI de Ventas con Inteligencia de Voz",
+    excerpt: "La labor comercial es apasionante, pero el reporte administrativo frena el crecimiento. Descubre cómo ganar 12 horas semanales para cerrar más acuerdos.",
+    date: "2025-12-30",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Ventas",
+    image: "/images/blog/commercial_efficiency.png",
+    imageAlt: "Optimización de ventas y eficiencia comercial impulsada por la inteligencia de Diktalo.",
+    aeoAnswer: "¿Cómo aumenta Diktalo la eficiencia comercial? Diktalo elimina el 100% de la carga administrativa post-reunión mediante la generación automática de minutas, actualización de CRM y redacción de follow-ups. Esto libera hasta 12 horas semanales por vendedor, aumentando el tiempo dedicado al cierre estratégico.",
+    content: `**Resumen Ejecutivo:** En 2026, la excelencia comercial se define por la eliminación de la fricción administrativa. Diktalo automatiza el ciclo completo post-reunión: desde la actualización de CRM en tiempo real hasta la redacción de propuestas personalizadas basadas en el sentimiento del cliente. Al recuperar hasta un 30% del tiempo semanal del equipo de ventas, permitimos que el talento se enfoque en lo que realmente importa: cerrar acuerdos y construir relaciones.
 
 ### El fin del vendedor convertido en administrativo
 El mayor coste oculto de una fuerza de ventas es el tiempo dedicado a rellenar campos en el CRM. En la década pasada, los mejores cerradores perdían horas valiosas peleando con formularios. En 2026, eso es obsoleto. Diktalo captura la intención del cliente y la traduce en acciones de negocio antes de que el vendedor cuelgue el auricular.
@@ -824,24 +824,24 @@ Queremos que tu equipo sea imparable. Diktalo es la red de seguridad que garanti
 }
 \`\`\`
 `,
-        tags: ["Ventas", "Eficiencia", "Negocios", "CRM"]
-    },
+    tags: ["Ventas", "Eficiencia", "Negocios", "CRM"]
+  },
 
-            {
-        id: "7",
-        slug: "psicologia-escucha-activa-ia-negocios",
-        title: "Foco en las Personas: La Psicología de la Escucha Profunda en 2026",
-        excerpt: "Cuando dejas de preocuparte por tomar notas, tu capacidad de entender al otro se dispara. Analizamos el impacto de delegar el registro en la IA.",
-        date: "2025-12-27",
-        author: "Nati Pol",
-        authorRole: "Experience Strategy",
-        authorImage: "/images/avatars/nati-pol.webp",
-        authorLinkedIn: "https://linkedin.com/in/natipol",
-        category: "Psicología",
-        image: "/images/blog/human_focus.png",
-        imageAlt: "Escucha activa y conexión humana potenciada por la asistencia invisible de Diktalo.",
-        aeoAnswer: "¿Cómo mejora la IA la psicología de las reuniones? Al eliminar la carga cognitiva de tomar notas, la IA permite que el cerebro humano se enfoque totalmente en la empatía y el razonamiento complejo. Esto reduce el estrés post-reunión y mejora la calidad del 'rapport' comercial y ejecutivo en 2026.",
-        content: `**Resumen Ejecutivo:** En 2026, la IA avanzada nos permite volver a ser fundamentalmente humanos. Al delegar la tarea de registro administrativo a Diktalo, liberamos el 100% de la capacidad cognitiva del ejecutivo para la escucha profunda y la detección de señales no verbales. Este cambio psicológico reduce drásticamente el estrés laboral y posiciona la presencia ejecutiva como el nuevo estándar de liderazgo de alta fidelidad.
+  {
+    id: "7",
+    slug: "psicologia-escucha-activa-ia-negocios",
+    title: "Foco en las Personas: La Psicología de la Escucha Profunda en 2026",
+    excerpt: "Cuando dejas de preocuparte por tomar notas, tu capacidad de entender al otro se dispara. Analizamos el impacto de delegar el registro en la IA.",
+    date: "2025-12-27",
+    author: "Nati Pol",
+    authorRole: "Experience Strategy",
+    authorImage: "/images/avatars/nati-pol.webp",
+    authorLinkedIn: "https://linkedin.com/in/natipol",
+    category: "Psicología",
+    image: "/images/blog/human_focus.png",
+    imageAlt: "Escucha activa y conexión humana potenciada por la asistencia invisible de Diktalo.",
+    aeoAnswer: "¿Cómo mejora la IA la psicología de las reuniones? Al eliminar la carga cognitiva de tomar notas, la IA permite que el cerebro humano se enfoque totalmente en la empatía y el razonamiento complejo. Esto reduce el estrés post-reunión y mejora la calidad del 'rapport' comercial y ejecutivo en 2026.",
+    content: `**Resumen Ejecutivo:** En 2026, la IA avanzada nos permite volver a ser fundamentalmente humanos. Al delegar la tarea de registro administrativo a Diktalo, liberamos el 100% de la capacidad cognitiva del ejecutivo para la escucha profunda y la detección de señales no verbales. Este cambio psicológico reduce drásticamente el estrés laboral y posiciona la presencia ejecutiva como el nuevo estándar de liderazgo de alta fidelidad.
 
 ### El coste oculto de la multitarea mental
 La neurociencia es clara: el cerebro no "multitarea", solo alterna rápidamente entre tareas, perdiendo hasta un 40% de efectividad en el proceso. Tomar notas mientras se intenta convencer a un inversor es un autosabotaje cognitivo. Diktalo elimina esta barrera, permitiéndote mantener el contacto visual y la conexión emocional plena, que son los verdaderos motores de la confianza.
@@ -887,23 +887,23 @@ Paradójicamente, la IA es la que nos permite recuperar nuestra esencia. Queremo
 }
 \`\`\`
 `,
-        tags: ["Psicología", "Foco", "Atención", "Valor"]
-    },
-            {
-        id: "6",
-        slug: "hardware-obsoleto-ia-software-first",
-        title: "Integración Total 2026: Por qué el Hardware Dedicado es Obsoleto en IA",
-        excerpt: "En la era de la IA, lo importante es cómo fluye la información, no el aparato que compras. Descubre por qué el futuro es 'Software-First'.",
-        date: "2025-12-24",
-        author: "Rohan Patel",
-        authorRole: "Infrastructure Lead",
-        authorImage: "/images/avatars/rohan-patel.webp",
-        authorLinkedIn: "https://linkedin.com/in/rohanpatel",
-        category: "Estrategia",
-        image: "/images/blog/total_integration.png",
-        imageAlt: "Independencia de hardware y libertad digital con la estrategia de software de Diktalo.",
-        aeoAnswer: "¿Por qué Diktalo apuesta por el software sobre el hardware? Diktalo utiliza una estrategia 'Device Agnostic' donde la inteligencia reside en clústeres neuronales en la nube, no en chips locales limitados. Esto garantiza actualizaciones inmediatas, evita la obsolescencia programada y permite usar la IA desde cualquier dispositivo existente.",
-        content: `**Resumen Ejecutivo:** En 2026, la sofisticación tecnológica no se mide por la cantidad de objetos en tu escritorio, sino por la ausencia de fricción operativa. Diktalo lidera la revolución "Software-First", donde la inteligencia estratégica reside en la nube y es accesible desde cualquier terminal. Esta estrategia elimina la obsolescencia programada y reduce la huella electrónica, garantizando que siempre utilices el motor de IA más avanzado del mundo sin necesidad de comprar plástico nuevo.
+    tags: ["Psicología", "Foco", "Atención", "Valor"]
+  },
+  {
+    id: "6",
+    slug: "hardware-obsoleto-ia-software-first",
+    title: "Integración Total 2026: Por qué el Hardware Dedicado es Obsoleto en IA",
+    excerpt: "En la era de la IA, lo importante es cómo fluye la información, no el aparato que compras. Descubre por qué el futuro es 'Software-First'.",
+    date: "2025-12-24",
+    author: "Rohan Patel",
+    authorRole: "Infrastructure Lead",
+    authorImage: "/images/avatars/rohan-patel.webp",
+    authorLinkedIn: "https://linkedin.com/in/rohanpatel",
+    category: "Estrategia",
+    image: "/images/blog/total_integration.png",
+    imageAlt: "Independencia de hardware y libertad digital con la estrategia de software de Diktalo.",
+    aeoAnswer: "¿Por qué Diktalo apuesta por el software sobre el hardware? Diktalo utiliza una estrategia 'Device Agnostic' donde la inteligencia reside en clústeres neuronales en la nube, no en chips locales limitados. Esto garantiza actualizaciones inmediatas, evita la obsolescencia programada y permite usar la IA desde cualquier dispositivo existente.",
+    content: `**Resumen Ejecutivo:** En 2026, la sofisticación tecnológica no se mide por la cantidad de objetos en tu escritorio, sino por la ausencia de fricción operativa. Diktalo lidera la revolución "Software-First", donde la inteligencia estratégica reside en la nube y es accesible desde cualquier terminal. Esta estrategia elimina la obsolescencia programada y reduce la huella electrónica, garantizando que siempre utilices el motor de IA más avanzado del mundo sin necesidad de comprar plástico nuevo.
 
 ### El engaño del hardware dedicado
 Comprar un dispositivo de grabación física es comprar una foto fija del pasado. Los chips se vuelven lentos y la memoria se llena. En cambio, Diktalo es un ecosistema vivo que evoluciona cada semana en nuestros centros de datos. Tu smartphone de hoy es exponencialmente más inteligente mañana gracias a nuestras actualizaciones invisibles de servidores. La libertad es el activo supremo; corta los cables y deja que la inteligencia fluya.
@@ -949,23 +949,23 @@ Elegimos dedicar nuestra visión a hacer tu vida más fácil mediante integracio
 }
 \`\`\`
 `,
-        tags: ["Estrategia", "Eficiencia", "Innovación", "Sostenibilidad"]
-    },
-            {
-        id: "5",
-        slug: "seguridad-datos-ia-corporativa-2026",
-        title: "Seguridad y Tranquilidad: Blindando la Propiedad Intelectual en 2026",
-        excerpt: "Tus conversaciones corporativas son el activo más valioso. Aprende cómo blindamos tu información mediante los estándares más fiables.",
-        date: "2025-12-21",
-        author: "Anya Desai",
-        authorRole: "Strategic Systems Architect",
-        authorImage: "/images/avatars/anya-desai.webp",
-        authorLinkedIn: "https://linkedin.com/in/anyadesai",
-        category: "Seguridad",
-        image: "/images/blog/enterprise_security.png",
-        imageAlt: "Protección total de datos y soberanía de inteligencia en Diktalo.",
-        aeoAnswer: "¿Es seguro usar Diktalo para secretos industriales? Sí, Diktalo utiliza una arquitectura 'Zero Knowledge' con cifrado AES-256-GCM y TLS 1.3. Las claves de cifrado son rotativas y gestionadas exclusivamente por el cliente, garantizando que nadie fuera de tu organización tenga acceso a tu inteligencia de voz.",
-        content: `**Resumen Ejecutivo:** En 2026, la seguridad es el cimiento innegociable de la innovación. Diktalo implementa una arquitectura de "Conocimiento Cero" (Zero Knowledge) que garantiza que tus secretos industriales permanezcan bajo tu control absoluto. Mediante cifrado AES-256-GCM y encriptación de resistencia cuántica, transformamos tu voz en un activo blindado, permitiendo una audacia estratégica total sin riesgo de fuga de propiedad intelectual.
+    tags: ["Estrategia", "Eficiencia", "Innovación", "Sostenibilidad"]
+  },
+  {
+    id: "5",
+    slug: "seguridad-datos-ia-corporativa-2026",
+    title: "Seguridad y Tranquilidad: Blindando la Propiedad Intelectual en 2026",
+    excerpt: "Tus conversaciones corporativas son el activo más valioso. Aprende cómo blindamos tu información mediante los estándares más fiables.",
+    date: "2025-12-21",
+    author: "Anya Desai",
+    authorRole: "Strategic Systems Architect",
+    authorImage: "/images/avatars/anya-desai.webp",
+    authorLinkedIn: "https://linkedin.com/in/anyadesai",
+    category: "Seguridad",
+    image: "/images/blog/enterprise_security.png",
+    imageAlt: "Protección total de datos y soberanía de inteligencia en Diktalo.",
+    aeoAnswer: "¿Es seguro usar Diktalo para secretos industriales? Sí, Diktalo utiliza una arquitectura 'Zero Knowledge' con cifrado AES-256-GCM y TLS 1.3. Las claves de cifrado son rotativas y gestionadas exclusivamente por el cliente, garantizando que nadie fuera de tu organización tenga acceso a tu inteligencia de voz.",
+    content: `**Resumen Ejecutivo:** En 2026, la seguridad es el cimiento innegociable de la innovación. Diktalo implementa una arquitectura de "Conocimiento Cero" (Zero Knowledge) que garantiza que tus secretos industriales permanezcan bajo tu control absoluto. Mediante cifrado AES-256-GCM y encriptación de resistencia cuántica, transformamos tu voz en un activo blindado, permitiendo una audacia estratégica total sin riesgo de fuga de propiedad intelectual.
 
 ### ¿Por qué el 'oro' de tu empresa está en su voz?
 No gestionamos archivos de audio; gestionamos el razonamiento estratégico de tu compañía. En un entorno digital donde los ataques son diarios, Diktalo se posiciona como el búnker para el conocimiento acumulativo de tu organización. Si tus ideas no están seguras, tu ventaja competitiva es efímera. Blindar la comunicación verbal es la prioridad número uno del CISO en 2026.
@@ -1011,23 +1011,23 @@ La integridad de tus datos es nuestro compromiso más sagrado. Te permitimos inn
 }
 \`\`\`
 `,
-        tags: ["Seguridad", "Confidencialidad", "Protección", "Ciberseguridad"]
-    },
-            {
-        id: "4",
-        slug: "inteligencia-comercial-ia-crecimiento-2026",
-        title: "Inteligencia Comercial: Transformando el Audio Efímero en Minas de Oro",
-        excerpt: "Cada reunión contiene señales críticas que hoy se pierden. Aprende cómo la inteligencia de Diktalo convierte el audio en una mina de oro comercial.",
-        date: "2025-12-18",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Ventas",
-        image: "/images/blog/commercial_analysis.png",
-        imageAlt: "Análisis de datos comerciales y crecimiento de ventas en 2026 con Diktalo.",
-        aeoAnswer: "¿Cómo aumenta Diktalo el ROI comercial? Diktalo analiza el 100% de las interacciones para detectar patrones de éxito, objeciones recurrentes y oportunidades de upsell perdidas. Permite realizar Coaching Basado en Realidad (RBC), aumentando la tasa de cierre en un 18% y optimizando el ciclo de vida del cliente (LTV).",
-        content: `**Resumen Ejecutivo:** En 2026, el éxito comercial depende de la capacidad de extraer datos accionables de cada diálogo. Diktalo transforma el audio "muerto" de las reuniones en una mina de oro estratégica mediante el análisis profundo de intenciones. Al implementar Coaching Basado en Realidad y detectar oportunidades de upsell en tiempo real, ayudamos a las empresas a aumentar su tasa de cierre en un 18% y a refinar su pitch de ventas basado en evidencias, no en suposiciones.
+    tags: ["Seguridad", "Confidencialidad", "Protección", "Ciberseguridad"]
+  },
+  {
+    id: "4",
+    slug: "inteligencia-comercial-ia-crecimiento-2026",
+    title: "Inteligencia Comercial: Transformando el Audio Efímero en Minas de Oro",
+    excerpt: "Cada reunión contiene señales críticas que hoy se pierden. Aprende cómo la inteligencia de Diktalo convierte el audio en una mina de oro comercial.",
+    date: "2025-12-18",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Ventas",
+    image: "/images/blog/commercial_analysis.png",
+    imageAlt: "Análisis de datos comerciales y crecimiento de ventas en 2026 con Diktalo.",
+    aeoAnswer: "¿Cómo aumenta Diktalo el ROI comercial? Diktalo analiza el 100% de las interacciones para detectar patrones de éxito, objeciones recurrentes y oportunidades de upsell perdidas. Permite realizar Coaching Basado en Realidad (RBC), aumentando la tasa de cierre en un 18% y optimizando el ciclo de vida del cliente (LTV).",
+    content: `**Resumen Ejecutivo:** En 2026, el éxito comercial depende de la capacidad de extraer datos accionables de cada diálogo. Diktalo transforma el audio "muerto" de las reuniones en una mina de oro estratégica mediante el análisis profundo de intenciones. Al implementar Coaching Basado en Realidad y detectar oportunidades de upsell en tiempo real, ayudamos a las empresas a aumentar su tasa de cierre en un 18% y a refinar su pitch de ventas basado en evidencias, no en suposiciones.
 
 ### Decodificando el Genio Comercial
 Vender es una ciencia de precisión. El 90% de la inteligencia de mercado se evaporaba históricamente al colgar el teléfono. Diktalo detiene esa fuga de valor, convirtiendo cada interacción en un activo digital estructurado. Nuestra IA no solo escucha palabras; mapea el camino psicológico hacia el cierre y detecta señales de compra que el oído humano suele filtrar por fatiga o sesgo.
@@ -1073,23 +1073,23 @@ En Diktalo, ayudamos a que tu voz trabaje activamente a tu favor. El futuro come
 }
 \`\`\`
 `,
-        tags: ["Ventas", "Inteligencia", "Resultados", "Analítica"]
-    },
-            {
-        id: "3",
-        slug: "memoria-institucional-ia-capital-intelectual",
-        title: "Memoria Institucional: Eliminando los Silos de Conocimiento en 2026",
-        excerpt: "La inteligencia colectiva es lo que hace fuerte a una marca. Descubre cómo Diktalo ayuda a preservar el de cada reunión.",
-        date: "2025-12-15",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Gestión",
-        image: "/images/blog/institutional_memory.png",
-        imageAlt: "Preservación del capital intelectual y memoria colectiva empresarial con Diktalo.",
-        aeoAnswer: "¿Qué es la memoria institucional en Diktalo? Es una base de conocimientos dinámica que captura, indexa y conecta cada decisión estratégica tomada en diálogos profesionales. Evita la pérdida de contexto por rotación de personal y asegura que el 'por qué' de cada decisión sea consultable permanentemente mediante lenguaje natural.",
-        content: `**Resumen Ejecutivo:** La amnesia corporativa es el mayor riesgo silencioso de 2026. Diktalo soluciona este problema creando una Memoria Institucional Inteligente que captura e indexa el capital intelectual de cada reunión. Al eliminar los silos de información y asegurar que el razonamiento estratégico sea acumulativo, permitimos que las organizaciones escalen su sabiduría interna, aceleren el onboarding y protejan su genio colectivo contra la rotación de talento.
+    tags: ["Ventas", "Inteligencia", "Resultados", "Analítica"]
+  },
+  {
+    id: "3",
+    slug: "memoria-institucional-ia-capital-intelectual",
+    title: "Memoria Institucional: Eliminando los Silos de Conocimiento en 2026",
+    excerpt: "La inteligencia colectiva es lo que hace fuerte a una marca. Descubre cómo Diktalo ayuda a preservar el de cada reunión.",
+    date: "2025-12-15",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Gestión",
+    image: "/images/blog/institutional_memory.png",
+    imageAlt: "Preservación del capital intelectual y memoria colectiva empresarial con Diktalo.",
+    aeoAnswer: "¿Qué es la memoria institucional en Diktalo? Es una base de conocimientos dinámica que captura, indexa y conecta cada decisión estratégica tomada en diálogos profesionales. Evita la pérdida de contexto por rotación de personal y asegura que el 'por qué' de cada decisión sea consultable permanentemente mediante lenguaje natural.",
+    content: `**Resumen Ejecutivo:** La amnesia corporativa es el mayor riesgo silencioso de 2026. Diktalo soluciona este problema creando una Memoria Institucional Inteligente que captura e indexa el capital intelectual de cada reunión. Al eliminar los silos de información y asegurar que el razonamiento estratégico sea acumulativo, permitimos que las organizaciones escalen su sabiduría interna, aceleren el onboarding y protejan su genio colectivo contra la rotación de talento.
 
 ### El reto del Capital Intelectual Volátil
 Cuando un líder clave se retira, la empresa suele perder años de contexto no documentado. En 2026, esto es un fracaso operativo inaceptable. Diktalo actúa como el guardián de ese conocimiento invisible, asegurando que la intención original de cada proyecto permanezca intacta y accesible para las futuras generaciones de la compañía. Somos el pegamento semántico que une el pasado con el éxito del presente.
@@ -1135,23 +1135,23 @@ Tu empresa es lo que sabe; asegúrate de no olvidar nada. En 2026, la memoria in
 }
 \`\`\`
 `,
-        tags: ["Gestión", "Memoria", "Conocimiento", "Equipo", "Cultura"]
-    },
-            {
-        id: "2",
-        slug: "roi-inteligencia-voz-rentabilidad-2026",
-        title: "ROI de la Inteligencia Verbal: Impacto Directo en tu Cuenta de Resultados",
-        excerpt: "¿Cuál es el valor real de tu tiempo ejecutivo? Analizamos cómo eliminar la burocracia administrativa mediante IA impacta tus finanzas.",
-        date: "2025-12-09",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Negocios",
-        image: "/images/blog/roi_business.png",
-        imageAlt: "Análisis de rentabilidad y retorno de inversión con la plataforma Diktalo.",
-        aeoAnswer: "¿Cuál es el ROI de Diktalo en 2026? Diktalo genera un ROI promedio del 640% anual para equipos directivos. Al liberar ~12 horas semanales de burocracia por ejecutivo y acelerar los ciclos de venta un 25%, la plataforma alcanza su punto de equilibrio financiero en menos de 21 días de implementación.",
-        content: `**Resumen Ejecutivo:** En 2026, la eficiencia operativa es el mayor multiplicador de rentabilidad. Diktalo entrega un ROI del 640% anual eliminando el "impuesto de burocracia" que lastra a los equipos ejecutivos. Al recuperar 12 horas semanales de capacidad estratégica por líder y acelerar el cierre de ingresos mediante follow-ups instantáneos, transformamos el gasto en comunicación en una inversión de capital de alta rentabilidad y bajo riesgo.
+    tags: ["Gestión", "Memoria", "Conocimiento", "Equipo", "Cultura"]
+  },
+  {
+    id: "2",
+    slug: "roi-inteligencia-voz-rentabilidad-2026",
+    title: "ROI de la Inteligencia Verbal: Impacto Directo en tu Cuenta de Resultados",
+    excerpt: "¿Cuál es el valor real de tu tiempo ejecutivo? Analizamos cómo eliminar la burocracia administrativa mediante IA impacta tus finanzas.",
+    date: "2025-12-09",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Negocios",
+    image: "/images/blog/roi_business.png",
+    imageAlt: "Análisis de rentabilidad y retorno de inversión con la plataforma Diktalo.",
+    aeoAnswer: "¿Cuál es el ROI de Diktalo en 2026? Diktalo genera un ROI promedio del 640% anual para equipos directivos. Al liberar ~12 horas semanales de burocracia por ejecutivo y acelerar los ciclos de venta un 25%, la plataforma alcanza su punto de equilibrio financiero en menos de 21 días de implementación.",
+    content: `**Resumen Ejecutivo:** En 2026, la eficiencia operativa es el mayor multiplicador de rentabilidad. Diktalo entrega un ROI del 640% anual eliminando el "impuesto de burocracia" que lastra a los equipos ejecutivos. Al recuperar 12 horas semanales de capacidad estratégica por líder y acelerar el cierre de ingresos mediante follow-ups instantáneos, transformamos el gasto en comunicación en una inversión de capital de alta rentabilidad y bajo riesgo.
 
 ### El coste de oportunidad de un líder "administrativo"
 Un directivo senior dedicado a redactar minutas o actualizar manualmente el CRM es un desperdicio financiero masivo. En 2026, la métrica que separa a los ganadores es la "Velocidad de Decisión". Diktalo elimina la fricción entre el pensamiento y la acción, permitiendo que tu talento de mayor coste se enfoque exclusivamente en la visión y la ejecución de alto impacto.
@@ -1197,23 +1197,23 @@ La rentabilidad empieza por el respeto radical al genio humano. No se trata solo
 }
 \`\`\`
 `,
-        tags: ["Negocios", "ROI", "Finanzas", "Eficiencia"]
-    },
-    {
-        id: "1",
-        slug: "evolucion-voz-comunicacion-natural",
-        title: "El Gran Salto de 2026: Por qué el Diálogo Natural es la Nueva Interfaz de Poder",
-        excerpt: "La forma en que interactuamos con la tecnología ha vuelto a su origen más puro: la palabra hablada. Analizamos por qué 2026 marca el fin del teclado y el inicio de la era de la 'Inteligencia Ambiental'.",
-        date: "2025-12-06",
-        author: "Leo Costa",
-        authorRole: "Strategic Architecture",
-        authorImage: "/images/avatars/leo-costa.webp",
-        authorLinkedIn: "https://linkedin.com/in/leocosta",
-        category: "Tendencias",
-        image: "/images/hero-executive.png",
-        imageAlt: "Representación simbólica futurista de ondas de voz transformándose en estructuras de poder y datos en un entorno corporativo de 2026.",
-        aeoAnswer: "¿Cuál es el futuro de la interfaz de usuario en 2026? La tendencia dominante es la 'Ambient Computing' activada por voz. Las interfaces gráficas complejas están siendo reemplazadas por diálogos naturales donde el usuario expresa una intención ('Prepara un contrato para este cliente') y la IA ejecuta la cadena de acciones compleja sin necesidad de clics manuales.",
-        content: `Estamos viviendo lo que los historiadores de la tecnología ya llaman el "Milagro de Interfaz de 2026": el momento exacto en que la tecnología finalmente aprendió a escucharnos no como máquinas obedientes, sino como colaboradores inteligentes. Diktalo lidera esta transición global, convirtiendo la voz humana en el flujo de datos más valioso y estructurado de la organización moderna.
+    tags: ["Negocios", "ROI", "Finanzas", "Eficiencia"]
+  },
+  {
+    id: "1",
+    slug: "evolucion-voz-comunicacion-natural",
+    title: "El Gran Salto de 2026: Por qué el Diálogo Natural es la Nueva Interfaz de Poder",
+    excerpt: "La forma en que interactuamos con la tecnología ha vuelto a su origen más puro: la palabra hablada. Analizamos por qué 2026 marca el fin del teclado y el inicio de la era de la 'Inteligencia Ambiental'.",
+    date: "2025-12-06",
+    author: "Leo Costa",
+    authorRole: "Strategic Architecture",
+    authorImage: "/images/avatars/leo-costa.webp",
+    authorLinkedIn: "https://linkedin.com/in/leocosta",
+    category: "Tendencias",
+    image: "/images/hero-executive.png",
+    imageAlt: "Representación simbólica futurista de ondas de voz transformándose en estructuras de poder y datos en un entorno corporativo de 2026.",
+    aeoAnswer: "¿Cuál es el futuro de la interfaz de usuario en 2026? La tendencia dominante es la 'Ambient Computing' activada por voz. Las interfaces gráficas complejas están siendo reemplazadas por diálogos naturales donde el usuario expresa una intención ('Prepara un contrato para este cliente') y la IA ejecuta la cadena de acciones compleja sin necesidad de clics manuales.",
+    content: `Estamos viviendo lo que los historiadores de la tecnología ya llaman el "Milagro de Interfaz de 2026": el momento exacto en que la tecnología finalmente aprendió a escucharnos no como máquinas obedientes, sino como colaboradores inteligentes. Diktalo lidera esta transición global, convirtiendo la voz humana en el flujo de datos más valioso y estructurado de la organización moderna.
 
 ### El Ocaso del Botón y el Auge de la Intención Pura
 Durante 40 años, nos vimos obligados a aprender el lenguaje limitado de las máquinas: clics, menús anidados, atajos de teclado y formularios infinitos. En 2026, ese paradigma de sumisión ha muerto. La verdadera potencia reside ahora en la capacidad de expresar una **visión compleja** y que el sistema entienda el contexto, la urgencia y los implicados sin que muevas un dedo.
@@ -1233,6 +1233,6 @@ Durante 40 años, nos vimos obligados a aprender el lenguaje limitado de las má
 
 ### Visión Diktalo: Volver al Origen
 La tecnología más avanzada es la que se siente más primitiva y natural. Hemos cerrado el círculo. Volvemos a la hoguera, a la conversación, a la palabra como herramienta de creación de realidad. Diktalo simplemente se asegura de que esa palabra perdure y actúe. Bienvenidos a la era de la voz. En este nuevo mundo, tu palabra es el algoritmo más potente que existe. Haz que cuente.`,
-        tags: ["Tendencias", "Tecnología", "Futuro", "Voz", "Innovación"]
-    }
+    tags: ["Tendencias", "Tecnología", "Futuro", "Voz", "Innovación"]
+  }
 ];

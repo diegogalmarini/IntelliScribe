@@ -15,6 +15,8 @@ import { Navbar } from '../components/Landing/Navbar';
 import { UserProfile } from '../types';
 import * as Analytics from '../utils/analytics';
 import { faqPool, FAQItemData } from '../utils/faqData';
+import { blogPosts } from '../utils/blogData';
+import { Link } from 'react-router-dom';
 
 const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onToggle: () => void }> = ({ question, answer, isOpen, onToggle }) => {
     return (
@@ -149,27 +151,54 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                             <div>
-                                <p className="text-xs font-bold text-slate-500 mb-3">{t('landing_blog_tag')}</p>
+                                <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">{t('landing_blog_tag')}</p>
                                 <h3 className="h2 home text-slate-900 dark:text-white">{t('landing_blog_latest')}</h3>
                             </div>
-                            <button className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all">{t('landing_blog_view_all')}</button>
+                            <Link
+                                to="/blog"
+                                className="text-[11px] font-bold px-8 py-3 border border-slate-200 dark:border-white/10 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all text-slate-900 dark:text-white"
+                            >
+                                {t('landing_blog_view_all')}
+                            </Link>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {[
-                                { title: "Diktalo v2.1: El futuro de la telefonía con IA", date: "25 Dic 2025", cat: "Actualizaciones" },
-                                { title: "Cómo optimizar tus reuniones de ventas con BANT", date: "20 Dic 2025", cat: "Estrategia" },
-                                { title: "Seguridad y Privacidad en la IA Conversacional", date: "15 Dic 2025", cat: "Seguridad" }
-                            ].map((post, idx) => (
-                                <div key={idx} className="group cursor-pointer">
-                                    <div className="aspect-[16/9] bg-slate-200 dark:bg-white/5 rounded-3xl mb-6 overflow-hidden transition-transform group-hover:scale-[1.02]">
-                                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-brand-violet/20 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-4xl text-white/20">newspaper</span>
-                                        </div>
+                            {blogPosts.slice(0, 3).map((post) => (
+                                <Link
+                                    key={post.id}
+                                    to={`/blog/${post.slug}`}
+                                    className="group cursor-pointer flex flex-col"
+                                    style={{ transform: 'translateZ(0)' }}
+                                >
+                                    <div className="aspect-[16/9] bg-slate-200 dark:bg-white/5 rounded-3xl mb-6 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02] relative shadow-lg ring-1 ring-slate-200/50 dark:ring-white/5" style={{ backfaceVisibility: 'hidden' }}>
+                                        <img
+                                            src={post.image}
+                                            alt={post.imageAlt}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            style={{ willChange: 'transform', backfaceVisibility: 'hidden' }}
+                                            onError={(e) => {
+                                                // Fallback if image fails to load
+                                                e.currentTarget.style.display = 'none';
+                                                e.currentTarget.parentElement?.classList.add('bg-gradient-to-br', 'from-primary/20', 'to-brand-violet/20', 'flex', 'items-center', 'justify-center');
+                                                const icon = document.createElement('span');
+                                                icon.className = 'material-symbols-outlined text-4xl text-white/20';
+                                                icon.innerText = 'newspaper';
+                                                e.currentTarget.parentElement?.appendChild(icon);
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-primary mb-3 block">{post.cat}</span>
-                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-primary transition-colors">{post.title}</h4>
-                                    <p className="text-xs font-bold text-slate-400">{post.date}</p>
-                                </div>
+                                    <span className="text-[10px] font-bold text-primary mb-3 block uppercase tracking-wider">{post.category}</span>
+                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-primary transition-colors leading-tight line-clamp-2">
+                                        {post.title}
+                                    </h4>
+                                    <p className="text-xs font-bold text-slate-400 mt-auto">
+                                        {new Date(post.date).toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
+                                            day: '2-digit',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}
+                                    </p>
+                                </Link>
                             ))}
                         </div>
                     </div>
