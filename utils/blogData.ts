@@ -22,7 +22,7 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     id: "20",
-    slug: "roadmap-ia-productividad-2026",
+    slug: "roadmap-diktalo-2026-futuro-2026",
     title: "Roadmap Diktalo 2026: El Futuro de la IA en Reuniones y Productividad",
     excerpt: "Descubre las innovaciones de Diktalo para el segundo trimestre de 2026: IA predictiva y automatización total de flujos de trabajo corporativos.",
     date: "2026-01-31",
@@ -93,7 +93,7 @@ En las pruebas beta cerradas, el módulo *Predictive Sentiment* anticipó rotura
   },
   {
     id: "19",
-    slug: "app-movil-ia-segundo-cerebro",
+    slug: "diktalo-mobile-segundo-cerebro-2026",
     title: "Diktalo Mobile: Tu Segundo Cerebro de IA en el Bolsillo para 2026",
     excerpt: "Captura inteligencia estratégica en cualquier lugar con latencia cero. Descubre cómo Diktalo Mobile transforma conversaciones en activos de negocio reales.",
     date: "2026-01-29",
@@ -160,8 +160,8 @@ Imagina cerrar una ronda de inversión en un taxi. Con Diktalo Mobile, grabas la
   },
   {
     id: "18",
-    slug: "analisis-sentimiento-negociacion-estrategica",
-    title: "Análisis de Sentimiento: El Arte de Leer Emociones en la Negociación Ejecutiva",
+    slug: "anlisis-sentimiento-arte-leer-2026",
+    title: "Análisis de Sentimiento: El Arte de Leer Emociones en la Negociación Ejecutiva (Edición 2026)",
     excerpt: "Lo que no se dice define el éxito. Aprende cómo Diktalo utiliza IA para detectar dudas y entusiasmos en tus negociaciones de alto nivel en 2026.",
     date: "2026-01-26",
     author: "Anya Desai",
@@ -227,7 +227,7 @@ No. Diktalo procesa la prosodia en tiempo real y descarta el audio raw, guardand
   },
   {
     id: "17",
-    slug: "cumplimiento-soc2-ia-seguridad-datos",
+    slug: "seguridad-soc-manual-confianza-2026",
     title: "Seguridad SOC 2 en IA: El Manual de Confianza Digital para Empresas en 2026",
     excerpt: "Tus datos son tu mayor activo estratégico. Descubre por qué el estándar SOC 2 es fundamental para la soberanía de información en la era de la IA.",
     date: "2026-01-25",
@@ -297,8 +297,8 @@ Durante una Due Diligence, cada palabra cuenta. El análisis de sentimiento de D
   },
   {
     id: "16",
-    slug: "caso-exito-fintech-ia-productividad",
-    title: "Caso de Éxito: Cómo una Fintech Líder Recuperó 500 Horas Mensuales con Diktalo",
+    slug: "caso-xito-cmo-una-2026",
+    title: "Caso de Éxito: Cómo una Fintech Líder Recuperó 500 Horas Mensuales con Diktalo (Edición 2026)",
     excerpt: "Descubre el impacto real de la inteligencia estratégica. Analizamos el ROI y la eficiencia operativa lograda por un cliente del sector financiero en 2025.",
     date: "2026-01-23",
     author: "Nati Pol",
@@ -363,7 +363,7 @@ Al finalizar la llamada, Diktalo no solo transcribe, sino que actualiza el campo
   },
   {
     id: "15",
-    slug: "organizacion-conocimiento-ia-empresa-2026",
+    slug: "organizacin-conocimiento-activo-invisible-2026",
     title: "Organización de Conocimiento: El Activo Invisible Mas Valioso en 2026",
     excerpt: "La forma en que accedemos a la información corporativa está cambiando radicalmente. Aprende cómo Diktalo estructura el conocimiento espontáneo de tu negocio.",
     date: "2026-01-20",
@@ -430,7 +430,7 @@ Sí. Puedes preguntar "¿Cómo reaccionó el equipo de marketing al cambio de lo
   },
   {
     id: "14",
-    slug: "etica-ia-voz-privacidad-2026",
+    slug: "tica-transparencia-pilar-confianza-2026",
     title: "Ética y Transparencia: El Pilar de la Confianza en la IA de Voz de 2026",
     excerpt: "La gestión de la voz es el compromiso de confianza definitivo. Analizamos los marcos éticos que garantizan una gestión segura y transparente.",
     date: "2026-01-17",
@@ -496,7 +496,7 @@ Todos los algoritmos de decisión de Diktalo son explicables (XAI). Si la IA rec
   },
   {
     id: "13",
-    slug: "infraestructura-ia-mision-critica-2026",
+    slug: "estabilidad-global-infraestructura-misin-2026",
     title: "Estabilidad Global: Infraestructura de Misión Crítica para la IA de 2026",
     excerpt: "Descubre cómo aseguramos que tu información estratégica esté siempre disponible con máxima rapidez y redundancia.",
     date: "2026-01-14",
@@ -566,7 +566,7 @@ Para lograr transcripciones en tiempo real (<200ms), Diktalo utiliza computació
   },
   {
     id: "12",
-    slug: "hr-ia-seleccion-sin-sesgos",
+    slug: "talento-objetividad-eliminando-sesgos-2026",
     title: "Talento y Objetividad: Eliminando Sesgos en Selección con IA en 2026",
     excerpt: "RRHH evoluciona hacia decisiones basadas en evidencias. Descubre cómo el registro fiel de entrevistas garantiza procesos de selección justos.",
     date: "2026-01-11",
@@ -632,7 +632,7 @@ Al analizar las entrevistas de salida con IA, Diktalo detectó que el 60% de la 
   },
   {
     id: "11",
-    slug: "inmobiliaria-lujo-ia-eficiencia-2026",
+    slug: "agilidad-inmobiliaria-nuevo-estndar-2026",
     title: "Agilidad Inmobiliaria: El Nuevo Estándar del Lujo con IA en 2026",
     excerpt: "Los líderes del Real Estate recuperan miles de horas eliminando el reporte manual. Aprende cómo el registro invisible cierra tratos más rápido.",
     date: "2026-01-08",
@@ -697,7 +697,7 @@ Sí. Diktalo genera un hash criptográfico de cada acta de reunión. En litigios
   },
   {
     id: "10",
-    slug: "equipos-hibridos-ia-colaboracion-asincrona",
+    slug: "equipos-hbridos-2026-era-2026",
     title: "Equipos Híbridos 2026: La Era de la Colaboración Asíncrona Inteligente",
     excerpt: "El entorno de trabajo ha cambiado para siempre. Aprende cómo asegurar que todas tus reuniones generen valor real y alineación absoluta en 2026.",
     date: "2026-01-05",
@@ -763,7 +763,7 @@ Diktalo modera activamente la reunión. Si detecta que los participantes remotos
   },
   {
     id: "9",
-    slug: "soberania-datos-ia-privacidad-2026",
+    slug: "soberana-datos-2026-derecho-2026",
     title: "Soberanía de Datos 2026: El Derecho a la Propiedad Intelectual Digital",
     excerpt: "La seguridad es una prioridad absoluta. Descubre cómo garantizamos el cumplimiento de las normativas de privacidad más exigentes mediante protocolos de soberanía total.",
     date: "2026-01-02",
@@ -830,8 +830,8 @@ A diferencia de las soluciones SaaS tradicionales, Diktalo permite despliegues "
   },
   {
     id: "8",
-    slug: "eficiencia-comercial-ia-ventas-2026",
-    title: "Eficiencia Comercial: Optimizando el ROI de Ventas con Inteligencia de Voz",
+    slug: "eficiencia-comercial-optimizando-roi-2026",
+    title: "Eficiencia Comercial: Optimizando el ROI de Ventas con Inteligencia de Voz (Edición 2026)",
     excerpt: "La labor comercial es apasionante, pero el reporte administrativo frena el crecimiento. Descubre cómo ganar 12 horas semanales para cerrar más acuerdos.",
     date: "2025-12-30",
     author: "Leo Costa",
@@ -898,7 +898,7 @@ Implementar Diktalo en equipos de ventas (>50 pax) ha demostrado:
 
   {
     id: "7",
-    slug: "psicologia-escucha-activa-ia-negocios",
+    slug: "foco-las-personas-psicologa-2026",
     title: "Foco en las Personas: La Psicología de la Escucha Profunda en 2026",
     excerpt: "Cuando dejas de preocuparte por tomar notas, tu capacidad de entender al otro se dispara. Analizamos el impacto de delegar el registro en la IA.",
     date: "2025-12-27",
@@ -964,7 +964,7 @@ En una negociación sindical tensa, Diktalo alertó a los mediadores de que el u
   },
   {
     id: "6",
-    slug: "hardware-obsoleto-ia-software-first",
+    slug: "integracin-total-2026-por-2026",
     title: "Integración Total 2026: Por qué el Hardware Dedicado es Obsoleto en IA",
     excerpt: "En la era de la IA, lo importante es cómo fluye la información, no el aparato que compras. Descubre por qué el futuro es 'Software-First'.",
     date: "2025-12-24",
@@ -1031,7 +1031,7 @@ Sí. Diktalo puede controlar el entorno. Si detecta que una presentación comien
   },
   {
     id: "5",
-    slug: "seguridad-datos-ia-corporativa-2026",
+    slug: "seguridad-tranquilidad-blindando-propiedad-2026",
     title: "Seguridad y Tranquilidad: Blindando la Propiedad Intelectual en 2026",
     excerpt: "Tus conversaciones corporativas son el activo más valioso. Aprende cómo blindamos tu información mediante los estándares más fiables.",
     date: "2025-12-21",
@@ -1099,8 +1099,8 @@ Para juntas directivas críticas, Diktalo activa el modo 'Sala Segura':
   },
   {
     id: "4",
-    slug: "inteligencia-comercial-ia-crecimiento-2026",
-    title: "Inteligencia Comercial: Transformando el Audio Efímero en Minas de Oro",
+    slug: "inteligencia-comercial-transformando-audio-2026",
+    title: "Inteligencia Comercial: Transformando el Audio Efímero en Minas de Oro (Edición 2026)",
     excerpt: "Cada reunión contiene señales críticas que hoy se pierden. Aprende cómo la inteligencia de Diktalo convierte el audio en una mina de oro comercial.",
     date: "2025-12-18",
     author: "Leo Costa",
@@ -1168,7 +1168,7 @@ No analices el pasado, predice el Q4. Diktalo cruza los datos conversacionales c
   },
   {
     id: "3",
-    slug: "memoria-institucional-ia-capital-intelectual",
+    slug: "memoria-institucional-eliminando-los-2026",
     title: "Memoria Institucional: Eliminando los Silos de Conocimiento en 2026",
     excerpt: "La inteligencia colectiva es lo que hace fuerte a una marca. Descubre cómo Diktalo ayuda a preservar el de cada reunión.",
     date: "2025-12-15",
@@ -1234,8 +1234,8 @@ Diktalo utiliza Grafos de Conocimiento. Conecta entidades (Personas, Proyectos, 
   },
   {
     id: "2",
-    slug: "roi-inteligencia-voz-rentabilidad-2026",
-    title: "ROI de la Inteligencia Verbal: Impacto Directo en tu Cuenta de Resultados",
+    slug: "roi-inteligencia-verbal-impacto-2026",
+    title: "ROI de la Inteligencia Verbal: Impacto Directo en tu Cuenta de Resultados (Edición 2026)",
     excerpt: "¿Cuál es el valor real de tu tiempo ejecutivo? Analizamos cómo eliminar la burocracia administrativa mediante IA impacta tus finanzas.",
     date: "2025-12-09",
     author: "Leo Costa",
@@ -1304,7 +1304,7 @@ Diktalo no es un coste, es una inversión recuperable en semanas.
   },
   {
     id: "1",
-    slug: "evolucion-voz-comunicacion-natural",
+    slug: "gran-salto-2026-por-2026",
     title: "El Gran Salto de 2026: Por qué el Diálogo Natural es la Nueva Interfaz de Poder",
     excerpt: "La forma en que interactuamos con la tecnología ha vuelto a su origen más puro: la palabra hablada. Analizamos por qué 2026 marca el fin del teclado y el inicio de la era de la 'Inteligencia Ambiental'.",
     date: "2025-12-06",

@@ -70,7 +70,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                     <div className="hidden lg:flex items-center gap-12">
                         <nav className="flex items-center gap-10">
                             <button onClick={() => handleNavClick('solutions')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_solutions')}</button>
-                            <button onClick={() => handleNavClick('pricing')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_plans')}</button>
+                            <button onClick={() => navigate('/comparar-planes')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_plans')}</button>
                             <button onClick={() => handleNavClick('faq')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</button>
                             <button onClick={() => navigate('/blog')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Blog</button>
                             <button onClick={() => navigate('/contact')} className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{t('nav_contact')}</button>
@@ -147,7 +147,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                         >
                             <div className="flex flex-col gap-6 text-center">
                                 <button onClick={() => handleNavClick('solutions')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('solSectionTag')}</button>
-                                <button onClick={() => handleNavClick('pricing')} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_plans')}</button>
+                                <button onClick={() => { setIsMenuOpen(false); navigate('/comparar-planes'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_plans')}</button>
                                 <button onClick={() => handleNavClick('faq')} className="text-xl font-bold text-slate-900 dark:text-white py-2">FAQ</button>
                                 <button onClick={() => { setIsMenuOpen(false); navigate('/contact'); }} className="text-xl font-bold text-slate-900 dark:text-white py-2">{t('nav_contact')}</button>
 

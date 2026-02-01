@@ -68,7 +68,7 @@ const AppContent: React.FC = () => {
         if (path === '/trust') return AppRoute.TRUST;
         if (path === '/cookies') return AppRoute.COOKIES;
         if (path === '/login') return AppRoute.LOGIN;
-        if (path === '/comparar-planes') return AppRoute.PRICING_COMPARISON; // RENAMED from /pricing to avoid conflict
+        if (path === '/comparar-planes' || path === '/pricing') return AppRoute.PRICING_COMPARISON;
         if (path === '/contact') return AppRoute.CONTACT;
         if (path === '/about') return AppRoute.ABOUT;
         if (path === '/roadmap') return AppRoute.ROADMAP;
@@ -177,7 +177,7 @@ const AppContent: React.FC = () => {
         if (isResetPassword) newRoute = AppRoute.RESET_PASSWORD;
         else if (path === '/terms') newRoute = AppRoute.TERMS;
         else if (path === '/privacy') newRoute = AppRoute.PRIVACY;
-        else if (path === '/comparar-planes') newRoute = AppRoute.PRICING_COMPARISON; // RENAMED from /pricing
+        else if (path === '/comparar-planes' || path === '/pricing') newRoute = AppRoute.PRICING_COMPARISON;
         else if (path === '/trust') newRoute = AppRoute.TRUST;
         else if (path === '/cookies') newRoute = AppRoute.COOKIES;
         else if (path === '/login') newRoute = AppRoute.LOGIN;
@@ -644,7 +644,7 @@ const AppContent: React.FC = () => {
             [AppRoute.TERMS]: '/terms',
             [AppRoute.PRIVACY]: '/privacy',
             [AppRoute.TRUST]: '/trust',
-            [AppRoute.PRICING_COMPARISON]: '/pricing',
+            [AppRoute.PRICING_COMPARISON]: '/comparar-planes',
             [AppRoute.COOKIES]: '/cookies',
             [AppRoute.RESET_PASSWORD]: '/reset-password',
             [AppRoute.ADMIN_OVERVIEW]: '/admin',
