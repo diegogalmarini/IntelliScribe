@@ -109,7 +109,15 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
                 })
             });
 
-            const data = await response.json();
+            // Safeguard against non-JSON responses (e.g. 500 pages)
+            const textResponse = await response.text();
+            let data;
+            try {
+                data = JSON.parse(textResponse);
+            } catch (err) {
+                console.error('Newsletter API returned non-JSON:', textResponse);
+                throw new Error(textResponse.substring(0, 60) || 'Error del servidor (Respuesta inválida)');
+            }
             if (data.success) {
                 setSubStatus('success');
                 setSubMessage(data.alreadySubscribed
