@@ -180,6 +180,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setIsRecording(false);
         setShowMultiAudioUploader(false);
         setSearchParams({});
+        onNavigate(AppRoute.DASHBOARD); // Navigate to /dashboard
     };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
