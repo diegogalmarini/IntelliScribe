@@ -148,6 +148,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         setSelectedId(id);
         onSelectRecording(id);
         setIsEditorOpen(false); // Reset to detail view
+        setView('recordings'); // FORCE VIEW SWITCH
         if (isMobile) setIsSidebarOpen(false);
     };
 
