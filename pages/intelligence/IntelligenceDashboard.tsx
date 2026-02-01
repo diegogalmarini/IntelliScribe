@@ -149,6 +149,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         onSelectRecording(id);
         setIsEditorOpen(false); // Reset to detail view
         setView('recordings'); // FORCE VIEW SWITCH
+        onNavigate(AppRoute.DASHBOARD); // Navigate to /dashboard
         if (isMobile) setIsSidebarOpen(false);
     };
 
@@ -160,6 +161,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleSelectFolder = (folderId: string | null) => {
         onSelectFolder?.(folderId);
         setView('recordings');
+        onNavigate(AppRoute.DASHBOARD); // Navigate to /dashboard
         if (isMobile) setIsSidebarOpen(false);
     };
 
