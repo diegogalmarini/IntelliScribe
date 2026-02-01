@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { loadStripe } from '@stripe/stripe-js';
 import { supabase } from '../../../lib/supabase';
 import { PlanConfig, UserProfile } from '../../../types';
 import { Check, ChevronDown, Plus, ExternalLink, Minus } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import * as Analytics from '../../../utils/analytics';
 import { useToast } from '../../../components/Toast';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+import { createCheckout } from '../../../services/paymentService';
 
 interface SubscriptionViewProps {
     user: UserProfile;
@@ -75,13 +73,18 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
     const currentLevel = getPlanLevel(currentPlanId);
 
-    const handleSubscribe = async (priceId: string, planId: string) => {
+    const handleSubscribe = async (planId: string) => {
         if (!user) return;
-        if (planId === 'free') return; // Downgrades handled via portal
+        if (planId === 'free') return; // Free plan, no checkout needed
 
-        if (!priceId) {
-            showToast('Error: Configuration missing for this plan.', 'error');
-            return;
+        // Map plan IDs to Lemon Squeezy format
+        let lemonPlanId: 'pro' | 'business' | 'call';
+        if (planId === 'business_plus') {
+            lemonPlanId = 'call'; // Business Plus = Call plan in Lemon
+        } else if (planId === 'business') {
+            lemonPlanId = 'business';
+        } else {
+            lemonPlanId = 'pro';
         }
 
         if (Analytics && typeof Analytics.trackEvent === 'function') {
@@ -93,28 +96,16 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
         setLoading(planId);
         try {
-            const response = await fetch('/api/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.id}`
-                },
-                body: JSON.stringify({
-                    priceId,
-                    userId: user.id,
-                    email: user.email,
-                    planId
-                })
-            });
-
-            const { url, error } = await response.json();
-            if (error) throw new Error(error);
-
-            if (url) window.location.href = url;
+            await createCheckout(
+                lemonPlanId,
+                billingInterval,
+                user.email,
+                user.id
+            );
+            // Redirect happens inside createCheckout
         } catch (error: any) {
             console.error('Error:', error);
-            showToast('Error initiating payment: ' + (error.message || 'Check connection.'), 'error');
-        } finally {
+            showToast('Error iniciando el pago: ' + (error.message || 'Verifica la conexión.'), 'error');
             setLoading(null);
         }
     };
@@ -241,10 +232,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                     </div>
 
                                     <button
-                                        onClick={() => handleSubscribe(
-                                            billingInterval === 'annual' ? plan.stripe_price_id_annual : plan.stripe_price_id_monthly,
-                                            plan.id
-                                        )}
+                                        onClick={() => handleSubscribe(plan.id)}
                                         disabled={loading === plan.id || buttonDisabled}
                                         className={`w-full py-2.5 px-4 rounded-lg text-sm font-medium transition-colors mb-6 ${buttonDisabled
                                             ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-default'
