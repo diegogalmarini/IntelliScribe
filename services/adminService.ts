@@ -56,7 +56,8 @@ export const adminService = {
 
             if (!profiles) return null;
 
-            // Plan pricing (NOTE: These are fake - all users are beta/trial)
+            // IMPORTANT: All users are trial/beta until proven otherwise via Stripe webhook
+            // We calculate "potential MRR" but mark it as fake for transparency
             const PLAN_PRICES: Record<string, number> = {
                 'free': 0,
                 'pro': 15,
@@ -64,10 +65,14 @@ export const adminService = {
                 'business_plus': 49
             };
 
-            // Calculate MRR (will be 0 in beta)
-            const mrr = profiles
+            // Calculate POTENTIAL MRR (if users were paying)
+            const potentialMrr = profiles
                 .filter(p => p.subscription_status === 'active')
                 .reduce((sum, p) => sum + (PLAN_PRICES[p.plan_id] || 0), 0);
+
+            // ACTUAL MRR from Stripe (TODO: integrate Stripe API to verify real subscriptions)
+            // For now, we assume $0 since all users are trial/beta
+            const actualMrr = 0;
 
             // Active users count
             const activeUsers = profiles.filter(p => p.subscription_status === 'active').length;
@@ -79,8 +84,8 @@ export const adminService = {
             // Cost estimation ($0.04 per minute average for Twilio)
             const estimatedCost = totalMinutesUsed * 0.04;
 
-            // Gross profit
-            const grossProfit = mrr - estimatedCost;
+            // Gross profit (will be negative in beta)
+            const grossProfit = actualMrr - estimatedCost;
 
             // Growth trends (vs last month)
             const thirtyDaysAgo = new Date();
@@ -91,7 +96,7 @@ export const adminService = {
             ).length;
 
             const userGrowth = totalUsers > 0 ? (newUsersThisMonth / totalUsers) * 100 : 0;
-            const mrrGrowth = 5;
+            const mrrGrowth = 0; // No growth in beta mode
 
             // Fetch analytics data from serverless API
             let analyticsData: any = {};
@@ -123,7 +128,7 @@ export const adminService = {
             }
 
             return {
-                mrr: Math.round(mrr * 100) / 100,
+                mrr: actualMrr, // Always $0 in beta mode
                 totalUsers,
                 activeUsers,
                 totalMinutesUsed,

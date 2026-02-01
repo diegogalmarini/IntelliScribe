@@ -196,6 +196,65 @@ export const Overview: React.FC = () => {
                 ))}
             </div>
 
+            {/* Infrastructure Costs Section */}
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border border-red-200/60 dark:border-red-900/30 rounded-2xl p-6 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-red-600" />
+                    Infrastructure Costs (Monthly)
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Twilio */}
+                    <div className="bg-white dark:bg-[#0A0D13] p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Zap className="w-4 h-4 text-orange-500" />
+                            <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Twilio</h3>
+                        </div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                            ${Number(stats.costs?.twilio || stats.estimatedCost || 0).toFixed(2)}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">Telephony & SMS</p>
+                    </div>
+
+                    {/* Vercel */}
+                    <div className="bg-white dark:bg-[#0A0D13] p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Monitor className="w-4 h-4 text-blue-500" />
+                            <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Vercel</h3>
+                        </div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                            $20.00
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">Hosting (Pro Plan)</p>
+                    </div>
+
+                    {/* Supabase */}
+                    <div className="bg-white dark:bg-[#0A0D13] p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <HardDrive className="w-4 h-4 text-green-500" />
+                            <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Supabase</h3>
+                        </div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                            $0.00
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">Free Tier (Paused Project)</p>
+                    </div>
+                </div>
+
+                {/* Total Infrastructure Cost */}
+                <div className="mt-6 pt-4 border-t border-red-200/60 dark:border-red-900/30">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">Total Monthly Infrastructure Cost</span>
+                        <span className="text-2xl font-bold text-red-600 dark:text-red-400">
+                            ${(Number(stats.costs?.twilio || stats.estimatedCost || 0) + 20).toFixed(2)}
+                        </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2 italic">
+                        Twilio ${Number(stats.costs?.twilio || 0).toFixed(2)} + Vercel $20.00 + Supabase $0.00
+                    </p>
+                </div>
+            </div>
+
             {/* Charts Section (if analytics data available) */}
             {stats.planDistribution && stats.deviceDistribution && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
