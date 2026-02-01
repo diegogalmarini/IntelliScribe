@@ -175,8 +175,8 @@ export const adminService = {
      */
     async getAnalyticsStats(): Promise<any> {
         try {
-            // Call the local API server for real-time/sensitive data
-            const response = await fetch('http://localhost:3001/api/admin/stats');
+            // Call the serverless API (works both in local dev and production)
+            const response = await fetch('/api/admin-stats');
             if (!response.ok) {
                 throw new Error(`Failed to fetch stats: ${response.statusText}`);
             }
