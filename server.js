@@ -362,6 +362,126 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: err.message }));
         }
+    } else if (req.url === '/api/admin/stats' && req.method === 'GET') {
+        console.log('[API] Fetching real admin stats...');
+        try {
+            // 1. Supabase Stats (Using Service Role)
+            if (!supabase) throw new Error('Supabase not configured');
+
+            const { data: profiles, error: pError } = await supabase
+                .from('profiles')
+                .select('id, plan_id, last_device_type, minutes_used, storage_used, created_at');
+
+            const { data: recordings, error: rError } = await supabase
+                .from('recordings')
+                .select('id, user_id, metadata, tags, description');
+
+            if (pError || rError) throw (pError || rError);
+
+            // 2. Stripe Stats
+            let stripeStats = { balance: 0, mrr: 0, currency: 'eur' };
+            if (process.env.STRIPE_SECRET_KEY) {
+                const { default: Stripe } = await import('stripe');
+                const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+                try {
+                    const balance = await stripeClient.balance.retrieve();
+                    stripeStats.balance = balance.available[0].amount / 100;
+                    stripeStats.currency = balance.available[0].currency;
+
+                    // MRR Approximation from active subscriptions
+                    const subs = await stripeClient.subscriptions.list({ status: 'active', limit: 100 });
+                    stripeStats.mrr = subs.data.reduce((sum, sub) => {
+                        const amount = sub.items.data[0].price.unit_amount || 0;
+                        const interval = sub.items.data[0].price.recurring.interval;
+                        return sum + (interval === 'month' ? amount : amount / 12);
+                    }, 0) / 100;
+                } catch (sErr) {
+                    console.error('[API] Stripe Fetch Error:', sErr.message);
+                }
+            }
+
+            // 3. Twilio Stats
+            let twilioStats = { balance: 0, usage: 0 };
+            if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+                const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+                try {
+                    // Twilio doesn't always provide balance via API easily for all accounts, 
+                    // but we can get usage records for the current month
+                    const usage = await twilioClient.usage.records.thisMonth.list({ limit: 1 });
+                    twilioStats.usage = usage[0]?.price || 0;
+                } catch (tErr) {
+                    console.error('[API] Twilio Fetch Error:', tErr.message);
+                }
+            }
+
+            // 4. Data Aggregation (Moving logic from frontend to backend for accuracy)
+            const devices = { Mobile: 0, Desktop: 0, Tablet: 0, Unknown: 0 };
+            profiles.forEach(p => {
+                const type = p.last_device_type || 'Unknown';
+                if (devices[type] !== undefined) devices[type]++;
+                else devices.Unknown++;
+            });
+
+            const plans = { free: 0, pro: 0, business: 0, business_plus: 0 };
+            profiles.forEach(p => {
+                plans[p.plan_id || 'free'] = (plans[p.plan_id || 'free'] || 0) + 1;
+            });
+
+            const extensionCount = recordings.filter(r =>
+                r.metadata?.source === 'chrome-extension' ||
+                (typeof r.metadata === 'string' && r.metadata.includes('chrome-extension'))
+            ).length;
+
+            const multiAudioCount = recordings.filter(r =>
+                r.metadata?.type === 'multi-audio' || r.metadata?.segments?.length > 1
+            ).length;
+
+            const liveCount = recordings.filter(r =>
+                r.tags?.includes('Captura en vivo') ||
+                r.tags?.includes('live') ||
+                r.description === 'Sesión de captura en vivo'
+            ).length;
+
+            const uploadCount = recordings.filter(r =>
+                r.tags?.includes('upload') || r.tags?.includes('manual')
+            ).length;
+
+            const activeUsers = new Set(recordings.filter(r => r.user_id).map(r => r.user_id)).size;
+
+            const responseData = {
+                revenue: stripeStats,
+                costs: { twilio: twilioStats.usage, google: 0 }, // Google cloud cost is hard to fetch via simple API without complex setup
+                distribution: {
+                    devices: Object.entries(devices).map(([name, value]) => ({ name, value })),
+                    plans: Object.entries(plans).map(([name, value]) => ({
+                        name,
+                        value,
+                        percentage: Math.round((value / profiles.length) * 100)
+                    }))
+                },
+                features: {
+                    extension: extensionCount,
+                    multiAudio: multiAudioCount,
+                    live: liveCount,
+                    upload: uploadCount,
+                    total: recordings.length
+                },
+                usage: {
+                    minutes: profiles.reduce((sum, p) => sum + (p.minutes_used || 0), 0),
+                    storage: profiles.reduce((sum, p) => sum + (p.storage_used || 0), 0) / 1073741824,
+                    activeUsers
+                }
+            };
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(responseData));
+
+        } catch (err) {
+            console.error('[API] Admin Stats Error:', err);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        }
     } else {
         res.writeHead(404);
         res.end(JSON.stringify({ error: 'Not found' }));
