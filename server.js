@@ -318,7 +318,8 @@ const server = http.createServer(async (req, res) => {
 
                 if (dbError) throw dbError;
 
-                const confirmLink = `http://localhost:5173/confirm-subscription?token=${data.confirmation_token}`;
+                const siteUrl = process.env.APP_URL || 'https://www.diktalo.com';
+                const confirmLink = `${siteUrl}/confirm-subscription?token=${data.confirmation_token}`;
 
                 if (resend) {
                     await resend.emails.send({
