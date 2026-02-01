@@ -67,4 +67,3 @@ export const getSubscriptionStatus = async (userId: string) => {
 
     return data;
 };
-```
