@@ -49,8 +49,8 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                 console.log('[Dashboard] Legal footer fetch:', { settingsData, settingsError });
 
                 if (!settingsError && settingsData) {
-                    console.log('[Dashboard] Setting legal footer:', settingsData.value);
-                    setLegalFooter(settingsData.value);
+                    console.log('[Dashboard] Setting legal footer:', (settingsData as any).value);
+                    setLegalFooter((settingsData as any).value);
                 } else {
                     console.warn('[Dashboard] No legal footer found or error:', settingsError);
                 }

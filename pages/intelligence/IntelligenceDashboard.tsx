@@ -47,6 +47,7 @@ interface IntelligenceDashboardProps {
     onRenameFolder?: (id: string, name: string) => Promise<void>;
     onDeleteFolder?: (id: string) => Promise<void>;
     onAction?: (type: string, payload?: any) => void;
+    initialView?: 'recordings' | 'subscription' | 'integrations' | 'templates'; // ADDED
 }
 
 const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -71,7 +72,8 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onAddFolder,
     onRenameFolder,
     onDeleteFolder,
-    onAction
+    onAction,
+    initialView // ADDED
 }) => {
     const { t, language } = useLanguage();
     const { showToast } = useToast();
@@ -79,9 +81,18 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // State for local views
+    // Priority: SearchParams > initialView > default 'recordings'
     const [view, setView] = useState<'recordings' | 'subscription' | 'integrations' | 'templates'>(
-        searchParams.get('view') as any || 'recordings'
+        (searchParams.get('view') as any) || initialView || 'recordings'
     );
+
+    // Sync view if initialView changes (e.g. when navigating from /dashboard to /plans via App routing)
+    useEffect(() => {
+        if (initialView) {
+            setView(initialView);
+        }
+    }, [initialView]);
+
     const [selectedId, setSelectedId] = useState<string | null>(activeRecordingId || null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isRecording, setIsRecording] = useState(searchParams.get('action') === 'record');
