@@ -77,7 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
             try {
                 const usage = await twilioClient.usage.records.thisMonth.list({ limit: 1 });
-                twilioStats.usage = usage[0]?.price || 0;
+                twilioStats.usage = Number(usage[0]?.price || 0);
             } catch (tErr: any) {
                 console.error('[API] Twilio Fetch Error:', tErr.message);
             }

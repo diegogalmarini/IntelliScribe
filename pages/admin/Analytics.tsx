@@ -69,21 +69,21 @@ export const Analytics: React.FC = () => {
         },
         {
             label: 'Revenue (MRR)',
-            value: `${stats.revenue?.mrr?.toLocaleString() || 0} ${stats.revenue?.currency?.toUpperCase() || 'EUR'}`,
+            value: `${Number(stats.revenue?.mrr || 0).toLocaleString()} ${stats.revenue?.currency?.toUpperCase() || 'EUR'}`,
             icon: TrendingUp,
             color: 'emerald',
-            secondary: `Balance: ${stats.revenue?.balance?.toLocaleString() || 0}`
+            secondary: `Balance: ${Number(stats.revenue?.balance || 0).toLocaleString()}`
         },
         {
             label: 'Twilio Costs',
-            value: `${stats.costs?.twilio?.toFixed(2) || '0.00'}$`,
+            value: `${Number(stats.costs?.twilio || 0).toFixed(2)}$`,
             icon: Zap,
             color: 'amber',
             secondary: 'Current month'
         },
         {
             label: 'Storage Used',
-            value: `${stats.usageMetrics.totalStorageGB.toFixed(2)} GB`,
+            value: `${Number(stats.usageMetrics?.totalStorageGB || 0).toFixed(2)} GB`,
             icon: HardDrive,
             color: 'pink'
         }
