@@ -41,6 +41,7 @@ import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import * as Analytics from './utils/analytics';
 import { PublicLayout } from './layouts/PublicLayout';
+import { ErrorBoundary } from './components/ErrorBoundary';
 const AdminRoute = lazy(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
 const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
@@ -776,7 +777,13 @@ const AppContent: React.FC = () => {
         if (currentRoute === AppRoute.COOKIES) return <Cookies />;
         if (currentRoute === AppRoute.ABOUT) return <About user={user} />;
         if (currentRoute === AppRoute.ROADMAP) return <Roadmap user={user} />;
-        if (currentRoute === AppRoute.BLOG || currentRoute === AppRoute.BLOG_POST) return <Blog user={user} />;
+        if (currentRoute === AppRoute.BLOG || currentRoute === AppRoute.BLOG_POST) {
+            return (
+                <ErrorBoundary>
+                    <Blog user={user} />
+                </ErrorBoundary>
+            );
+        }
         if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onNavigate={navigate} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 

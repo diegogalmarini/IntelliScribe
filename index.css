@@ -414,6 +414,33 @@
     letter-spacing: -0.01em !important;
 }
 
+/* Glassmorphism System */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(209, 213, 219, 0.3);
+}
+
+.dark .glass-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* GPU Performance Optimizations */
+.gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* ============================================
    8. GLOBAL UTILITIES - SCROLLBARS
    ============================================ */
