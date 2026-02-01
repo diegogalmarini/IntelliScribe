@@ -1,0 +1,175 @@
+Found 23 articles to validate.
+
+Article ID: 20
+Title: Diktalo Roadmap 2Q 2026: La Frontera de la Intelig...
+Length: 3970 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 19
+Title: Diktalo Mobile: Tu Segundo Cerebro en el Bolsillo ...
+Length: 3429 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 18
+Title: Análisis de Sentimiento: Descifrando las Emociones...
+Length: 3808 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 17
+Title: Seguridad y Confianza 2026: Manual de Cumplimiento...
+Length: 4183 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 16
+Title: Caso de Éxito: Cómo una Fintech Líder Recuperó 500...
+Length: 3430 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 15
+Title: Organización de Conocimiento: El Activo Estratégic...
+Length: 4011 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 14
+Title: Ética y Transparencia 2026: El Pilar de la Confian...
+Length: 3742 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 13
+Title: Estabilidad Global: Infraestructura de Misión Crít...
+Length: 3132 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 12
+Title: Talento y Objetividad: Revolucionando los Procesos...
+Length: 2822 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 11
+Title: Agilidad Inmobiliaria 2026: El Poder de la Transpa...
+Length: 2722 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 10
+Title: Equipos Híbridos 2026: Maximizando la Colaboración...
+Length: 2527 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 9
+Title: Soberanía de Datos en 2026: Protegiendo tu Activo ...
+Length: 2810 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 8
+Title: Eficiencia Comercial 2026: Optimizando el Ciclo de...
+Length: 2688 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 7
+Title: Foco en las Personas: La Psicología de la Escucha ...
+Length: 0 chars
+Has Visión Diktalo: NO
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+  - Missing 'Visión Diktalo' section
+-----------------------------------
+Article ID: 7
+Title: Foco en las Personas: La Psicología de la Escucha ...
+Length: 2890 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 6
+Title: Integración Total: Por qué Tu Empresa no Necesita ...
+Length: 0 chars
+Has Visión Diktalo: NO
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+  - Missing 'Visión Diktalo' section
+-----------------------------------
+Article ID: 6
+Title: Integración Total 2026: Por qué el Hardware Dedica...
+Length: 2468 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+-----------------------------------
+Article ID: 5
+Title: Seguridad y Tranquilidad: Blindando la Propiedad I...
+Length: 0 chars
+Has Visión Diktalo: NO
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+  - Missing 'Visión Diktalo' section
+-----------------------------------
+Article ID: 5
+Title: Seguridad y Tranquilidad 2026: Blindando la Propie...
+Length: 2653 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 4
+Title: Inteligencia Comercial 2026: Transformando Diálogo...
+Length: 2486 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+-----------------------------------
+Article ID: 3
+Title: Memoria Institucional 2026: Cómo Diktalo Elimina l...
+Length: 2566 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: PASS ✅
+-----------------------------------
+Article ID: 2
+Title: ROI de la Inteligencia Verbal 2026: Cómo Diktalo I...
+Length: 2411 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+-----------------------------------
+Article ID: 1
+Title: El Gran Salto de 2026: Por qué el Diálogo Natural ...
+Length: 2453 chars
+Has Visión Diktalo: YES
+Has AEO Answer: YES
+STATUS: FAIL ❌
+  - Content too short (Aim for > 2500)
+-----------------------------------
+
+Validation Complete. 16/23 Passed.
