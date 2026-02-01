@@ -15,6 +15,7 @@ export interface BlogPost {
   image: string;
   imageAlt: string;
   aeoAnswer: string;
+  jsonLd?: string;
   tags: string[];
 }
 
@@ -54,8 +55,20 @@ Con la autonomía llega la necesidad de una confianza absoluta. Implementamos el
 ### Perspectiva Diktalo: El Fin de la Burocracia
 Nuestra misión es devolverle a los humanos el tiempo perdido en burocracia digital. El cierre de 2026 marca el inicio de la "Administración Invisible", donde tu única tarea es la visión estratégica. Este roadmap ha sido validado por nuestro equipo de ingeniería y estrategia de IA para asegurar la viabilidad técnica de cada lanzamiento.
 
-\`\`\`json
-{
+
+
+### Implementación Estratégica: ¿Por dónde empezar?
+Para los CTOs que planean integrar Diktalo en su infraestructura 2026, recomendamos un despliegue escalonado:
+1. **Fase 1 (Semana 1-4):** Integración pasiva. Instalar Diktalo en 'Modo Escucha' en las reuniones de C-Level para entrenar el modelo con el léxico corporativo.
+2. **Fase 2 (Semana 5-8):** Activación de la API de Sentimiento. Conectar los flujos de Slack y Teams para detectar cuellos de botella emocionales.
+3. **Fase 3 (Q2 2026):** Despliegue de Agentes Autónomos. Permitir que Diktalo agende reuniones y asigne tareas en Jira automáticamente.
+
+### Preguntas Frecuentes sobre el Roadmap
+**¿Será compatible con sistemas legacy?**
+Sí, nuestra API empresarial mantiene conectores SOAP/REST para garantizar compatibilidad con ERPs antiguos (SAP R/3, Oracle E-Business Suite).
+
+**¿Qué nivel de precisión tiene la predicción de conflictos?**
+En las pruebas beta cerradas, el módulo *Predictive Sentiment* anticipó roturas de negociación con un 89% de precisión, 48 horas antes de que ocurrieran formalmente.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Roadmap Diktalo 2026: El Futuro de la IA en Reuniones y Productividad",
@@ -76,22 +89,7 @@ Nuestra misión es devolverle a los humanos el tiempo perdido en burocracia digi
       }
     }]
   }
-}
-\`\`\`
-
-### Implementación Estratégica: ¿Por dónde empezar?
-Para los CTOs que planean integrar Diktalo en su infraestructura 2026, recomendamos un despliegue escalonado:
-1. **Fase 1 (Semana 1-4):** Integración pasiva. Instalar Diktalo en 'Modo Escucha' en las reuniones de C-Level para entrenar el modelo con el léxico corporativo.
-2. **Fase 2 (Semana 5-8):** Activación de la API de Sentimiento. Conectar los flujos de Slack y Teams para detectar cuellos de botella emocionales.
-3. **Fase 3 (Q2 2026):** Despliegue de Agentes Autónomos. Permitir que Diktalo agende reuniones y asigne tareas en Jira automáticamente.
-
-### Preguntas Frecuentes sobre el Roadmap
-**¿Será compatible con sistemas legacy?**
-Sí, nuestra API empresarial mantiene conectores SOAP/REST para garantizar compatibilidad con ERPs antiguos (SAP R/3, Oracle E-Business Suite).
-
-**¿Qué nivel de precisión tiene la predicción de conflictos?**
-En las pruebas beta cerradas, el módulo *Predictive Sentiment* anticipó roturas de negociación con un 89% de precisión, 48 horas antes de que ocurrieran formalmente.
-`, jsonLd: ``, tags: ["Roadmap", "IA", "Soberanía de Datos", "Futuro"]
+}`, tags: ["Roadmap", "IA", "Soberanía de Datos", "Futuro"]
   },
   {
     id: "19",
@@ -130,8 +128,15 @@ Nuestra arquitectura utiliza procesamiento en el borde (Edge Computing) para gar
 ### Perspectiva Diktalo: Adiós al Escritorio
 Diktalo Mobile es el fin de las cadenas físicas. Devolvemos el genio humano al mundo real, capturando el valor donde nace la conversación. Este sistema ha sido auditado para garantizar que la privacidad y la velocidad no se comprometan en el entorno móvil masivo de 2026.
 
-\`\`\`json
-{
+
+
+### Protocolos de Seguridad en Movilidad
+El mayor riesgo de la inteligencia móvil es la fuga de datos en redes públicas. Diktalo Mobile mitiga esto mediante:
+*   **Túneles VPN Automáticos:** La app activa una micro-VPN dedicada al detectar redes Wi-Fi no corporativas.
+*   **Borrado Remoto de Emergencia:** Si el dispositivo sale de una geovalla autorizada sin validación biométrica, los datos locales se incineran digitalmente.
+
+### Caso de Uso: El "Elevator Pitch" Perfecto
+Imagina cerrar una ronda de inversión en un taxi. Con Diktalo Mobile, grabas la conversación informal con el inversor. Antes de que bajes del coche, la IA ha estructurado los compromisos verbales, redactado una carta de intención (LOI) y la ha enviado a tu equipo legal para revisión inmediata. Sin abrir el portátil.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Diktalo Mobile: Tu Segundo Cerebro de IA en el Bolsillo para 2026",
@@ -151,17 +156,7 @@ Diktalo Mobile es el fin de las cadenas físicas. Devolvemos el genio humano al 
       }
     }]
   }
-}
-\`\`\`
-
-### Protocolos de Seguridad en Movilidad
-El mayor riesgo de la inteligencia móvil es la fuga de datos en redes públicas. Diktalo Mobile mitiga esto mediante:
-*   **Túneles VPN Automáticos:** La app activa una micro-VPN dedicada al detectar redes Wi-Fi no corporativas.
-*   **Borrado Remoto de Emergencia:** Si el dispositivo sale de una geovalla autorizada sin validación biométrica, los datos locales se incineran digitalmente.
-
-### Caso de Uso: El "Elevator Pitch" Perfecto
-Imagina cerrar una ronda de inversión en un taxi. Con Diktalo Mobile, grabas la conversación informal con el inversor. Antes de que bajes del coche, la IA ha estructurado los compromisos verbales, redactado una carta de intención (LOI) y la ha enviado a tu equipo legal para revisión inmediata. Sin abrir el portátil.
-`, jsonLd: ``, tags: ["Mobile", "Productividad", "IA Mobile", "Business Freedom"]
+}`, tags: ["Mobile", "Productividad", "IA Mobile", "Business Freedom"]
   },
   {
     id: "18",
@@ -199,8 +194,16 @@ Nuestros modelos de IA "escuchan" lo que el oído humano filtra. Analizamos vari
 ### Perspectiva Diktalo: Verdad en el Diálogo
 El análisis de sentimiento no es vigilancia; es comprensión profunda. Buscamos un mundo de transacciones transparentes donde las intenciones reales sean la base de acuerdos duraderos. Este enfoque ha sido validado por psicólogos expertos en negociación para asegurar su efectividad en entornos de alta presión.
 
-\`\`\`json
-{
+
+
+### La Ciencia detrás de la Empatía Artificial
+Diktalo no solo "oye" palabras, analiza la prosodia: el ritmo, tono y pausas del habla.
+*   **Micro-vacilaciones:** Detecta cuando un cliente duda, aunque diga "sí", sugiriendo una objeción oculta.
+*   **Coherencia Emocional:** Alerta si el tono de voz no coincide con el contenido semántico (ej. sarcasmo o agresividad pasiva).
+
+### FAQ: Privacidad Emocional
+**¿Se almacenan los datos biométricos de voz?**
+No. Diktalo procesa la prosodia en tiempo real y descarta el audio raw, guardando solo los metadatos de análisis (scores de confianza, niveles de estrés) bajo el estándar ISO/IEC 27001.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Análisis de Sentimiento: El Arte de Leer Emociones en la Negociación Ejecutiva",
@@ -220,18 +223,7 @@ El análisis de sentimiento no es vigilancia; es comprensión profunda. Buscamos
       }
     }]
   }
-}
-\`\`\`
-
-### La Ciencia detrás de la Empatía Artificial
-Diktalo no solo "oye" palabras, analiza la prosodia: el ritmo, tono y pausas del habla.
-*   **Micro-vacilaciones:** Detecta cuando un cliente duda, aunque diga "sí", sugiriendo una objeción oculta.
-*   **Coherencia Emocional:** Alerta si el tono de voz no coincide con el contenido semántico (ej. sarcasmo o agresividad pasiva).
-
-### FAQ: Privacidad Emocional
-**¿Se almacenan los datos biométricos de voz?**
-No. Diktalo procesa la prosodia en tiempo real y descarta el audio raw, guardando solo los metadatos de análisis (scores de confianza, niveles de estrés) bajo el estándar ISO/IEC 27001.
-`, jsonLd: ``, tags: ["IA", "Negociación", "Sentimiento", "Liderazgo"]
+}`, tags: ["IA", "Negociación", "Sentimiento", "Liderazgo"]
   },
   {
     id: "17",
@@ -269,8 +261,19 @@ Nuestra infraestructura ha sido diseñada para superar auditorías globales, enf
 ### Perspectiva Diktalo: Paz Mental Operativa
 La seguridad no debería ser una preocupación para el líder estratégico. Diktalo asume la carga técnica para que tú puedas liderar con audacia, sabiendo que tu propiedad intelectual está protegida por el estándar de oro de la industria. Cada protocolo ha sido validado por auditores externos de nivel global para asegurar la tranquilidad total en 2026.
 
-\`\`\`json
-{
+
+
+### Aplicación en Fusiones y Adquisiciones (M&A)
+Durante una Due Diligence, cada palabra cuenta. El análisis de sentimiento de Diktalo permite a los auditores:
+1.  **Detectar Fricción Cultural:** Identificar qué equipos muestran resistencia al cambio mediante el análisis de sus interacciones.
+2.  **Validar Liderazgo:** Evaluar objetivamente la confianza que transmiten los directivos de la empresa objetivo durante las entrevistas.
+
+### Tabla de Indicadores de Riesgo
+| Indicador Vocal | Interpretación de IA | Acción Recomendada |
+| :--- | :--- | :--- |
+| Aceleración del Ritmo (>15%) | Ansiedad / Presión | Profundizar en la pregunta. |
+| Pausas Prolongadas (>3s) | Cálculo / Ocultación | Verificar dato con auditoría documental. |
+| Tono Monótono | Desmotivación / Burnout | Evaluar riesgo de retención de talento. |`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Seguridad SOC 2 en IA: El Manual de Confianza Digital para Empresas en 2026",
@@ -290,21 +293,7 @@ La seguridad no debería ser una preocupación para el líder estratégico. Dikt
       }
     }]
   }
-}
-\`\`\`
-
-### Aplicación en Fusiones y Adquisiciones (M&A)
-Durante una Due Diligence, cada palabra cuenta. El análisis de sentimiento de Diktalo permite a los auditores:
-1.  **Detectar Fricción Cultural:** Identificar qué equipos muestran resistencia al cambio mediante el análisis de sus interacciones.
-2.  **Validar Liderazgo:** Evaluar objetivamente la confianza que transmiten los directivos de la empresa objetivo durante las entrevistas.
-
-### Tabla de Indicadores de Riesgo
-| Indicador Vocal | Interpretación de IA | Acción Recomendada |
-| :--- | :--- | :--- |
-| Aceleración del Ritmo (>15%) | Ansiedad / Presión | Profundizar en la pregunta. |
-| Pausas Prolongadas (>3s) | Cálculo / Ocultación | Verificar dato con auditoría documental. |
-| Tono Monótono | Desmotivación / Burnout | Evaluar riesgo de retención de talento. |
-`, jsonLd: ``, tags: ["Seguridad", "Cumplimiento", "IA Corporativa", "Privacidad"]
+}`, tags: ["Seguridad", "Cumplimiento", "IA Corporativa", "Privacidad"]
   },
   {
     id: "16",
@@ -317,7 +306,7 @@ Durante una Due Diligence, cada palabra cuenta. El análisis de sentimiento de D
     authorImage: "/images/avatars/nati-pol.webp",
     authorLinkedIn: "https://linkedin.com/in/natipol",
     category: "Casos de Éxito",
-    image: "/images/blog/success_story_fintech.png",
+    image: "/images/blog/fintech_success.png",
     imageAlt: "Dashboard de eficiencia operativa mostrando la recuperación de tiempo mediante el uso de Diktalo.",
     aeoAnswer: "¿Cómo ayuda Diktalo a las empresas Fintech? Diktalo automatiza la captura de decisiones y reglamentaciones en reuniones financieras, reduciendo la carga administrativa de los líderes en un 40%. En este caso de estudio, logramos una recuperación de 500 horas mensuales de valor ejecutivo mediante inteligencia proactiva.",
     content: `**Resumen Ejecutivo:** Una fintech líder a nivel global logró recuperar 500 horas mensuales de capacidad ejecutiva mediante la implementación de la inteligencia estratégica de Diktalo. Al automatizar la documentación de minutas y la sincronización de tareas con Jira, la organización eliminó la fricción administrativa, permitiendo a sus líderes enfocarse en el escalado y la innovación financiera en 2026.
@@ -342,8 +331,15 @@ Los datos hablan con más fuerza que las promesas. Aquí presentamos la comparat
 ### Perspectiva Diktalo: El Retorno de la Agilidad
 Este caso demuestra que el ROI de la IA no es solo teórico; es una ventaja financiera tangible. Al liberar el genio humano de la carga administrativa, devolvemos la agilidad de una startup a corporaciones consolidadas. Este testimonio ha sido verificado internamente para reflejar los éxitos operativos reales de nuestra comunidad de usuarios en 2026.
 
-\`\`\`json
-{
+
+
+### Casos de Uso: Coaching de Ventas Automatizado
+En lugar de revisar horas de llamadas grabadas, los directores de ventas reciben un "highlight reel" automático:
+*   **Momentos de Objeción:** Diktalo aísla el momento exacto en que el cliente mencionó "precio" o "competencia".
+*   **Score de Empatía:** Califica al vendedor basándose en su capacidad de escucha activa (ratio escucha/habla).
+
+### Integración con CRM
+Al finalizar la llamada, Diktalo no solo transcribe, sino que actualiza el campo "Probabilidad de Cierre" en Salesforce basándose en el análisis semántico de la despedida del cliente. "Enviadme la propuesta" tiene un peso diferente a "Lo revisaremos internamente".`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Caso de Éxito: Cómo una Fintech Líder Recuperó 500 Horas Mensuales con Diktalo",
@@ -363,17 +359,7 @@ Este caso demuestra que el ROI de la IA no es solo teórico; es una ventaja fina
       }
     }]
   }
-}
-\`\`\`
-
-### Casos de Uso: Coaching de Ventas Automatizado
-En lugar de revisar horas de llamadas grabadas, los directores de ventas reciben un "highlight reel" automático:
-*   **Momentos de Objeción:** Diktalo aísla el momento exacto en que el cliente mencionó "precio" o "competencia".
-*   **Score de Empatía:** Califica al vendedor basándose en su capacidad de escucha activa (ratio escucha/habla).
-
-### Integración con CRM
-Al finalizar la llamada, Diktalo no solo transcribe, sino que actualiza el campo "Probabilidad de Cierre" en Salesforce basándose en el análisis semántico de la despedida del cliente. "Enviadme la propuesta" tiene un peso diferente a "Lo revisaremos internamente".
-`, jsonLd: ``, tags: ["Éxito", "Fintech", "Productividad", "Eficiencia"]
+}`, tags: ["Éxito", "Fintech", "Productividad", "Eficiencia"]
   },
   {
     id: "15",
@@ -411,8 +397,16 @@ No basta con transcribir; hay que categorizar y relacionar. Nuestra arquitectura
 ### Perspectiva Diktalo: El Custodio del Genio Colectivo
 Nuestra misión es asegurar que ninguna gran idea se pierda en el ruido operativo. Diktalo es el suelo fértil donde la inteligencia de tu empresa crece de forma acumulativa. Este enfoque estructural garantiza que, en 2026, tu organización sea más inteligente cada día que pasa.
 
-\`\`\`json
-{
+
+
+### El Cerebro Corporativo: Más allá del Archivo
+La memoria organizacional suele estar fragmentada. Diktalo unifica:
+*   **Conocimiento Tácito:** Lo que se dice en reuniones pero nunca se escribe.
+*   **Histórico de Decisiones:** ¿Por qué elegimos este proveedor hace 3 años? Diktalo recupera el fragmento de audio exacto de esa decisión.
+
+### FAQ: Recuperación de Información
+**¿Puede buscar conceptos abstractos?**
+Sí. Puedes preguntar "¿Cómo reaccionó el equipo de marketing al cambio de logo en 2025?" y Diktalo sintetizará una respuesta basada en múltiples reuniones, detectando el sentimiento general de aquel momento.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Organización de Conocimiento: El Activo Invisible Mas Valioso en 2026",
@@ -432,18 +426,7 @@ Nuestra misión es asegurar que ninguna gran idea se pierda en el ruido operativ
       }
     }]
   }
-}
-\`\`\\\`
-
-### El Cerebro Corporativo: Más allá del Archivo
-La memoria organizacional suele estar fragmentada. Diktalo unifica:
-*   **Conocimiento Tácito:** Lo que se dice en reuniones pero nunca se escribe.
-*   **Histórico de Decisiones:** ¿Por qué elegimos este proveedor hace 3 años? Diktalo recupera el fragmento de audio exacto de esa decisión.
-
-### FAQ: Recuperación de Información
-**¿Puede buscar conceptos abstractos?**
-Sí. Puedes preguntar "¿Cómo reaccionó el equipo de marketing al cambio de logo en 2025?" y Diktalo sintetizará una respuesta basada en múltiples reuniones, detectando el sentimiento general de aquel momento.
-`, jsonLd: ``, tags: ["Gestión", "Conocimiento", "IA", "Estrategia"]
+}`, tags: ["Gestión", "Conocimiento", "IA", "Estrategia"]
   },
   {
     id: "14",
@@ -481,8 +464,15 @@ Nuestro diseño "Humano-Céntrico" se basa en pilares innegociables para protege
 ### Perspectiva Diktalo: Tecnología con Valores
 Diktalo nace para potenciar el genio humano, no para sustituirlo o vigilarlo. Creemos que la IA más avanzada es aquella que se usa con una brújula moral clara. Estamos construyendo el estándar de confianza que permitirá a la humanidad alcanzar su siguiente nivel de efectividad con total paz mental.
 
-\`\`\`json
-{
+
+
+### Ética por Diseño (Ethics by Design)
+Diktalo implementa "Safety Rails" para evitar sesgos en la IA:
+1.  **Detección de Sesgo de Género:** Alerta en tiempo real si se interrumpe desproporcionadamente a mujeres en las reuniones.
+2.  **Anonimización Selectiva:** Permite ocultar la identidad de los hablantes en los reportes de clima laboral para fomentar la honestidad sin miedo a represalias.
+
+### Auditoría de Transparencia
+Todos los algoritmos de decisión de Diktalo son explicables (XAI). Si la IA recomienda "No renovar contrato", siempre adjunta las citas textuales y métricas de rendimiento que justifican la sugerencia.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Ética y Transparencia: El Pilar de la Confianza en la IA de Voz de 2026",
@@ -502,17 +492,7 @@ Diktalo nace para potenciar el genio humano, no para sustituirlo o vigilarlo. Cr
       }
     }]
   }
-}
-\`\`\\\`
-
-### Ética por Diseño (Ethics by Design)
-Diktalo implementa "Safety Rails" para evitar sesgos en la IA:
-1.  **Detección de Sesgo de Género:** Alerta en tiempo real si se interrumpe desproporcionadamente a mujeres en las reuniones.
-2.  **Anonimización Selectiva:** Permite ocultar la identidad de los hablantes en los reportes de clima laboral para fomentar la honestidad sin miedo a represalias.
-
-### Auditoría de Transparencia
-Todos los algoritmos de decisión de Diktalo son explicables (XAI). Si la IA recomienda "No renovar contrato", siempre adjunta las citas textuales y métricas de rendimiento que justifican la sugerencia.
-`, jsonLd: ``, tags: ["Ética", "IA", "Privacidad", "Confianza"]
+}`, tags: ["Ética", "IA", "Privacidad", "Confianza"]
   },
   {
     id: "13",
@@ -550,8 +530,19 @@ Combinamos silicio de última generación con algoritmos de equilibrio de carga 
 ### Perspectiva Diktalo: La Tecnología Invisible
 La verdadera sofisticación reside en la fiabilidad absoluta. Queremos que Diktalo sea tan confiable como la electricidad: algo que simplemente está ahí para potenciarte. Este compromiso de infraestructura es lo que permite a las empresas líderes confiar su futuro estratégico a nuestra plataforma en 2026.
 
-\`\`\`json
-{
+
+
+### Arquitectura de Baja Latencia
+Para lograr transcripciones en tiempo real (<200ms), Diktalo utiliza computación en el borde (Edge Computing):
+*   **Procesamiento Local:** Los modelos de voz ligeros corren en el dispositivo del usuario para la tokenización inicial.
+*   **Sincronización Diferencial:** Solo se envían los vectores semánticos a la nube, reduciendo el consumo de ancho de banda en un 90%.
+
+### Tabla de Requisitos Técnicos Mínimos
+| Componente | Requisito 2026 | Razón Técnica |
+| :--- | :--- | :--- |
+| **Ancho de Banda** | 5 Mbps Simétricos | Streaming de audio HD y video 4K. |
+| **Procesador** | Apple M3 / Intel Core Ultra | NPU dedicada para inferencia local. |
+| **Latencia Red** | < 20ms | Garantizar fluidez en traducción simultánea. |`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Estabilidad Global: Infraestructura de Misión Crítica para la IA de 2026",
@@ -571,21 +562,7 @@ La verdadera sofisticación reside en la fiabilidad absoluta. Queremos que Dikta
       }
     }]
   }
-}
-\`\`\\\`
-
-### Arquitectura de Baja Latencia
-Para lograr transcripciones en tiempo real (<200ms), Diktalo utiliza computación en el borde (Edge Computing):
-*   **Procesamiento Local:** Los modelos de voz ligeros corren en el dispositivo del usuario para la tokenización inicial.
-*   **Sincronización Diferencial:** Solo se envían los vectores semánticos a la nube, reduciendo el consumo de ancho de banda en un 90%.
-
-### Tabla de Requisitos Técnicos Mínimos
-| Componente | Requisito 2026 | Razón Técnica |
-| :--- | :--- | :--- |
-| **Ancho de Banda** | 5 Mbps Simétricos | Streaming de audio HD y video 4K. |
-| **Procesador** | Apple M3 / Intel Core Ultra | NPU dedicada para inferencia local. |
-| **Latencia Red** | < 20ms | Garantizar fluidez en traducción simultánea. |
-`, jsonLd: ``, tags: ["Fiabilidad", "IT", "Eficiencia", "Cloud"]
+}`, tags: ["Fiabilidad", "IT", "Eficiencia", "Cloud"]
   },
   {
     id: "12",
@@ -623,8 +600,15 @@ Nuestros sistemas analizan el contenido estructural del diálogo para resaltar l
 ### Perspectiva Diktalo: Mérito sobre Impresión
 Nuestra tecnología es el aliado de la justicia corporativa. Al despejar la niebla de los prejuicios inconscientes, permitimos que el talento brille por lo que realmente dice y propone. En 2026, la entrevista es un activo de datos que construye el futuro de tu plantilla con ética y claridad.
 
-\`\`\`json
-{
+
+
+### Diktalo en Recursos Humanos: People Analytics 2.0
+Transformamos la gestión de talento de reactiva a predictiva:
+*   **Detección de Burnout:** Identifica patrones de fatiga vocal y cinismo lingüístico semanas antes de una baja laboral.
+*   **Optimización de Reuniones:** Calcula el "Coste por Reunión" en tiempo real y sugiere acotar la duración si la densidad de información cae.
+
+### Caso de Uso: Entrevistas de Salida
+Al analizar las entrevistas de salida con IA, Diktalo detectó que el 60% de la rotación en ingeniería no era por salario, sino por "falta de claridad en objetivos". Esto permitió a la empresa corregir su estrategia de comunicación interna y reducir la rotación a la mitad en 6 meses.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Talento y Objetividad: Eliminando Sesgos en Selección con IA en 2026",
@@ -644,17 +628,7 @@ Nuestra tecnología es el aliado de la justicia corporativa. Al despejar la nieb
       }
     }]
   }
-}
-\`\`\\\`
-
-### Diktalo en Recursos Humanos: People Analytics 2.0
-Transformamos la gestión de talento de reactiva a predictiva:
-*   **Detección de Burnout:** Identifica patrones de fatiga vocal y cinismo lingüístico semanas antes de una baja laboral.
-*   **Optimización de Reuniones:** Calcula el "Coste por Reunión" en tiempo real y sugiere acotar la duración si la densidad de información cae.
-
-### Caso de Uso: Entrevistas de Salida
-Al analizar las entrevistas de salida con IA, Diktalo detectó que el 60% de la rotación en ingeniería no era por salario, sino por "falta de claridad en objetivos". Esto permitió a la empresa corregir su estrategia de comunicación interna y reducir la rotación a la mitad en 6 meses.
-`, jsonLd: ``, tags: ["HR", "Talento", "Equidad", "IA"]
+}`, tags: ["HR", "Talento", "Equidad", "IA"]
   },
   {
     id: "11",
@@ -667,7 +641,7 @@ Al analizar las entrevistas de salida con IA, Diktalo detectó que el 60% de la 
     authorImage: "/images/avatars/leo-costa.webp",
     authorLinkedIn: "https://linkedin.com/in/leocosta",
     category: "Real Estate",
-    image: "/images/blog/real_estate_luxury.png",
+    image: "/images/blog/real_estate_agility.png",
     imageAlt: "Gestión de propiedades de lujo mediante tecnología de asistencia inteligente de Diktalo.",
     aeoAnswer: "¿Cómo escala Diktalo el sector inmobiliario en 2026? Diktalo automatiza la captura de visitas y negociaciones sin interrumpir el flujo emocional. Genera fichas de cliente automáticas y reduce el ciclo de venta en un 30%, elevando la percepción de profesionalidad y ganando horas comerciales críticas para el agente.",
     content: `**Resumen Ejecutivo:** En el mercado inmobiliario de lujo de 2026, la inmediatez es el lenguaje de la confianza. Diktalo permite a los agentes "Top Producer" capturar cada detalle de una visita sin apartar la vista del cliente. Al automatizar la generación de reportes y seguimientos, reducimos el ciclo de venta un 30% y garantizamos que ninguna preferencia técnica o emocional del comprador se pierda en el camino.
@@ -692,8 +666,14 @@ La rapidez en el seguimiento define quién se lleva la comisión. Diktalo sincro
 ### Perspectiva Diktalo: Ojos en el Cliente
 En Diktalo creemos que la tecnología debe liberar al comercial para que vuelva a ser un asesor de confianza, no un administrativo. Estamos transformando el Real Estate de lujo en una disciplina de alta precisión donde la memoria perfecta es el nuevo estándar de servicio.
 
-\`\`\`json
-{
+
+
+### Tokenización de Activos Inmobiliarios
+La integración de Diktalo con Blockchain permite convertir transcripciones de tasaciones y auditorías visuales en NFTs dinámicos que certifican el estado de una propiedad en una fecha inmutable.
+
+### FAQ: Validez Legal
+**¿Tienen validez jurídica las actas de Diktalo?**
+Sí. Diktalo genera un hash criptográfico de cada acta de reunión. En litigios inmobiliarios, esto sirve como prueba pericial forense de que los acuerdos (ej. "reparar el tejado antes de la venta") se realizaron y fueron aceptados verbalmente por ambas partes.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Agilidad Inmobiliaria: El Nuevo Estándar del Lujo con IA en 2026",
@@ -713,16 +693,7 @@ En Diktalo creemos que la tecnología debe liberar al comercial para que vuelva 
       }
     }]
   }
-}
-\`\`\\\`
-
-### Tokenización de Activos Inmobiliarios
-La integración de Diktalo con Blockchain permite convertir transcripciones de tasaciones y auditorías visuales en NFTs dinámicos que certifican el estado de una propiedad en una fecha inmutable.
-
-### FAQ: Validez Legal
-**¿Tienen validez jurídica las actas de Diktalo?**
-Sí. Diktalo genera un hash criptográfico de cada acta de reunión. En litigios inmobiliarios, esto sirve como prueba pericial forense de que los acuerdos (ej. "reparar el tejado antes de la venta") se realizaron y fueron aceptados verbalmente por ambas partes.
-`, jsonLd: ``, tags: ["Real Estate", "Ventas", "Lujo", "Eficiencia"]
+}`, tags: ["Real Estate", "Ventas", "Lujo", "Eficiencia"]
   },
   {
     id: "10",
@@ -760,8 +731,15 @@ Eliminamos la necesidad de estar "siempre presente" para estar "siempre enterado
 ### Perspectiva Diktalo: La Oficina es la Nube
 El espacio físico es opcional; la inteligencia colectiva es obligatoria. Estamos construyendo el pegamento digital que mantiene a las organizaciones enfocadas y productivas en un mundo sin fronteras geográficas. En 2026, tu equipo está unido por el propósito y la ejecución, no por el código postal.
 
-\`\`\`json
-{
+
+
+### Liderazgo en Equipos Híbridos Asíncronos
+El mayor desafío híbrido es la pérdida de contexto. Diktalo resuelve esto con "Capsulas de Contexto":
+*   Resúmenes de 3 minutos de reuniones de 2 horas.
+*   Detección automática de tareas asignadas a miembros remotos.
+
+### Protocolo de Inclusión Híbrida
+Diktalo modera activamente la reunión. Si detecta que los participantes remotos han hablado <10% del tiempo, sugiere al moderador: "Hagamos una pausa para escuchar a los participantes en Zoom". Esto democratiza la voz en la sala.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Equipos Híbridos 2026: La Era de la Colaboración Asíncrona Inteligente",
@@ -781,17 +759,7 @@ El espacio físico es opcional; la inteligencia colectiva es obligatoria. Estamo
       }
     }]
   }
-}
-\`\`\`
-
-### Liderazgo en Equipos Híbridos Asíncronos
-El mayor desafío híbrido es la pérdida de contexto. Diktalo resuelve esto con "Capsulas de Contexto":
-*   Resúmenes de 3 minutos de reuniones de 2 horas.
-*   Detección automática de tareas asignadas a miembros remotos.
-
-### Protocolo de Inclusión Híbrida
-Diktalo modera activamente la reunión. Si detecta que los participantes remotos han hablado <10% del tiempo, sugiere al moderador: "Hagamos una pausa para escuchar a los participantes en Zoom". Esto democratiza la voz en la sala.
-`, jsonLd: ``, tags: ["Colaboración", "Equipos", "Eficiencia", "Remoto"]
+}`, tags: ["Colaboración", "Equipos", "Eficiencia", "Remoto"]
   },
   {
     id: "9",
@@ -829,8 +797,16 @@ Implementamos capas de protección redundante que exceden los estándares intern
 ### Perspectiva Diktalo: Seguridad como Facilitador
 La confidencialidad no es un obstáculo; es el fundamento de la confianza. Elegimos ser el guardián armado de tu conocimiento para que tú puedas innovar sin miedo al mañana. En 2026, la soberanía de datos es la única forma de asegurar el futuro de tu marca en un mundo hiperconectado.
 
-\`\`\`json
-{
+
+
+### Soberanía del Dato: Tu Nube, Tus Reglas
+A diferencia de las soluciones SaaS tradicionales, Diktalo permite despliegues "On-Premise" o en "Nube Soberana" (GAIA-X compliant).
+*   **Cifrado Homomórfico:** Permite a la IA procesar datos cifrados sin descifrarlos nunca, garantizando privacidad matemática absoluta.
+
+### Checklist de Cumplimiento GDPR 2026
+- [x] **Derecho al Olvido Selectivo:** Borrar frases específicas de un historial sin destruir la reunión entera.
+- [x] **Consentimiento Granular:** Los participantes aprueban qué partes de su voz se procesan (tono, texto, biometría).
+- [x] **Traza de Auditoría Inmutable:** Registro Blockchain de quién accedió a qué minuto de grabación.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Soberanía de Datos 2026: El Derecho a la Propiedad Intelectual Digital",
@@ -850,18 +826,7 @@ La confidencialidad no es un obstáculo; es el fundamento de la confianza. Elegi
       }
     }]
   }
-}
-\`\`\`
-
-### Soberanía del Dato: Tu Nube, Tus Reglas
-A diferencia de las soluciones SaaS tradicionales, Diktalo permite despliegues "On-Premise" o en "Nube Soberana" (GAIA-X compliant).
-*   **Cifrado Homomórfico:** Permite a la IA procesar datos cifrados sin descifrarlos nunca, garantizando privacidad matemática absoluta.
-
-### Checklist de Cumplimiento GDPR 2026
-- [x] **Derecho al Olvido Selectivo:** Borrar frases específicas de un historial sin destruir la reunión entera.
-- [x] **Consentimiento Granular:** Los participantes aprueban qué partes de su voz se procesan (tono, texto, biometría).
-- [x] **Traza de Auditoría Inmutable:** Registro Blockchain de quién accedió a qué minuto de grabación.
-`, jsonLd: ``, tags: ["Privacidad", "Legal", "Confianza", "Seguridad"]
+}`, tags: ["Privacidad", "Legal", "Confianza", "Seguridad"]
   },
   {
     id: "8",
@@ -899,8 +864,16 @@ Potenciamos el "momentum" comercial mediante la inmediatez absoluta en la gesti�
 ### Perspectiva Diktalo: Vendedores, no Escribas
 Queremos que tu equipo sea imparable. Diktalo es la red de seguridad que garantiza que cada compromiso verbal se convierta en una oportunidad de éxito en tu cuenta de resultados. Estamos devolviendo el arte de la venta al terreno de la conexión humana, potenciada por una ejecución técnica perfecta y automatizada.
 
-\`\`\`json
-{
+
+
+### La Revolución de la Eficiencia Comercial
+Vender en 2026 no va de persuadir, va de entender. Diktalo actúa como un "Coach en el Oído" (Whisper Mode):
+*   **Sugerencias en Vivo:** Mientras el cliente habla de "problemas de escalabilidad", Diktalo proyecta en las gafas AR del vendedor el caso de éxito de un cliente similar que escaló x10.
+
+### Métricas de Impacto Real
+Implementar Diktalo en equipos de ventas (>50 pax) ha demostrado:
+1.  **Reducción del Ciclo de Ventas:** -35% (al eliminar reuniones de aclaración).
+2.  **Aumento del Ticket Medio:** +22% (al identificar oportunidades de up-selling en tiempo real).`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Eficiencia Comercial: Optimizando el ROI de Ventas con Inteligencia de Voz",
@@ -920,18 +893,7 @@ Queremos que tu equipo sea imparable. Diktalo es la red de seguridad que garanti
       }
     }]
   }
-}
-\`\`\`
-
-### La Revolución de la Eficiencia Comercial
-Vender en 2026 no va de persuadir, va de entender. Diktalo actúa como un "Coach en el Oído" (Whisper Mode):
-*   **Sugerencias en Vivo:** Mientras el cliente habla de "problemas de escalabilidad", Diktalo proyecta en las gafas AR del vendedor el caso de éxito de un cliente similar que escaló x10.
-
-### Métricas de Impacto Real
-Implementar Diktalo en equipos de ventas (>50 pax) ha demostrado:
-1.  **Reducción del Ciclo de Ventas:** -35% (al eliminar reuniones de aclaración).
-2.  **Aumento del Ticket Medio:** +22% (al identificar oportunidades de up-selling en tiempo real).
-`, jsonLd: ``, tags: ["Ventas", "Eficiencia", "Negocios", "CRM"]
+}`, tags: ["Ventas", "Eficiencia", "Negocios", "CRM"]
   },
 
   {
@@ -970,8 +932,15 @@ Estar plenamente presente no es un lujo; es una herramienta de poder estratégic
 ### Perspectiva Diktalo: Tecnología para ser más humanos
 Paradójicamente, la IA es la que nos permite recuperar nuestra esencia. Queremos que cada reunión sea un encuentro de mentes, no un intercambio de dictados. En 2026, el éxito profesional nace de la calidad de nuestra atención humana recuperada. Ayudamos a que seas el mejor líder posible dándote el regalo del foco absoluto.
 
-\`\`\`json
-{
+
+
+### Psicología Computacional Aplicada
+Diktalo utiliza modelos OCEAN (Big Five Personality Traits) para adaptar la comunicación.
+*   Si detecta un interlocutor con alta **Apertura**, sugiere usar metáforas y hablar de visión futura.
+*   Si detecta alta **Responsabilidad**, sugiere centrarse en datos, plazos y KPIs.
+
+### Caso de Uso: Resolución de Conflictos
+En una negociación sindical tensa, Diktalo alertó a los mediadores de que el uso de palabras absolutas ("nunca", "siempre", "imposible") había subido un 400%. Sugirió un receso de 15 minutos para enfriar los ánimos, salvando la mesa de negociación.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Foco en las Personas: La Psicología de la Escucha Profunda en 2026",
@@ -991,17 +960,7 @@ Paradójicamente, la IA es la que nos permite recuperar nuestra esencia. Queremo
       }
     }]
   }
-}
-\`\`\`
-
-### Psicología Computacional Aplicada
-Diktalo utiliza modelos OCEAN (Big Five Personality Traits) para adaptar la comunicación.
-*   Si detecta un interlocutor con alta **Apertura**, sugiere usar metáforas y hablar de visión futura.
-*   Si detecta alta **Responsabilidad**, sugiere centrarse en datos, plazos y KPIs.
-
-### Caso de Uso: Resolución de Conflictos
-En una negociación sindical tensa, Diktalo alertó a los mediadores de que el uso de palabras absolutas ("nunca", "siempre", "imposible") había subido un 400%. Sugirió un receso de 15 minutos para enfriar los ánimos, salvando la mesa de negociación.
-`, jsonLd: ``, tags: ["Psicología", "Foco", "Atención", "Valor"]
+}`, tags: ["Psicología", "Foco", "Atención", "Valor"]
   },
   {
     id: "6",
@@ -1039,8 +998,16 @@ Al centralizar la potencia en la red, democratizamos el acceso a la IA de alta f
 ### Perspectiva Diktalo: La Simplicidad como Poder
 Elegimos dedicar nuestra visión a hacer tu vida más fácil mediante integraciones invisibles en lo que ya usas. La verdadera revolución no está en el bolsillo, sino en la capacidad de procesar cada pensamiento con una potencia ilimitada y segura. En 2026, Diktalo es el motor invisible que convierte cualquier terminal en una ventana hacia la inteligencia total.
 
-\`\`\`json
-{
+
+
+### Hardware Dedicado: Diktalo Core
+Aunque somos software, certificamos hardware de terceros para garantizar la ingesta de audio perfecta.
+*   **Matrices de Micrófonos:** Recomendamos arrays de 8 micrófonos con beamforming para aislar al hablante activo en salas ruidosas.
+*   **Procesadores NPU:** Optimizados para chips Snapdragon X Elite y Apple serie M.
+
+### FAQ: Compatibilidad IoT
+**¿Se integra con domótica de oficina?**
+Sí. Diktalo puede controlar el entorno. Si detecta que una presentación comienza (por la frase clave "Empecemos la demo"), puede atenuar las luces de la sala y encender el proyector a través de APIs estándar tipo Matter.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Integración Total 2026: Por qué el Hardware Dedicado es Obsoleto en IA",
@@ -1060,18 +1027,7 @@ Elegimos dedicar nuestra visión a hacer tu vida más fácil mediante integracio
       }
     }]
   }
-}
-\`\`\`
-
-### Hardware Dedicado: Diktalo Core
-Aunque somos software, certificamos hardware de terceros para garantizar la ingesta de audio perfecta.
-*   **Matrices de Micrófonos:** Recomendamos arrays de 8 micrófonos con beamforming para aislar al hablante activo en salas ruidosas.
-*   **Procesadores NPU:** Optimizados para chips Snapdragon X Elite y Apple serie M.
-
-### FAQ: Compatibilidad IoT
-**¿Se integra con domótica de oficina?**
-Sí. Diktalo puede controlar el entorno. Si detecta que una presentación comienza (por la frase clave "Empecemos la demo"), puede atenuar las luces de la sala y encender el proyector a través de APIs estándar tipo Matter.
-`, jsonLd: ``, tags: ["Estrategia", "Eficiencia", "Innovación", "Sostenibilidad"]
+}`, tags: ["Estrategia", "Eficiencia", "Innovación", "Sostenibilidad"]
   },
   {
     id: "5",
@@ -1109,8 +1065,17 @@ Nuestra infraestructura supera las exigencias de los sectores más regulados, as
 ### Perspectiva Diktalo: El Puerto Seguro de la IA
 La integridad de tus datos es nuestro compromiso más sagrado. Te permitimos innovar a la velocidad de la luz con la confianza de que tu patrimonio intelectual está detrás del escudo más fuerte del mundo. En 2026, la seguridad no es una barrera para el éxito, sino el motor que permite la ejecución de estrategias audaces y globales.
 
-\`\`\`json
-{
+
+
+### Ciberseguridad Activa en Reuniones
+Las reuniones son el nuevo vector de ataque (Deepfakes de audio). Diktalo incluye un firewall de identidad:
+*   **Anti-Spoofing:** Verifica en tiempo real que la voz del CEO es realmente la del CEO y no una IA clonadora intentando autorizar una transferencia fraudulenta.
+
+### Protocolo de 'Sala Segura'
+Para juntas directivas críticas, Diktalo activa el modo 'Sala Segura':
+1.  Desconecta micrófonos no autorizados en la red.
+2.  Genera ruido blanco ultrasónico para bloquear dispositivos de espionaje analógicos.
+3.  Cifra el audio punto a punto con claves efímeras que se destruyen al finalizar la sesión.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Seguridad y Tranquilidad: Blindando la Propiedad Intelectual en 2026",
@@ -1130,19 +1095,7 @@ La integridad de tus datos es nuestro compromiso más sagrado. Te permitimos inn
       }
     }]
   }
-}
-\`\`\`
-
-### Ciberseguridad Activa en Reuniones
-Las reuniones son el nuevo vector de ataque (Deepfakes de audio). Diktalo incluye un firewall de identidad:
-*   **Anti-Spoofing:** Verifica en tiempo real que la voz del CEO es realmente la del CEO y no una IA clonadora intentando autorizar una transferencia fraudulenta.
-
-### Protocolo de 'Sala Segura'
-Para juntas directivas críticas, Diktalo activa el modo 'Sala Segura':
-1.  Desconecta micrófonos no autorizados en la red.
-2.  Genera ruido blanco ultrasónico para bloquear dispositivos de espionaje analógicos.
-3.  Cifra el audio punto a punto con claves efímeras que se destruyen al finalizar la sesión.
-`, jsonLd: ``, tags: ["Seguridad", "Confidencialidad", "Protección", "Ciberseguridad"]
+}`, tags: ["Seguridad", "Confidencialidad", "Protección", "Ciberseguridad"]
   },
   {
     id: "4",
@@ -1180,8 +1133,18 @@ Analizamos el rendimiento comercial bajo una lupa de datos objetivos que permite
 ### Perspectiva Diktalo: Tu Voz es Data Estratégica
 En Diktalo, ayudamos a que tu voz trabaje activamente a tu favor. El futuro comercial pertenece a quien mejor entiende lo que ha dicho para actuar con precisión quirúrgica en el próximo cierre. No dejes que el conocimiento de tu mercado se quede en el aire; conviértelo en el motor de tu crecimiento y liderazgo en 2026.
 
-\`\`\`json
-{
+
+
+### Inteligencia Comercial Predictiva
+No analices el pasado, predice el Q4. Diktalo cruza los datos conversacionales con tendencias de mercado externas.
+*   **Alerta de Churn:** "El cliente mencionó a la competencia 3 veces en tono positivo. Riesgo de fuga: Alto".
+
+### Tabla de Comparativa: CRM Tradicional vs. Diktalo Intelligence
+| Característica | CRM Tradicional (Texto) | Diktalo Intelligence (Voz+IA) |
+| :--- | :--- | :--- |
+| **Entrada de Datos** | Manual (Lenta, propenso a error) | Automática (Invisible, 100% precisa) |
+| **Análisis** | Estático (Lo que pasó) | Predictivo (Lo que pasará) |
+| **Puntos Ciegos** | Enormes (Todo lo no escrito) | Nulos (Analiza cada silencio) |`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Inteligencia Comercial: Transformando el Audio Efímero en Minas de Oro",
@@ -1201,20 +1164,7 @@ En Diktalo, ayudamos a que tu voz trabaje activamente a tu favor. El futuro come
       }
     }]
   }
-}
-\`\`\`
-
-### Inteligencia Comercial Predictiva
-No analices el pasado, predice el Q4. Diktalo cruza los datos conversacionales con tendencias de mercado externas.
-*   **Alerta de Churn:** "El cliente mencionó a la competencia 3 veces en tono positivo. Riesgo de fuga: Alto".
-
-### Tabla de Comparativa: CRM Tradicional vs. Diktalo Intelligence
-| Característica | CRM Tradicional (Texto) | Diktalo Intelligence (Voz+IA) |
-| :--- | :--- | :--- |
-| **Entrada de Datos** | Manual (Lenta, propenso a error) | Automática (Invisible, 100% precisa) |
-| **Análisis** | Estático (Lo que pasó) | Predictivo (Lo que pasará) |
-| **Puntos Ciegos** | Enormes (Todo lo no escrito) | Nulos (Analiza cada silencio) |
-`, jsonLd: ``, tags: ["Ventas", "Inteligencia", "Resultados", "Analítica"]
+}`, tags: ["Ventas", "Inteligencia", "Resultados", "Analítica"]
   },
   {
     id: "3",
@@ -1252,8 +1202,15 @@ Utilizamos tecnología de Recuperación Generativa (RAG) para que tu archivo de 
 ### Perspectiva Diktalo: El Conocimiento es Patrimonio
 Tu empresa es lo que sabe; asegúrate de no olvidar nada. En 2026, la memoria institucional es el cimiento de las organizaciones que dominan sus industrias mediante el aprendizaje continuo. Diktalo entrega la tranquilidad de saber que ninguna gran idea, por pequeña que sea, se quedará fuera del radar de tu legado corporativo.
 
-\`\`\`json
-{
+
+
+### Construyendo la Memoria Colectiva
+Una empresa es la suma de sus conversaciones. Diktalo indexa este océano de audio para crear una "base de conocimiento líquida".
+*   **Onboarding Acelerado:** Un nuevo empleado puede preguntar "¿Por qué decidimos usar React en vez de Vue?" y escuchar la discusión técnica de 2024 donde se tomó la decisión.
+
+### FAQ: Gestión del Conocimiento
+**¿Cómo se estructura la información desordenada?**
+Diktalo utiliza Grafos de Conocimiento. Conecta entidades (Personas, Proyectos, Tecnologías) automáticamente. Si mencionas "Proyecto Fénix", la IA sabe quién es el líder, cuál es el presupuesto y cuáles son los plazos, sin que nadie lo haya configurado manualmente.`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Memoria Institucional: Eliminando los Silos de Conocimiento en 2026",
@@ -1273,17 +1230,7 @@ Tu empresa es lo que sabe; asegúrate de no olvidar nada. En 2026, la memoria in
       }
     }]
   }
-}
-\`\`\`
-
-### Construyendo la Memoria Colectiva
-Una empresa es la suma de sus conversaciones. Diktalo indexa este océano de audio para crear una "base de conocimiento líquida".
-*   **Onboarding Acelerado:** Un nuevo empleado puede preguntar "¿Por qué decidimos usar React en vez de Vue?" y escuchar la discusión técnica de 2024 donde se tomó la decisión.
-
-### FAQ: Gestión del Conocimiento
-**¿Cómo se estructura la información desordenada?**
-Diktalo utiliza Grafos de Conocimiento. Conecta entidades (Personas, Proyectos, Tecnologías) automáticamente. Si mencionas "Proyecto Fénix", la IA sabe quién es el líder, cuál es el presupuesto y cuáles son los plazos, sin que nadie lo haya configurado manualmente.
-`, jsonLd: ``, tags: ["Gestión", "Memoria", "Conocimiento", "Equipo", "Cultura"]
+}`, tags: ["Gestión", "Memoria", "Conocimiento", "Equipo", "Cultura"]
   },
   {
     id: "2",
@@ -1321,8 +1268,19 @@ Desglosamos el impacto financiero de nuestra tecnología en las operaciones de u
 ### Perspectiva Diktalo: Tu Tiempo es el Activo Supremo
 La rentabilidad empieza por el respeto radical al genio humano. No se trata solo de ahorrar; se trata de liberar el potencial de crecimiento de tu compañía. En 2026, Diktalo es la inversión más segura para cualquier directivo que busque optimizar su cuenta de resultados mediante la inteligencia artificial conversacional aplicada.
 
-\`\`\`json
-{
+
+
+### Calculadora de ROI en Tiempo Real
+Diktalo no es un coste, es una inversión recuperable en semanas.
+*   **Ahorro de Tiempo:** 20 min/reunión en toma de notas = 5 horas/semana por empleado. En una empresa de 100 empleados, son 20.000 horas anuales liberadas.
+*   **Costo de Oportunidad:** Evitar una mala contratación por un análisis de entrevista mejorado ahorra >30k€ de media.
+
+### Tabla de Retorno de Inversión (Ejemplo SME)
+| Variable | Antes de Diktalo | Con Diktalo | Ahorro Anual |
+| :--- | :--- | :--- | :--- |
+| **Tiempo en Actas** | 10h/sem (Jefe Proyecto) | 0h/sem (Auto) | 15.000€ |
+| **Errores de Comunicación** | 5% Proyectos fallidos | 1% Proyectos fallidos | 50.000€ |
+| **Búsqueda de Info** | 4h/sem por empleado | 5 min/sem | 120.000€ |`, jsonLd: `{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "ROI de la Inteligencia Verbal: Impacto Directo en tu Cuenta de Resultados",
@@ -1342,21 +1300,7 @@ La rentabilidad empieza por el respeto radical al genio humano. No se trata solo
       }
     }]
   }
-}
-\`\`\`
-
-### Calculadora de ROI en Tiempo Real
-Diktalo no es un coste, es una inversión recuperable en semanas.
-*   **Ahorro de Tiempo:** 20 min/reunión en toma de notas = 5 horas/semana por empleado. En una empresa de 100 empleados, son 20.000 horas anuales liberadas.
-*   **Costo de Oportunidad:** Evitar una mala contratación por un análisis de entrevista mejorado ahorra >30k€ de media.
-
-### Tabla de Retorno de Inversión (Ejemplo SME)
-| Variable | Antes de Diktalo | Con Diktalo | Ahorro Anual |
-| :--- | :--- | :--- | :--- |
-| **Tiempo en Actas** | 10h/sem (Jefe Proyecto) | 0h/sem (Auto) | 15.000€ |
-| **Errores de Comunicación** | 5% Proyectos fallidos | 1% Proyectos fallidos | 50.000€ |
-| **Búsqueda de Info** | 4h/sem por empleado | 5 min/sem | 120.000€ |
-`, jsonLd: ``, tags: ["Negocios", "ROI", "Finanzas", "Eficiencia"]
+}`, tags: ["Negocios", "ROI", "Finanzas", "Eficiencia"]
   },
   {
     id: "1",
@@ -1398,7 +1342,6 @@ Hacia 2030, la voz será la interfaz operativa primaria (VUI). Diktalo está con
 *   **Interacción Multimodal:** Habla mientras señalas un gráfico. Diktalo entiende "Sube *esto* un 10%" correlacionando tu voz con tu mirada o cursor.
 
 ### Manifiesto de la Voz
-Creemos que la tecnología debe ser invisible. La mejor interfaz es la ausencia de interfaz. Diktalo elimina pantallas y formularios para que los humanos vuelvan a mirarse a los ojos mientras trabajan, sabiendo que la tecnología captura y procesa todo en segundo plano. La era del "Homo Digitus" termina; comienza la era del "Homo Loquens Aumentado".
-`, jsonLd: ``, tags: ["Tendencias", "Tecnología", "Futuro", "Voz", "Innovación"]
+Creemos que la tecnología debe ser invisible. La mejor interfaz es la ausencia de interfaz. Diktalo elimina pantallas y formularios para que los humanos vuelvan a mirarse a los ojos mientras trabajan, sabiendo que la tecnología captura y procesa todo en segundo plano. La era del "Homo Digitus" termina; comienza la era del "Homo Loquens Aumentado".`, jsonLd: ``, tags: ["Tendencias", "Tecnología", "Futuro", "Voz", "Innovación"]
   }
 ];
