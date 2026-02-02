@@ -12,14 +12,14 @@ initSentry();
 const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
     modelPriorities: [
-        'gemini-1.5-flash',
-        'gemini-1.5-pro'
+        'gemini-2.5-flash',
+        'gemini-2.5-pro'
     ],
     actions: {
-        summary: { preferredModel: 'gemini-1.5-flash', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-1.5-pro', temperature: 0.8 },
-        support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 }, // Nati Pol needs speed
-        transcription: { preferredModel: 'gemini-1.5-flash', temperature: 0.1 }, // Flash is best for long audio
+        summary: { preferredModel: 'gemini-2.5-flash', temperature: 0.7 },
+        chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
+        support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 }, // Nati Pol needs speed
+        transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 }, // Flash is best for long audio
         embed: { preferredModel: 'text-embedding-004' }
     }
 };
