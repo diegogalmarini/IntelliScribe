@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
-import { validateEnv } from "./_utils/env-validator";
-import { initSentry, Sentry } from "./_utils/sentry";
+import { validateEnv } from "./_utils/env-validator.js";
+import { initSentry, Sentry } from "./_utils/sentry.js";
 
 // Initialize Sentry
 initSentry();
