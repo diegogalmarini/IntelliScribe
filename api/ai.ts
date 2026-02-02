@@ -2,8 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import fs from 'fs';
 import path from 'path';
-import { validateEnv } from "./_utils/env-validator";
-import { initSentry, Sentry } from "./_utils/sentry";
+import { validateEnv } from "./_utils/env-validator.js";
+import { initSentry, Sentry } from "./_utils/sentry.js";
 
 // Initialize Sentry
 initSentry();
