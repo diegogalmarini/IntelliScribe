@@ -677,7 +677,7 @@ const AppContent: React.FC = () => {
         }, 60000); // 1 minute fallback
 
         return () => clearInterval(intervalId);
-    }, [supabaseUser, fetchData, currentRoute]);
+    }, [supabaseUser, currentRoute]); // Removed fetchData to prevent immediate execution
 
     // --- HANDLERS ---
     const navigate = (route: AppRoute) => {
