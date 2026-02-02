@@ -30,10 +30,17 @@ export const createCheckout = async (
     // Build checkout URL
     let checkoutUrl = `https://diktalosaas.lemonsqueezy.com/checkout/buy/${checkoutId}`;
 
+    // Get current domain for redirect
+    const currentDomain = window.location.origin;
+    const redirectUrl = `${currentDomain}/dashboard`;
+
     // Add optional query parameters for pre-filling
     const params = new URLSearchParams();
     if (userEmail) params.append('checkout[email]', userEmail);
     if (userId) params.append('checkout[custom][user_id]', userId);
+
+    // Add redirect URL
+    params.append('checkout[custom][redirect_url]', redirectUrl);
 
     if (params.toString()) {
         checkoutUrl += `?${params.toString()}`;
