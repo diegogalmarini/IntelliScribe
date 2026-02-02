@@ -1,18 +1,8 @@
 {
-    "rewrites": [
-        {
-            "source": "/((?!api/|assets/).*)",
-            "destination": "/index.html"
+    "functions": {
+        "api/ai.ts": {
+            "maxDuration": 60,
+            "memory": 1024
         }
-    ],
-    "crons": [
-        {
-            "path": "/api/cron-reset-usage",
-            "schedule": "0 0 * * *"
-        },
-        {
-            "path": "/api/cron-cleanup-free",
-            "schedule": "0 2 * * *"
-        }
-    ]
+    }
 }

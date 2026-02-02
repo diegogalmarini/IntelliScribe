@@ -385,7 +385,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const handleUpdateSpeaker = async (oldSpeaker: string, newSpeaker: string, currentSegments?: any[]) => {
         const segmentsToUse = currentSegments || activeRecording?.segments;
-        if (!activeRecording || !segmentsToUse) return;
+        if (!activeRecording || !Array.isArray(segmentsToUse)) return;
         const updatedSegments = segmentsToUse.map((s: any) => s.speaker === oldSpeaker ? { ...s, speaker: newSpeaker } : s);
         onUpdateRecording(activeRecording.id, { segments: updatedSegments });
         await databaseService.updateRecording(activeRecording.id, { segments: updatedSegments });
@@ -393,7 +393,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const handleUpdateSegment = async (index: number, updates: any, currentSegments?: any[]) => {
         const segmentsToUse = currentSegments || activeRecording?.segments;
-        if (!activeRecording || !segmentsToUse) return;
+        if (!activeRecording || !Array.isArray(segmentsToUse)) return;
         const updatedSegments = [...segmentsToUse];
         updatedSegments[index] = { ...updatedSegments[index], ...updates };
         onUpdateRecording(activeRecording.id, { segments: updatedSegments });
