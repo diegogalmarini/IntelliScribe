@@ -645,7 +645,7 @@ const AppContent: React.FC = () => {
                 },
                 (payload) => {
                     console.log('[App] Recording update detected via Realtime:', payload.new.id);
-                    // Update local state if needed, or just refetch
+                    // Update local state directly without full refetch to avoid race conditions
                     setRecordings(prev => prev.map(rec => rec.id === payload.new.id ? { ...rec, ...payload.new } : rec));
                 }
             )
@@ -657,7 +657,7 @@ const AppContent: React.FC = () => {
             console.log('[App] Cleaning up Realtime subscription');
             supabase.removeChannel(channel);
         };
-    }, [supabaseUser, fetchData]);
+    }, [supabaseUser]); // Removed fetchData dependency to prevent infinite loops
 
     // Polling for Auto-Refresh (kept as fallback but increased interval)
     useEffect(() => {
