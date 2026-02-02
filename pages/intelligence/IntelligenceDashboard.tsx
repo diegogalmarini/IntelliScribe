@@ -410,8 +410,12 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (!activeRecording) return;
         try {
             const urlToUse = await getSignedAudioUrl(activeRecording.audioUrl);
-            const segments = await transcribeAudio(undefined, undefined, user.transcriptionLanguage || 'es', urlToUse!);
-            if (!segments || segments.length === 0) return;
+            const { segments: rawSegments } = await transcribeAudio(undefined, undefined, user.transcriptionLanguage || 'es', urlToUse!);
+
+            // Defensive validation
+            const segments = Array.isArray(rawSegments) ? rawSegments : [];
+            if (segments.length === 0) return;
+
             await databaseService.updateRecording(activeRecording.id, { segments: segments as any });
             onUpdateRecording(activeRecording.id, { segments: segments as any });
         } catch (error: any) {

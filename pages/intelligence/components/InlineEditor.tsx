@@ -68,8 +68,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     const [supportsSetSinkId, setSupportsSetSinkId] = useState(false);
 
     // Transcription State
-    const [segments, setSegments] = useState<TranscriptSegment[]>(recording.segments || []);
-    const [isTranscribing, setIsTranscribing] = useState(false);
+    const [segments, setSegments] = useState<TranscriptSegment[]>(Array.isArray(recording.segments) ? recording.segments : []);
     const [summary, setSummary] = useState<string>(recording.summary || '');
     const [summaryError, setSummaryError] = useState<string | null>(null);
 
@@ -102,7 +101,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
                 });
 
                 setRecording(fullRec);
-                setSegments(fullRec.segments || []);
+                setSegments(Array.isArray(fullRec.segments) ? fullRec.segments : []);
                 setSummary(fullRec.summary || '');
                 setEditTitle(fullRec.title);
 
@@ -427,7 +426,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     };
 
     // Summary Logic
-    const fullTranscript = segments.map(s => `${s.speaker}: ${s.text}`).join('\n');
+    const fullTranscript = (Array.isArray(segments) ? segments : []).map(s => `${s.speaker}: ${s.text}`).join('\n');
 
     const handleSummarize = async () => {
         if (segments.length === 0) return;

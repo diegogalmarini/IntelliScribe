@@ -119,7 +119,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
     // CRITICAL: Local state for data that often goes missing in lightweight props
     const [fullRecording, setFullRecording] = useState<Recording | null>(null);
-    const [segments, setSegments] = useState<any[]>(recording.segments || []);
+    const [segments, setSegments] = useState<any[]>(Array.isArray(recording.segments) ? recording.segments : []);
     const [summary, setSummary] = useState<string>(recording.summary || '');
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
@@ -162,7 +162,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                         hasSummary: !!detailedRec.summary
                     });
                     setFullRecording(detailedRec);
-                    setSegments(detailedRec.segments || []);
+                    setSegments(Array.isArray(detailedRec.segments) ? detailedRec.segments : []);
                     setSummary(detailedRec.summary || '');
                     setEditedTitle(detailedRec.title);
                 }
@@ -207,8 +207,8 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
     // CRITICAL: Sync local state when props update (to handle parent updates like speaker renames or title changes)
     React.useEffect(() => {
-        if (recording.segments && recording.segments.length > 0) {
-            setSegments(recording.segments);
+        if (recording.segments) {
+            setSegments(Array.isArray(recording.segments) ? recording.segments : []);
         }
     }, [recording.segments]);
 
@@ -460,22 +460,28 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
             // Transcribe using Gemini service
             const targetLang = user.transcriptionLanguage || 'es';
-            const result = await transcribeAudio(undefined, mimeType, targetLang, currentSignedUrl);
+            const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(undefined, mimeType, targetLang, currentSignedUrl);
 
             // CRITICAL: Only update if we got valid results
-            if (!result || result.length === 0) {
+            const segmentsToMap = Array.isArray(rawSegments) ? rawSegments : [];
+            if (segmentsToMap.length === 0) {
                 console.warn('[RecordingDetailView] Regeneration returned empty, preserving original transcription');
                 showToast(t('transcriptionRegenerateEmpty'), 'warning');
                 return; // Exit without modifying anything
             }
 
-            const newSegments = result.map((s, index) => ({
-                id: Date.now().toString() + index,
-                timestamp: s.timestamp || "00:00",
-                speaker: s.speaker || "Speaker",
-                text: s.text || "",
-                speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
-            }));
+            const newSegments = segmentsToMap.map((s, index) => {
+                const rawSpeaker = s.speaker || "Speaker";
+                const finalSpeaker = (suggestedSpeakers && suggestedSpeakers[rawSpeaker]) ? suggestedSpeakers[rawSpeaker] : rawSpeaker;
+
+                return {
+                    id: Date.now().toString() + index,
+                    timestamp: s.timestamp || "00:00",
+                    speaker: finalSpeaker,
+                    text: s.text || "",
+                    speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
+                };
+            });
 
             // Only update now that we have confirmed valid data
             setSegments(newSegments);
@@ -891,7 +897,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                             </div>
 
                             <div className="space-y-4">
-                                {segments.map((segment, idx) => {
+                                {Array.isArray(segments) && segments.map((segment, idx) => {
                                     // Check for temporal metadata matches
                                     const temporalMeta = recording.metadata?.segments?.find(
                                         meta => meta.segmentStartIndex === idx
