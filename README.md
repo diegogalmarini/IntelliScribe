@@ -1,110 +1,363 @@
-# Diktalo - Intelligence for your Conversations 🧠🎙️
+# Diktalo - AI-Powered Voice Intelligence Platform 🧠🎙️
 
-> **Turn meetings into actionable intelligence.** Captura, Transcribe, Analiza y Chatea con tus audios.
+> **Transform conversations into actionable intelligence.** Capture, transcribe, analyze, and chat with your audio recordings.
 
 ![Diktalo Dashboard](https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6)
 
-Diktalo no es solo una grabadora. Es un **Sistema Operativo de Inteligencia Conversacional** completo que unifica tus reuniones (Google Meet, Zoom, Teams), llamadas telefónicas y archivos de audio en un solo cerebro digital.
+Diktalo is a complete **Conversational Intelligence Operating System** that unifies your meetings (Google Meet, Zoom, Teams), phone calls, and audio files into a single digital brain powered by AI.
 
 ---
 
-## 🚀 Features Principales
+## 🚀 Core Features
 
-### 1. Captura Omnicanal
-*   **Web Recorder:** Grabación de voz directa en el navegador de alta fidelidad.
-*   **Chrome Extension (MV3):** Captura audio de pestañas (Meet, Teams, Zoom) sin necesidad de bots intrusivos en la reunión.
-*   **Twilio Integration:** Graba llamadas telefónicas reales y procésalas automáticamente.
-*   **Multi-Audio Upload:** Sube 10+ archivos a la vez; Diktalo los procesa en paralelo.
+### 1. Omnichannel Capture
+- **Web Recorder:** High-fidelity browser-based voice recording
+- **Chrome Extension (MV3):** Capture tab audio (Meet, Teams, Zoom) without intrusive meeting bots
+- **Twilio Integration:** Record and process real phone calls automatically
+- **Multi-Audio Upload:** Upload 10+ files at once with parallel processing
 
-### 2. Motor de Inteligencia (AI Core)
-*   **Transcripción Precisa:** Motor Whisper-class para texto verbatim.
-*   **Resúmenes Temáticos:** Detecta automáticamente los tópicos clave, decisiones y tareas.
-*   **Smart Chat (3 Niveles):**
-    *   *Chat Global:* "Busca en todas mis reuniones cuándo hablamos de presupuesto".
-    *   *Chat de Carpeta:* "Resume los avances del Proyecto X en estas 5 grabaciones".
-    *   *Chat de Audio:* Interroga a una reunión específica.
+### 2. AI Intelligence Engine
+- **Accurate Transcription:** Whisper-class engine for verbatim text
+- **Thematic Summaries:** Auto-detect key topics, decisions, and action items
+- **Smart Chat (3 Levels):**
+  - *Global Chat:* "Search all my meetings when we discussed budget"
+  - *Folder Chat:* "Summarize Project X progress across these 5 recordings"
+  - *Audio Chat:* Query a specific meeting
 
-### 3. Organización & Seguridad
-*   **Carpetas Inteligentes:** Organiza por cliente, proyecto o equipo.
-*   **Row Level Security (RLS):** Tus datos están aislados a nivel de base de datos (Supabase).
-*   **Exportación:** PDF, DOCX con formato profesional.
+### 3. Organization & Security
+- **Smart Folders:** Organize by client, project, or team
+- **Row Level Security (RLS):** Database-level data isolation (Supabase)
+- **Export:** Professional PDF/DOCX formatting
+- **RAG-Powered Search:** Vector embeddings for semantic search
 
 ---
 
-## 🏗️ Arquitectura Técnica
+## 🏗️ Technical Architecture
 
-El sistema utiliza una arquitectura moderna y serverless:
+### Tech Stack
+
+**Frontend:**
+- React 18 + TypeScript
+- Vite (build tool)
+- Tailwind CSS + Framer Motion
+- React Router v6
+
+**Backend:**
+- Vercel Serverless Functions
+- Supabase (PostgreSQL + Storage + Auth + Edge Functions)
+- Google Gemini 1.5 Pro (AI)
+- Twilio (phone integration)
+- Lemon Squeezy (payments)
+- Resend (transactional emails)
+
+**Architecture:**
 
 ```mermaid
 graph TD
-    User[Usuario] --> Web[Web Dashboard (React/Vite)]
-    User --> Ext[Chrome Ext (MV3)]
-    User --> Phone[Teléfono (Twilio)]
+    User[User] --> Web[Web Dashboard]
+    User --> Ext[Chrome Extension]
+    User --> Phone[Phone - Twilio]
     
-    Web --> API[Vercel Serverless Functions (/api/*)]
-    Ext --> API
-    Phone --> Webhook[API Webhooks]
+    Web --> Vercel[Vercel Functions]
+    Ext --> Vercel
+    Phone --> Webhook[Twilio Webhooks]
     
-    API --> Gemini[Google Gemini 1.5 Pro]
-    API --> Storage[Supabase Storage (Audio)]
-    API --> DB[Supabase DB (PostgreSQL)]
+    Vercel --> Gemini[Google Gemini 1.5 Pro]
+    Vercel --> Supabase[Supabase]
+    
+    Supabase --> DB[PostgreSQL]
+    Supabase --> Storage[Audio Storage]
+    Supabase --> Auth[Authentication]
+    Supabase --> EdgeFn[Edge Functions]
+    
+    EdgeFn --> LemonWebhook[Lemon Squeezy Webhook]
+    EdgeFn --> Resend[Email Service]
     
     subgraph "AI Pipeline"
-        Gemini --> Transcribe[Transcripción]
-        Gemini --> Analyze[Análisis & Resumen]
-        Gemini --> Chat[RAG / Chat Contextual]
+        Gemini --> Transcribe[Transcription]
+        Gemini --> Analyze[Analysis & Summary]
+        Gemini --> RAG[RAG / Contextual Chat]
     end
 ```
 
 ---
 
-## 🛠️ Quick Start (Local)
+## 🛠️ Quick Start
 
-1.  **Clonar y configurar entorno:**
-    ```bash
-    git clone https://github.com/diegogalmarini/IntelliScribe.git diktalo
-    cd diktalo
-    npm install
-    ```
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Supabase account
+- Google AI Studio API key
 
-2.  **Variables de Entorno:**
-    Crea un archivo `.env.local` con tus credenciales:
-    ```env
-    VITE_SUPABASE_URL=your_supabase_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_key
-    GEMINI_API_KEY=your_gemini_key
-    ```
+### 1. Clone and Install
 
-3.  **Correr Web App:**
-    ```bash
-    npm run dev
-    # Abre http://localhost:5173
-    ```
+```bash
+git clone https://github.com/diegogalmarini/IntelliScribe.git diktalo
+cd diktalo
+npm install
+```
 
-4.  **Cargar Extensión:**
-    *   Ve a `chrome://extensions/` -> Activa "Developer mode".
-    *   "Load unpacked" -> Selecciona la carpeta `/chrome-extension`.
+### 2. Environment Setup
+
+Create `.env.local`:
+
+```env
+# Supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+
+# Google Gemini AI
+GEMINI_API_KEY=your_gemini_api_key
+
+# Twilio (optional - for phone integration)
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_PHONE_NUMBER=+1234567890
+
+# Lemon Squeezy (payments)
+LEMONSQUEEZY_API_KEY=your_ls_api_key
+LEMONSQUEEZY_WEBHOOK_SECRET=your_webhook_secret
+
+# Resend (emails)
+RESEND_API_KEY=your_resend_key
+```
+
+### 3. Database Setup
+
+Run migrations:
+
+```bash
+# Apply all migrations to your Supabase project
+npx supabase db push --project-ref your_project_ref
+```
+
+### 4. Deploy Edge Functions
+
+```bash
+# Deploy Lemon Squeezy webhook
+npx supabase functions deploy lemon-webhook --project-ref your_project_ref --no-verify-jwt
+
+# Set secrets
+npx supabase secrets set RESEND_API_KEY=your_key --project-ref your_project_ref
+npx supabase secrets set LEMONSQUEEZY_WEBHOOK_SECRET=your_secret --project-ref your_project_ref
+```
+
+### 5. Run Development Server
+
+```bash
+npm run dev
+# Open http://localhost:5173
+```
+
+### 6. Load Chrome Extension
+
+1. Navigate to `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the `/chrome-extension` folder
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📂 Project Structure
 
-*   `/pages`: Rutas de la aplicación (Dashboard, Landing, Legal).
-*   `/chrome-extension`: Código fuente de la extensión (Manifest V3, Background Service Worker).
-*   `/api`: Backend Serverless (Vercel Functions) para AI, Twilio y Pagos.
-*   `/services`: Capa de servicio para interactuar con Supabase, Storage y Gemini.
-*   `/components`: UI Kit reutilizable (Tailwind + Framer Motion).
+```
+diktalo/
+├── .agent/                      # AI agent workflows and skills
+│   ├── skills/                  # Custom agent capabilities
+│   └── workflows/               # Deployment and dev workflows
+├── api/                         # Vercel serverless functions
+│   ├── analyze-audio.js         # Audio processing endpoint
+│   ├── gemini-chat.js           # Chat with recordings
+│   ├── process-audio.js         # Transcription pipeline
+│   └── twilio-webhook.js        # Phone call handling
+├── chrome-extension/            # Chrome Extension (Manifest V3)
+│   ├── background.js            # Service worker
+│   ├── content.js               # Tab audio capture
+│   └── manifest.json            # Extension config
+├── components/                  # Reusable UI components
+│   ├── Landing/                 # Landing page sections
+│   ├── RecordingCard.tsx        # Audio card UI
+│   └── Toast.tsx                # Notifications
+├── docs/                        # Documentation
+│   └── deployment/              # Deployment guides
+├── pages/                       # Application routes
+│   ├── admin/                   # Admin dashboard
+│   ├── intelligence/            # Main app dashboard
+│   └── Landing.tsx              # Public homepage
+├── scripts/                     # Utility scripts
+├── services/                    # Business logic layer
+│   ├── geminiService.ts         # AI integration
+│   ├── paymentService.ts        # Lemon Squeezy integration
+│   └── supabaseService.ts       # Database operations
+├── supabase/
+│   ├── functions/               # Edge Functions
+│   │   └── lemon-webhook/       # Payment webhooks + emails
+│   └── migrations/              # Database migrations
+├── utils/                       # Helper utilities
+│   ├── blogData.ts              # Blog content
+│   └── translations.ts          # i18n strings
+├── App.tsx                      # Main app component
+├── index.tsx                    # Entry point
+└── vite.config.ts               # Build configuration
+```
 
 ---
 
-## 🔮 Roadmap: "Meeting Capture Pro"
+## 🗄️ Database Schema
 
-Estamos trabajando en cerrar la brecha entre lo físico y lo virtual:
+### Core Tables
 
-*   [ ] **Snapshot Capture (Extensión):** Toma capturas de pantalla de slides durante la reunión y adjúntalas a tus notas.
-*   [ ] **Smart Import:** Si la extensión no pudo grabar (ej. App nativa de Teams), importa el archivo y procésalo igual.
-*   [ ] **Speaker ID:** Identificación biométrica de oradores.
+- **`profiles`** - User accounts and subscription data
+- **`recordings`** - Audio metadata and transcriptions
+- **`folders`** - Organization hierarchy
+- **`embeddings`** - Vector embeddings for RAG
+- **`plans_configuration`** - Subscription plan settings
+
+### Key Features
+
+- ✅ Row Level Security (RLS) on all tables
+- ✅ Real-time subscriptions enabled
+- ✅ Automatic timestamps (`created_at`, `updated_at`)
+- ✅ Foreign key relationships with cascade deletes
+
+**See:** `supabase/migrations/` for complete schema
 
 ---
 
-**© 2026 Diktalo Intelligence.**
+## 💳 Payment Integration
+
+### Lemon Squeezy Setup
+
+1. Create products in Lemon Squeezy dashboard
+2. Copy checkout UUIDs
+3. Configure in Admin Panel: `/admin/plans`
+4. Webhook processes subscriptions automatically
+
+**Supported Events:**
+- `subscription_created` → Send welcome email
+- `subscription_updated` → Send plan change email
+- `subscription_cancelled` → Send cancellation email
+
+**Email Language:** Automatically detects Spanish/English based on user preference
+
+---
+
+## 📧 Email System
+
+### Transactional Emails (Resend)
+
+Bilingual emails (ES/EN) for:
+- New subscription welcome
+- Plan upgrades/downgrades
+- Subscription cancellations
+
+**Configuration:**
+1. Verify domain in Resend dashboard
+2. Set `RESEND_API_KEY` in Supabase secrets
+3. Deploy `lemon-webhook` Edge Function
+
+**Templates:** `supabase/functions/lemon-webhook/email-templates.ts`
+
+---
+
+## 🚀 Deployment
+
+### Vercel (Frontend + API)
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+### Supabase (Database + Edge Functions)
+
+```bash
+# Link to project
+npx supabase link --project-ref your_project_ref
+
+# Push database changes
+npx supabase db push
+
+# Deploy Edge Functions
+npx supabase functions deploy lemon-webhook --no-verify-jwt
+```
+
+**Environment Variables:** Configure in Vercel dashboard
+
+---
+
+## 🧪 Testing
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Test Webhooks Locally
+
+```bash
+# Start local Supabase
+npx supabase start
+
+# Serve Edge Function locally
+npx supabase functions serve lemon-webhook
+```
+
+---
+
+## 📄 Documentation
+
+- [Deployment Guide](./docs/deployment/)
+- [API Reference](./docs/api/)
+- [Database Schema](./supabase/migrations/)
+- [Email Setup](./docs/resend-setup.md)
+
+---
+
+## 🛣️ Roadmap
+
+### In Progress
+- [x] UUID-based checkout simplification
+- [x] Bilingual email notifications
+- [ ] Speaker identification
+- [ ] Snapshot capture in Chrome Extension
+
+### Planned
+- [ ] Mobile app (React Native)
+- [ ] Slack/Teams integration
+- [ ] Advanced analytics dashboard
+- [ ] API for third-party integrations
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our contributing guidelines.
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+---
+
+## 📝 License
+
+© 2026 Diktalo Intelligence. All rights reserved.
+
+---
+
+## 🆘 Support
+
+- **Email:** soporte@diktalo.com
+- **Documentation:** [docs.diktalo.com](https://www.diktalo.com/docs)
+- **Status:** [status.diktalo.com](https://www.diktalo.com)
+
+---
+
+**Built with ❤️ in Spain 🇪🇸**
