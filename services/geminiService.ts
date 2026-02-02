@@ -15,18 +15,33 @@ const callAIEndpoint = async (action: string, payload: any, language: string) =>
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
       console.error(`[GeminiService] Non-JSON response received (${response.status}):`, text.substring(0, 200));
+      // Return safe defaults instead of throwing
+      if (action === 'transcribe') {
+        return { segments: [], suggestedSpeakers: {} };
+      }
       throw new Error(`Server Error (${response.status}). The service might be temporarily unavailable.`);
     }
 
     const json = await response.json();
 
     if (!response.ok) {
+      console.error(`[GeminiService] API Error (${response.status}):`, json.error);
+      // Return safe defaults for transcription instead of throwing
+      if (action === 'transcribe') {
+        return { segments: [], suggestedSpeakers: {} };
+      }
       throw new Error(json.error || `AI Service Error (${response.status})`);
     }
 
+    console.log(`[GeminiService] API Call Succeeded (${action})`);
     return json.data;
+
   } catch (error: any) {
     console.error(`API Call Failed (${action}):`, error);
+    // Return safe defaults for transcription instead of throwing
+    if (action === 'transcribe') {
+      return { segments: [], suggestedSpeakers: {} };
+    }
     throw error; // Throw so UI can handle retry
   }
 };
