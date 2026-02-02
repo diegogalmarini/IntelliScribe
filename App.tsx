@@ -394,6 +394,7 @@ const AppContent: React.FC = () => {
         setIsLoadingData(true);
         try {
             console.log(`[DEBUG] Fetching data for user: ${supabaseUser.id}`);
+            console.trace('[DEBUG] fetchData called from:'); // Stack trace to identify caller
 
             // CHECK FOR UNFINISHED RECORDINGS IN INDEXEDDB
             const { recordingStorage } = await import('./services/recordingStorage');
