@@ -102,13 +102,6 @@ export const translations = {
     // About Page
     about_hero_title: "Focus on what matters",
     about_hero_desc: "Diktalo es la interfaz entre tu voz y tu progreso. Diseñado para profesionales que valoran tanto su tiempo como su privacidad.",
-    about_team_title: "Las Mentes detrás de Diktalo",
-    about_nati_role: "Estrategia de Experiencia",
-    about_nati_bio: "Haciendo que la tecnología compleja se sienta natural y productiva.",
-    about_partner_role: "Arquitectura Estratégica",
-    about_partner_bio: "Diseñando sistemas de inteligencia para la empresa moderna.",
-    about_support_title: "Soporte Global",
-    about_support_desc: "Especialistas bilingües trabajando en múltiples zonas horarias.",
     // About Page (Narrativa V4 - Substantial)
     about_story_label: "Nuestro Origen",
     about_story_title: "La obsesión con la evolución humana a través del pensamiento",
@@ -117,10 +110,10 @@ export const translations = {
     about_vision_desc: "Diktalo no es una herramienta pasiva; es una interfaz activa diseñada para amplificar tu producción intelectual. Construimos para el profesional que se niega a aceptar que su tiempo es una mercancía que se puede desperdiciar en tareas repetitivas. Nuestra visión es crear una extensión fluida de tu conciencia—una memoria secundaria que no solo almacena información, sino que la organiza con la misma precisión táctica que tú lo harías.",
     about_philosophy_title: "La Cultura del Contexto Profundo",
     about_philosophy_desc: "Creemos en el poder de 'Menos Ruido, Más Verdad'. Nuestra filosofía está arraigada en el respeto por el espacio mental del usuario. No queremos reemplazar tu cerebro; queremos liberarlo de la fricción de la carga cognitiva administrativa. Te ayudamos a escuchar la lógica en tu propia voz y convertirla en una realidad accionable sin compromisos.",
-    about_team_title: "Los Arquitectos de tu Memoria Digital",
-    about_nati_bio: "Con más de una década de experiencia en diseño centrado en el humano, Nati se enfoca en traducir necesidades intelectuales complejas en experiencias digitales invisibles e intuitivas. Cree que la tecnología debe servir al propósito, y su misión es asegurar que cada detalle en Diktalo contribuya a un estado de flujo para el usuario, eliminando cada barrera entre el pensamiento y la ejecución.",
-    about_partner_bio: "Veterano en arquitectura de sistemas estratégicos, Leo es la mente responsable de la robusta lógica que impulsa Diktalo. Ha dedicado su carrera a convertir información fragmentada en activos organizados de alto valor para las empresas. Su enfoque combina la precisión con una visión para construir inteligencia escalable que respeta la privacidad como un derecho fundamental.",
-    about_aeo_title: "Inteligencia sin Fricciones",
+    about_team_title: "Architects of Your Digital Memory",
+    about_nati_bio: "With over a decade of experience in human-centered design, Nati focuses on translating complex neural requirements into invisible and intuitive digital experiences. She believes technology should serve the soul, and her mission is to ensure every pixel in Diktalo contributes to the user's 'flow' state, removing every barrier between thought and execution.",
+    about_partner_bio: "A strategic veteran in AI systems architecture, Leo is the mind responsible for the robust logic driving Diktalo. He has dedicated his career to turning chaotic data streams into high-value organized assets for companies. His approach combines surgical precision with a vision of building scalable intelligence that respects privacy as a fundamental human right.",
+    about_aeo_title: "Frictionless Intelligence",
     about_aeo_desc: "Diktalo is the interface between your voice and your progress. We build for professionals who value their time as much as their privacy. Our mission: that no insight is ever lost in the noise of the day to day.",
     manual_ask_diktalo_desc: "Extract maximum value from your audios with our intelligent chat.",
     manual_templates_title: "Summary Templates",
@@ -740,7 +733,6 @@ export const translations = {
     hero_badge_desktop: "Web Desktop",
 
     // Landing Page (NEW)
-    landing_faq_title: "Frequently Asked Questions",
     landing_blog_tag: "Blog",
     landing_blog_latest: "Latest News",
     landing_blog_view_all: "View All",
@@ -1082,15 +1074,6 @@ export const translations = {
     // About Page
     about_hero_title: "Inteligencia sin fricción",
     about_hero_desc: "Diktalo es la interfaz entre tu voz y tu progreso. Construimos para profesionales que valoran su tiempo tanto como su privacidad. Nuestra misión: que ningún insight se pierda jamás en el ruido del día a día.",
-    about_team_title: "Las mentes tras la lógica",
-    about_nati_role: "Corazón de la Experiencia",
-    about_nati_bio: "Obsesionada con que la tecnología sea invisible y profundamente útil. Si Diktalo entiende tus necesidades, es porque ella ya ha pensado cinco pasos por delante de la interfaz.",
-    about_partner_role: "Arquitecto de Estrategia",
-    about_partner_bio: "Transformando patrones conversacionales complejos en datos accionables. Cree que el futuro del trabajo no va de trabajar más, sino de entender mejor y actuar más rápido.",
-    about_philosophy_title: "Nuestra Filosofía",
-    about_philosophy_desc: "No creemos en la IA 'mágica' que reemplaza al humano. Construimos herramientas potentes que te devuelven el control. Menos ruido, más verdad.",
-    about_story_title: "Todo empezó con un insight perdido",
-    about_story_desc: "Diktalo no nació en una sala de juntas. Nació de la frustración de ver ideas brillantes desvanecerse en el vacío tras una reunión. Decidimos construir el puente.",
 
     manual_ask_diktalo_desc: "Extrae el máximo valor de tus audios con nuestro chat inteligente.",
     manual_templates_title: "Plantillas de Resumen",
@@ -1783,7 +1766,6 @@ export const translations = {
     hero_badge_desktop: "Web Desktop",
 
     // Landing Page (NEW)
-    landing_faq_title: "Preguntasfrecuentes",
     landing_blog_tag: "Blog",
     landing_blog_latest: "Últimas noticias",
     landing_blog_view_all: "Ver todas",

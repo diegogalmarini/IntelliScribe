@@ -1076,6 +1076,7 @@ ${fullTranscript}`;
                                                                     {segment.speakerProfileId && <span className="material-symbols-outlined text-[12px]">verified</span>}
                                                                     {formatSpeakerName(segment.speaker)}
                                                                 </span>
+                                                            )}
                                                         </div>
 
                                                         {/* Inline Snapshot */}
