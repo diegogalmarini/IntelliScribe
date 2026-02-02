@@ -56,8 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
 
                 // --- EXTENSION SYNC BRIDGE ---
-                // Dispatch event for content script to pick up
-                if (session) {
+                // Only dispatch on actual sign-in/sign-out events, not on every state change
+                if ((event === 'SIGNED_IN' || event === 'SIGNED_OUT') && session) {
                     window.dispatchEvent(new CustomEvent('DIKTALO_SESSION_SYNC', {
                         detail: {
                             access_token: session.access_token,
