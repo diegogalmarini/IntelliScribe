@@ -955,6 +955,7 @@ export const databaseService = {
 
             logger.info(`[Database] Semantic search found ${data?.length || 0} matches for: "${query}"`);
             return data || [];
+        } catch (err) {
             logger.error('Critical failure in semanticSearchRecordings', { err, query });
             return [];
         }
