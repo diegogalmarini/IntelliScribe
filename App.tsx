@@ -662,23 +662,41 @@ const AppContent: React.FC = () => {
         };
     }, [supabaseUser]); // Removed fetchData dependency to prevent infinite loops
 
-    // Polling for Auto-Refresh (kept as fallback but increased interval)
+    // Polling for Auto-Refresh - DISABLED since Realtime is now stable
+    // If Realtime fails, users can manually refresh
+    /*
+    const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    
     useEffect(() => {
+        // Clear any existing interval first
+        if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+        }
+
         if (!supabaseUser) return;
+        
         const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW ||
             currentRoute === AppRoute.ADMIN_USERS ||
             currentRoute === AppRoute.ADMIN_FINANCIALS ||
             currentRoute === AppRoute.ADMIN_PLANS ||
-            currentRoute === AppRoute.ADMIN_ANALYTICS; // NEW ROUTE
+            currentRoute === AppRoute.ADMIN_ANALYTICS;
 
         if (isAdminRoute) return;
 
-        const intervalId = setInterval(() => {
+        // Set up interval with ref to prevent premature resets
+        pollingIntervalRef.current = setInterval(() => {
             fetchData();
         }, 60000); // 1 minute fallback
 
-        return () => clearInterval(intervalId);
-    }, [supabaseUser, currentRoute]); // Removed fetchData to prevent immediate execution
+        return () => {
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+            }
+        };
+    }, [supabaseUser, currentRoute]); // Keep minimal dependencies
+    */
 
     // --- HANDLERS ---
     const navigate = (route: AppRoute) => {
