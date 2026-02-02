@@ -221,7 +221,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (!finalBase64) throw new Error('No audio data or URL provided');
 
             const audioBufferSize = Buffer.from(finalBase64, 'base64').length;
-            console.log(`[AI_API] Audio Size: ${(audioBufferSize / 1024 / 1024).toFixed(2)}MB, Mime: ${mimeType}`);
+            const audioSizeMB = audioBufferSize / 1024 / 1024;
+            console.log(`[AI_API] Audio Size: ${audioSizeMB.toFixed(2)}MB, Mime: ${mimeType}`);
+
+            // CRITICAL: Vercel Free/Hobby has 10s timeout, Pro has 60s max
+            // Gemini can handle up to 20MB but it takes time
+            // For Vercel stability, we limit to 10MB (~10 minutes of audio)
+            if (audioBufferSize > 10 * 1024 * 1024) {
+                console.error(`[AI_API] Audio file too large: ${audioSizeMB.toFixed(2)}MB`);
+                throw new Error(`Audio file is too large (${audioSizeMB.toFixed(2)}MB). Maximum size is 10MB for reliable processing. Please split your audio into smaller segments.`);
+            }
 
             if (audioBufferSize > 20 * 1024 * 1024) {
                 console.warn('[AI_API] Audio file exceeds 20MB limit for inlineData. This might fail.');
