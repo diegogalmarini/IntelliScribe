@@ -26,21 +26,39 @@ export const createCheckout = async (
     // Construct plan key
     const planKey = `${planId}_${billingCycle}` as keyof typeof PLANS;
     const variantId = PLANS[planKey];
-    const storeId = import.meta.env.VITE_LEMON_STORE_ID;
 
-    if (!variantId || !storeId) {
-        console.error('Missing Lemon Squeezy configuration:', { planKey, variantId, storeId });
+    if (!variantId) {
+        console.error('Missing Lemon Squeezy variant:', { planKey, variantId });
         throw new Error('Error de configuración de pagos');
     }
 
-    // Build checkout URL with user data in custom fields
-    // Using numeric store ID for correct checkout URL format
-    const checkoutUrl = `https://${storeId}.lemonsqueezy.com/checkout/buy/${variantId}?checkout[email]=${encodeURIComponent(userEmail)}&checkout[custom][user_id]=${userId}`;
+    console.log('Creating checkout via API:', { planId, billingCycle, variantId });
 
-    console.log('Redirecting to Lemon Squeezy checkout:', { planId, billingCycle, variantId, storeId });
+    // Call Supabase Edge Function to create checkout
+    const { data, error } = await supabase.functions.invoke('lemon-checkout', {
+        body: {
+            variantId: variantId.toString(),
+            userEmail,
+            userId,
+            billingCycle,
+            planId
+        }
+    });
 
-    // Redirect to checkout
-    window.location.href = checkoutUrl;
+    if (error) {
+        console.error('Error calling lemon-checkout function:', error);
+        throw new Error('Error al crear la sesión de pago');
+    }
+
+    if (!data || !data.checkoutUrl) {
+        console.error('No checkout URL returned:', data);
+        throw new Error('Error al obtener URL de pago');
+    }
+
+    console.log('Redirecting to checkout:', data.checkoutUrl);
+
+    // Redirect to checkout URL returned by API
+    window.location.href = data.checkoutUrl;
 };
 
 /**
