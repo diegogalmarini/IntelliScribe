@@ -56,9 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
 
                 // --- EXTENSION SYNC BRIDGE ---
-                // DISABLED: This was causing Realtime reconnection loops
-                // Extension now uses manual token input only
-                /*
+                // Dispatch on actual auth events to keep extension in sync
                 if ((event === 'SIGNED_IN' || event === 'SIGNED_OUT') && session) {
                     window.dispatchEvent(new CustomEvent('DIKTALO_SESSION_SYNC', {
                         detail: {
@@ -69,7 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         }
                     }));
                 }
-                */
             }
         });
 

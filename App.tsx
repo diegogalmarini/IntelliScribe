@@ -618,10 +618,12 @@ const AppContent: React.FC = () => {
     }, [supabaseUser, authLoading]);
 
     // --- Supabase Realtime Subscription ---
-    useEffect(() => {
-        if (!supabaseUser) return;
+    const userId = supabaseUser?.id; // Extract ID to prevent reconnections on object reference changes
 
-        console.log(`[App] Subscribing to Realtime changes for user: ${supabaseUser.id}`);
+    useEffect(() => {
+        if (!userId) return;
+
+        console.log(`[App] Subscribing to Realtime changes for user: ${userId}`);
         const channel = supabase
             .channel('realtime-recordings')
             .on(
@@ -630,7 +632,7 @@ const AppContent: React.FC = () => {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'recordings',
-                    filter: `user_id=eq.${supabaseUser.id}`
+                    filter: `user_id=eq.${userId}`
                 },
                 (payload) => {
                     console.log('[App] New recording detected via Realtime:', payload.new.id);
@@ -643,7 +645,7 @@ const AppContent: React.FC = () => {
                     event: 'UPDATE',
                     schema: 'public',
                     table: 'recordings',
-                    filter: `user_id=eq.${supabaseUser.id}`
+                    filter: `user_id=eq.${userId}`
                 },
                 (payload) => {
                     console.log('[App] Recording update detected via Realtime:', payload.new.id);
@@ -659,7 +661,7 @@ const AppContent: React.FC = () => {
             console.log('[App] Cleaning up Realtime subscription');
             supabase.removeChannel(channel);
         };
-    }, [supabaseUser]); // Removed fetchData dependency to prevent infinite loops
+    }, [userId]); // Only reconnect when actual user ID changes, not on object reference changes
 
     // Polling for Auto-Refresh - DISABLED since Realtime is now stable
     // If Realtime fails, users can manually refresh
