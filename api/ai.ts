@@ -12,13 +12,12 @@ initSentry();
 const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
     modelPriorities: [
-        'gemini-2.5-flash',
-        'gemini-2.5-pro',
-        'gemini-1.5-flash'
+        'gemini-1.5-flash',
+        'gemini-1.5-pro'
     ],
     actions: {
-        summary: { preferredModel: 'gemini-2.5-flash', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
+        summary: { preferredModel: 'gemini-1.5-flash', temperature: 0.7 },
+        chat: { preferredModel: 'gemini-1.5-pro', temperature: 0.8 },
         support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 }, // Nati Pol needs speed
         transcription: { preferredModel: 'gemini-1.5-flash', temperature: 0.1 }, // Flash is best for long audio
         embed: { preferredModel: 'text-embedding-004' }
@@ -399,9 +398,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 language
             }
         });
+
+        // Ensure we ALWAYS return JSON to avoid frontend crashes
         return res.status(500).json({
             error: error.message || 'Error processing AI request',
-            details: error.stack
+            details: error.stack ? error.stack.substring(0, 500) : 'No stack trace'
         });
     }
 }

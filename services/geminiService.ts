@@ -10,12 +10,20 @@ const callAIEndpoint = async (action: string, payload: any, language: string) =>
       body: JSON.stringify({ action, payload, language }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `AI Service Error (${response.status})`);
+    // Check if the response is actually JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error(`[GeminiService] Non-JSON response received (${response.status}):`, text.substring(0, 200));
+      throw new Error(`Server Error (${response.status}). The service might be temporarily unavailable.`);
     }
 
     const json = await response.json();
+
+    if (!response.ok) {
+      throw new Error(json.error || `AI Service Error (${response.status})`);
+    }
+
     return json.data;
   } catch (error: any) {
     console.error(`API Call Failed (${action}):`, error);
@@ -74,14 +82,20 @@ export const transcribeAudio = async (
 
     // Check if result is already in the new format { segments, suggestedSpeakers }
     if (result && result.segments && Array.isArray(result.segments)) {
-      return result;
+      return {
+        segments: result.segments,
+        suggestedSpeakers: result.suggestedSpeakers || {}
+      };
     }
 
     // Otherwise wrap array into segments for legacy support
-    return { segments: result || [] };
+    return {
+      segments: Array.isArray(result) ? result : [],
+      suggestedSpeakers: {}
+    };
   } catch (error) {
     console.error("Transcription failed:", error);
-    return { segments: [] };
+    return { segments: [], suggestedSpeakers: {} };
   }
 };
 

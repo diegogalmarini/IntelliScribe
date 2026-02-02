@@ -391,10 +391,13 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             const targetLang = user.transcriptionLanguage || language || 'es';
             const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
-            const newSegments: TranscriptSegment[] = (rawSegments || []).map((s, index) => {
+            // Defensive check for rawSegments
+            const validatedSegments = Array.isArray(rawSegments) ? rawSegments : [];
+
+            const newSegments: TranscriptSegment[] = validatedSegments.map((s, index) => {
                 const rawSpeaker = s.speaker || "Speaker";
                 // Apply suggestion if available
-                const finalSpeaker = suggestedSpeakers && suggestedSpeakers[rawSpeaker] ? suggestedSpeakers[rawSpeaker] : rawSpeaker;
+                const finalSpeaker = (suggestedSpeakers && suggestedSpeakers[rawSpeaker]) ? suggestedSpeakers[rawSpeaker] : rawSpeaker;
 
                 return {
                     id: Date.now().toString() + index,
