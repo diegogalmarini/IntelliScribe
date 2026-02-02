@@ -321,13 +321,24 @@ npx supabase functions serve lemon-webhook
 
 ## 🛣️ Roadmap
 
-### In Progress
-- [x] UUID-based checkout simplification
-- [x] Bilingual email notifications
-- [ ] Speaker identification
-- [ ] Snapshot capture in Chrome Extension
+### Recently Completed ✅
+- [x] UUID-based checkout simplification (Lemon Squeezy)
+- [x] Bilingual email notifications (ES/EN)
+- [x] Transcription stability improvements (retry logic, defensive guards)
+- [x] Emergency 404 fix (SPA rewrites)
+- [x] File size validation (10MB limit)
 
-### Planned
+### In Progress 🚧
+- [/] Exponential backoff retry logic (DONE - Testing in production)
+- [ ] Speaker identification (diarization)
+- [ ] Snapshot capture in Chrome Extension
+- [ ] RAG vector search optimization
+- [ ] Rate limiting implementation
+
+### Planned 📋
+- [ ] Async transcription pipeline (for >10 min audio)
+- [ ] Audio compression (OPUS 16kHz)
+- [ ] Metadata caching layer
 - [ ] Mobile app (React Native)
 - [ ] Slack/Teams integration
 - [ ] Advanced analytics dashboard
