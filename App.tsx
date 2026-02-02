@@ -547,6 +547,10 @@ const AppContent: React.FC = () => {
     };
 
     const handleUpdateRecording = async (id: string, updates: Partial<Recording>): Promise<void> => {
+        // Optimistically update local state first
+        setRecordings(prev => prev.map(rec => rec.id === id ? { ...rec, ...updates } : rec));
+
+        // Then update database
         await databaseService.updateRecording(id, updates);
 
         // Semantic Search Indexing (Phase 4): Sync embeddings if content changed
@@ -557,10 +561,8 @@ const AppContent: React.FC = () => {
             );
         }
 
-        const fullRecording = await databaseService.getRecordingDetails(id);
-        if (fullRecording) {
-            setRecordings(prev => prev.map(rec => rec.id === id ? fullRecording : rec));
-        }
+        // Note: We DON'T refetch here to avoid race conditions with Supabase replication lag
+        // The optimistic update above ensures UI stays consistent
     };
 
     // --- DATA LOADING & AUTH EFFECT ---
