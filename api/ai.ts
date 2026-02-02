@@ -49,6 +49,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
         /**
+         * Exponential backoff retry utility (ChatGPT Analysis Recommendation)
+         * Retries a function up to maxRetries times with exponential delay
+         */
+        const withRetry = async <T>(
+            fn: () => Promise<T>,
+            maxRetries: number = 3,
+            actionName: string = 'operation'
+        ): Promise<T> => {
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    return await fn();
+                } catch (error: any) {
+                    const isLastAttempt = attempt === maxRetries - 1;
+
+                    if (isLastAttempt) {
+                        console.error(`[AI_API] ${actionName} failed after ${maxRetries} attempts:`, error.message);
+                        throw error;
+                    }
+
+                    const delayMs = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+                    console.warn(`[AI_API] ${actionName} attempt ${attempt + 1} failed: ${error.message}. Retrying in ${delayMs}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delayMs));
+                }
+            }
+            throw new Error(`${actionName} failed after all retries`);
+        };
+
+        /**
          * Helper to execute an AI task with automatic fallback.
          * The task itself is retried with different models.
          */
@@ -66,9 +94,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         generationConfig: { temperature: config.temperature }
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
 
-                    return await task(model, config);
+                    // Wrap the actual task execution with retry logic
+                    return await withRetry(
+                        () => task(model, config),
+                        3,
+                        `${actionType} with ${modelName}`
+                    );
                 } catch (err: any) {
-                    console.warn(`[AI_API] Model ${modelName} failed: ${err.message}. Trying next...`);
+                    console.warn(`[AI_API] Model ${modelName} failed after retries: ${err.message}. Trying next model...`);
                     lastError = err;
                 }
             }
