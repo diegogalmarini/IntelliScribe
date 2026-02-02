@@ -11,54 +11,38 @@ const PLANS = {
 };
 
 /**
- * Creates a checkout session and redirects to Lemon Squeezy
- * @param planId - Plan name: 'pro', 'business', or 'call'
- * @param billingCycle - 'monthly' or 'annual'
- * @param userEmail - User's email address
- * @param userId - User's Supabase ID
+ * Creates a checkout session by redirecting to Lemon Squeezy checkout URL
+ * @param checkoutId - Lemon Squeezy checkout UUID from database
+ * @param userEmail - User's email address (optional)
+ * @param userId - User's Supabase ID (optional)
  */
 export const createCheckout = async (
-    planId: 'pro' | 'business' | 'call',
-    billingCycle: 'monthly' | 'annual',
-    userEmail: string,
-    userId: string
+    checkoutId: string,
+    userEmail?: string,
+    userId?: string
 ) => {
-    // Construct plan key
-    const planKey = `${planId}_${billingCycle}` as keyof typeof PLANS;
-    const variantId = PLANS[planKey];
-
-    if (!variantId) {
-        console.error('Missing Lemon Squeezy variant:', { planKey, variantId });
-        throw new Error('Error de configuración de pagos');
+    // Validate checkout ID format (UUID)
+    if (!checkoutId || !checkoutId.match(/^[0-9a-f-]{36}$/i)) {
+        console.error('Invalid checkout ID:', checkoutId);
+        throw new Error('ID de checkout inválido');
     }
 
-    console.log('Creating checkout via API:', { planId, billingCycle, variantId });
+    // Build checkout URL
+    let checkoutUrl = `https://diktalosaas.lemonsqueezy.com/checkout/buy/${checkoutId}`;
 
-    // Call Supabase Edge Function to create checkout
-    const { data, error } = await supabase.functions.invoke('lemon-checkout', {
-        body: {
-            variantId: variantId.toString(),
-            userEmail,
-            userId,
-            billingCycle,
-            planId
-        }
-    });
+    // Add optional query parameters for pre-filling
+    const params = new URLSearchParams();
+    if (userEmail) params.append('checkout[email]', userEmail);
+    if (userId) params.append('checkout[custom][user_id]', userId);
 
-    if (error) {
-        console.error('Error calling lemon-checkout function:', error);
-        throw new Error('Error al crear la sesión de pago');
+    if (params.toString()) {
+        checkoutUrl += `?${params.toString()}`;
     }
 
-    if (!data || !data.checkoutUrl) {
-        console.error('No checkout URL returned:', data);
-        throw new Error('Error al obtener URL de pago');
-    }
+    console.log('Redirecting to Lemon Squeezy checkout:', checkoutUrl);
 
-    console.log('Redirecting to checkout:', data.checkoutUrl);
-
-    // Redirect to checkout URL returned by API
-    window.location.href = data.checkoutUrl;
+    // Direct redirect to checkout
+    window.location.href = checkoutUrl;
 };
 
 /**

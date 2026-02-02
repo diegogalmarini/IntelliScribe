@@ -77,31 +77,34 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
         if (!user) return;
         if (planId === 'free') return; // Free plan, no checkout needed
 
-        // Map plan IDs to Lemon Squeezy format
-        let lemonPlanId: 'pro' | 'business' | 'call';
-        if (planId === 'business_plus') {
-            lemonPlanId = 'call'; // Business Plus = Call plan in Lemon
-        } else if (planId === 'business') {
-            lemonPlanId = 'business';
-        } else {
-            lemonPlanId = 'pro';
+        // Find the plan in the plans array
+        const plan = plans.find(p => p.id === planId);
+        if (!plan) {
+            showToast('Plan no encontrado', 'error');
+            return;
+        }
+
+        // Select checkout ID based on billing interval
+        const checkoutId = billingInterval === 'annual'
+            ? plan.stripe_price_id_annual
+            : plan.stripe_price_id_monthly;
+
+        if (!checkoutId) {
+            showToast('Este plan no tiene un checkout configurado. Contacta soporte.', 'error');
+            return;
         }
 
         if (Analytics && typeof Analytics.trackEvent === 'function') {
             Analytics.trackEvent('checkout_started', {
                 plan_id: planId,
-                interval: billingInterval
+                interval: billingInterval,
+                checkout_id: checkoutId
             });
         }
 
         setLoading(planId);
         try {
-            await createCheckout(
-                lemonPlanId,
-                billingInterval,
-                user.email,
-                user.id
-            );
+            await createCheckout(checkoutId, user.email, user.id);
             // Redirect happens inside createCheckout
         } catch (error: any) {
             console.error('Error:', error);

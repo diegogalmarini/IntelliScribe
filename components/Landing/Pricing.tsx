@@ -137,8 +137,26 @@ export const Pricing: React.FC = () => {
 
                             <button
                                 onClick={() => {
+                                    // Select checkout ID based on billing interval
+                                    const checkoutId = billingInterval === 'annual'
+                                        ? plan.stripe_price_id_annual
+                                        : plan.stripe_price_id_monthly;
+
+                                    // Store checkout info in session for after login
+                                    if (checkoutId) {
+                                        sessionStorage.setItem('pending_checkout', JSON.stringify({
+                                            checkoutId,
+                                            planId: plan.id,
+                                            interval: billingInterval
+                                        }));
+                                    }
+
                                     if (Analytics && typeof Analytics.trackEvent === 'function') {
-                                        Analytics.trackEvent('click_choose_plan', { plan_id: plan.id, interval: billingInterval });
+                                        Analytics.trackEvent('click_choose_plan', {
+                                            plan_id: plan.id,
+                                            interval: billingInterval,
+                                            checkout_id: checkoutId
+                                        });
                                     }
                                     navigate('/login');
                                 }}
