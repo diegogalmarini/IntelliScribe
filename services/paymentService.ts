@@ -26,15 +26,15 @@ export const createCheckout = async (
     // Construct plan key
     const planKey = `${planId}_${billingCycle}` as keyof typeof PLANS;
     const variantId = PLANS[planKey];
-    const storeId = import.meta.env.VITE_LEMON_STORE_ID;
 
-    if (!variantId || !storeId) {
-        console.error('Missing Lemon Squeezy configuration:', { planKey, variantId, storeId });
+    if (!variantId) {
+        console.error('Missing Lemon Squeezy variant:', { planKey, variantId });
         throw new Error('Error de configuración de pagos');
     }
 
     // Build checkout URL with user data in custom fields
-    const checkoutUrl = `https://${storeId}.lemonsqueezy.com/checkout/buy/${variantId}?checkout[email]=${encodeURIComponent(userEmail)}&checkout[custom][user_id]=${userId}`;
+    // Using store slug "diktalosaas" instead of numeric ID
+    const checkoutUrl = `https://diktalosaas.lemonsqueezy.com/checkout/buy/${variantId}?checkout[email]=${encodeURIComponent(userEmail)}&checkout[custom][user_id]=${userId}`;
 
     console.log('Redirecting to Lemon Squeezy checkout:', { planId, billingCycle, variantId });
 
