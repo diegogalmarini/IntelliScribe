@@ -43,13 +43,19 @@ export const generateMeetingSummary = async (transcript: string, language: strin
 };
 
 export const chatWithTranscript = async (
-  transcript: string,
+  transcript: string | any[],
   history: { role: 'user' | 'model', text: string }[],
   newMessage: string,
-  language: string = 'en'
+  language: string = 'en',
+  recordingIds?: string[]
 ): Promise<string> => {
   try {
-    const result = await callAIEndpoint('chat', { transcript, history, message: newMessage }, language);
+    const result = await callAIEndpoint('chat', {
+      transcript,
+      history,
+      message: newMessage,
+      recordingIds
+    }, language);
     if (!result) throw new Error("No output from AI");
     return result;
   } catch (error: any) {

@@ -35,6 +35,8 @@ interface MinimalSidebarProps {
     isOpen: boolean;
     onToggle: () => void;
     isRecording?: boolean; // NEW: Navigation Guard prop
+    useSemanticSearch?: boolean;
+    onSemanticToggle?: () => void;
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -63,7 +65,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onViewChange,
     isOpen,
     onToggle,
-    isRecording = false // Default to false
+    isRecording = false, // Default to false
+    useSemanticSearch = false,
+    onSemanticToggle
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
@@ -283,16 +287,27 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder={t('search_placeholder_short')}
-                            className="w-full pl-9 pr-8 py-2 bg-[#f7f7f8] dark:bg-card-dark border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                            className="w-full pl-9 pr-14 py-2 bg-[#f7f7f8] dark:bg-card-dark border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
                         />
-                        {searchQuery && (
-                            <button
-                                onClick={() => onSearchChange('')}
-                                className="absolute right-2 top-2 p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded"
-                            >
-                                <X size={14} className="text-[#8e8e8e]" />
-                            </button>
-                        )}
+                        <div className="absolute right-2 top-1.5 flex items-center gap-1">
+                            {onSemanticToggle && (
+                                <button
+                                    onClick={onSemanticToggle}
+                                    title={useSemanticSearch ? "Búsqueda con IA activada" : "Activar búsqueda profunda (IA)"}
+                                    className={`p-1 rounded transition-colors ${useSemanticSearch ? 'text-blue-500 bg-blue-100 dark:bg-blue-900/30' : 'text-[#8e8e8e] hover:bg-black/5 dark:hover:bg-white/10'}`}
+                                >
+                                    <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                                </button>
+                            )}
+                            {searchQuery && (
+                                <button
+                                    onClick={() => onSearchChange('')}
+                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                                >
+                                    <X size={14} className="text-[#8e8e8e]" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

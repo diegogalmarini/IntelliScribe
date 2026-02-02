@@ -1,5 +1,10 @@
 import formidable from 'formidable';
 import fs from 'fs/promises';
+import { validateEnv } from "./_utils/env-validator";
+import { initSentry, Sentry } from "./_utils/sentry";
+
+// Initialize Sentry
+initSentry();
 
 // Helper to validate UUID format
 function isValidUUID(uuid: string): boolean {
@@ -28,13 +33,14 @@ export default async function handler(req, res) {
 
     try {
         // --- Setup Environment Variables ---
-        const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-        if (!supabaseUrl || !supabaseServiceKey) {
-            console.error('[upload-audio] Missing Supabase credentials');
-            return res.status(500).json({ error: 'Server configuration error: Missing Supabase credentials' });
+        let env;
+        try {
+            env = validateEnv(['base']);
+        } catch (e: any) {
+            return res.status(500).json({ error: e.message });
         }
+
+        const { SUPABASE_URL: supabaseUrl, SUPABASE_SERVICE_ROLE_KEY: supabaseServiceKey } = env;
 
         // --- Step 1: Authenticate User via REST API ---
         const authHeader = req.headers.authorization;
@@ -225,6 +231,7 @@ export default async function handler(req, res) {
 
     } catch (error: any) {
         console.error('[upload-audio] UNEXPECTED ERROR:', error);
+        Sentry.captureException(error);
         return res.status(500).json({
             error: 'Internal server error',
             details: error.message

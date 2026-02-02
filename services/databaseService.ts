@@ -853,6 +853,79 @@ export const databaseService = {
     },
 
     /**
+     * Triggers the backend RAG synchronization for a recording.
+     * This splits the transcript into chunks and generates embeddings.
+     */
+    async syncRAG(recordingId: string, transcript: string): Promise<boolean> {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return false;
+
+            const response = await fetch('/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'sync-rag',
+                    payload: {
+                        recordingId,
+                        transcript,
+                        userId: user.id
+                    }
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('[Database] RAG Sync failed:', errorData.error);
+                return false;
+            }
+
+            console.log(`[Database] RAG synchronized for recording ${recordingId}`);
+            return true;
+        } catch (error) {
+            console.error('[Database] RAG Sync error:', error);
+            return false;
+        }
+    },
+
+    /**
+     * Performs a semantic search across the entire user library.
+     * Searches within recording chunks (RAG) to find conceptual matches.
+     */
+    async semanticLibrarySearch(query: string, matchThreshold: number = 0.3, matchCount: number = 10): Promise<any[]> {
+        try {
+            const { generateTextEmbedding } = await import('./geminiService');
+            const queryEmbedding = await generateTextEmbedding(query);
+            if (!queryEmbedding || queryEmbedding.length === 0) return [];
+
+            // Call match_recording_chunks RPC
+            const { data, error } = await supabase.rpc('match_recording_chunks', {
+                query_embedding: queryEmbedding,
+                match_threshold: matchThreshold,
+                match_count: matchCount
+                // filter_recording_ids is null by default, searching all
+            });
+
+            if (error) {
+                console.error('[Database] Semantic library search failed:', error);
+                return [];
+            }
+
+            // Group by recording_id and take best match per recording for dashboard view
+            const uniqueResults = data.reduce((acc: any[], current: any) => {
+                const x = acc.find(item => item.recording_id === current.recording_id);
+                if (!x) return acc.concat([current]);
+                return acc;
+            }, []);
+
+            return uniqueResults;
+        } catch (error) {
+            console.error('[Database] Semantic search error:', error);
+            return [];
+        }
+    },
+
+    /**
      * Performs semantic search using pgvector similarity
      */
     async semanticSearchRecordings(query: string, matchThreshold: number = 0.4, matchCount: number = 5): Promise<any[]> {

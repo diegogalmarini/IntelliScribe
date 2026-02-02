@@ -367,6 +367,10 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             onUpdateRecording(recording.id, { segments: newSegments, status: 'Completed' });
             await databaseService.incrementUsage(user.id!, recording.durationSeconds);
 
+            // Trigger RAG Sync (Background)
+            const transcriptText = newSegments.map(s => `${s.speaker}: ${s.text}`).join('\n');
+            databaseService.syncRAG(recording.id, transcriptText).catch(e => console.error('RAG sync failed:', e));
+
         } catch (error) {
             logger.error('Failed to transcribe', { error, recordingId: recording.id, language }, user.id);
             showToast("Failed to transcribe audio. Please check your API key.", 'error');
@@ -468,7 +472,13 @@ ${fullTranscript}`;
             enrichedContext = `Recording "${recording.title}" (${recording.date}) - No transcript available yet.`;
         }
 
-        const response = await chatWithTranscript(enrichedContext, chatHistory, newMsg.text, language);
+        const response = await chatWithTranscript(
+            enrichedContext,
+            chatHistory,
+            newMsg.text,
+            language,
+            [recording.id]
+        );
 
         setIsTyping(false);
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'model', text: response, timestamp: new Date() }]);

@@ -2,6 +2,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import fs from 'fs';
 import path from 'path';
+import { validateEnv } from "./_utils/env-validator";
+import { initSentry, Sentry } from "./_utils/sentry";
+
+// Initialize Sentry
+initSentry();
 
 // Consolidated Configuration to ensure serverless reliability
 const GEMINI_CONFIG = {
@@ -32,18 +37,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { action, payload, language = 'en' } = req.body;
     console.log(`[AI_API] Request received. Action: ${action}`);
 
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    let env;
+    try {
+        env = validateEnv(['base', 'ai']);
+    } catch (e: any) {
+        return res.status(500).json({ error: e.message });
+    }
 
-    if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({ error: 'Server Error: Missing GEMINI_API_KEY.' });
-    }
-    if (!supabaseUrl || !supabaseServiceKey) {
-        return res.status(500).json({ error: 'Server Error: Missing Supabase config.' });
-    }
+    const { GEMINI_API_KEY, SUPABASE_URL: supabaseUrl, SUPABASE_SERVICE_ROLE_KEY: supabaseServiceKey } = env;
 
     try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
         /**
          * Helper to execute an AI task with automatic fallback.
@@ -113,15 +117,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // --- Action 2: Chat with Transcript ---
         else if (action === 'chat') {
-            const { transcript, history, message } = payload;
+            const { transcript, history, message, recordingIds } = payload;
             let finalContext = '';
 
-            if (Array.isArray(transcript)) {
-                finalContext = transcript.map((item: any, index: number) => {
-                    return `--- RECORDING START [${index + 1}] ---\nTITLE: ${item.title}\nDATE: ${item.date}\nID: ${item.id}\nCONTENT:\n${item.content}\n--- RECORDING END ---`;
-                }).join('\n\n');
-            } else {
-                finalContext = typeof transcript === 'string' ? transcript : JSON.stringify(transcript);
+            // RAG OPTIMIZATION: If we have specific recording IDs and the context is potentially large, use Semantic Search
+            if (recordingIds && Array.isArray(recordingIds) && recordingIds.length > 0) {
+                console.log(`[AI_API] Chat with RAG optimization. Searching chunks for ${recordingIds.length} recordings.`);
+
+                try {
+                    const model = genAI.getGenerativeModel({ model: GEMINI_CONFIG.actions.embed.preferredModel }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+                    const embedResult = await model.embedContent(message);
+                    const queryEmbedding = embedResult.embedding.values;
+
+                    const searchResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/match_recording_chunks`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${supabaseServiceKey}`,
+                            'apikey': supabaseServiceKey,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            query_embedding: queryEmbedding,
+                            match_threshold: 0.3,
+                            match_count: 15,
+                            filter_recording_ids: recordingIds
+                        })
+                    });
+
+                    if (searchResponse.ok) {
+                        const matchedChunks = await searchResponse.json();
+                        if (matchedChunks && matchedChunks.length > 0) {
+                            console.log(`[AI_API] Found ${matchedChunks.length} relevant chunks via RAG.`);
+                            finalContext = matchedChunks.map((c: any) => c.content).join('\n---\n');
+                        }
+                    }
+                } catch (ragErr) {
+                    console.error('[AI_API] RAG Search failed, falling back to full transcript:', ragErr);
+                }
+            }
+
+            // Fallback to full transcript if RAG yielded nothing or wasn't used
+            if (!finalContext) {
+                if (Array.isArray(transcript)) {
+                    finalContext = transcript.map((item: any, index: number) => {
+                        return `--- RECORDING START [${index + 1}] ---\nTITLE: ${item.title}\nDATE: ${item.date}\nID: ${item.id}\nCONTENT:\n${item.content}\n--- RECORDING END ---`;
+                    }).join('\n\n');
+                } else {
+                    finalContext = typeof transcript === 'string' ? transcript : JSON.stringify(transcript);
+                }
             }
 
             const CHAR_LIMIT = 700000;
@@ -131,8 +174,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const systemInstruction = language === 'es'
-                ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto de grabaciones:\n${finalContext}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible.\n2. Si citas algo, menciona "En la grabación [Título]" o "En la reunión del [Fecha]".\n3. Si analizas múltiples grabaciones, busca patrones y conexiones entre ellas.\n4. Si el usuario pide abrir una grabación, termina con: [OPEN_RECORDING: id].`
-                : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
+                ? `Eres Diktalo, un asistente de inteligencia de voz. Responde basándote ÚNICAMENTE en este contexto (recuperado semánticamente si es relevante):\n${finalContext}\n\nREGLAS IMPORTANTES:\n1. NUNCA menciones los "Document ID" o UUIDs en tu respuesta visible.\n2. Si citas algo, menciona "En la grabación [Título]" o "En la reunión del [Fecha]".\n3. Si analizas múltiples grabaciones, busca patrones y conexiones entre ellas.\n4. Si el usuario pide abrir una grabación, termina con: [OPEN_RECORDING: id].`
+                : `You are Diktalo. Answer based ONLY on this context (retrieved via similarity search if relevant):\n${finalContext}\n\nIMPORTANT RULES:\n1. NEVER mention "Document IDs".\n2. Refer to recordings by Title or Date.\n3. Identify patterns across multiple recordings.\n4. If asked to open one, end with: [OPEN_RECORDING: id].`;
 
             result = await runWithFallback('chat', systemInstruction, async (model) => {
                 const chat = model.startChat({
@@ -285,6 +328,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             result = embedResult.embedding.values;
         }
 
+        // --- Action 6: Sync RAG (Chunking + Embedding) ---
+        else if (action === 'sync-rag') {
+            const { recordingId, transcript, userId } = payload;
+            if (!recordingId || !transcript || !userId) throw new Error('Missing recordingId, transcript or userId');
+
+            const { chunkText } = await import('./_utils/chunker');
+            const chunks = chunkText(transcript, 1000); // chunk size ~1000 chars
+
+            console.log(`[AI_API] Syncing RAG for recording ${recordingId}. Created ${chunks.length} chunks.`);
+
+            const model = genAI.getGenerativeModel({
+                model: GEMINI_CONFIG.actions.embed.preferredModel
+            }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+
+            const results = [];
+            for (const chunk of chunks) {
+                const embedResult = await model.embedContent(chunk.text);
+                const embedding = embedResult.embedding.values;
+
+                const dbResponse = await fetch(`${supabaseUrl}/rest/v1/recording_chunks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${supabaseServiceKey}`,
+                        'apikey': supabaseServiceKey,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        recording_id: recordingId,
+                        user_id: userId,
+                        chunk_index: chunk.index,
+                        content: chunk.text,
+                        embedding: embedding
+                    })
+                });
+
+                if (dbResponse.ok) {
+                    results.push(chunk.index);
+                } else {
+                    const err = await dbResponse.text();
+                    console.error(`[AI_API] Chunk ${chunk.index} save failed:`, err);
+                }
+            }
+            result = { synced: results.length, total: chunks.length };
+        }
+
         else {
             throw new Error('Invalid action');
         }
@@ -293,6 +382,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (error: any) {
         console.error('AI Service Error:', error);
+        Sentry.captureException(error, {
+            extra: {
+                action,
+                payloadSize: JSON.stringify(payload || {}).length,
+                language
+            }
+        });
         return res.status(500).json({
             error: error.message || 'Error processing AI request',
             details: error.stack

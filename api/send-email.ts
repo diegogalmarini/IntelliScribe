@@ -1,7 +1,10 @@
 import { Resend } from 'resend';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { validateEnv } from "./_utils/env-validator";
+import { initSentry, Sentry } from "./_utils/sentry";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Sentry
+initSentry();
 
 type EmailChannel = 'system' | 'support' | 'legal' | 'security';
 
@@ -31,17 +34,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        // 2. Validación de Clave API (inside handler to avoid top-level crashes)
-        const apiKey = process.env.RESEND_API_KEY;
-        if (!apiKey) {
-            console.error('❌ Missing RESEND_API_KEY');
-            return res.status(500).json({
-                error: 'Server configuration error: Missing Resend API Key',
-                diagnostics: 'Please set RESEND_API_KEY in your environment variables/Vercel settings.'
-            });
+        // 2. Validación de Clave API (centralized)
+        let env;
+        try {
+            env = validateEnv(['base', 'resend']);
+        } catch (e: any) {
+            return res.status(500).json({ error: e.message });
         }
 
-        const resend = new Resend(apiKey);
+        const resend = new Resend(env.RESEND_API_KEY);
         const { to, subject, html, channel = 'system', replyTo } = req.body || {};
 
         console.log('📨 [EMAIL] Incoming request payload:', {
@@ -86,11 +87,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
     } catch (error: any) {
-        console.error('🔥 [EMAIL] UNEXPECTED SERVER ERROR:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
+        console.error('🔥 [EMAIL] UNEXPECTED SERVER ERROR:', error);
+        Sentry.captureException(error);
 
         return res.status(500).json({
             error: error.message || 'Internal Server Error',

@@ -1,5 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
+import { validateEnv } from "./_utils/env-validator";
+import { initSentry, Sentry } from "./_utils/sentry";
+
+// Initialize Sentry
+initSentry();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Wrap everything in try-catch to ensure we ALWAYS return valid JSON
@@ -54,26 +59,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // --- Environment Variables Validation ---
         console.log("🔍 [VERIFY] Checking environment variables...");
 
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
-        const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-        const missingVars = [];
-        if (!accountSid) missingVars.push('TWILIO_ACCOUNT_SID');
-        if (!authToken) missingVars.push('TWILIO_AUTH_TOKEN');
-        if (!serviceSid) missingVars.push('TWILIO_VERIFY_SERVICE_SID');
-        if (!supabaseUrl) missingVars.push('VITE_SUPABASE_URL');
-        if (!supabaseServiceKey) missingVars.push('SUPABASE_SERVICE_ROLE_KEY');
-
-        if (missingVars.length > 0) {
-            console.error("❌ [VERIFY] Missing environment variables:", missingVars);
-            return res.status(500).json({
-                error: 'Server configuration error: Missing environment variables',
-                details: `Missing: ${missingVars.join(', ')}`
-            });
+        let env;
+        try {
+            env = validateEnv(['base', 'twilio']);
+        } catch (e: any) {
+            return res.status(500).json({ error: e.message });
         }
+
+        const {
+            TWILIO_ACCOUNT_SID: accountSid,
+            TWILIO_AUTH_TOKEN: authToken,
+            TWILIO_VERIFY_SERVICE_SID: serviceSid,
+            SUPABASE_URL: supabaseUrl,
+            SUPABASE_SERVICE_ROLE_KEY: supabaseServiceKey
+        } = env;
 
         console.log("✅ [VERIFY] All environment variables present");
 
@@ -274,13 +273,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
 
-    } catch (error) {
+    } catch (error: any) {
         // Catch-all for any unexpected errors
-        console.error('🔥 [VERIFY] UNEXPECTED ERROR:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
+        console.error('🔥 [VERIFY] UNEXPECTED ERROR:', error);
+        Sentry.captureException(error);
 
         return res.status(500).json({
             error: 'Internal server error',

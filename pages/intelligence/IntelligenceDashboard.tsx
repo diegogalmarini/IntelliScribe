@@ -100,6 +100,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [useSemanticSearch, setUseSemanticSearch] = useState(false);
     const [isMobile] = useState(window.innerWidth < 768);
     const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
     const [isProcessingMultiAudio, setIsProcessingMultiAudio] = useState(false);
@@ -422,10 +423,35 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         if (!onSearch || !searchQuery.trim()) { setSearchResults([]); setIsSearching(false); return; }
         setIsSearching(true);
         const timer = setTimeout(async () => {
-            try { setSearchResults(await onSearch(searchQuery)); } finally { setIsSearching(false); }
-        }, 300);
+            try {
+                if (useSemanticSearch) {
+                    // Trigger vector search
+                    const results = await databaseService.semanticLibrarySearch(searchQuery);
+                    // Map back to temporary Recording objects for display
+                    const mapped: Recording[] = results.map(r => ({
+                        id: r.recording_id,
+                        title: r.recording_title,
+                        date: r.recording_date,
+                        status: 'Completed',
+                        folderId: null,
+                        durationSeconds: 0,
+                        participants: 0,
+                        audioUrl: '',
+                        summary: r.content, // Show matching chunk snippet as summary
+                        segments: [],
+                        notes: [],
+                        media: []
+                    }));
+                    setSearchResults(mapped);
+                } else {
+                    setSearchResults(await onSearch(searchQuery));
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+            } finally { setIsSearching(false); }
+        }, useSemanticSearch ? 500 : 300);
         return () => clearTimeout(timer);
-    }, [searchQuery, onSearch]);
+    }, [searchQuery, onSearch, useSemanticSearch]);
 
     const [tempRecording, setTempRecording] = useState<Recording | null>(null);
     const displayedRecordings = React.useMemo(() => {
@@ -443,11 +469,62 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         <div id="intelligence-hub" className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
             <input ref={fileInputRef} type="file" accept="audio/*,.mp3,.wav,.m4a,.webm" onChange={handleFileUpload} className="hidden" />
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-surface-dark shadow-2xl transform transition-transform duration-300 md:hidden ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <MinimalSidebar recordings={displayedRecordings} selectedId={selectedId} onSelectRecording={handleSelectRecording} onNewRecording={handleNewRecording} userFirstName={user?.firstName || t('guestUser')} user={user} searchQuery={searchQuery} onSearchChange={setSearchQuery} onRenameRecording={onRenameRecording} onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }} onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)} folders={folders} selectedFolderId={selectedFolderId} onSelectFolder={handleSelectFolder} onLogoClick={handleLogoClick} currentView={view} onViewChange={setView} isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(false)} isRecording={isRecording} onAddFolder={onAddFolder} onRenameFolder={onRenameFolder} onDeleteFolder={onDeleteFolder} />
+                <MinimalSidebar
+                    recordings={displayedRecordings}
+                    selectedId={selectedId}
+                    onSelectRecording={handleSelectRecording}
+                    onNewRecording={handleNewRecording}
+                    userFirstName={user?.firstName || t('guestUser')}
+                    user={user}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    useSemanticSearch={useSemanticSearch}
+                    onSemanticToggle={() => setUseSemanticSearch(!useSemanticSearch)}
+                    onRenameRecording={onRenameRecording}
+                    onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }}
+                    onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)}
+                    folders={folders}
+                    selectedFolderId={selectedFolderId}
+                    onSelectFolder={handleSelectFolder}
+                    onLogoClick={handleLogoClick}
+                    currentView={view}
+                    onViewChange={setView}
+                    isOpen={isSidebarOpen}
+                    onToggle={() => setIsSidebarOpen(false)}
+                    isRecording={isRecording}
+                    onAddFolder={onAddFolder}
+                    onRenameFolder={onRenameFolder}
+                    onDeleteFolder={onDeleteFolder}
+                />
             </div>
             {isMobile && isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />}
             <div className={`hidden md:block relative h-full bg-white dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05] transition-all duration-300 overflow-hidden ${isSidebarOpen ? 'w-64' : 'w-0'}`}>
-                <div className="w-64 h-full"><MinimalSidebar recordings={displayedRecordings} selectedId={selectedId} onSelectRecording={handleSelectRecording} onNewRecording={handleNewRecording} userFirstName={user?.firstName || t('guestUser')} user={user} searchQuery={searchQuery} onSearchChange={setSearchQuery} onRenameRecording={onRenameRecording} onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }} onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)} folders={folders} selectedFolderId={selectedFolderId} onSelectFolder={handleSelectFolder} onLogoClick={handleLogoClick} currentView={view} onViewChange={setView} isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} isRecording={isRecording} /></div>
+                <div className="w-64 h-full">
+                    <MinimalSidebar
+                        recordings={displayedRecordings}
+                        selectedId={selectedId}
+                        onSelectRecording={handleSelectRecording}
+                        onNewRecording={handleNewRecording}
+                        userFirstName={user?.firstName || t('guestUser')}
+                        user={user}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        useSemanticSearch={useSemanticSearch}
+                        onSemanticToggle={() => setUseSemanticSearch(!useSemanticSearch)}
+                        onRenameRecording={onRenameRecording}
+                        onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }}
+                        onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)}
+                        folders={folders}
+                        selectedFolderId={selectedFolderId}
+                        onSelectFolder={handleSelectFolder}
+                        onLogoClick={handleLogoClick}
+                        currentView={view}
+                        onViewChange={setView}
+                        isOpen={isSidebarOpen}
+                        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                        isRecording={isRecording}
+                    />
+                </div>
             </div>
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-background-dark">

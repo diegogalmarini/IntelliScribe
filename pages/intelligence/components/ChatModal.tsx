@@ -128,7 +128,8 @@ ${segments}
                 fullTranscript,
                 history,
                 userMessage,
-                language as 'en' | 'es'
+                language as 'en' | 'es',
+                localRecordings.map(r => r.id) // Pass IDs for RAG optimization
             );
 
             setMessages(prev => [...prev, {
