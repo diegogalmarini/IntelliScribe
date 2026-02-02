@@ -836,7 +836,7 @@ export const databaseService = {
                     recording_id: recordingId,
                     user_id: user.id,
                     content: textToEmbed.substring(0, 2000), // Snippet for debugging
-                    embedding: embedding
+                    embedding: JSON.stringify(embedding) // Supabase expects stringified vector
                 }, { onConflict: 'recording_id' });
 
             if (error) {
