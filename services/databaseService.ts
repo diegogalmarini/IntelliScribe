@@ -840,6 +840,7 @@ export const databaseService = {
                 }, { onConflict: 'recording_id' });
 
             if (error) {
+                console.error('[Database] FULL EMBEDDING ERROR:', JSON.stringify(error, null, 2));
                 logger.error('Error saving embedding to database', { error, recordingId });
                 return false;
             }
