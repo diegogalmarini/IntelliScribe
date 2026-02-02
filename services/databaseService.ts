@@ -835,8 +835,8 @@ export const databaseService = {
                 .upsert({
                     recording_id: recordingId,
                     user_id: user.id,
-                    content: textToEmbed.substring(0, 2000), // Snippet for debugging
-                    embedding: JSON.stringify(embedding) // Supabase expects stringified vector
+                    content: textToEmbed.substring(0, 2000),
+                    embedding: `[${embedding.join(',')}]` // pgvector format
                 }, { onConflict: 'recording_id' });
 
             if (error) {
