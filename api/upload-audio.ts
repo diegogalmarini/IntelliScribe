@@ -63,11 +63,11 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Unauthorized - Invalid token' });
         }
 
-        const user = await authResponse.json();
-        const userId = user.id;
+        const userData = await authResponse.json();
+        const userId = userData.id || userData.data?.user?.id;
 
         if (!userId || !isValidUUID(userId)) {
-            console.error('[upload-audio] Invalid user ID in token');
+            console.error('[upload-audio] Invalid user ID in token response:', userData);
             return res.status(401).json({ error: 'Unauthorized - Invalid user context' });
         }
 
@@ -83,9 +83,18 @@ export default async function handler(req, res) {
         // STRATEGY A: JSON Registration (Direct-to-Cloud)
         if (contentType.includes('application/json')) {
             console.log('[upload-audio] Handling JSON Registration (Direct Upload)...');
-            const body = req.body; // Vercel/Next usually parses JSON body
+            let body = req.body;
+            if (typeof body === 'string') {
+                try {
+                    body = JSON.parse(body);
+                } catch (e) {
+                    console.error('[upload-audio] Failed to parse JSON body string:', e);
+                    return res.status(400).json({ error: 'Invalid JSON payload' });
+                }
+            }
 
             if (!body || !body.filePath) {
+                console.error('[upload-audio] Missing filePath in JSON body:', body);
                 return res.status(400).json({ error: 'Missing filePath in registration payload' });
             }
 
@@ -95,18 +104,14 @@ export default async function handler(req, res) {
 
             console.log('[upload-audio] Registered path:', filePath);
 
-            // Validate that we are not allowing arbitrary paths?
-            // RLS protects writing, but here we just link. 
-            // Ideally we check if it starts with userId/ to be safe?
             if (!filePath.startsWith(`${userId}/`)) {
                 console.warn('[upload-audio] Potential path spoofing warning:', filePath, 'User:', userId);
-                // We could strict block, but for now just warn
             }
 
         } else {
             // STRATEGY B: Legacy Multipart Upload (Proxy)
             const form = formidable({
-                maxFileSize: 50 * 1024 * 1024, // Reduced to 50MB for safer serverless handling
+                maxFileSize: 50 * 1024 * 1024,
                 keepExtensions: true,
             });
 
@@ -119,20 +124,14 @@ export default async function handler(req, res) {
 
             console.log('[upload-audio] Processing legacy file:', {
                 name: audioFile.originalFilename,
-                size: audioFile.size,
                 mimetype: audioFile.mimetype
             });
 
-            // Read File Buffer
             const fileBuffer = await fs.readFile(audioFile.filepath);
-
-            // Upload to Supabase Storage via REST API
             const timestamp = Date.now();
             const extension = audioFile.originalFilename?.split('.').pop() || 'webm';
             const fileName = `${userId}/${timestamp}.${extension}`;
             const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${fileName}`;
-
-            console.log('[upload-audio] Uploading to storage (Legacy):', fileName);
 
             const uploadResponse = await fetch(storageUrl, {
                 method: 'POST',
@@ -150,15 +149,9 @@ export default async function handler(req, res) {
                 return res.status(500).json({ error: 'Failed to upload audio to storage' });
             }
 
-            // Clean up temp file
-            try {
-                await fs.unlink(audioFile.filepath);
-            } catch (unlinkErr) {
-                console.warn('[upload-audio] Failed to cleanup temp file:', unlinkErr);
-            }
+            try { await fs.unlink(audioFile.filepath); } catch (e) { }
 
             filePath = fileName;
-            // Legacy Metadata Extraction
             const titleField = (Array.isArray(fields.title) ? fields.title[0] : fields.title);
             const sourceField = (Array.isArray(fields.source) ? fields.source[0] : fields.source);
             const tabUrlField = Array.isArray(fields.tabUrl) ? fields.tabUrl[0] : fields.tabUrl;
@@ -172,31 +165,25 @@ export default async function handler(req, res) {
         }
 
         // --- Step 3: Create Recording Entry via REST API ---
-
-        // Finalize Metadata
+        console.log('[upload-audio] Creating database entry...');
         const title = fileMetadata.title || `Recording - ${new Date().toLocaleString()}`;
         const source = fileMetadata.source || 'chrome-extension';
-
-        console.log('[upload-audio] Uploading to storage path confirmed:', filePath);
-
-        // --- Step 3: Create Recording Entry via REST API ---
-        console.log('[upload-audio] Creating database entry...');
 
         const recordingData = {
             user_id: userId,
             title: title,
             description: fileMetadata.tabUrl ? `Captured from: ${fileMetadata.tabUrl}` : 'Captured via Chrome Extension',
-            date: new Date(Date.now() - ((fileDuration || 0) * 1000)).toISOString(), // Set date to START time (approx) so relative timestamps work
+            date: new Date(Date.now() - ((fileDuration || 0) * 1000)).toISOString(),
             duration_seconds: fileDuration || null,
-            status: null, // No processing happening yet
-            audio_url: filePath, // Using the correct path variable
+            status: null,
+            audio_url: filePath,
             participants: 1,
             folder_id: null,
             metadata: {
                 source: source,
                 tab_url: fileMetadata.tabUrl,
                 original_filename: fileMetadata.original_filename,
-                attachments: fileMetadata.attachments // Ensure screenshots are saved
+                attachments: fileMetadata.attachments
             }
         };
 
@@ -219,9 +206,6 @@ export default async function handler(req, res) {
 
         const insertedRows = await dbResponse.json();
         const recording = insertedRows[0];
-
-        console.log('[upload-audio] Record created successfully:', recording.id);
-
 
         return res.status(200).json({
             success: true,

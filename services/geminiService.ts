@@ -68,13 +68,20 @@ export const transcribeAudio = async (
   mimeType?: string,
   language: string = 'en',
   audioUrl?: string
-): Promise<Partial<TranscriptSegment>[]> => {
+): Promise<{ segments: Partial<TranscriptSegment>[], suggestedSpeakers?: Record<string, string> }> => {
   try {
     const result = await callAIEndpoint('transcribe', { audioBase64, mimeType, audioUrl }, language);
-    return result || [];
+
+    // Check if result is already in the new format { segments, suggestedSpeakers }
+    if (result && result.segments && Array.isArray(result.segments)) {
+      return result;
+    }
+
+    // Otherwise wrap array into segments for legacy support
+    return { segments: result || [] };
   } catch (error) {
     console.error("Transcription failed:", error);
-    return []; // Return empty for legacy compatibility or allow UI to handle
+    return { segments: [] };
   }
 };
 

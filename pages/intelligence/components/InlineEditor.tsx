@@ -79,6 +79,8 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
     // Speaker Renaming State
     const [renamingSpeakerId, setRenamingSpeakerId] = useState<string | null>(null);
     const [newSpeakerName, setNewSpeakerName] = useState('');
+    const [speakerProfiles, setSpeakerProfiles] = useState<any[]>([]);
+    const [isCreatingProfile, setIsCreatingProfile] = useState(false);
 
     // LAZY LOAD DETAILS & SIGN URL
     useEffect(() => {
@@ -141,6 +143,13 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             setSummary(initialRecording.summary);
         }
     }, [initialRecording.summary]);
+    useEffect(() => {
+        const fetchProfiles = async () => {
+            const profiles = await databaseService.getSpeakerProfiles();
+            setSpeakerProfiles(profiles);
+        };
+        fetchProfiles();
+    }, []);
 
     useEffect(() => {
         if (initialRecording.title && !isEditingTitle) {
@@ -277,14 +286,38 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         setCurrentTime(time);
     };
 
-    const handleRenameSpeaker = (oldName: string) => {
-        if (!newSpeakerName.trim()) {
+    const handleRenameSpeaker = async (oldName: string, profileId?: string) => {
+        let finalName = newSpeakerName.trim();
+        let linkedProfileId = profileId;
+
+        if (!finalName && !linkedProfileId) {
             setRenamingSpeakerId(null);
             return;
         }
 
+        // If we have a profileId, get its name
+        if (linkedProfileId) {
+            const profile = speakerProfiles.find(p => p.id === linkedProfileId);
+            if (profile) finalName = profile.name;
+        } else if (finalName) {
+            // Check if name already exists as a profile
+            const existingProfile = speakerProfiles.find(p => p.name.toLowerCase() === finalName.toLowerCase());
+            if (existingProfile) {
+                linkedProfileId = existingProfile.id;
+            } else {
+                // Optionally create a profile (for UX, we could ask, but let's auto-create for now if it's a "real" name)
+                if (!finalName.startsWith('SPEAKER_') && !finalName.toLowerCase().startsWith('hablante')) {
+                    const newProfile = await databaseService.createSpeakerProfile({ name: finalName });
+                    if (newProfile) {
+                        linkedProfileId = newProfile.id;
+                        setSpeakerProfiles([...speakerProfiles, newProfile]);
+                    }
+                }
+            }
+        }
+
         const updatedSegments = segments.map(seg =>
-            seg.speaker === oldName ? { ...seg, speaker: newSpeakerName.trim() } : seg
+            seg.speaker === oldName ? { ...seg, speaker: finalName, speakerProfileId: linkedProfileId } : seg
         );
 
         setSegments(updatedSegments);
@@ -332,6 +365,9 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
         }
 
         setIsTranscribing(true);
+        // Inform the DB that we started (Phase 3: Background Tracking)
+        onUpdateRecording(recording.id, { status: 'Transcribing...' });
+
         try {
             let mimeType = 'audio/mp3';
             let base64 = undefined;
@@ -353,15 +389,21 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
             // Transcribe using the signed URL
             const targetLang = user.transcriptionLanguage || language || 'es';
-            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
+            const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
-            const newSegments: TranscriptSegment[] = result.map((s, index) => ({
-                id: Date.now().toString() + index,
-                timestamp: s.timestamp || "00:00",
-                speaker: s.speaker || "Speaker",
-                text: s.text || "",
-                speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
-            }));
+            const newSegments: TranscriptSegment[] = (rawSegments || []).map((s, index) => {
+                const rawSpeaker = s.speaker || "Speaker";
+                // Apply suggestion if available
+                const finalSpeaker = suggestedSpeakers && suggestedSpeakers[rawSpeaker] ? suggestedSpeakers[rawSpeaker] : rawSpeaker;
+
+                return {
+                    id: Date.now().toString() + index,
+                    timestamp: s.timestamp || "00:00",
+                    speaker: finalSpeaker,
+                    text: s.text || "",
+                    speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
+                };
+            });
 
             setSegments(newSegments);
             onUpdateRecording(recording.id, { segments: newSegments, status: 'Completed' });
@@ -371,9 +413,11 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             const transcriptText = newSegments.map(s => `${s.speaker}: ${s.text}`).join('\n');
             databaseService.syncRAG(recording.id, transcriptText).catch(e => console.error('RAG sync failed:', e));
 
-        } catch (error) {
+        } catch (error: any) {
             logger.error('Failed to transcribe', { error, recordingId: recording.id, language }, user.id);
-            showToast("Failed to transcribe audio. Please check your API key.", 'error');
+            const errMsg = error.message || (language === 'es' ? "Error al transcribir. Intenta de nuevo o verifica el tamaño del audio." : "Failed to transcribe. Please try again or check audio size.");
+            showToast(errMsg, 'error');
+            onUpdateRecording(recording.id, { status: 'Failed' });
         } finally {
             setIsTranscribing(false);
         }
@@ -988,28 +1032,83 @@ ${fullTranscript}`;
                                                     </button>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        {renamingSpeakerId === segment.id ? (
-                                                            <input
-                                                                type="text"
-                                                                value={newSpeakerName}
-                                                                onChange={(e) => setNewSpeakerName(e.target.value)}
-                                                                onBlur={() => handleRenameSpeaker(segment.speaker)}
-                                                                onKeyDown={(e) => e.key === 'Enter' && handleRenameSpeaker(segment.speaker)}
-                                                                autoFocus
-                                                                className="bg-primary/20 border border-primary/40 text-[10px] font-black uppercase tracking-wider text-primary px-1.5 py-0.5 rounded outline-none w-24"
-                                                            />
-                                                        ) : (
-                                                            <span
-                                                                onClick={() => {
-                                                                    setRenamingSpeakerId(segment.id);
-                                                                    setNewSpeakerName(segment.speaker);
-                                                                }}
-                                                                className={`text-[10px] font-black uppercase tracking-[0.15em] cursor-pointer hover:underline px-0.5 transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent`}
-                                                            >
-                                                                {formatSpeakerName(segment.speaker)}
-                                                            </span>
-                                                        )}
+                                                    <div className="flex items-center justify-between mb-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            {renamingSpeakerId === segment.id ? (
+                                                                <div className="relative z-10">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={newSpeakerName}
+                                                                        onChange={(e) => setNewSpeakerName(e.target.value)}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') handleRenameSpeaker(segment.speaker);
+                                                                            if (e.key === 'Escape') setRenamingSpeakerId(null);
+                                                                        }}
+                                                                        autoFocus
+                                                                        className="bg-primary/20 border border-primary/40 text-[10px] font-black uppercase tracking-wider text-primary px-1.5 py-0.5 rounded outline-none w-32"
+                                                                        placeholder="Nuevo nombre..."
+                                                                    />
+                                                                    {speakerProfiles.length > 0 && newSpeakerName.length > 0 && !speakerProfiles.find(p => p.name === newSpeakerName) && (
+                                                                        <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-[#1e2736] border border-slate-200 dark:border-white/10 rounded-lg shadow-xl overflow-hidden py-1">
+                                                                            <div className="px-2 py-1 text-[9px] uppercase font-bold text-slate-400">Personas conocidas</div>
+                                                                            {speakerProfiles
+                                                                                .filter(p => p.name.toLowerCase().includes(newSpeakerName.toLowerCase()))
+                                                                                .map(profile => (
+                                                                                    <button
+                                                                                        key={profile.id}
+                                                                                        onClick={() => handleRenameSpeaker(segment.speaker, profile.id)}
+                                                                                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-300"
+                                                                                    >
+                                                                                        {profile.name}
+                                                                                    </button>
+                                                                                ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <span
+                                                                    onClick={() => {
+                                                                        setRenamingSpeakerId(segment.id);
+                                                                        setNewSpeakerName(segment.speaker);
+                                                                    }}
+                                                                    className={`text-[10px] font-black uppercase tracking-[0.15em] cursor-pointer hover:underline px-0.5 transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent flex items-center gap-1`}
+                                                                >
+                                                                    {segment.speakerProfileId && <span className="material-symbols-outlined text-[12px]">verified</span>}
+                                                                    {formatSpeakerName(segment.speaker)}
+                                                                </span>
+                                                        </div>
+
+                                                        {/* Inline Snapshot */}
+                                                        {(() => {
+                                                            const segTime = timeToSeconds(segment.timestamp);
+                                                            const attachments = recording.metadata?.attachments || [];
+                                                            const startTimeMs = new Date(recording.date).getTime();
+
+                                                            // Find attachment that matches this segment's relative time (+/- 5s)
+                                                            const snapshot = attachments.find(att => {
+                                                                const attTimeSec = (att.timestamp - startTimeMs) / 1000;
+                                                                return Math.abs(attTimeSec - segTime) < 5;
+                                                            });
+
+                                                            if (snapshot) {
+                                                                return (
+                                                                    <div
+                                                                        className="flex-shrink-0 group/photo relative cursor-pointer"
+                                                                        onClick={() => window.open(snapshot.url, '_blank')}
+                                                                    >
+                                                                        <img
+                                                                            src={snapshot.url}
+                                                                            alt="Snapshot"
+                                                                            className="h-8 w-12 object-cover rounded shadow-sm border border-slate-200 dark:border-white/10 group-hover/photo:scale-110 transition-transform"
+                                                                        />
+                                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/photo:opacity-100 flex items-center justify-center rounded transition-opacity">
+                                                                            <span className="material-symbols-outlined text-white text-[14px]">zoom_in</span>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })()}
                                                     </div>
                                                     <p className="text-slate-700 dark:text-slate-300 leading-normal text-sm lg:text-[15px] font-medium tracking-tight whitespace-pre-wrap">
                                                         {segment.text}

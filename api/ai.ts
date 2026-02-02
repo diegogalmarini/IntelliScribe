@@ -19,8 +19,8 @@ const GEMINI_CONFIG = {
     actions: {
         summary: { preferredModel: 'gemini-2.5-flash', temperature: 0.7 },
         chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
-        support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 },
-        transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 },
+        support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 }, // Nati Pol needs speed
+        transcription: { preferredModel: 'gemini-1.5-flash', temperature: 0.1 }, // Flash is best for long audio
         embed: { preferredModel: 'text-embedding-004' }
     }
 };
@@ -221,6 +221,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (!finalBase64) throw new Error('No audio data or URL provided');
 
+            const audioBufferSize = Buffer.from(finalBase64, 'base64').length;
+            console.log(`[AI_API] Audio Size: ${(audioBufferSize / 1024 / 1024).toFixed(2)}MB, Mime: ${mimeType}`);
+
+            if (audioBufferSize > 20 * 1024 * 1024) {
+                console.warn('[AI_API] Audio file exceeds 20MB limit for inlineData. This might fail.');
+                // In Phase 5, implement File API upload here
+            }
+
             const languageNames: Record<string, string> = {
                 'es': 'Spanish', 'en': 'English', 'de': 'German', 'it': 'Italian', 'pt': 'Portuguese'
             };
@@ -235,8 +243,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                 text: `Transcribe this audio conversation. 
  CRITICAL INSTRUCTION: The output MUST be entirely in ${targetLanguageName}. 
  If the audio contains any other language, you MUST translate it accurately into ${targetLanguageName} while transcribing. 
- The final JSON text must only contain ${targetLanguageName}.
- Return a JSON array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker', and 'text'.` }
+ 
+ Return a JSON object with:
+ 1. 'segments': An array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker' (e.g. SPEAKER_0, SPEAKER_1), and 'text'.
+ 2. 'suggestedSpeakers': A dictionary mapping the speaker IDs (e.g. SPEAKER_0) to a real name if you can identify it from the conversation context. If you can't identify a name, use the ID itself.` }
                         ]
                     }],
                     generationConfig: { responseMimeType: 'application/json' }
@@ -259,8 +269,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 try {
                     result = JSON.parse(sanitizedText);
                 } catch (retryError) {
-                    console.error('[AI_API] Sanitization failed, returning empty array.');
-                    result = [];
+                    console.error('[AI_API] Sanitization failed, returning empty structure.');
+                    result = { segments: [], suggestedSpeakers: {} };
                 }
             }
         }

@@ -615,7 +615,51 @@ const AppContent: React.FC = () => {
         }
     }, [supabaseUser, authLoading]);
 
-    // Polling for Auto-Refresh (every 30s)
+    // --- Supabase Realtime Subscription ---
+    useEffect(() => {
+        if (!supabaseUser) return;
+
+        console.log(`[App] Subscribing to Realtime changes for user: ${supabaseUser.id}`);
+        const channel = supabase
+            .channel('realtime-recordings')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'recordings',
+                    filter: `user_id=eq.${supabaseUser.id}`
+                },
+                (payload) => {
+                    console.log('[App] New recording detected via Realtime:', payload.new.id);
+                    fetchData(); // Trigger full refresh to get all relations correctly
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'recordings',
+                    filter: `user_id=eq.${supabaseUser.id}`
+                },
+                (payload) => {
+                    console.log('[App] Recording update detected via Realtime:', payload.new.id);
+                    // Update local state if needed, or just refetch
+                    setRecordings(prev => prev.map(rec => rec.id === payload.new.id ? { ...rec, ...payload.new } : rec));
+                }
+            )
+            .subscribe((status) => {
+                console.log(`[App] Realtime subscription status: ${status}`);
+            });
+
+        return () => {
+            console.log('[App] Cleaning up Realtime subscription');
+            supabase.removeChannel(channel);
+        };
+    }, [supabaseUser, fetchData]);
+
+    // Polling for Auto-Refresh (kept as fallback but increased interval)
     useEffect(() => {
         if (!supabaseUser) return;
         const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW ||
@@ -628,7 +672,7 @@ const AppContent: React.FC = () => {
 
         const intervalId = setInterval(() => {
             fetchData();
-        }, 30000);
+        }, 60000); // 1 minute fallback
 
         return () => clearInterval(intervalId);
     }, [supabaseUser, fetchData, currentRoute]);

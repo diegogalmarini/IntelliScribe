@@ -51,6 +51,7 @@ export interface TranscriptSegment {
   id: string;
   timestamp: string;
   speaker: string;
+  speakerProfileId?: string; // Link to a person identity
   speakerColor: string;
   text: string;
   confidence?: number;
@@ -271,4 +272,16 @@ export interface AppSetting {
   value: string;
   value_en?: string | null; // Multilingual support
   description?: string;
+}
+
+export interface SpeakerProfile {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  avatarUrl?: string | null;
+  color?: string;
+  voiceSignature?: number[]; // Vector embedding for voice (future)
+  createdAt: string;
+  updatedAt: string;
 }

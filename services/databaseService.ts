@@ -955,9 +955,77 @@ export const databaseService = {
 
             logger.info(`[Database] Semantic search found ${data?.length || 0} matches for: "${query}"`);
             return data || [];
-        } catch (err) {
             logger.error('Critical failure in semanticSearchRecordings', { err, query });
             return [];
         }
+    },
+
+    // ==========================================
+    // SPEAKER PROFILES (Phase 3)
+    // ==========================================
+
+    async getSpeakerProfiles(): Promise<SpeakerProfile[]> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return [];
+
+        const { data, error } = await supabase
+            .from('speaker_profiles')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('name', { ascending: true });
+
+        if (error) {
+            console.error('[Database] Failed to fetch speaker profiles:', error);
+            return [];
+        }
+
+        return data || [];
+    },
+
+    async createSpeakerProfile(profile: Partial<SpeakerProfile>): Promise<SpeakerProfile | null> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+
+        const { data, error } = await supabase
+            .from('speaker_profiles')
+            .insert([{ ...profile, user_id: user.id }])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('[Database] Failed to create speaker profile:', error);
+            return null;
+        }
+
+        return data;
+    },
+
+    async updateSpeakerProfile(id: string, updates: Partial<SpeakerProfile>): Promise<boolean> {
+        const { error } = await supabase
+            .from('speaker_profiles')
+            .update(updates)
+            .eq('id', id);
+
+        if (error) {
+            console.error('[Database] Failed to update speaker profile:', error);
+            return false;
+        }
+
+        return true;
+    },
+
+    async deleteSpeakerProfile(id: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('speaker_profiles')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('[Database] Failed to delete speaker profile:', error);
+            return false;
+        }
+
+        return true;
     }
 };
+
