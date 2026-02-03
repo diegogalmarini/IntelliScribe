@@ -45,7 +45,7 @@ Diktalo is a complete **Conversational Intelligence Operating System** that unif
 **Backend:**
 - Vercel Serverless Functions
 - Supabase (PostgreSQL + Storage + Auth + Edge Functions)
-- Google Gemini 1.5 Pro (AI)
+- Google Gemini 2.0 (Flash & Pro)
 - Twilio (phone integration)
 - Lemon Squeezy (payments)
 - Resend (transactional emails)
@@ -62,7 +62,7 @@ graph TD
     Ext --> Vercel
     Phone --> Webhook[Twilio Webhooks]
     
-    Vercel --> Gemini[Google Gemini 1.5 Pro]
+    Vercel --> Gemini[Google Gemini 2.0]
     Vercel --> Supabase[Supabase]
     
     Supabase --> DB[PostgreSQL]
@@ -324,8 +324,9 @@ npx supabase functions serve lemon-webhook
 ### Recently Completed ✅
 - [x] UUID-based checkout simplification (Lemon Squeezy)
 - [x] Bilingual email notifications (ES/EN)
-- [x] Transcription stability improvements (retry logic, defensive guards)
-- [x] Emergency 404 fix (SPA rewrites)
+- [x] Transcription stability: Optimistic UI updates & Realtime stability
+- [x] Gemini 2.0 Upgrade: Improved speed and accuracy with latest Flash/Pro models
+- [x] Emergency 404 fix (SPA rewrites for Vercel)
 - [x] File size validation (10MB limit)
 
 ### In Progress 🚧
