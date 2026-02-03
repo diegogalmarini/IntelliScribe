@@ -94,7 +94,58 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         }
     };
 
-    // ... (keep matches through handleForgotPassword)
+
+    const handleSocialClick = async (provider: 'google' | 'azure') => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: {
+                    redirectTo: `${window.location.origin}/dashboard`
+                }
+            });
+            if (error) throw error;
+        } catch (err: any) {
+            setError(err.message);
+        }
+    };
+
+    const handleForgotPassword = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!email) {
+            setError(t('enterEmailFirst') || 'Please enter your email address first.');
+            return;
+        }
+        try {
+            setIsLoggingIn(true);
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+            if (error) throw error;
+            setSuccessMessage(t('passwordResetSent'));
+            setError('');
+        } catch (err: any) {
+            console.error("Reset pwd error:", err);
+            setError(err.message);
+        } finally {
+            setIsLoggingIn(false);
+        }
+    };
+
+    const ALL_FEATURES = [
+        { key: 'feature_dialer', icon: 'call', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_ghostwire', icon: 'graphic_eq', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_insights', icon: 'auto_awesome', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_security', icon: 'shield', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_sync', icon: 'cloud_sync', color: 'text-slate-500 dark:text-slate-400' },
+        { key: 'feature_teams', icon: 'group', color: 'text-slate-500 dark:text-slate-400' },
+    ];
+
+    const [features, setFeatures] = useState<{ key: string, icon: string, color: string }[]>([]);
+
+    useEffect(() => {
+        const shuffled = [...ALL_FEATURES].sort(() => 0.5 - Math.random());
+        setFeatures(shuffled.slice(0, 3));
+    }, []);
 
     // RENDER LOGIC
     if (isRegistrationSuccess) {
