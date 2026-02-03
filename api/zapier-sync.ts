@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { recordingId, userId, isTest = false } = req.body;
+    const { recordingId, userId, isTest = false, webhookUrl: bodyWebhookUrl } = req.body;
 
     if (!userId) {
         return res.status(400).json({ error: 'Missing userId' });
@@ -70,7 +70,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(403).json({ error: 'Your plan does not support Zapier integration. Please upgrade to Business.' });
         }
 
-        const webhookUrl = profile.zapier_webhook_url;
+        const webhookUrl = bodyWebhookUrl || profile.zapier_webhook_url;
         if (!webhookUrl) {
             return res.status(400).json({ error: 'No Zapier Webhook URL configured.' });
         }
