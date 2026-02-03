@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UserProfile } from '../../types';
 
-export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
+export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Partial<UserProfile>) => void }> = ({ user, onUpdateUser }) => {
     const { t } = useLanguage();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
@@ -40,6 +40,12 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
         observer.observe(document.documentElement, { attributes: true });
         return () => observer.disconnect();
     }, []);
+
+    const handleLanguageChange = (newLang: 'en' | 'es') => {
+        if (onUpdateUser && isAuthenticated) {
+            onUpdateUser({ language: newLang });
+        }
+    };
 
     const handleNavClick = (sectionId: string) => {
         setIsMenuOpen(false);
@@ -117,7 +123,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                 </>
                             )}
                             <div className="flex items-center gap-3 pl-2">
-                                <LanguageSelector />
+                                <LanguageSelector onLanguageChange={handleLanguageChange} />
                                 <ThemeToggle />
                             </div>
                         </div>
@@ -178,7 +184,7 @@ export const Navbar: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                 )}
 
                                 <div className="flex justify-center gap-6 mt-8">
-                                    <LanguageSelector />
+                                    <LanguageSelector onLanguageChange={handleLanguageChange} />
                                     <ThemeToggle />
                                 </div>
                             </div>

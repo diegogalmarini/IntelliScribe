@@ -385,13 +385,6 @@ const AppContent: React.FC = () => {
         }
     }, [supabaseUser]);
 
-    // SYNC: Keep LanguageContext in sync with User Profile
-    useEffect(() => {
-        if (user.language && user.language !== language) {
-            console.log(`[App] Syncing LanguageContext to: ${user.language}`);
-            setLanguage(user.language);
-        }
-    }, [user.language, language]);
 
     const fetchData = React.useCallback(async () => {
         if (!supabaseUser) return;
@@ -859,7 +852,7 @@ const AppContent: React.FC = () => {
             );
         }
 
-        if (currentRoute === AppRoute.LANDING) return <Landing user={user} />;
+        if (currentRoute === AppRoute.LANDING) return <Landing user={user} onUpdateUser={handleUpdateUser} />;
         if (currentRoute === AppRoute.TERMS) return <Terms />;
         if (currentRoute === AppRoute.PRIVACY) return <Privacy />;
         if (currentRoute === AppRoute.TRUST) return <TrustCenter />;
@@ -875,7 +868,7 @@ const AppContent: React.FC = () => {
             );
         }
         if (currentRoute === AppRoute.CONFIRM_SUBSCRIPTION) return <SubscriptionConfirm />;
-        if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onNavigate={navigate} /><Contact /><Footer /></>;
+        if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onUpdateUser={handleUpdateUser} onNavigate={navigate} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 
         const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW || currentRoute === AppRoute.ADMIN_USERS || currentRoute === AppRoute.ADMIN_FINANCIALS || currentRoute === AppRoute.ADMIN_PLANS || currentRoute === AppRoute.ADMIN_MINUTE_PACKS || currentRoute === AppRoute.ADMIN_ANALYTICS; // NEW ROUTE

@@ -53,7 +53,7 @@ const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onT
     );
 };
 
-export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
+export const Landing: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Partial<UserProfile>) => void }> = ({ user, onUpdateUser }) => {
     const { t, language } = useLanguage();
     const [openFaqIndex, setOpenFaqIndex] = React.useState<number | null>(null);
     const [selectedFaqs, setSelectedFaqs] = React.useState<FAQItemData[]>([]);
@@ -100,7 +100,7 @@ export const Landing: React.FC<{ user?: UserProfile }> = ({ user }) => {
             />
 
             <div className="z-50 relative">
-                <Navbar user={user} />
+                <Navbar user={user} onUpdateUser={onUpdateUser} />
             </div>
 
             <main>
