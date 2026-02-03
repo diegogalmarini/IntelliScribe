@@ -47,6 +47,7 @@ export const translations = {
     continueWithGoogle: "Continue with Google", // NEW
     emailAddressPlaceholder: "Email address", // NEW
     passwordPlaceholder: "Password", // NEW
+    mustAgreeToTerms: "You must agree to the Terms and Conditions to continue.", // NEW
 
     // Contact Page
     contactTitle: "Contact Us",
@@ -1170,6 +1171,7 @@ export const translations = {
     continueWithGoogle: "Continuar con Google", // NEW
     emailAddressPlaceholder: "Dirección de correo", // NEW
     passwordPlaceholder: "Contraseña", // NEW
+    mustAgreeToTerms: "Debes aceptar los Términos y Condiciones para continuar.", // NEW
 
     // Sidebar
     dashboard: "Inicio", // Changed from Panel de Control
