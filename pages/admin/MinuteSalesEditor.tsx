@@ -218,7 +218,7 @@ export const MinuteSalesEditor: React.FC = () => {
                                     value={pack.checkout_url}
                                     onChange={(e) => handlePackChange(pack.id, 'checkout_url', e.target.value)}
                                     className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none text-xs font-mono"
-                                    placeholder="https://buy.stripe.com/..."
+                                    placeholder="https://checkout.lemonsqueezy.com/buy/..."
                                 />
                             </div>
                         </div>
