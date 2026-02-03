@@ -22,7 +22,7 @@ const VideoPlayer: React.FC = () => {
                 <>
                     {/* Preview Image with Play Button */}
                     <img
-                        src="/Play-Diktalo-processed.webp"
+                        src="/play-diktalo.webp"
                         alt="Diktalo Platform Demo - Click to play"
                         className="w-full h-auto cursor-pointer"
                     />
@@ -161,25 +161,7 @@ export const Hero: React.FC = () => {
 
                     <div className="relative">
                         <VideoPlayer />
-                        {/* B. Imagen de Móvil (Mobile) - FLOTANTE SOBREPUESTA */}
-                        <motion.div
-                            initial={{ y: 50, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 1, duration: 0.8 }}
-                            className="hidden md:block absolute -bottom-10 -right-4 md:-bottom-16 md:-right-12 w-[25%] md:w-[20%] min-w-[140px] rounded-[2.5rem] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden z-20"
-                        >
-                            <img
-                                src="/images/hero-mobile.png"
-                                alt="Diktalo Mobile App"
-                                className="w-full h-auto rounded-[2rem]"
-                                onError={(e) => {
-                                    // Fallback temporal
-                                    e.currentTarget.style.display = 'none';
-                                    e.currentTarget.parentElement!.style.height = '300px';
-                                    e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-white text-xs">Mobile</div>';
-                                }}
-                            />
-                        </motion.div>
+
                     </div>
 
                 </motion.div>
