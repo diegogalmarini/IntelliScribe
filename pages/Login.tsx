@@ -20,7 +20,15 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
 
-    // ... (keep existing state variables)
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     const toggleMode = () => {
         setIsSignUp(!isSignUp);
