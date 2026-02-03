@@ -46,24 +46,44 @@ export const notifyNewRecording = async (user: UserProfile, recording: Recording
     const dashboardUrl = `${window.location.origin}/dashboard?recording=${recording.id}`;
 
     const html = `
-        <div style="font-family: sans-serif; color: #334155; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
-            <h2 style="color: #0f172a; margin-bottom: 16px;">✨ ¡Nueva grabación lista!</h2>
-            <p style="font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
-                Hola <strong>${user.firstName}</strong>, tu grabación "<strong>${recording.title}</strong>" ya está procesada y disponible en tu dashboard.
-            </p>
-            <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; padding: 40px 20px; }
+        .container { max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .content { padding: 48px 40px; }
+        .logo { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 32px; }
+        h2 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 16px; }
+        p { font-size: 16px; color: #475569; margin-bottom: 16px; }
+        .button { display: inline-block; background: #0f172a; color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 24px 0; }
+        .footer { padding: 32px 40px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer p { font-size: 13px; color: #94a3b8; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="logo">Diktalo</div>
+            <h2>✨ ¡Nueva grabación lista!</h2>
+            <p>Hola <strong>${user.firstName}</strong>, tu grabación "<strong>${recording.title}</strong>" ya está procesada y disponible en tu dashboard.</p>
+            <div style="background-color: #f1f5f9; padding: 24px; border-radius: 8px; margin: 24px 0;">
                 <p style="margin: 0; font-size: 14px; color: #64748b;">Duración: <strong>${recording.duration}</strong></p>
                 <p style="margin: 4px 0 0; font-size: 14px; color: #64748b;">Fecha: <strong>${new Date(recording.date).toLocaleDateString()}</strong></p>
             </div>
-            <a href="${dashboardUrl}" style="display: inline-block; background-color: #0f172a; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
-                Ver grabación en Diktalo
-            </a>
-            <hr style="margin: 32px 0 24px; border: 0; border-top: 1px solid #e2e8f0;" />
-            <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-                Recibes este correo porque tienes activadas las notificaciones de nuevas grabaciones. 
-                Puedes cambiar esto en tus <a href="${window.location.origin}/settings" style="color: #6366f1;">ajustes</a>.
-            </p>
+            <center>
+                <a href="${dashboardUrl}" class="button">Ver grabación en Diktalo</a>
+            </center>
         </div>
+        <div class="footer">
+            <p>Recibes este correo porque tienes activadas las notificaciones. Puedes cambiar esto en tus ajustes.</p>
+        </div>
+    </div>
+</body>
+</html>
     `;
 
     return sendEmail({
