@@ -145,7 +145,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
                 if (!supabaseUrl) return;
 
-                const res = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=caller_id_verified`, {
+                const res = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone_verified`, {
                     headers: {
                         'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
                     }
@@ -153,7 +153,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
 
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.length > 0 && data[0].caller_id_verified === true) {
+                    if (data.length > 0 && data[0].phone_verified === true) {
                         // Verification complete!
                         clearInterval(intervalId);
                         setStatus('success');
