@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // 2. Fetch User Profile and verify plan
-        const profileRes = await supabaseRequest(`profiles?id=eq.${userId}&select=plan_id,zapier_webhook_url,full_name,firstName,lastName`);
+        const profileRes = await supabaseRequest(`profiles?id=eq.${userId}&select=plan_id,zapier_webhook_url,first_name,last_name`);
         const profiles = await profileRes.json();
         const profile = profiles[0];
 
@@ -82,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 event: 'test_connection',
                 timestamp: new Date().toISOString(),
                 user: {
-                    name: profile.full_name || `${profile.firstName} ${profile.lastName}`,
+                    name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'User',
                     email: profile.email
                 },
                 message: "¡Conexión establecida! Diktalo está listo para enviar tus transcripciones."
@@ -129,7 +129,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 source: recording.metadata?.source || 'web'
             },
             user: {
-                name: profile.full_name || `${profile.firstName} ${profile.lastName}`,
+                name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'User',
                 id: userId
             }
         };

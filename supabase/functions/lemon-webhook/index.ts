@@ -120,13 +120,13 @@ serve(async (req) => {
             // Get current plan before updating (for subscription_updated)
             const { data: currentProfile } = await supabase
                 .from('profiles')
-                .select('plan_type, language, full_name')
+                .select('plan_type, language, first_name, last_name')
                 .eq('id', userId)
                 .single();
 
             const oldPlanType = currentProfile?.plan_type || 'free';
             const userLanguage = (currentProfile?.language || 'es') as 'es' | 'en';
-            const finalUserName = currentProfile?.full_name || userName;
+            const finalUserName = `${currentProfile?.first_name || ''} ${currentProfile?.last_name || ''}`.trim() || userName;
 
             // Update database
             const { data, error } = await supabase
@@ -177,13 +177,13 @@ serve(async (req) => {
             // Get user data before updating
             const { data: currentProfile } = await supabase
                 .from('profiles')
-                .select('plan_type, language, full_name')
+                .select('plan_type, language, first_name, last_name')
                 .eq('id', userId)
                 .single();
 
             const oldPlanType = currentProfile?.plan_type || 'pro';
             const userLanguage = (currentProfile?.language || 'es') as 'es' | 'en';
-            const finalUserName = currentProfile?.full_name || userName;
+            const finalUserName = `${currentProfile?.first_name || ''} ${currentProfile?.last_name || ''}`.trim() || userName;
 
             const { data, error } = await supabase
                 .from('profiles')
