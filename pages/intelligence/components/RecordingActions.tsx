@@ -6,12 +6,15 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 interface RecordingActionsProps {
     isTranscribing: boolean;
     isGeneratingSummary: boolean;
+    isZapierSyncing?: boolean; // NEW
     onTranscribe: () => void;
     onGenerateSummary: () => void;
     onSaveNotes: () => void;
     onExport: () => void;
     onDelete: () => void;
+    onZapierSync?: () => void; // NEW
     canTranscribe: boolean;
+    showZapier?: boolean; // NEW
 }
 
 /**
@@ -21,17 +24,37 @@ interface RecordingActionsProps {
 export const RecordingActions: React.FC<RecordingActionsProps> = ({
     isTranscribing,
     isGeneratingSummary,
+    isZapierSyncing,
     onTranscribe,
     onGenerateSummary,
     onSaveNotes,
     onExport,
     onDelete,
-    canTranscribe
+    onZapierSync,
+    canTranscribe,
+    showZapier
 }) => {
     const { t, language } = useLanguage();
 
     return (
         <div className="flex items-center gap-2 shrink-0">
+            {/* Zapier Sync - Business Feature */}
+            {showZapier && (
+                <button
+                    onClick={onZapierSync}
+                    disabled={isZapierSyncing}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold text-white bg-gradient-to-r from-[#FF4A00] to-[#FF8C00] hover:from-[#E64200] hover:to-[#FF7A00] rounded-lg transition-all shadow-md shadow-orange-500/20 disabled:opacity-50 active:scale-95 group"
+                    title="Sync with Zapier"
+                >
+                    {isZapierSyncing ? (
+                        <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                        <span className="material-symbols-outlined text-[16px] group-hover:animate-pulse">bolt</span>
+                    )}
+                    <span className="hidden md:inline">{isZapierSyncing ? 'Syncing...' : 'Zapier Sync'}</span>
+                </button>
+            )}
+
             {/* Regenerate - Available for all users */}
             <button
                 onClick={onTranscribe}

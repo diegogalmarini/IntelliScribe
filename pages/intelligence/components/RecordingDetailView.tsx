@@ -111,6 +111,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     const [selectedImage, setSelectedImage] = useState<string | null>(null); // For Image Modal
     const [signedAudioUrl, setSignedAudioUrl] = useState<string | null>(null);
     const [isTranscribing, setIsTranscribing] = useState(false);
+    const [isZapierSyncing, setIsZapierSyncing] = useState(false);
 
     // Upgrade Modal State
     const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
@@ -135,6 +136,46 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             setUpgradeModalOpen(true);
         } else {
             action();
+        }
+    };
+
+    const handleZapierSync = async () => {
+        if (!['business', 'business_plus'].includes(user.subscription?.planId || '')) {
+            showToast(t('zapierPlanRequirement') || 'Tu plan actual no incluye la integración con Zapier. Por favor, sube a Plan Business.', 'error');
+            setUpgradeFeatureName('Zapier Sync');
+            setUpgradeModalOpen(true);
+            return;
+        }
+
+        if (!user.zapier_webhook_url) {
+            showToast(t('zapierWebhookMissing') || 'Por favor, configura tu URL de Webhook de Zapier en la pestaña de Integraciones.', 'warning');
+            return;
+        }
+
+        setIsZapierSyncing(true);
+        try {
+            const response = await fetch('/api/zapier-sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recordingId: recording.id,
+                    userId: user.id
+                })
+            });
+
+            if (response.ok) {
+                showToast(t('zapierSyncSuccess') || '¡Grabación enviada a Zapier con éxito!', 'success');
+                if (Analytics && typeof Analytics.trackEvent === 'function') {
+                    Analytics.trackEvent('zapier_sync_manual_success', { recording_id: recording.id });
+                }
+            } else {
+                const err = await response.json();
+                showToast(err.error || t('zapierSyncError') || 'Error al sincronizar con Zapier.', 'error');
+            }
+        } catch (error) {
+            showToast('Error de red al sincronizar con Zapier.', 'error');
+        } finally {
+            setIsZapierSyncing(false);
         }
     };
 
@@ -723,12 +764,15 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                     <RecordingActions
                         isTranscribing={isTranscribing}
                         isGeneratingSummary={isGenerating}
+                        isZapierSyncing={isZapierSyncing}
                         canTranscribe={!!(fullRecording?.audioUrl || recording.audioUrl)}
                         onTranscribe={handleTranscribeAudio}
                         onGenerateSummary={handleAnalyze}
                         onSaveNotes={handleSaveNotes}
                         onExport={handleExport}
                         onDelete={() => setShowDeleteConfirm(true)}
+                        onZapierSync={handleZapierSync}
+                        showZapier={true}
                     />
                 </div>
             </div>

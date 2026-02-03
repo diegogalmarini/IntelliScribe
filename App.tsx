@@ -279,6 +279,7 @@ const AppContent: React.FC = () => {
     const defaultIntegrations: IntegrationState[] = [
         { id: 'gcal', name: 'Google Calendar', connected: true, icon: 'calendar_today', description: 'Sync meetings automatically.', color: 'white' },
         { id: 'slack', name: 'Slack', connected: true, icon: 'chat', description: 'Send summaries to channels.', color: '#4A154B' },
+        { id: 'zapier', name: 'Zapier', connected: false, icon: 'bolt', description: 'Connect with 5,000+ apps. Automate your workflow.', color: '#FF4A00' },
         { id: 'salesforce', name: 'Salesforce', connected: false, icon: 'cloud', description: 'Update opportunities with insights.', color: 'white' },
     ];
     const [integrations, setIntegrations] = useState<IntegrationState[]>(defaultIntegrations);
@@ -555,6 +556,18 @@ const AppContent: React.FC = () => {
 
         // Then update database
         await databaseService.updateRecording(id, updates);
+
+        // ZAPIER AUTO-SYNC: Trigger if summary is updated and auto-sync is enabled
+        if (updates.summary && user.auto_sync_enabled && user.zapier_webhook_url) {
+            console.log(`[Zapier] Triggering auto-sync for recording ${id}...`);
+            fetch('/api/zapier-sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recordingId: id, userId: user.id })
+            })
+                .then(res => res.ok ? console.log('[Zapier] Auto-sync success') : res.json().then(e => console.error('[Zapier] Auto-sync failed:', e)))
+                .catch(err => console.error('[Zapier] Auto-sync error:', err));
+        }
 
         // Semantic Search Indexing (Phase 4): Sync embeddings if content changed
         if (updates.summary || updates.segments) {

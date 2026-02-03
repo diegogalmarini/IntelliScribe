@@ -811,6 +811,10 @@ export const databaseService = {
         if (updates.hasCompletedTour !== undefined) dbUpdates.has_completed_tour = updates.hasCompletedTour;
         if (updates.subscription?.planId !== undefined) dbUpdates.plan_id = updates.subscription.planId;
 
+        // ZAPIER INTEGRATION
+        if (updates.zapier_webhook_url !== undefined) dbUpdates.zapier_webhook_url = updates.zapier_webhook_url;
+        if (updates.auto_sync_enabled !== undefined) dbUpdates.auto_sync_enabled = updates.auto_sync_enabled;
+
         if (Object.keys(dbUpdates).length === 0) return true;
 
         console.log(`[Database] Updating user profile for ${userId}:`, dbUpdates);
