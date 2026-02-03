@@ -159,6 +159,7 @@ export const translations = {
     typeQuestionPlaceholder: "Type your question...",
     usesAiToHelp: "{name} uses AI to help you.",
     talkToAgent: "Talk to {name}",
+    zapierDesc: "Automate workflows by connecting Diktalo with 5,000+ apps.",
     confirmDeleteRecording: "Confirm: Delete \"{title}\"",
     confirmRenameRecording: "Confirm: Rename to \"{title}\"",
     confirmCreateFolder: "Confirm: Create folder \"{title}\"",
@@ -1404,6 +1405,7 @@ export const translations = {
     zapierSaveConfig: "Guardar Configuración",
     zapierTesting: "Probando...",
     zapierTestConnection: "Probar Conexión",
+    zapierDesc: "Automatiza flujos conectando Diktalo con 5,000+ apps.",
 
     // Settings
     accountSettings: "Configuración de Cuenta",

@@ -230,6 +230,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Support Agent State
     const [selectedAgentId, setSelectedAgentId] = useState(user.activeSupportAgentId || localStorage.getItem('diktalo_active_support_agent') || 'camila_s');
 
+    // Zapier State
+    const [zapierWebhookUrl, setZapierWebhookUrl] = useState(user.zapier_webhook_url || '');
+    const [zapierConfigOpen, setZapierConfigOpen] = useState(false);
+    const [testStatus, setTestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
     // Initial check for mobile
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -291,6 +296,48 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             ...prev,
             terms: prev.terms.filter(term => term !== termToRemove)
         }));
+    };
+
+    const handleSaveZapier = () => {
+        handleUpdateUser({
+            zapier_webhook_url: zapierWebhookUrl
+        });
+        showToast(t('settingsSaved') || 'Configuración guardada', 'success');
+        setZapierConfigOpen(false);
+    };
+
+    const handleTestConnection = async () => {
+        if (!zapierWebhookUrl) {
+            showToast(t('zapierWebhookMissing') || 'Por favor, ingresa una URL de webhook.', 'error');
+            return;
+        }
+
+        setTestStatus('loading');
+        try {
+            const response = await fetch('/api/zapier-sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.id,
+                    isTest: true,
+                    webhookUrl: zapierWebhookUrl
+                })
+            });
+
+            if (response.ok) {
+                setTestStatus('success');
+                showToast(t('zapierTestSuccess') || '¡Conexión exitosa! Zapier recibió el payload de prueba.', 'success');
+            } else {
+                const err = await response.json();
+                setTestStatus('error');
+                showToast(err.error || t('zapierSyncError') || 'Error al conectar con Zapier.', 'error');
+            }
+        } catch (error) {
+            setTestStatus('error');
+            showToast('Error de red al probar la conexión.', 'error');
+        } finally {
+            setTimeout(() => setTestStatus('idle'), 3000);
+        }
     };
 
     const handleChangePassword = async () => {
@@ -982,22 +1029,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
 
                                 <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-500/50 transition-colors">
+                                    <div className={`flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-500/50 transition-colors ${!['business', 'business_plus'].includes(user.subscription?.planId || '') ? 'opacity-50 grayscale' : ''}`}>
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-[#FF4F00]/10 rounded-lg flex items-center justify-center">
-                                                <img src="https://cdn.worldvectorlogo.com/logos/zapier.svg" alt="Zapier" className="w-8 h-8" />
+                                                <Zap className="text-[#FF4F00]" size={24} />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Zapier</h3>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Automate workflows by connecting Diktalo to 5,000+ apps.</p>
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Zapier</h3>
+                                                    {user.zapier_webhook_url && (
+                                                        <span className="px-1.5 py-0.5 bg-green-500/10 text-green-500 text-[10px] uppercase font-bold rounded-full">
+                                                            {t('connected') || 'Conectado'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('zapierDesc') || 'Automatiza flujos conectando Diktalo con 5,000+ apps.'}</p>
                                             </div>
                                         </div>
-                                        <button
-                                            onClick={() => window.open('https://zapier.com/apps/diktalo', '_blank')}
-                                            className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
-                                        >
-                                            Connect
-                                        </button>
+                                        <div className="flex items-center gap-3">
+                                            {['business', 'business_plus'].includes(user.subscription?.planId || '') ? (
+                                                <button
+                                                    onClick={() => setZapierConfigOpen(true)}
+                                                    className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
+                                                >
+                                                    {user.zapier_webhook_url ? t('configure') || 'Configurar' : t('connect') || 'Conectar'}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={handlePlansClick}
+                                                    className="px-3 py-1 bg-amber-500 text-white text-[10px] font-bold uppercase rounded-lg hover:bg-amber-600 transition-colors"
+                                                >
+                                                    {t('upgrade') || 'Sube de nivel'}
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-xl opacity-60 grayscale cursor-not-allowed">
@@ -1313,6 +1378,90 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     }}
                     onClose={() => setShowPhoneVerify(false)}
                 />
+            )}
+
+            {/* Zapier Configuration Modal */}
+            {zapierConfigOpen && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] flex items-center justify-center z-[100] p-4">
+                    <div className="bg-white dark:bg-[#1a1a1b] rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-[#2a2a2b] animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-[#FF4A00] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+                                    <Zap size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                                        {t('zapierTitle') || 'Zapier Custom Webhook'}
+                                    </h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Business Feature
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={() => setZapierConfigOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                    {t('zapierWebhookLabel') || 'Webhook URL'}
+                                </label>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    {t('zapierWebhookDesc') || 'Copia la URL de "Webhooks by Zapier" (Catch Hook) y pégala aquí.'}
+                                </p>
+                                <input
+                                    type="text"
+                                    value={zapierWebhookUrl}
+                                    onChange={(e) => setZapierWebhookUrl(e.target.value)}
+                                    placeholder="https://hooks.zapier.com/hooks/catch/..."
+                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-[#2a2a2b] rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                                />
+                            </div>
+
+                            <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-xl">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                                            {t('zapierAutoSyncTitle') || 'Auto-Sync'}
+                                        </h4>
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                            {t('zapierAutoSyncDesc') || 'Envía grabaciones a Zapier automáticamente al finalizar el procesamiento.'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleUpdateUser({ auto_sync_enabled: !user.auto_sync_enabled })}
+                                        className={`w-10 h-5 rounded-full transition-colors relative ${user.auto_sync_enabled ? 'bg-[#FF4A00]' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                    >
+                                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${user.auto_sync_enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={handleTestConnection}
+                                    disabled={testStatus === 'loading' || !zapierWebhookUrl}
+                                    className="flex-1 px-4 py-3 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white text-sm font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-white/10 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    {testStatus === 'loading' ? (
+                                        <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <span className="material-symbols-outlined text-lg">flask</span>
+                                    )}
+                                    {testStatus === 'loading' ? t('testing') || 'Probando...' : t('zapierTestConnection') || 'Probar Conexión'}
+                                </button>
+                                <button
+                                    onClick={handleSaveZapier}
+                                    className="flex-1 px-4 py-3 bg-[#FF4A00] text-white text-sm font-bold rounded-xl hover:bg-[#E64200] shadow-lg shadow-orange-500/20 transition-all"
+                                >
+                                    {t('zapierSaveConfig') || 'Guardar Configuración'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
