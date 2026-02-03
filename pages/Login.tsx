@@ -17,19 +17,16 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     const { session } = useAuth();
     const { showToast } = useToast();
 
-    const [isSignUp, setIsSignUp] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
+
+    // ... (keep existing state variables)
 
     const toggleMode = () => {
         setIsSignUp(!isSignUp);
         setError('');
+        setAgreedToTerms(false); // Reset terms on toggle
+        setSuccessMessage('');
         if (!isSignUp) {
             setEmail('');
             setPassword('');
@@ -48,6 +45,11 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
         try {
             if (isSignUp) {
+                // VALIDATION: Strict Terms Check
+                if (!agreedToTerms) {
+                    throw new Error(t('mustAgreeToTerms') || 'Debes aceptar los términos y condiciones para continuar.');
+                }
+
                 if (Analytics && typeof Analytics.trackEvent === 'function') {
                     Analytics.trackEvent('signup_attempt', { email_domain: email.split('@')[1] });
                 }
@@ -62,7 +64,9 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     }
                 });
                 if (signUpError) throw signUpError;
-                showToast("Check your email for the confirmation link!", 'success');
+
+                // SUCCESS STATE: Show message instead of toast
+                setIsRegistrationSuccess(true);
             } else {
                 if (Analytics && typeof Analytics.trackEvent === 'function') {
                     Analytics.trackEvent('login_attempt');
@@ -82,57 +86,59 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         }
     };
 
-    const handleSocialClick = async (provider: 'google' | 'azure') => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: provider,
-                options: {
-                    redirectTo: `${window.location.origin}/dashboard`
-                }
-            });
-            if (error) throw error;
-        } catch (err: any) {
-            setError(err.message);
-        }
-    };
+    // ... (keep matches through handleForgotPassword)
 
-    const handleForgotPassword = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        if (!email) {
-            setError(t('enterEmailFirst') || 'Please enter your email address first.');
-            return;
-        }
-        try {
-            setIsLoggingIn(true);
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/reset-password`,
-            });
-            if (error) throw error;
-            setSuccessMessage(t('passwordResetSent'));
-            setError('');
-        } catch (err: any) {
-            console.error("Reset pwd error:", err);
-            setError(err.message);
-        } finally {
-            setIsLoggingIn(false);
-        }
-    };
+    // RENDER LOGIC
+    if (isRegistrationSuccess) {
+        return (
+            <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative font-sans">
+                <div className="absolute inset-0 z-0 bg-white dark:bg-[#02040a]">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+                </div>
 
-    const ALL_FEATURES = [
-        { key: 'feature_dialer', icon: 'call', color: 'text-slate-500 dark:text-slate-400' },
-        { key: 'feature_ghostwire', icon: 'graphic_eq', color: 'text-slate-500 dark:text-slate-400' },
-        { key: 'feature_insights', icon: 'auto_awesome', color: 'text-slate-500 dark:text-slate-400' },
-        { key: 'feature_security', icon: 'shield', color: 'text-slate-500 dark:text-slate-400' },
-        { key: 'feature_sync', icon: 'cloud_sync', color: 'text-slate-500 dark:text-slate-400' },
-        { key: 'feature_teams', icon: 'group', color: 'text-slate-500 dark:text-slate-400' },
-    ];
+                <div className="flex flex-col flex-1 w-full lg:max-w-[48%] xl:max-w-[42%] relative overflow-y-auto lg:px-16 px-8 py-8 justify-center z-20
+                              bg-white/40 dark:bg-transparent backdrop-blur-3xl border-r border-white/40 dark:border-none shadow-[0_0_40px_rgba(0,0,0,0.05)] dark:shadow-none">
 
-    const [features, setFeatures] = useState<{ key: string, icon: string, color: string }[]>([]);
+                    <div className="max-w-[400px] w-full mx-auto text-center">
+                        <div className="mb-6 flex justify-center">
+                            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                <span className="material-symbols-outlined text-3xl text-green-600 dark:text-green-400">mark_email_read</span>
+                            </div>
+                        </div>
+                        <h1 className="text-2xl font-bold text-[#1f1f1f] dark:text-white mb-4">
+                            {t('checkEmailTitle') || '¡Revisa tu correo!'}
+                        </h1>
+                        <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+                            {t('checkEmailDesc') || `Hemos enviado un enlace de confirmación a ${email}. Por favor, haz clic en el enlace para activar tu cuenta.`}
+                        </p>
 
-    useEffect(() => {
-        const shuffled = [...ALL_FEATURES].sort(() => 0.5 - Math.random());
-        setFeatures(shuffled.slice(0, 3));
-    }, []);
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50 mb-8">
+                            <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2 text-left">
+                                <span className="material-symbols-outlined text-sm mt-0.5 shrink-0">info</span>
+                                <span>Si no lo ves en tu bandeja de entrada, revisa la carpeta de <strong>SPAM</strong> o "Promociones".</span>
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="w-full h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl transition-all shadow-md hover:scale-[1.02]"
+                        >
+                            {t('backToLogin') || 'Volver al inicio'}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-center items-center p-12 z-10">
+                    {/* Keep Hero Side */}
+                    <div className="relative z-10 max-w-4xl text-center">
+                        <h2 className="text-4xl lg:text-6xl font-bold text-[#0B0F19] dark:text-white mb-6 tracking-tight leading-tight">
+                            {t('loginHeroTitle')}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-1 w-full min-h-screen transition-colors duration-200 overflow-hidden relative font-sans">
@@ -292,10 +298,15 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             <div className="mt-2 space-y-2 pt-2 border-t border-gray-200/50 dark:border-white/10">
                                 <label className="flex items-start gap-2 cursor-pointer group">
                                     <div className="relative flex items-center pt-0.5">
-                                        <input type="checkbox" className="peer w-3 h-3 appearance-none border border-gray-400 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all" />
+                                        <input
+                                            type="checkbox"
+                                            className="peer w-3 h-3 appearance-none border border-gray-400 dark:border-gray-500 rounded-sm checked:bg-black checked:border-black dark:checked:bg-white dark:checked:border-white transition-all"
+                                            checked={agreedToTerms}
+                                            onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                        />
                                         <span className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-y-1/2 pointer-events-none text-[8px] material-symbols-outlined font-bold">check</span>
                                     </div>
-                                    <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug">
+                                    <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug select-none">
                                         {t('agreeTerms')?.replace('{country}', 'España')} <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-800">{t('userAgreement')}</a> & <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-800">{t('privacyPolicy')}</a>.
                                     </span>
                                 </label>
