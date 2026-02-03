@@ -26,9 +26,9 @@ export const blogPosts: BlogPost[] = [
     title: "Packs de Minutos: Transcribe sin Límites y sin Caducidad",
     excerpt: "Lanzamos los nuevos packs de minutos permanentes para que nunca te quedes a mitad de una reunión importante.",
     date: "2026-02-03",
-    author: "Nati Ruiz",
-    authorRole: "Product Design",
-    authorImage: "/images/avatars/nati-profile.webp",
+    author: "Nati Pol",
+    authorRole: "Experience Strategy",
+    authorImage: "/images/avatars/nati-pol.webp",
     category: "Producto",
     image: "/images/blog/minute_packs_feature.png",
     imageAlt: "Nuevos Packs de Minutos de Diktalo - Inteligencia sin interrupciones",
@@ -57,7 +57,7 @@ Estamos comprometidos con construir una herramienta que se adapte a ti, y no al 
   "description": "Lanzamos los nuevos packs de minutos permanentes para Diktalo.",
   "author": {
     "@type": "Person",
-    "name": "Nati Ruiz"
+    "name": "Nati Pol"
   },
   "datePublished": "2026-02-03",
   "image": "/images/blog/minute_packs_feature.png"
