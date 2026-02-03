@@ -8,16 +8,23 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- Create recording_embeddings table for full-recording embeddings
 CREATE TABLE IF NOT EXISTS public.recording_embeddings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    recording_id UUID NOT NULL UNIQUE REFERENCES public.recordings(id) ON DELETE CASCADE,
+    recording_id UUID NOT NULL REFERENCES public.recordings(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     content TEXT, -- Snippet for debugging (max 2000 chars)
     embedding VECTOR(768), -- Dimension for Google text-embedding-004
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT recording_embeddings_recording_id_key UNIQUE (recording_id)
 );
 
 -- Enable RLS
 ALTER TABLE public.recording_embeddings ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (to make migration idempotent)
+DROP POLICY IF EXISTS "Users can insert their own embeddings" ON public.recording_embeddings;
+DROP POLICY IF EXISTS "Users can view their own embeddings" ON public.recording_embeddings;
+DROP POLICY IF EXISTS "Users can update their own embeddings" ON public.recording_embeddings;
+DROP POLICY IF EXISTS "Users can delete their own embeddings" ON public.recording_embeddings;
 
 -- RLS Policies
 CREATE POLICY "Users can insert their own embeddings"
@@ -55,6 +62,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_recording_embeddings_updated_at ON public.recording_embeddings;
 CREATE TRIGGER trigger_update_recording_embeddings_updated_at
 BEFORE UPDATE ON public.recording_embeddings
 FOR EACH ROW

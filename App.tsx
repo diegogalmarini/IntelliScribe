@@ -49,6 +49,7 @@ const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ d
 const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default: m.Users })));
 const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
 const AdminPlans = lazy(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor })));
+const AdminMinutePacks = lazy(() => import('./pages/admin/MinuteSalesEditor').then(m => ({ default: m.MinuteSalesEditor }))); // NEW
 const AdminAnalytics = lazy(() => import('./pages/admin/Analytics').then(m => ({ default: m.Analytics }))); // NEW IMPORT
 
 // --- Wrapper para páginas que necesitan scroll (FIX VISUAL) ---
@@ -197,6 +198,7 @@ const AppContent: React.FC = () => {
         else if (path === '/admin/users') newRoute = AppRoute.ADMIN_USERS;
         else if (path === '/admin/financials') newRoute = AppRoute.ADMIN_FINANCIALS;
         else if (path === '/admin/plans') newRoute = AppRoute.ADMIN_PLANS;
+        else if (path === '/admin/minute-packs') newRoute = AppRoute.ADMIN_MINUTE_PACKS; // NEW
         else if (path === '/admin/analytics') newRoute = AppRoute.ADMIN_ANALYTICS; // NEW ROUTE
         else if (path === '/contact') newRoute = AppRoute.CONTACT;
         else if (path === '/roadmap') newRoute = AppRoute.ROADMAP;
@@ -605,7 +607,7 @@ const AppContent: React.FC = () => {
                 AppRoute.DASHBOARD, AppRoute.RECORDING,
                 AppRoute.INTEGRATIONS, AppRoute.SETTINGS, AppRoute.SUBSCRIPTION,
                 AppRoute.ADMIN_OVERVIEW, AppRoute.ADMIN_USERS, AppRoute.ADMIN_FINANCIALS,
-                AppRoute.ADMIN_PLANS, AppRoute.ADMIN_ANALYTICS, // NEW ROUTE
+                AppRoute.ADMIN_PLANS, AppRoute.ADMIN_MINUTE_PACKS, AppRoute.ADMIN_ANALYTICS, // NEW ROUTE
                 AppRoute.INTELLIGENCE
             ];
 
@@ -720,6 +722,7 @@ const AppContent: React.FC = () => {
             [AppRoute.ADMIN_USERS]: '/admin/users',
             [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
             [AppRoute.ADMIN_PLANS]: '/admin/plans',
+            [AppRoute.ADMIN_MINUTE_PACKS]: '/admin/minute-packs', // NEW
             [AppRoute.ADMIN_ANALYTICS]: '/admin/analytics', // NEW ROUTE
             [AppRoute.CONTACT]: '/contact',
             [AppRoute.ABOUT]: '/about',
@@ -861,7 +864,7 @@ const AppContent: React.FC = () => {
         if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onNavigate={navigate} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 
-        const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW || currentRoute === AppRoute.ADMIN_USERS || currentRoute === AppRoute.ADMIN_FINANCIALS || currentRoute === AppRoute.ADMIN_PLANS || currentRoute === AppRoute.ADMIN_ANALYTICS; // NEW ROUTE
+        const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW || currentRoute === AppRoute.ADMIN_USERS || currentRoute === AppRoute.ADMIN_FINANCIALS || currentRoute === AppRoute.ADMIN_PLANS || currentRoute === AppRoute.ADMIN_MINUTE_PACKS || currentRoute === AppRoute.ADMIN_ANALYTICS; // NEW ROUTE
 
         if (isAdminRoute) {
             return (
@@ -873,6 +876,7 @@ const AppContent: React.FC = () => {
                             {currentRoute === AppRoute.ADMIN_ANALYTICS && <AdminAnalytics />}
                             {currentRoute === AppRoute.ADMIN_FINANCIALS && <AdminFinancials />}
                             {currentRoute === AppRoute.ADMIN_PLANS && <AdminPlans />}
+                            {currentRoute === AppRoute.ADMIN_MINUTE_PACKS && <AdminMinutePacks />}
                         </AdminLayout>
                     </AdminRoute>
                 </Suspense>

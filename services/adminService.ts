@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting } from '../types';
+import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting, MinutePack } from '../types';
 import { autoTranslatePlan, autoTranslateSetting } from './aiTranslationService';
 
 /**
@@ -637,5 +637,70 @@ export const adminService = {
             console.error('[adminService] Error en traducción:', error);
             return false;
         }
+    },
+
+    // --- GESTIÓN DE PACKS DE MINUTOS ---
+
+    /**
+     * Obtener todos los packs de minutos
+     */
+    async getMinutePacks(): Promise<MinutePack[]> {
+        const { data, error } = await supabase
+            .from('minute_packs')
+            .select('*')
+            .order('order', { ascending: true });
+
+        if (error) {
+            console.error('[adminService] Error fetching minute packs:', error);
+            return [];
+        }
+        return data || [];
+    },
+
+    /**
+     * Crear un nuevo pack de minutos
+     */
+    async createMinutePack(pack: Partial<MinutePack>): Promise<boolean> {
+        const { error } = await supabase
+            .from('minute_packs')
+            .insert(pack);
+
+        if (error) {
+            console.error('[adminService] Error creating minute pack:', error);
+            return false;
+        }
+        return true;
+    },
+
+    /**
+     * Actualizar un pack de minutos
+     */
+    async updateMinutePack(packId: string, updates: Partial<MinutePack>): Promise<boolean> {
+        const { error } = await supabase
+            .from('minute_packs')
+            .update(updates)
+            .eq('id', packId);
+
+        if (error) {
+            console.error('[adminService] Error updating minute pack:', error);
+            return false;
+        }
+        return true;
+    },
+
+    /**
+     * Eliminar un pack de minutos
+     */
+    async deleteMinutePack(packId: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('minute_packs')
+            .delete()
+            .eq('id', packId);
+
+        if (error) {
+            console.error('[adminService] Error deleting minute pack:', error);
+            return false;
+        }
+        return true;
     }
 };

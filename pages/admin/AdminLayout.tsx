@@ -37,6 +37,7 @@ export const AdminLayout: React.FC<Props> = ({
         { label: 'Overview', icon: LayoutDashboard, route: AppRoute.ADMIN_OVERVIEW },
         { label: 'Users', icon: Users, route: AppRoute.ADMIN_USERS },
         { label: 'Plans', icon: Tag, route: AppRoute.ADMIN_PLANS },
+        { label: 'Venta Minutos', icon: CreditCard, route: AppRoute.ADMIN_MINUTE_PACKS },
     ];
 
     return (

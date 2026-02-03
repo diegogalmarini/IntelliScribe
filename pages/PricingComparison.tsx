@@ -3,7 +3,7 @@ import { Navbar } from '../components/Landing/Navbar';
 import { Footer } from '../components/Footer';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
-import { PlanConfig } from '../types';
+import { PlanConfig, MinutePack } from '../types';
 import { Check, Plus, Minus, Zap, Shield, Users, Globe } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -11,6 +11,7 @@ export const PricingComparison: React.FC = () => {
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [plans, setPlans] = useState<PlanConfig[]>([]);
+    const [minutePacks, setMinutePacks] = useState<MinutePack[]>([]);
     const [loading, setLoading] = useState(true);
     const [openFaqId, setOpenFaqId] = useState<number | null>(null);
 
@@ -32,7 +33,24 @@ export const PricingComparison: React.FC = () => {
                 setLoading(false);
             }
         };
+
+        const fetchMinutePacks = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('minute_packs')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('order', { ascending: true });
+
+                if (error) throw error;
+                if (data) setMinutePacks(data);
+            } catch (err) {
+                console.error('Error loading minute packs:', err);
+            }
+        };
+
         fetchPlans();
+        fetchMinutePacks();
     }, []);
 
     const toggleFaq = (index: number) => setOpenFaqId(openFaqId === index ? null : index);
@@ -129,8 +147,8 @@ export const PricingComparison: React.FC = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.4, delay: idx * 0.1 }}
                                     className={`relative flex flex-col p-8 rounded-3xl transition-all duration-300 ${isRecommended
-                                            ? 'bg-white dark:bg-slate-900 border-2 border-blue-500 shadow-xl shadow-blue-500/10 scale-105 z-10'
-                                            : 'bg-white/60 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-blue-300 dark:hover:border-blue-700/50 hover:shadow-lg backdrop-blur-xl'
+                                        ? 'bg-white dark:bg-slate-900 border-2 border-blue-500 shadow-xl shadow-blue-500/10 scale-105 z-10'
+                                        : 'bg-white/60 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-blue-300 dark:hover:border-blue-700/50 hover:shadow-lg backdrop-blur-xl'
                                         }`}
                                 >
                                     {isRecommended && (
@@ -165,8 +183,8 @@ export const PricingComparison: React.FC = () => {
                                     <a
                                         href="/login"
                                         className={`w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all duration-200 mb-8 ${isRecommended
-                                                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transform hover:-translate-y-0.5'
-                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+                                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transform hover:-translate-y-0.5'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                                             }`}
                                     >
                                         {p.id === 'free' ? 'Empezar Gratis' : 'Comenzar Ahora'}
@@ -190,61 +208,182 @@ export const PricingComparison: React.FC = () => {
                     </div>
                 )}
 
-                {/* Detailed Feature Breakdown Section ("Excellent Descriptions") */}
-                <section className="max-w-4xl mx-auto mb-20 bg-white dark:bg-slate-900/50 rounded-3xl p-8 md:p-12 border border-slate-100 dark:border-white/5 shadow-2xl shadow-slate-200/50 dark:shadow-none">
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-12 text-center">
-                        ¿Por qué elegir un plan Premium?
-                    </h2>
+                {/* Minute Packs Section */}
+                {minutePacks.length > 0 && (
+                    <section className="max-w-7xl mx-auto mb-24 px-4">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">¿Necesitas más minutos?</h2>
+                            <p className="text-slate-500 dark:text-slate-400">Packs de minutos adicionales para cualquier plan. Sin caducidad.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {minutePacks.map((pack) => (
+                                <motion.div
+                                    key={pack.id}
+                                    whileHover={{ y: -5 }}
+                                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm flex flex-col items-center text-center transition-shadow hover:shadow-xl"
+                                >
+                                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4">
+                                        <Zap className="text-blue-600 dark:text-blue-400" size={24} />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{pack.name}</h3>
+                                    <div className="text-3xl font-black text-blue-600 dark:text-blue-400 mb-2">
+                                        {pack.minutes} <span className="text-sm font-medium text-slate-400 uppercase">min</span>
+                                    </div>
+                                    <div className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+                                        {pack.price}€
+                                    </div>
+                                    <a
+                                        href={pack.checkout_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                                    >
+                                        Comprar Pack
+                                    </a>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
-                    <div className="grid md:grid-cols-2 gap-12">
-                        {/* Block 1 */}
-                        <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-blue-400">
-                                <Users size={24} />
-                            </div>
+                {/* Comparison Table */}
+                <section className="max-w-7xl mx-auto mb-24 overflow-hidden">
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-10 text-center">Comparativa Detallada</h2>
+                    <div className="overflow-x-auto rounded-3xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/50 backdrop-blur-sm shadow-xl">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 dark:bg-white/5">
+                                    <th className="p-6 border-b border-slate-100 dark:border-white/5 w-1/4 text-xs font-bold uppercase tracking-widest text-slate-400">Característica</th>
+                                    {plans.map(p => (
+                                        <th key={p.id} className="p-6 border-b border-slate-100 dark:border-white/5 text-center min-w-[140px]">
+                                            <div className="text-lg font-bold text-slate-900 dark:text-white">{getPlanDetails(p.id).name}</div>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                {/* TRANSCRIPCIÓN Group */}
+                                <tr className="bg-blue-50/30 dark:bg-blue-900/10">
+                                    <td colSpan={plans.length + 1} className="px-6 py-4 text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                                        Transcripción y Voz
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm font-medium text-slate-700 dark:text-slate-300">Minutos Mensuales</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center text-sm font-black text-slate-900 dark:text-white">
+                                            {p.limits?.transcription_minutes === -1 ? 'Ilimitados' : p.limits?.transcription_minutes}
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm text-slate-600 dark:text-slate-400 font-medium">Identificación de Hablantes</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            <Check size={20} className="mx-auto text-emerald-500" />
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm text-slate-600 dark:text-slate-400 font-medium">Grabación Multi-dispositivo</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            <Check size={20} className="mx-auto text-emerald-500" />
+                                        </td>
+                                    ))}
+                                </tr>
+
+                                {/* INTELIGENCIA ARTIFICIAL Group */}
+                                <tr className="bg-purple-50/30 dark:bg-purple-900/10">
+                                    <td colSpan={plans.length + 1} className="px-6 py-4 text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">
+                                        Inteligencia Artificial
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm font-medium text-slate-700 dark:text-slate-300">Ask Diktalo (Chat con audio)</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            {p.id !== 'free' ? <Check size={20} className="mx-auto text-purple-500" /> : <span className="text-slate-300">-</span>}
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm font-medium text-slate-700 dark:text-slate-300">Resúmenes Estructurados</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            {p.id !== 'free' ? <Check size={20} className="mx-auto text-purple-500" /> : <span className="text-slate-300">-</span>}
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm font-medium text-slate-700 dark:text-slate-300">Detección de Action Items</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            {p.id === 'pro' || p.id.startsWith('business') ? <Check size={20} className="mx-auto text-purple-500" /> : <span className="text-slate-300">-</span>}
+                                        </td>
+                                    ))}
+                                </tr>
+
+                                {/* INTEGRACIONES Group */}
+                                <tr className="bg-orange-50/30 dark:bg-orange-900/10">
+                                    <td colSpan={plans.length + 1} className="px-6 py-4 text-xs font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest">
+                                        Ecosistema y Seguridad
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm font-medium text-slate-700 dark:text-slate-300">Integración con Zapier</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            {p.id.startsWith('business') ? <Check size={20} className="mx-auto text-orange-500" /> : <span className="text-slate-300">-</span>}
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-6 text-sm font-medium text-slate-700 dark:text-slate-300">Soporte Prioritario</td>
+                                    {plans.map(p => (
+                                        <td key={p.id} className="p-6 text-center">
+                                            {p.id.startsWith('business') ? <Check size={20} className="mx-auto text-orange-500" /> : <span className="text-slate-300">-</span>}
+                                        </td>
+                                    ))}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                {/* SEO/AEO Content Section */}
+                <section className="max-w-4xl mx-auto mb-20 px-6">
+                    <div className="prose prose-slate dark:prose-invert max-w-none">
+                        <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-8 text-center">¿Cuál es el mejor plan de Diktalo para mis necesidades?</h2>
+
+                        <div className="grid gap-10">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Colaboración sin Fricción</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    Los planes Business permiten centralizar la facturación y compartir carpetas de grabaciones con permisos granulares. Ideal para equipos legales y de RRHH que manejan información sensible.
+                                <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4 text-left flex items-center gap-2">
+                                    <span className="material-symbols-outlined">help</span>
+                                    ¿Qué incluye la transcripción ilimitada en el plan Pro?
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    El plan Pro está diseñado para creadores de contenido, periodistas y estudiantes que necesitan transcribir grandes volúmenes de audio sin preocuparse por los límites. Incluye acceso total a <strong>Ask Diktalo</strong>, permitiéndote chatear con tus grabaciones para extraer datos específicos en segundos, además de resúmenes ejecutivos que ahorran horas de revisión manual.
                                 </p>
                             </div>
-                        </div>
 
-                        {/* Block 2 */}
-                        <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 text-purple-600 dark:text-purple-400">
-                                <Zap size={24} />
-                            </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Automatización (Zapier)</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    Conecta Diktalo a más de 5,000 aplicaciones. Envía resúmenes automáticamente a Slack, guarda transcripciones en Notion o actualiza tu CRM (Salesforce/Hubspot) sin mover un dedo.
+                                <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-4 text-left flex items-center gap-2">
+                                    <span className="material-symbols-outlined">hub</span>
+                                    ¿Cómo funciona la integración con Zapier en Diktalo?
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    Los planes Business permiten conectar Diktalo con más de 5,000 aplicaciones. Puedes configurar flujos de trabajo automáticos: por ejemplo, enviar cada nueva transcripción directamente a una página de <strong>Notion</strong>, crear una tarea en <strong>Trello</strong> basada en los Action Items detectados por la IA, o mandar un resumen instantáneo a un canal de <strong>Slack</strong> para que tu equipo esté siempre al tanto.
                                 </p>
                             </div>
-                        </div>
 
-                        {/* Block 3 */}
-                        <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400">
-                                <Shield size={24} />
-                            </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Privacidad y Seguridad</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    Todos los planes incluyen encriptación AES-256 en reposo y TLS en tránsito. El plan Business+ añade auditorías de acceso y retención de datos configurable para cumplimiento normativo (GDPR).
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Block 4 */}
-                        <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0 text-orange-600 dark:text-orange-400">
-                                <Globe size={24} />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Inteligencia Global</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    Nuestra IA no solo transcribe; entiende. Identifica hablantes, detecta idiomas automáticamente y genera resúmenes ejecutivos que capturan las decisiones clave, no solo las palabras.
+                                <h3 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-4 text-left flex items-center gap-2">
+                                    <span className="material-symbols-outlined">verified_user</span>
+                                    ¿Es seguro usar Diktalo para información sensible?
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    Absolutamente. La seguridad es nuestra prioridad. Utilizamos encriptación de grado bancario (AES-256) para todos los datos en reposo y conexiones protegidas mediante TLS. Además, cumplimos con normativas de privacidad estrictas, garantizando que tus grabaciones sean solo tuyas. En el plan <strong>Business Plus</strong>, ofrecemos capas adicionales de auditoría y retención de datos personalizada.
                                 </p>
                             </div>
                         </div>

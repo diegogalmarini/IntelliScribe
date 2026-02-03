@@ -83,6 +83,17 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
+export interface MinutePack {
+  id: string;
+  name: string;
+  minutes: number;
+  price: number;
+  checkout_url: string;
+  is_active: boolean;
+  order: number;
+  created_at?: string;
+}
+
 export interface IntegrationState {
   id: string;
   name: string;
@@ -155,7 +166,8 @@ export enum AppRoute {
   ADMIN_OVERVIEW = 'admin-overview',
   ADMIN_USERS = 'admin-users',
   ADMIN_FINANCIALS = 'admin-financials',
-  ADMIN_PLANS = 'admin-plans', // <--- NUEVA RUTA AGREGADA
+  ADMIN_MINUTE_PACKS = 'admin-minute-packs', // NEW
+  ADMIN_PLANS = 'admin-plans',
   ADMIN_ANALYTICS = 'admin-analytics',
   INTELLIGENCE = 'intelligence', // NEW: Intelligence Dashboard (testing)
   TRUST = 'trust',
