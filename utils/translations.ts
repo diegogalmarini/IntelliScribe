@@ -48,6 +48,9 @@ export const translations = {
     emailAddressPlaceholder: "Email address", // NEW
     passwordPlaceholder: "Password", // NEW
     mustAgreeToTerms: "You must agree to the Terms and Conditions to continue.", // NEW
+    checkEmailTitle: "Check your email!", // NEW
+    checkEmailDesc: "We've sent a confirmation link to your email address. Please click the link to activate your account.", // NEW
+    backToLogin: "Back to Login", // NEW
 
     // Contact Page
     contactTitle: "Contact Us",
@@ -1172,6 +1175,9 @@ export const translations = {
     emailAddressPlaceholder: "Dirección de correo", // NEW
     passwordPlaceholder: "Contraseña", // NEW
     mustAgreeToTerms: "Debes aceptar los Términos y Condiciones para continuar.", // NEW
+    checkEmailTitle: "¡Revisa tu correo!", // NEW
+    checkEmailDesc: "Hemos enviado un enlace de confirmación a tu correo. Por favor, haz clic en el enlace para activar tu cuenta.", // NEW
+    backToLogin: "Volver al inicio", // NEW
 
     // Sidebar
     dashboard: "Inicio", // Changed from Panel de Control
