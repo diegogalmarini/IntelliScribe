@@ -1,5 +1,57 @@
 import { Device, Call } from '@twilio/voice-sdk';
 
+// Twilio Error Code Mapper - Convierte códigos técnicos a mensajes amigables
+function getTwilioErrorMessage(error: any): string {
+    const code = error.code;
+
+    // Errores de SIP (30000-30999)
+    if (code >= 30000 && code < 31000) {
+        const sipErrorMap: Record<number, string> = {
+            30001: 'Cola de llamadas llena. Intente más tarde.',
+            30002: 'Configuración inválida de la cuenta.',
+            30003: 'Número no verificado. Verifique su teléfono en Configuración.',
+            30004: 'Número bloqueado.',
+            30005: 'Número inválido o no alcanzable.',
+            30006: 'El número está ocupado.',
+            30007: 'El teléfono está apagado o fuera de cobertura.',
+            30008: 'No se pudo completar la llamada.',
+        };
+
+        return sipErrorMap[code] || `Error de red (${code}). Verifique el número.`;
+    }
+
+    // Errores del cliente (31000-31999)
+    if (code >= 31000 && code < 32000) {
+        const clientErrorMap: Record<number, string> = {
+            31000: 'Navegador no compatible. Use Chrome o Safari.',
+            31001: 'Acceso al micrófono denegado. Habilite permisos.',
+            31002: 'Error de conexión. Verifique su internet.',
+            31003: 'Error de WebSocket. Recargue la página.',
+            31005: 'Error temporal de conexión. Intente de nuevo.',
+            31009: 'Token inválido. Recargue la página.',
+        };
+
+        return clientErrorMap[code] || `Error de conexión (${code}). Intente recargar.`;
+    }
+
+    // Errores de señalización (53000-539 99)
+    if (code >= 53000 && code < 54000) {
+        const signalErrorMap: Record<number, string> = {
+            53000: 'Error de señalización. Intente de nuevo.',
+            53001: 'Llamada rechazada por el destinatario.',
+            53002: 'Llamada cancelada.',
+            53003: 'El número está ocupado.',
+            53004: 'El destinatario no responde.',
+            53005: 'Llamada rechazada.',
+        };
+
+        return signalErrorMap[code] || `No se pudo conectar (${code}).`;
+    }
+
+    // Mensaje genérico si no coincide con ningún código conocido
+    return error.message || 'Error al conectar la llamada.';
+}
+
 export class CallService {
     private device: Device | null = null;
     private token: string | null = null;
@@ -105,7 +157,9 @@ export class CallService {
                 throw new Error('Error de conexión temporal. Intente llamar de nuevo.');
             }
 
-            throw new Error(error.message || 'Error de conexión desconocido.');
+            // Usar el mapeador de errores amigables
+            const friendlyMessage = getTwilioErrorMessage(error);
+            throw new Error(friendlyMessage);
         }
     }
 
