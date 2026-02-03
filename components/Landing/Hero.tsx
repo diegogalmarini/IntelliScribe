@@ -1,9 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, ShieldCheck, Smartphone, Monitor } from 'lucide-react';
 import * as Analytics from '../../utils/analytics';
+
+// Video Player Component with lazy YouTube embedding
+const VideoPlayer: React.FC = () => {
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    const handlePlay = () => {
+        setIsPlaying(true);
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('play_hero_video');
+        }
+    };
+
+    return (
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#161b22] shadow-2xl overflow-hidden relative">
+            {!isPlaying ? (
+                <>
+                    {/* Preview Image with Play Button */}
+                    <img
+                        src="/Play-Diktalo-processed.webp"
+                        alt="Diktalo Platform Demo - Click to play"
+                        className="w-full h-auto cursor-pointer"
+                    />
+                    <button
+                        onClick={handlePlay}
+                        className="absolute inset-0 flex items-center justify-center group"
+                        aria-label="Play video demo"
+                    >
+                        <div className="w-20 h-20 md:w-24 md:h-24 bg-primary/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-primary transition-all duration-300">
+                            <Play className="w-10 h-10 md:w-12 md:h-12 text-white fill-white ml-1" />
+                        </div>
+                    </button>
+                </>
+            ) : (
+                /* YouTube Embed - only loads when user clicks */
+                <div className="relative w-full pb-[56.25%]">
+                    <iframe
+                        className="absolute inset-0 w-full h-full"
+                        src="https://www.youtube.com/embed/OQ_t8KYak78?autoplay=1&rel=0"
+                        title="Diktalo Platform Demo"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
 
 
 export const Hero: React.FC = () => {
@@ -113,24 +160,7 @@ export const Hero: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 via-blue-500/5 to-transparent blur-3xl -z-10 transform translate-y-20"></div>
 
                     <div className="relative">
-                        {/* A. Imagen de Escritorio (Desktop) - CENTRADA */}
-                        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#161b22] shadow-2xl overflow-hidden">
-                            <img
-                                src="/images/hero-desktop.png"
-                                alt="Diktalo Desktop Dashboard"
-                                className="w-full h-auto"
-                                onError={(e) => {
-                                    // Fallback temporal si no existe la imagen aún
-                                    e.currentTarget.style.display = 'none';
-                                    e.currentTarget.parentElement!.style.height = '500px';
-                                    e.currentTarget.parentElement!.style.display = 'flex';
-                                    e.currentTarget.parentElement!.style.alignItems = 'center';
-                                    e.currentTarget.parentElement!.style.justifyContent = 'center';
-                                    e.currentTarget.parentElement!.innerHTML = '<span class="text-slate-400">Desktop Mockup Placeholder</span>';
-                                }}
-                            />
-                        </div>
-
+                        <VideoPlayer />
                         {/* B. Imagen de Móvil (Mobile) - FLOTANTE SOBREPUESTA */}
                         <motion.div
                             initial={{ y: 50, opacity: 0 }}
