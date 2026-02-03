@@ -6,7 +6,7 @@ import { ArrowRight, Play, ShieldCheck, Smartphone, Monitor } from 'lucide-react
 import * as Analytics from '../../utils/analytics';
 
 // Video Player Component with lazy YouTube embedding
-const VideoPlayer: React.FC = () => {
+const VideoPlayer: React.FC<{ videoId: string }> = ({ videoId }) => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     const handlePlay = () => {
@@ -41,7 +41,7 @@ const VideoPlayer: React.FC = () => {
                 <div className="relative w-full pb-[56.25%]">
                     <iframe
                         className="absolute inset-0 w-full h-full"
-                        src="https://www.youtube.com/embed/OQ_t8KYak78?autoplay=1&rel=0"
+                        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
                         title="Diktalo Platform Demo"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -54,8 +54,10 @@ const VideoPlayer: React.FC = () => {
 
 
 export const Hero: React.FC = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+
+    // Video IDs por idioma
+    const videoId = language === 'es' ? 'OQ_t8KYak78' : 's-QK_Ry5JaU';
 
     return (
         <div className="relative overflow-hidden bg-white dark:bg-background-dark pt-32 pb-20 lg:pt-48 lg:pb-32 transition-colors duration-300">
@@ -160,7 +162,7 @@ export const Hero: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 via-blue-500/5 to-transparent blur-3xl -z-10 transform translate-y-20"></div>
 
                     <div className="relative">
-                        <VideoPlayer />
+                        <VideoPlayer videoId={videoId} />
 
                     </div>
 
