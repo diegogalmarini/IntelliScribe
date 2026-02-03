@@ -99,6 +99,14 @@ const SECTION_DEFINITIONS: ManualSection[] = [
         translationKeyCategory: 'cat_settings',
         path: '05_ajustes/configuracion.md',
         icon: 'settings',
+    },
+    {
+        id: 'packs-minutos',
+        translationKeyTitle: 'manual_minute_packs_title',
+        translationKeyDesc: 'manual_minute_packs_desc',
+        translationKeyCategory: 'cat_plans',
+        path: '06_planes/packs_minutos.md',
+        icon: 'payments',
     }
 ];
 
@@ -107,7 +115,8 @@ const CATEGORIES = [
     { id: 'cat_recording' },
     { id: 'cat_ai' },
     { id: 'cat_productivity' },
-    { id: 'cat_settings' }
+    { id: 'cat_settings' },
+    { id: 'cat_plans' }
 ];
 
 export const Manual: React.FC = () => {

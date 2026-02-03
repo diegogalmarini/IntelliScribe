@@ -114,6 +114,7 @@ export interface UserSubscription {
   storageLimit?: number; // bytes
   trialEndsAt?: string; // Manual trial expiration
   usageResetDate?: string; // Next reset date
+  extraMinutes?: number; // One-time purchased minutes
 }
 
 export interface UserProfile {

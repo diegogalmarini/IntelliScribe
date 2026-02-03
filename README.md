@@ -82,6 +82,26 @@ graph TD
 
 ---
 
+## 💰 Monetization & Minute Packs
+
+Diktalo implements a dual-balance system for transcription minutes:
+
+1.  **Monthly Plan Minutes:** Resets every billing cycle.
+2.  **Extra Minutes (Packs):** One-time purchases that **never expire**.
+
+### Consumption Logic
+To maximize user value, the system implements a prioritized consumption flow in `databaseService.ts`:
+-   **Step 1:** Check if the user has available minutes in their monthly plan.
+-   **Step 2:** Deduct from the plan first (until exhausted).
+-   **Step 3:** Only then, deduct from the `extra_minutes` (Minute Packs) balance.
+
+### Fulfillment Workflow
+Minute pack purchases are handled via **Lemon Squeezy Webhooks** and a dedicated **Supabase Edge Function**:
+-   The webhook receives `order_created` events.
+-   The Edge Function performs an atomic update using a PostgreSQL RPC `increment_extra_minutes` to ensure data consistency and prevent race conditions.
+
+---
+
 ## 🛠️ Quick Start
 
 ### Prerequisites

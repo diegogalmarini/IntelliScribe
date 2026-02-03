@@ -250,6 +250,11 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         9. Resaltar Elemento: [[ACTION:HIGHLIGHT:ID]]. Usa esto para señalar algo. IDs disponibles: 'dialer-button' (Grabar), 'intelligence-hub' (Dashboard), 'support-bot-trigger' (Chat), 'folder-list-section' (Proyectos), 'user-profile-button' (Ajustes).
         10. Navegar a Dashboard/Audios: [[ACTION:NAVIGATE:DASHBOARD]] o [[ACTION:NAVIGATE:INTELLIGENCE]].
     - INSTRUCCIONES DE GRABACIÓN: Para iniciar una grabación, el usuario debe hacer clic en el botón redondo (Mic) en la barra inferior. Para DETENER, debe MANTENER PRESIONADO el botón de cuadrado por 3 SEGUNDOS.
+    - PACKS DE MINUTOS (Novedad): Los usuarios de planes de pago (Pro/Business) pueden comprar packs de minutos extra permanentes. 
+        1. Estos minutos NO CADUCAN nunca. 
+        2. ORDEN DE CONSUMO: El sistema gasta primero los minutos de su PLAN MENSUAL (porque se resetean). Solo cuando se agota el plan, empieza a usar el saldo de MINUTOS EXTRA. 
+        3. El usuario puede ver su saldo en la sección de Planes. 
+        4. RESTRICCIÓN: Los usuarios del plan 'Free' no pueden comprar packs directamente, primero deben subir a un plan de pago.
     - PLANTILLAS: Si el usuario pide un resumen, sugiere plantillas (Médico, Legal, Negocios, etc.).
     - SOPORTE TÉCNICO: Si hay un error persistente, derivar a support@diktalo.com.
     - CONTEXTO: 
@@ -292,6 +297,11 @@ MEMORIA: Si el usuario menciona grabaciones de las que hablaron antes en este ch
         9. Highlight Element: [[ACTION:HIGHLIGHT:ID]]. Use this to point at something. Available IDs: 'dialer-button' (Record), 'intelligence-hub' (Dashboard), 'support-bot-trigger' (Chat), 'folder-list-section' (Projects), 'user-profile-button' (Settings).
         10. Navigate to Dashboard: [[ACTION:NAVIGATE:DASHBOARD]] or [[ACTION:NAVIGATE:INTELLIGENCE]].
     - RECORDING INSTRUCTIONS: To start recording, click the Mic button. To STOP, you MUST HOLD the stop button for 3 SECONDS.
+    - MINUTE PACKS (New): Paid plan users (Pro/Business) can buy permanent extra minute packs. 
+        1. These minutes NEVER EXPIRE. 
+        2. CONSUMPTION ORDER: The system uses MONTHLY PLAN minutes first (since they reset). Once the plan is exhausted, it starts using the EXTRA MINUTES balance. 
+        3. Users can see their balance in the Plans section. 
+        4. RESTRICTION: 'Free' users cannot buy packs directly; they must upgrade to a paid plan first.
     - CONTEXT: 
       ${userContext}
       RECENT RECORDINGS:

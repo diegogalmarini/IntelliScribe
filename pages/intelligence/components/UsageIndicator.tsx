@@ -8,10 +8,11 @@ interface UsageIndicatorProps {
 
 export const UsageIndicator: React.FC<UsageIndicatorProps> = ({ user }) => {
     const { t } = useLanguage();
-    const { minutesUsed, minutesLimit } = user.subscription;
+    const { minutesUsed, minutesLimit, extraMinutes = 0 } = user.subscription;
+    const totalAvailable = minutesLimit === -1 ? -1 : (minutesLimit + extraMinutes);
 
     // Calculate percentage
-    const percentage = minutesLimit === -1 ? 0 : (minutesUsed / minutesLimit) * 100;
+    const percentage = totalAvailable === -1 ? 0 : (minutesUsed / totalAvailable) * 100;
     const isUnlimited = minutesLimit === -1;
 
     return (
@@ -22,9 +23,14 @@ export const UsageIndicator: React.FC<UsageIndicatorProps> = ({ user }) => {
                 ) : (
                     <div className="space-y-1">
                         <div className="flex justify-between items-center">
-                            <span>{minutesUsed} / {minutesLimit} min</span>
+                            <span>{minutesUsed} / {totalAvailable} min</span>
                             <span className="font-medium">{Math.round(percentage)}%</span>
                         </div>
+                        {extraMinutes > 0 && (
+                            <div className="text-[10px] text-blue-500 font-medium">
+                                Plan: {minutesLimit} min + Extra: {extraMinutes} min
+                            </div>
+                        )}
                         <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all ${percentage > 90 ? 'bg-red-500' :

@@ -21,6 +21,50 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: "21",
+    slug: "packs-minutos-transcribe-sin-limites",
+    title: "Packs de Minutos: Transcribe sin Límites y sin Caducidad",
+    excerpt: "Lanzamos los nuevos packs de minutos permanentes para que nunca te quedes a mitad de una reunión importante.",
+    date: "2026-02-03",
+    author: "Nati Ruiz",
+    authorRole: "Product Design",
+    authorImage: "/images/avatars/nati-profile.webp",
+    category: "Producto",
+    image: "/images/blog/minute_packs_feature.png",
+    imageAlt: "Nuevos Packs de Minutos de Diktalo - Inteligencia sin interrupciones",
+    aeoAnswer: "¿Cómo funcionan los packs de minutos de Diktalo? Los packs de minutos son compras de pago único que no caducan. El sistema consume primero los minutos de tu plan mensual y, una vez agotados, recurre al saldo de tus packs, permitiéndote transcribir sin interrupciones.",
+    content: `**Resumen:** En Diktalo sabemos que tu flujo de trabajo no siempre es lineal. Hay meses de calma y meses de intensidad máxima. Para esos momentos de alta demanda, hoy lanzamos los **Packs de Minutos**, una forma flexible de ampliar tu capacidad de transcripción sin cambiar de plan.
+
+### ¿Qué hace especiales a los Packs de Minutos de Diktalo?
+A diferencia de las suscripciones tradicionales donde los minutos que no usas se pierden, o donde te quedas bloqueado si te pasas del límite, nuestros packs están diseñados bajo la filosofía de **"Soberanía del Usuario"**:
+
+1.  **Sin Caducidad:** Los minutos que compras hoy son tuyos para siempre. Si los usas mañana o dentro de un año, es tu decisión.
+2.  **Consumo Inteligente:** No tienes que preocuparte por qué saldo se está usando. Diktalo prioriza automáticamente tus minutos mensuales (que sí tienen fecha de reset) y solo toca tus minutos extra cuando es estrictamente necesario.
+3.  **Activación Instantánea:** Sin esperas ni configuraciones complejas. Compras el pack y tu saldo se actualiza al segundo.
+
+### ¿Cómo benefician estos packs a los profesionales?
+Para un abogado en semana de juicio o un investigador realizando docenas de entrevistas, la posibilidad de comprar un "colchón" de tiempo es vital. Los packs eliminan la ansiedad de "quedarse sin minutos" en mitad de una sesión crítica.
+
+### Guía Rápida de Uso
+*   **Usuarios Pro/Business:** Pueden adquirir packs directamente desde la sección de Planes.
+*   **Usuarios Gratis:** Para acceder a la compra de packs, es necesario subir primero a un plan Pro. Esto garantiza que todos los usuarios de packs tengan acceso a las herramientas avanzadas de análisis y exportación que hacen que esos minutos valgan la pena.
+
+Estamos comprometidos con construir una herramienta que se adapte a ti, y no al revés. ¡Prueba los nuevos packs hoy mismo en tu Dashboard!`,
+    jsonLd: `{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Packs de Minutos: Transcribe sin Límites y sin Caducidad",
+  "description": "Lanzamos los nuevos packs de minutos permanentes para Diktalo.",
+  "author": {
+    "@type": "Person",
+    "name": "Nati Ruiz"
+  },
+  "datePublished": "2026-02-03",
+  "image": "/images/blog/minute_packs_feature.png"
+}`,
+    tags: ["Producto", "Productividad", "Packs", "Minutos"]
+  },
+  {
     id: "20",
     slug: "roadmap-diktalo-2026-futuro-2026",
     title: "Roadmap Diktalo 2026: El Futuro de la IA en Reuniones y Productividad",

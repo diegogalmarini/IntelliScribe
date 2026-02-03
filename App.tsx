@@ -348,6 +348,7 @@ const AppContent: React.FC = () => {
                     minutesLimit: data.minutes_limit || 24,
                     minutesUsed: data.minutes_used || 0,
                     usageResetDate: data.usage_reset_date,
+                    extraMinutes: data.extra_minutes || 0,
                     storageUsed: data.storage_used || 0,
                     storageLimit: data.storage_limit || 0,
                     trialEndsAt: data.trial_ends_at

@@ -387,6 +387,44 @@ export const databaseService = {
             await this.incrementStorage(user.id, rec.metadata.audioFileSize);
         }
 
+        // --- NEW: Deduct Transcription Minutes ---
+        if (rec.durationSeconds > 0) {
+            const minutesToDeduct = Math.ceil(rec.durationSeconds / 60);
+
+            // Fetch current usage to calculate deduction
+            const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('minutes_used, minutes_limit, extra_minutes')
+                .eq('id', user.id)
+                .single();
+
+            if (profile) {
+                const used = profile.minutes_used || 0;
+                const limit = profile.minutes_limit || 0;
+                const extra = profile.extra_minutes || 0;
+
+                const remainingPlan = Math.max(0, limit - used);
+
+                if (minutesToDeduct <= remainingPlan) {
+                    // Fits in plan
+                    await supabase
+                        .from('user_profiles')
+                        .update({ minutes_used: used + minutesToDeduct })
+                        .eq('id', user.id);
+                } else {
+                    // Plan exhausted, use Extra
+                    const overPlan = minutesToDeduct - remainingPlan;
+                    await supabase
+                        .from('user_profiles')
+                        .update({
+                            minutes_used: limit, // Plan fully used
+                            extra_minutes: Math.max(0, extra - overPlan) // Deduct from extra
+                        })
+                        .eq('id', user.id);
+                }
+            }
+        }
+
         // Notes and Media are now stored as JSONB in the recordings table
         // No need for separate inserts
 

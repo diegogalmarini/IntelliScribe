@@ -83,6 +83,7 @@ export const translations = {
     cat_ai: "AI Intelligence",
     cat_productivity: "Productivity",
     cat_settings: "Settings",
+    cat_plans: "Plans & Subscription",
 
     // Manual Sections
     manual_create_account_title: "Create Account",
@@ -120,8 +121,9 @@ export const translations = {
     manual_templates_desc: "Save time using our pre-configured and advanced templates.",
     manual_export_title: "Export (PDF, DOC, TXT, JSON)",
     manual_export_desc: "Take your transcripts and analysis wherever you need.",
-    manual_config_title: "Configuration & Settings",
     manual_config_desc: "Customize your experience, profile, and AI preferences.",
+    manual_minute_packs_title: "Minute Packs",
+    manual_minute_packs_desc: "Learn how to buy and use permanent extra minutes.",
 
     // Sidebar
     dashboard: "Dashboard",
@@ -486,6 +488,8 @@ export const translations = {
     faq_4_q: "Do you offer team plans?",
     faq_4_a: "Yes! Our Business+ plan includes features designed for teams, including centralized billing and admin controls. Contact sales for enterprise needs.",
     minutes_suffix_lower: "minutes",
+    minutes_packs_restricted_title: "Packs available for Pro Plans",
+    minutes_packs_restricted_desc: "To purchase permanent extra minute packs, you need to be on a paid plan. Upgrade to access!",
     footer_faq: "FAQ",
     footer_terms: "User Agreement",
 
@@ -1055,6 +1059,7 @@ export const translations = {
     cat_ai: "Inteligencia IA",
     cat_productivity: "Productividad",
     cat_settings: "Ajustes",
+    cat_plans: "Planes y Suscripción",
 
     // Manual Sections
     manual_create_account_title: "Crear tu Cuenta",
@@ -1080,8 +1085,9 @@ export const translations = {
     manual_templates_desc: "Ahorra tiempo usando nuestras plantillas preconfiguradas y avanzadas.",
     manual_export_title: "Exportar (PDF, DOC, TXT, JSON)",
     manual_export_desc: "Lleva tus transcripciones y análisis a donde necesites.",
-    manual_config_title: "Configuración y Ajustes",
     manual_config_desc: "Personaliza tu experiencia, perfil y preferencias de IA.",
+    manual_minute_packs_title: "Packs de Minutos",
+    manual_minute_packs_desc: "Aprende cómo comprar y usar minutos extra permanentes.",
 
     // Auth
     welcomeBack: "Bienvenido de nuevo",
@@ -1431,6 +1437,8 @@ export const translations = {
     faq_4_q: "¿Ofrecen planes para equipos?",
     faq_4_a: "¡Sí! Nuestro plan Business+ incluye funciones diseñadas para equipos, incluyendo facturación centralizada y controles administrativos.",
     minutes_suffix_lower: "minutos",
+    minutes_packs_restricted_title: "Packs disponibles para Planes Pro",
+    minutes_packs_restricted_desc: "Para comprar packs de minutos extra permanentes, necesitas estar en un plan de pago. ¡Sube de nivel para acceder!",
     footer_faq: "Preguntas Frecuentes",
     footer_terms: "Acuerdo de Usuario",
 
