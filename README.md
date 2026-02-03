@@ -29,6 +29,7 @@ Diktalo is a complete **Conversational Intelligence Operating System** that unif
 - **Row Level Security (RLS):** Database-level data isolation (Supabase)
 - **Export:** Professional PDF/DOCX formatting
 - **RAG-Powered Search:** Vector embeddings for semantic search
+- **Zapier Integration:** Send recordings automatically to 5,000+ apps via webhooks (Business+)
 
 ---
 
@@ -49,6 +50,7 @@ Diktalo is a complete **Conversational Intelligence Operating System** that unif
 - Twilio (phone integration)
 - Lemon Squeezy (payments)
 - Resend (transactional emails)
+- Zapier (workflow automation)
 
 **Architecture:**
 
@@ -348,6 +350,7 @@ npx supabase functions serve lemon-webhook
 - [x] Gemini 2.0 Upgrade: Improved speed and accuracy with latest Flash/Pro models
 - [x] Emergency 404 fix (SPA rewrites for Vercel)
 - [x] File size validation (10MB limit)
+- [x] Zapier Integration: Connect Diktalo with 5,000+ apps via webhooks
 
 ### In Progress 🚧
 - [/] Exponential backoff retry logic (DONE - Testing in production)
@@ -363,7 +366,6 @@ npx supabase functions serve lemon-webhook
 - [ ] Mobile app (React Native)
 - [ ] Slack/Teams integration
 - [ ] Advanced analytics dashboard
-- [ ] API for third-party integrations
 
 ---
 
