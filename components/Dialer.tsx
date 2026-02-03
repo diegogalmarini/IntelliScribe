@@ -228,7 +228,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     )}
 
                     <div className="flex items-center justify-center w-full mb-2 px-8">
-                        <span className="text-3xl font-light text-slate-400 mr-1 select-none">+</span>
+                        <span className="text-2xl font-light text-slate-400 mr-1 select-none">+</span>
 
                         {/* Native Input for Cursor & Editing */}
                         <input
@@ -240,7 +240,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                 const val = e.target.value.replace(/[^0-9]/g, '');
                                 setNumber(val);
                             }}
-                            className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-widest bg-transparent border-none outline-none w-full placeholder:text-slate-200 dark:placeholder:text-slate-800"
+                            className="text-2xl font-light text-center text-slate-900 dark:text-white tracking-wider bg-transparent border-none outline-none w-full placeholder:text-slate-200 dark:placeholder:text-slate-800"
                             placeholder="34..."
                             autoFocus
                         />
