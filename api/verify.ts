@@ -130,7 +130,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     status: verification.status,
                     message: 'Verification code sent successfully'
                 });
-            } catch (twilioError) {
+            } catch (twilioError: any) {
                 console.error('❌ [VERIFY] Twilio API error:', {
                     message: twilioError.message,
                     code: twilioError.code,
@@ -186,7 +186,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             status: 'approved',
                             message: 'Phone verified successfully'
                         });
-                    } catch (dbError) {
+                    } catch (dbError: any) {
                         console.error('❌ [VERIFY] Database error:', dbError);
                         return res.status(500).json({
                             error: 'Database operation failed',
@@ -200,7 +200,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         error: 'Invalid or expired verification code'
                     });
                 }
-            } catch (twilioError) {
+            } catch (twilioError: any) {
                 console.error('❌ [VERIFY] Twilio verification check error:', {
                     message: twilioError.message,
                     code: twilioError.code,
@@ -228,9 +228,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             try {
                 // Call Twilio OutgoingCallerIds API to initiate verification
+                // Using our verified Twilio number to avoid spam filters
                 const validationRequest = await client.validationRequests.create({
                     phoneNumber: phoneNumber,
                     friendlyName: `User ${userId}`,
+                    callerId: '+12347043223', // Our verified Twilio number (better delivery than default)
                     // StatusCallback will be called when verification completes
                     statusCallback: `https://www.diktalo.com/api/voice-callback`
                 });
@@ -239,7 +241,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     accountSid: validationRequest.accountSid,
                     phoneNumber: validationRequest.phoneNumber,
                     validationCode: validationRequest.validationCode,
-                    callSid: validationRequest.callSid
+                    callSid: validationRequest.callSid,
+                    friendlyName: validationRequest.friendlyName
                 });
 
                 // Return the validation code to show to the user
