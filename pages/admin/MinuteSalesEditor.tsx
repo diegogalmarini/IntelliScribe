@@ -8,6 +8,7 @@ export const MinuteSalesEditor: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [savingId, setSavingId] = useState<string | null>(null);
     const [successId, setSuccessId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadData();
@@ -27,6 +28,7 @@ export const MinuteSalesEditor: React.FC = () => {
     const savePack = async (pack: MinutePack) => {
         setSavingId(pack.id);
         setSuccessId(null);
+        setError(null);
 
         const success = await adminService.updateMinutePack(pack.id, pack);
 
@@ -34,6 +36,8 @@ export const MinuteSalesEditor: React.FC = () => {
         if (success) {
             setSuccessId(pack.id);
             setTimeout(() => setSuccessId(null), 3000);
+        } else {
+            setError('Error al guardar el pack. Verifica los permisos de administrador.');
         }
     };
 
@@ -48,7 +52,11 @@ export const MinuteSalesEditor: React.FC = () => {
         };
 
         const success = await adminService.createMinutePack(newPack);
-        if (success) loadData();
+        if (success) {
+            loadData();
+        } else {
+            setError('No se pudo crear el pack. Intenta nuevamente.');
+        }
     };
 
     const deletePack = async (id: string) => {
@@ -112,6 +120,14 @@ export const MinuteSalesEditor: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-xl text-sm flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5" />
+                    <p className="flex-1 font-medium">{error}</p>
+                    <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 transition-colors uppercase text-xs font-bold">Cerrar</button>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-6">
                 {packs.map((pack, idx) => (

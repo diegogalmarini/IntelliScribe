@@ -22,7 +22,7 @@ export const adminService = {
             if (user.email === 'diegogalmarini@gmail.com' || user.email === 'testadmin@example.com') return true;
 
             const { data, error } = await supabase
-                .from('profiles')
+                .from('user_profiles')
                 .select('role')
                 .eq('id', user.id)
                 .single();

@@ -198,7 +198,7 @@ const AppContent: React.FC = () => {
         else if (path === '/admin/users') newRoute = AppRoute.ADMIN_USERS;
         else if (path === '/admin/financials') newRoute = AppRoute.ADMIN_FINANCIALS;
         else if (path === '/admin/plans') newRoute = AppRoute.ADMIN_PLANS;
-        else if (path === '/admin/minute-packs') newRoute = AppRoute.ADMIN_MINUTE_PACKS; // NEW
+        else if (path === '/admin/minute-packs' || path === '/admin/minute_packs') newRoute = AppRoute.ADMIN_MINUTE_PACKS; // NEW
         else if (path === '/admin/analytics') newRoute = AppRoute.ADMIN_ANALYTICS; // NEW ROUTE
         else if (path === '/contact') newRoute = AppRoute.CONTACT;
         else if (path === '/roadmap') newRoute = AppRoute.ROADMAP;
