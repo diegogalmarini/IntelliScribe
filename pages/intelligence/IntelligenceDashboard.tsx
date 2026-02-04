@@ -558,12 +558,6 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-3">
-                        <button
-                            onClick={() => { setView('search'); if (isMobile) setIsSidebarOpen(false); }}
-                            className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors md:hidden"
-                        >
-                            <Search size={20} />
-                        </button>
 
                         <button
                             onClick={() => handleAskDiktalo(displayedRecordings)}
