@@ -130,11 +130,17 @@ async function generateImageWithGemini(prompt: string, slug: string): Promise<st
 async function injectPostToBlogData(newPost: BlogPost) {
     console.log(`📝 Injecting new post into ${BLOG_DATA_PATH}...`);
 
+    const fileContent = fs.readFileSync(BLOG_DATA_PATH, 'utf-8');
+
+    // DEDUPLICATION: Check if slug already exists to prevent tripling posts
+    if (fileContent.includes(`"slug": "${newPost.slug}"`) || fileContent.includes(`slug: "${newPost.slug}"`)) {
+        console.warn(`⚠️ Post with slug "${newPost.slug}" already exists. Skipping injection.`);
+        return;
+    }
+
     // First, generate the REAL image
     const realImagePath = await generateImageWithGemini(newPost.imageAlt, newPost.slug);
     newPost.image = realImagePath;
-
-    const fileContent = fs.readFileSync(BLOG_DATA_PATH, 'utf-8');
 
     // Simple but effective injection logic: find the start of the array and insert
     const arrayStartMatch = fileContent.match(/export const blogPosts: BlogPost\[\] = \[/);
