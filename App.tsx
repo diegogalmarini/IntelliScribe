@@ -356,6 +356,10 @@ const AppContent: React.FC = () => {
                 },
                 hasCompletedTour: data.has_completed_tour || false,
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations,
+
+                // ZAPIER PERSISTENCE FIX
+                zapier_webhook_url: data.zapier_webhook_url || null,
+                auto_sync_enabled: data.auto_sync_enabled || false,
             }));
 
             // TRIGGER TOUR: If user is new and hasn't completed the tour (and hasn't dismissed it in this browser)
