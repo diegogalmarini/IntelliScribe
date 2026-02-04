@@ -28,6 +28,20 @@ export const translations = {
     affiliates_step_3_title: "Earn",
     affiliates_step_3_desc: "Get paid 20% of every subscription, forever.",
 
+    // Affiliate FAQ (Lemon Squeezy style)
+    affiliates_faq_promote_title: "Why promote us?",
+    affiliates_faq_promote_desc: "Affiliate partnerships are one of the simplest yet most profitable ways to make money online. You send customers our way, and we'll pay you for it.",
+    affiliates_faq_earn_title: "How much can I earn?",
+    affiliates_faq_earn_desc: "You can earn up to $70.86 commission on every referral that results in a successful sale. There's no limit to how much you can make by promoting us.",
+    affiliates_faq_payout_title: "When do I get paid?",
+    affiliates_faq_payout_desc: "We payout on NET30 terms to account for refunds and chargebacks. For example, commissions generated in January would be paid out on March 15th (NET30).",
+    affiliates_faq_how_title: "How do I make money as an affiliate?",
+    affiliates_faq_how_desc: "All you have to do is recommend us using your affiliate link on your website, blog, and social media. We track your clicks and transactions so you can get paid.",
+    affiliates_faq_minimum_title: "What are the payout minimums?",
+    affiliates_faq_minimum_desc: "We require a minimum balance of $50.00 before processing an affiliate payout.",
+    affiliates_faq_signup_title: "How do I sign up?",
+    affiliates_faq_signup_desc: "The Lemon Squeezy affiliate hub hosts our affiliate program. Click the button below to join.",
+
 
     // Auth
     welcomeBack: "Welcome back",
@@ -1148,6 +1162,26 @@ export const translations = {
     affiliates_benefit_global_title: "Producto Global",
     affiliates_benefit_global_desc: "Promociona Diktalo a cualquier persona. Nuestra plataforma soporta múltiples idiomas.",
     affiliates_steps_title: "Cómo funciona",
+    affiliates_step_1_title: "Unirse",
+    affiliates_step_1_desc: "Regístrate en segundos vía Lemon Squeezy.",
+    affiliates_step_2_title: "Promocionar",
+    affiliates_step_2_desc: "Comparte tu enlace único con tu audiencia.",
+    affiliates_step_3_title: "Ganar",
+    affiliates_step_3_desc: "Recibe el 20% de cada suscripción, para siempre.",
+
+    // Affiliate FAQ (Lemon Squeezy style) EN ESPAÑOL
+    affiliates_faq_promote_title: "¿Por qué promocionarnos?",
+    affiliates_faq_promote_desc: "Las asociaciones de afiliados son una de las formas más simples y rentables de ganar dinero online. Envíanos clientes y te pagaremos por ello.",
+    affiliates_faq_earn_title: "¿Cuánto puedo ganar?",
+    affiliates_faq_earn_desc: "Puedes ganar hasta $70.86 USD de comisión por cada referido que resulte en una venta exitosa. No hay límite en cuánto puedes ganar promocionándonos.",
+    affiliates_faq_payout_title: "¿Cuándo recibo el pago?",
+    affiliates_faq_payout_desc: "Pagamos en términos NET30 para cubrir devoluciones. Por ejemplo, las comisiones de enero se pagarían el 15 de marzo.",
+    affiliates_faq_how_title: "¿Cómo gano dinero como afiliado?",
+    affiliates_faq_how_desc: "Solo tienes que recomendarnos usando tu enlace de afiliado en tu web, blog o redes sociales. Rastreamos tus clics y transacciones para que recibas tu pago.",
+    affiliates_faq_minimum_title: "¿Cuáles son los mínimos de pago?",
+    affiliates_faq_minimum_desc: "Requerimos un balance mínimo de $50.00 USD antes de procesar un pago de afiliado.",
+    affiliates_faq_signup_title: "¿Cómo me registro?",
+    affiliates_faq_signup_desc: "El hub de afiliados de Lemon Squeezy aloja nuestro programa. Haz clic en el botón de abajo para unirte.",
     affiliates_step_1_title: "Únete",
     affiliates_step_1_desc: "Regístrate en segundos vía Lemon Squeezy.",
     affiliates_step_2_title: "Promociona",
