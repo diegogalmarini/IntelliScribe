@@ -59,42 +59,64 @@ export const Affiliates: React.FC<AffiliatesProps> = ({ user, onUpdateUser }) =>
             <Navbar user={user} onUpdateUser={onUpdateUser} />
 
             <main className="pt-32 pb-40">
-                {/* 1. Hero Section - Clean & Minimal */}
-                <section className="max-w-4xl mx-auto px-6 mb-32 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <span className="text-primary font-black text-[0.7rem] uppercase tracking-[0.4em] block mb-8">
-                            {t('affiliates_title')}
-                        </span>
-                        <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-12 tracking-tighter leading-[0.9]">
-                            {t('affiliates_hero_title')}
-                        </h1>
-                        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium mb-16 max-w-3xl mx-auto">
-                            {t('affiliates_hero_subtitle')}
-                        </p>
+                {/* 1. Hero Section - Balanced & Dynamic */}
+                <section className="max-w-7xl mx-auto px-6 mb-32 relative">
+                    {/* Background Glow */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
 
-                        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                            <a
-                                href="https://billing.diktalo.com/affiliates"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[0.8rem] font-black uppercase tracking-[0.3em] rounded-[2rem] hover:scale-105 transition-transform active:scale-95 shadow-2xl"
-                            >
-                                {t('affiliates_cta_join')}
-                            </a>
-                            <a
-                                href="https://billing.diktalo.com/affiliates/login"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-10 py-5 bg-transparent border-2 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-[0.8rem] font-black uppercase tracking-[0.3em] rounded-[2rem] hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
-                            >
-                                {t('affiliates_cta_login')}
-                            </a>
-                        </div>
-                    </motion.div>
+                    <div className="flex flex-col md:flex-row items-center gap-16">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="flex-1 text-center md:text-left"
+                        >
+                            <span className="text-primary font-black text-[0.7rem] uppercase tracking-[0.4em] block mb-6">
+                                {t('affiliates_title')}
+                            </span>
+                            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[0.95]">
+                                {t('affiliates_hero_title')}
+                            </h1>
+                            <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium mb-10 max-w-2xl mx-auto md:mx-0">
+                                {t('affiliates_hero_subtitle')}
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                                <a
+                                    href="https://billing.diktalo.com/affiliates"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-8 py-4 bg-primary text-white text-[0.8rem] font-black uppercase tracking-[0.2em] rounded-full hover:shadow-lg hover:shadow-primary/30 transition-all hover:-translate-y-1"
+                                >
+                                    {t('affiliates_cta_join')}
+                                </a>
+                                <a
+                                    href="https://app.lemonsqueezy.com/login"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-8 py-4 bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-[0.8rem] font-black uppercase tracking-[0.2em] rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
+                                >
+                                    {t('affiliates_cta_login')}
+                                </a>
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            className="flex-1 w-full max-w-[500px]"
+                        >
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-[2.5rem] blur-2xl transform rotate-3 scale-95 -z-10"></div>
+                                <img
+                                    src="/influencer.webp"
+                                    alt="Diktalo Partner"
+                                    className="w-full h-auto rounded-[2.5rem] shadow-2xl border border-white/20"
+                                />
+                            </div>
+                        </motion.div>
+                    </div>
                 </section>
 
                 {/* 2. Benefits Grid - About Style Cards */}
