@@ -20,16 +20,18 @@ El sistema envía un JSON con esta estructura a tu Webhook:
 }
 ```
 
-### Opción A: n8n (Recomendado - Tu Servidor Propio) 🚀
-1. **Webhook Node**: Crea un nodo "Webhook" en n8n.
-   - HTTP Method: `POST`
-   - Path: `diktalo-newsroom`
-2. **Social Nodes**: Conecta el Webhook a los nodos de:
+### Opción A: Make.com (Recomendado - Gratuito y Fiable) 🚀
+1. **Paso Inicial**: Crea una cuenta en [Make.com](https://www.make.com). El plan gratuito de 1,000 operaciones es más que suficiente para este flujo (solo consumiremos unas 40-50 operaciones al mes).
+2. **Webhook Node**: Crea un módulo de **Webhooks > Custom Webhook**.
+3. **Configuración en GitHub**: Copia la URL generada y pégala en los Secretos de GitHub como `SOCIAL_WEBHOOK_URL`.
+4. **Social Modules**: Conecta el Webhook a los módulos de:
    - **X (Twitter)**: Usa el campo `twitter_copy`.
    - **LinkedIn**: Usa `linkedin_copy`.
-   - **OpenAI/DALL-E**: (Opcional) Pasa el `instagram_prompt` para generar la imagen y luego envíala al nodo de **Instagram**.
+   - **Instagram for Business**: Usa `instagram_caption` y `instagram_prompt`.
 
-### Opción B: Make.com
+### Opción B: n8n (Si reactivas tu servidor)
+1. **Webhook Node**: Crea un nodo "Webhook" (`POST`) con el path `diktalo-newsroom`.
+2. **Conexión**: Sigue el mismo proceso de mapeo de campos (`twitter_copy`, etc.) que en Make.
 
 ## 3. Secretos de GitHub Necesarios
 Para que la automatización funcione, debes configurar estos secretos en `Settings > Secrets and variables > Actions`:
