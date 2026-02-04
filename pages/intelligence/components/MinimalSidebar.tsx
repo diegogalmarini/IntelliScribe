@@ -37,6 +37,7 @@ interface MinimalSidebarProps {
     isRecording?: boolean; // NEW: Navigation Guard prop
     useSemanticSearch?: boolean;
     onSemanticToggle?: () => void;
+    onOpenSearch?: () => void; // NEW
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -67,7 +68,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onToggle,
     isRecording = false, // Default to false
     useSemanticSearch = false,
-    onSemanticToggle
+    onSemanticToggle,
+    onOpenSearch
 }) => {
     const { t } = useLanguage();
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
@@ -152,6 +154,23 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05] pt-0">
+            {/* NEW: Sidebar Header (Gemini Style) */}
+            <div className="flex items-center gap-2 px-4 py-3">
+                <button
+                    onClick={onToggle}
+                    className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                >
+                    <span className="material-symbols-outlined">menu</span>
+                </button>
+                <button
+                    onClick={onOpenSearch}
+                    className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                    title="Buscar"
+                >
+                    <Search size={20} />
+                </button>
+            </div>
+
             {/* Usage Indicator - Moved to top as quick status */}
             <div className="px-3 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
                 {/* ... (Usage Content Kept Same) ... */}

@@ -535,19 +535,22 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         isOpen={isSidebarOpen}
                         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                         isRecording={isRecording}
+                        onOpenSearch={() => setIsSearchModalOpen(true)}
                     />
                 </div>
             </div>
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-background-dark">
                     <div className="flex items-center gap-4">
-                        {/* 1. Hamburger Menu (Collapse Toggle) */}
-                        <button
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
-                        >
-                            <span className="material-symbols-outlined">menu</span>
-                        </button>
+                        {/* 1. Hamburger Menu (Collapse Toggle) - Only visible when sidebar is CLOSED */}
+                        {!isSidebarOpen && (
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                            >
+                                <span className="material-symbols-outlined">menu</span>
+                            </button>
+                        )}
 
                         {/* 2. Logo (Diktalo) */}
                         <div
@@ -556,23 +559,6 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         >
                             <span className="text-xl font-medium tracking-tight text-slate-700 dark:text-slate-200">Diktalo</span>
                         </div>
-
-                        {/* 3. Search Trigger (Gemini Style) */}
-                        <button
-                            onClick={() => setIsSearchModalOpen(true)}
-                            className={`hidden md:flex items-center gap-3 px-4 py-2.5 ml-4 bg-[#f0f4f9] dark:bg-[#1e1e1e] hover:bg-[#e2e6eb] dark:hover:bg-[#2a2a2a] text-slate-500 dark:text-slate-400 rounded-full transition-all w-64 lg:w-96 text-sm group`}
-                        >
-                            <Search size={18} />
-                            <span className="group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
-                                {t('search_placeholder_short') || "Buscar..."}
-                            </span>
-                        </button>
-                        <button
-                            onClick={() => setIsSearchModalOpen(true)}
-                            className="md:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full"
-                        >
-                            <Search size={20} />
-                        </button>
                     </div>
 
                     <div className="flex items-center gap-3">
