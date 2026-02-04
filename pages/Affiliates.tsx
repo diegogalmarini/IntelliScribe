@@ -69,12 +69,12 @@ export const Affiliates: React.FC<AffiliatesProps> = ({ user, onUpdateUser }) =>
                     >
 
 
-                        <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[1.1] max-w-4xl mx-auto">
-                            {t('affiliates_hero_title')} & <br className="hidden md:block" />
+                        <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[1.1] max-w-5xl mx-auto text-center">
+                            {t('affiliates_hero_title')} <br className="hidden md:block" />
                             <span className="text-primary">{t('affiliates_hero_subtitle')}</span>
                         </h1>
 
-                        <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 font-medium mb-12 max-w-2xl mx-auto">
+                        <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 font-medium mb-12 max-w-3xl mx-auto text-center">
                             {t('affiliates_benefit_recurring_desc')}
                         </p>
 
