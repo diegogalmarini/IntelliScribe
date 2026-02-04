@@ -30,6 +30,7 @@ Diktalo is a complete **Conversational Intelligence Operating System** that unif
 - **Export:** Professional PDF/DOCX formatting
 - **RAG-Powered Search:** Vector embeddings for semantic search
 - **Zapier Integration:** Send recordings automatically to 5,000+ apps via webhooks (Business+)
+- **Automated Newsroom:** AI-driven editorial system that generates news-based authority content 3x/week.
 
 ---
 

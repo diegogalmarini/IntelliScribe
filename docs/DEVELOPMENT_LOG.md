@@ -76,4 +76,9 @@ Este documento registra la evolución del proyecto durante la **Fase 4: Búsqued
     - **Sección Blog:** Centrado de cabecera y botón en móviles para evitar el "espacio vacío" lateral.
     - **Visualizador de Funciones:** Restructurado el componente `Features.tsx` para móviles; ahora los elementos se apilan verticalmente evitando solapamientos entre imagen y texto.
 - **Funcionalidad "Watch Demo":** Corregido el enlace de ancla; ahora el botón desplaza al usuario suavemente hasta el reproductor de vídeo principal.
-- **GitHub Sync:** Todas las iteraciones de diseño y lógica de pagos sincronizadas con la rama principal.
+- **Automatización Editorial (Newsroom):**
+    - Implementado sistema de descubrimiento de noticias y generación de contenido de autoridad.
+    - Configurado **GitHub Actions** para publicar automáticamente 3 veces por semana (Lunes, Miércoles, Viernes).
+    - Creado script `automated_newsroom.ts` que inyecta artículos directamente en el blog y genera copias para redes sociales (X, LinkedIn, Instagram).
+    - Documentada la integración con **Make.com** para el cross-posting automatizado.
+- **GitHub Sync:** Todas las iteraciones de diseño, lógica de pagos y automatización sincronizadas con la rama principal.
