@@ -146,7 +146,7 @@ export const Features: React.FC = () => {
 
                 {/* 2. ÁREA DE CONTENIDO (IMAGEN + TEXTO) */}
                 <div className="bg-white dark:bg-[#161b22] rounded-3xl p-2 shadow-2xl border border-slate-100 dark:border-white/5 overflow-hidden">
-                    <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-[#0f1219]">
+                    <div className="relative min-h-[500px] md:aspect-[21/9] w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-[#0f1219]">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={activeTab}
@@ -157,7 +157,7 @@ export const Features: React.FC = () => {
                                 className="absolute inset-0 flex flex-col md:flex-row items-center"
                             >
                                 {/* Texto Descriptivo (Izquierda en desktop) */}
-                                <div className="w-full md:w-1/3 p-8 md:p-12 flex flex-col justify-center z-10 bg-white/90 dark:bg-[#161b22]/90 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none h-full md:h-auto relative">
+                                <div className="w-full md:w-1/3 p-8 md:p-12 flex flex-col justify-center z-10 bg-white/95 dark:bg-[#161b22]/95 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none h-auto md:h-full relative md:absolute left-0 top-0">
                                     <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
                                         {React.createElement(features[activeTab].icon, { className: "w-6 h-6" })}
                                     </div>
@@ -169,8 +169,8 @@ export const Features: React.FC = () => {
                                     </p>
                                 </div>
 
-                                {/* Imagen (Derecha en desktop, Fondo en móvil) */}
-                                <div className="w-full md:w-2/3 h-full flex items-center justify-center p-4 md:p-8 bg-slate-50 dark:bg-[#0f1219]">
+                                {/* Imagen (Abajo en móvil, Derecha en desktop) */}
+                                <div className="w-full md:w-2/3 h-64 md:h-full flex items-center justify-center p-4 md:p-8 bg-slate-50 dark:bg-[#0f1219] overflow-hidden">
                                     <img
                                         src={features[activeTab].image}
                                         alt={features[activeTab].title}

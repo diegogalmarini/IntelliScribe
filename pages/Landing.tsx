@@ -149,8 +149,8 @@ export const Landing: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Pa
 
                 <section id="blog" className="py-24 bg-slate-50 dark:bg-slate-950/50">
                     <div className="max-w-7xl mx-auto px-4">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-                            <div>
+                        <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 gap-6">
+                            <div className="flex flex-col items-center md:items-start text-center md:text-left">
                                 <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">{t('landing_blog_tag')}</p>
                                 <h3 className="h2 home text-slate-900 dark:text-white">{t('landing_blog_latest')}</h3>
                             </div>
