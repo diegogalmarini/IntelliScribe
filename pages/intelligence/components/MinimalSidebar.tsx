@@ -151,30 +151,10 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05]">
-            {/* Header / Logo */}
-            <div className="p-4 md:p-6 pb-2 flex items-center justify-between">
-                <button
-                    onClick={handleLogoClick}
-                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                >
-                    <img src="/logo-diktalo.svg" alt="Diktalo" className="h-8 w-auto dark:hidden" />
-                    <img src="/logo-diktalo-b.svg" alt="Diktalo" className="h-8 w-auto hidden dark:block" />
-                </button>
-                {/* Close Sidebar Button */}
-                {onToggle && (
-                    <button
-                        onClick={onToggle}
-                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"
-                        title={t('closeMenu')}
-                    >
-                        <LayoutTemplate size={18} className="rotate-180" />
-                    </button>
-                )}
-            </div>
-
-            {/* Usage Indicator */}
+        <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05] pt-0">
+            {/* Usage Indicator - Moved to top as quick status */}
             <div className="px-3 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
+                {/* ... (Usage Content Kept Same) ... */}
                 <div className="px-2 text-[12px] text-[#676767] dark:text-[#c5c5c5]">
                     {user.subscription.minutesLimit === -1 ? (
                         <span className="font-normal">{t('unlimited_label')}</span>
@@ -194,74 +174,26 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                 </div>
                             </div>
 
-                            {/* Storage Usage */}
-                            <div className="space-y-1.5">
-                                <div className="flex justify-between items-center text-[11px]">
-                                    <span className="font-medium">
-                                        {(user.subscription.storageUsed || 0) / 1024 / 1024 < 1024
-                                            ? `${((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(1)} MB`
-                                            : `${((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} GB`}
-                                        / {user.subscription.storageLimit === -1 ? '∞' : ((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(1)} GB
-                                    </span>
-                                    <span className="font-medium">
-                                        {(user.subscription.storageLimit || 0) > 0 ? Math.min(100, Math.round(((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)) : 0}%
-                                    </span>
-                                </div>
-                                <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full transition-all duration-500 bg-[#0055FF]"
-                                        style={{
-                                            width: `${(user.subscription.storageLimit || 0) > 0
-                                                ? Math.min(100, ((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)
-                                                : 0}%`
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Days Usage */}
-                            {(() => {
-                                const startDateStr = user.createdAt;
-                                const endDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
-
-                                if (!startDateStr || !endDateStr) return null;
-
-                                const startDate = new Date(startDateStr);
-                                const endDate = new Date(endDateStr);
-                                const now = new Date();
-
-                                // Total duration of the cycle
-                                const totalMs = endDate.getTime() - startDate.getTime();
-                                const totalDays = Math.max(1, Math.ceil(totalMs / (1000 * 60 * 60 * 24)));
-
-                                // Days elapsed since start
-                                const elapsedMs = now.getTime() - startDate.getTime();
-                                const usedDays = Math.max(0, Math.min(totalDays, Math.ceil(elapsedMs / (1000 * 60 * 60 * 24))));
-
-                                const percentage = Math.min(100, Math.round((usedDays / totalDays) * 100));
-
-                                return (
-                                    <div className="space-y-1.5">
-                                        <div className="flex justify-between items-center text-[11px]">
-                                            <span className="font-medium">{usedDays} / {totalDays} {t('days_short')}</span>
-                                            <span className="font-medium">{percentage}%</span>
-                                        </div>
-                                        <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full transition-all duration-500 bg-[#0055FF]"
-                                                style={{ width: `${percentage}%` }}
-                                            />
-                                        </div>
+                            {/* Storage Usage (Condensed for cleaner sidebar) */}
+                            {(user.subscription.storageUsed || 0) > 0 && (
+                                <div className="space-y-1.5">
+                                    <div className="flex justify-between items-center text-[11px]">
+                                        <span className="font-medium">
+                                            Storage
+                                        </span>
+                                        <span className="font-medium">
+                                            {((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(0)} MB
+                                        </span>
                                     </div>
-                                );
-                            })()}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
             </div>
 
             {/* FOLDER LIST INTEGRATION */}
-            <div id="folder-list-section">
+            <div id="folder-list-section" className="mt-2">
                 {onSelectFolder && (
                     <FolderList
                         onSelectFolder={onSelectFolder}
@@ -276,52 +208,6 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             </div>
 
             <div className="my-2 border-t border-black/[0.05] dark:border-white/[0.05]"></div>
-
-            {/* Search Bar */}
-            {onSearchChange && (
-                <div className="px-3 py-2">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-2.5 text-[#8e8e8e]" size={14} />
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => onSearchChange(e.target.value)}
-                            placeholder={t('search_placeholder_short')}
-                            className="w-full pl-9 pr-14 py-2 bg-[#f7f7f8] dark:bg-card-dark border-0 rounded-lg text-[12px] text-[#0d0d0d] dark:text-white placeholder-[#8e8e8e] focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-                        />
-                        <div className="absolute right-2 top-1.5 flex items-center gap-1">
-                            {onSemanticToggle && (
-                                <button
-                                    onClick={onSemanticToggle}
-                                    title={useSemanticSearch ? "Búsqueda con IA activada" : "Activar búsqueda profunda (IA)"}
-                                    className={`p-1 rounded transition-colors ${useSemanticSearch ? 'text-blue-500 bg-blue-100 dark:bg-blue-900/30' : 'text-[#8e8e8e] hover:bg-black/5 dark:hover:bg-white/10'}`}
-                                >
-                                    <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                                </button>
-                            )}
-                            {searchQuery && (
-                                <button
-                                    onClick={() => onSearchChange('')}
-                                    className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded"
-                                >
-                                    <X size={14} className="text-[#8e8e8e]" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* New Recording Button */}
-            <div className="p-2">
-                <button
-                    onClick={onNewRecording}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-normal text-[#0d0d0d] dark:text-white hover:bg-[#f0f0f0] dark:hover:bg-white/[0.08] rounded-lg transition-colors border border-black/10 dark:border-white/10"
-                >
-                    <Plus size={16} strokeWidth={2} />
-                    <span>{t('new_session_btn')}</span>
-                </button>
-            </div>
 
             {/* Recordings List */}
             <div className="flex-1 overflow-y-auto px-2 pb-2">

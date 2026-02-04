@@ -5,6 +5,12 @@ import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
 import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
+import { SearchModal } from './components/SearchModal'; // NEW
+import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
+import { MinimalSidebar } from './components/MinimalSidebar';
+import { ProfileAvatar } from './components/ProfileAvatar';
+import { EmptyStateClean } from './components/EmptyStateClean';
+import { SettingsModal } from './components/SettingsModal';
 import { RecordingDetailView } from './components/RecordingDetailView';
 import { InlineRecorder } from './components/InlineRecorder';
 import { InlineEditor } from './components/InlineEditor';
@@ -14,7 +20,7 @@ import { TemplateGallery } from './TemplateGallery';
 import { ChatModal } from './components/ChatModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { AlertModal, AlertType } from '../../components/AlertModal';
-import { MessageSquare, LayoutTemplate } from 'lucide-react';
+import { MessageSquare, LayoutTemplate, Search } from 'lucide-react'; // Added Search import
 import { useLanguage } from '../../contexts/LanguageContext';
 import { transcribeAudio } from '../../services/geminiService';
 import { getSignedAudioUrl, uploadAudio } from '../../services/storageService';
@@ -101,6 +107,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); // NEW
     const [useSemanticSearch, setUseSemanticSearch] = useState(false);
     const [isMobile] = useState(window.innerWidth < 768);
     const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
@@ -533,21 +540,49 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             </div>
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-background-dark">
-                    <div className="flex items-center gap-3">{!isSidebarOpen && <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500 rounded-lg"><LayoutTemplate size={20} /></button>}<button onClick={() => window.location.reload()} className="p-2 text-slate-500 md:hidden"><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.3L2.5 16" /></svg></button>{view === 'subscription' && <button onClick={() => onNavigate(AppRoute.DASHBOARD)} className="p-2 text-slate-500"><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" /></svg></button>}</div>
+                    <div className="flex items-center gap-4">
+                        {/* 1. Hamburger Menu (Collapse Toggle) */}
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                        >
+                            <span className="material-symbols-outlined">menu</span>
+                        </button>
+
+                        {/* 2. Logo (Diktalo) */}
+                        <div
+                            onClick={handleLogoClick}
+                            className="flex items-center gap-2 cursor-pointer opacity-90 hover:opacity-100 transition-opacity select-none"
+                        >
+                            <span className="text-xl font-medium tracking-tight text-slate-700 dark:text-slate-200">Diktalo</span>
+                        </div>
+
+                        {/* 3. Search Trigger (Gemini Style) */}
+                        <button
+                            onClick={() => setIsSearchModalOpen(true)}
+                            className={`hidden md:flex items-center gap-3 px-4 py-2.5 ml-4 bg-[#f0f4f9] dark:bg-[#1e1e1e] hover:bg-[#e2e6eb] dark:hover:bg-[#2a2a2a] text-slate-500 dark:text-slate-400 rounded-full transition-all w-64 lg:w-96 text-sm group`}
+                        >
+                            <Search size={18} />
+                            <span className="group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+                                {t('search_placeholder_short') || "Buscar..."}
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => setIsSearchModalOpen(true)}
+                            className="md:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full"
+                        >
+                            <Search size={20} />
+                        </button>
+                    </div>
+
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => handleAskDiktalo(displayedRecordings)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-full"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                         >
+                            <img src="/sparkle_icon.svg" alt="AI" className="w-4 h-4" onError={(e) => e.currentTarget.style.display = 'none'} />
                             <MessageSquare className="w-3.5 h-3.5" />
                             <span className="hidden md:inline">{t('askDiktalo') || 'Preguntar a Diktalo'}</span>
-                        </button>
-                        <button
-                            onClick={() => onAction?.('START_TOUR')}
-                            className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                            title={t('startTour')}
-                        >
-                            <span className="material-symbols-outlined text-lg">help</span>
                         </button>
 
                         {/* Plan Badge (Quick Access) */}
@@ -560,7 +595,6 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
                                 {user.subscription.planId === 'pro' ? t('planPro') || 'Pro' : user.subscription.planId === 'business' ? t('planBiz') || 'Business' : user.subscription.planId === 'business_plus' ? t('planBizPlus') || 'Business+' : t('planFree') || 'Free'}
                             </span>
-                            <span className="material-symbols-outlined text-slate-400 text-sm group-hover:text-primary transition-colors">arrow_forward</span>
                         </button>
 
                         <div id="user-profile-button">
@@ -572,6 +606,17 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} /> : <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />}
                 </div>
             </div>
+            <SearchModal
+                isOpen={isSearchModalOpen}
+                onClose={() => setIsSearchModalOpen(false)}
+                onSearch={setSearchQuery}
+                searchQuery={searchQuery}
+                searchResults={searchResults}
+                onSelectResult={handleSelectRecording}
+                useSemanticSearch={useSemanticSearch}
+                onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)}
+                isSearching={isSearching}
+            />
             <SettingsModal user={user} isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onUpdateUser={onUpdateUser} onNavigate={onNavigate} onLogout={onLogout} onAction={onAction} />
             <ChatModal isOpen={chatState.isOpen} onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))} recordings={chatState.recordings} title={chatState.title} onOpenRecording={handleSelectRecording} />
             <AlertModal isOpen={alertState.isOpen} onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} title={alertState.title} message={alertState.message} type={alertState.type} />

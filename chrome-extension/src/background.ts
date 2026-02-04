@@ -107,6 +107,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                     // Optionally update Supabase config if provided in sync (though usually injected)
                 });
                 console.log('[Background] Session synced successfully.');
+
+                // NOTIFICATION: Sync Success
+                chrome.notifications.create('auth-sync', {
+                    type: 'basic',
+                    iconUrl: 'icons/diktalo.png',
+                    title: '¡Conectado!',
+                    message: 'Tu extensión se ha sincronizado con Diktalo.',
+                    priority: 1
+                });
+
                 return { success: true };
             }
             return { success: false, error: 'Invalid session data' };
@@ -183,6 +193,10 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
             return await fetch(url, { ...options, headers });
         } catch (refreshError: any) {
             console.error('[Background] Could not recover from auth failure:', refreshError.message);
+
+            // CRITICAL FIX: Clear bad tokens so we don't loop on next try
+            await chrome.storage.local.remove(['authToken', 'refreshToken']);
+
             // Friendly error message
             throw new Error('E101: Tu sesión ha expirado y el refresco automático falló. Por favor abre la web de Diktalo para sincronizar.');
         }
