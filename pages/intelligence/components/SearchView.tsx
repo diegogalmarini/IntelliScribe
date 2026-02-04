@@ -58,7 +58,8 @@ export const SearchView: React.FC<SearchViewProps> = ({
                                 value={searchQuery}
                                 onChange={(e) => onSearchChange(e.target.value)}
                                 placeholder={t('search_placeholder') || "Busca en tus grabaciones..."}
-                                className="flex-1 bg-transparent border-none outline-none ring-0 text-base md:text-lg text-[#1f1f1f] dark:text-[#e3e3e3] placeholder:text-gray-500"
+                                className="flex-1 bg-transparent border-none outline-none ring-0 focus:ring-0 focus:outline-none focus:border-none shadow-none text-base md:text-lg text-[#1f1f1f] dark:text-[#e3e3e3] placeholder:text-gray-500"
+                                style={{ boxShadow: 'none' }}
                             />
 
                             <div className="flex items-center gap-2 ml-2">

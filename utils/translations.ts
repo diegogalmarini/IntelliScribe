@@ -1110,6 +1110,9 @@ export const translations = {
     manual_config_desc: "Personaliza tu experiencia, perfil y preferencias de IA.",
     manual_minute_packs_title: "Packs de Minutos",
     manual_minute_packs_desc: "Aprende cómo comprar y usar minutos extra permanentes.",
+    // Search
+    search_title: "Buscar",
+    search_placeholder: "Busca en tus grabaciones...",
 
     // Auth
     welcomeBack: "Bienvenido de nuevo",
