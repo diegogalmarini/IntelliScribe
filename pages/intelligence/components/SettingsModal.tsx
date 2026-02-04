@@ -431,7 +431,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
-            <div className={`bg-white dark:bg-[#050505] md:rounded-xl shadow-2xl w-full max-w-5xl h-full md:h-[85vh] flex flex-col md:flex-row overflow-hidden border-0 md:border border-slate-200 dark:border-[#1f1f1f] font-sans ${isMobile ? 'rounded-none' : ''}`}>
+            <div className={`bg-white dark:bg-[#050505] md:rounded-xl shadow-2xl w-full max-w-5xl h-full md:h-[85vh] flex flex-col md:flex-row overflow-hidden border-0 md:border border-slate-200 dark:border-[#1f1f1f] font-sans min-h-0 ${isMobile ? 'rounded-none' : ''}`}>
 
                 {/* Sidebar */}
                 <div className={`w-full md:w-64 flex flex-col border-b md:border-b-0 md:border-r border-slate-100 dark:border-[#1f1f1f] bg-[#fbfbfb] dark:bg-[#0A0D13] ${isMobile && !showMenu ? 'hidden' : 'flex'}`}>
@@ -477,7 +477,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
 
                 {/* Main Content */}
-                <div className={`flex-1 flex flex-col bg-white dark:bg-transparent relative ${isMobile && showMenu ? 'hidden' : 'flex'}`}>
+                <div className={`flex-1 flex flex-col bg-white dark:bg-transparent relative min-h-0 ${isMobile && showMenu ? 'hidden' : 'flex'}`}>
 
                     {/* Content Header for Mobile */}
                     {isMobile && (
@@ -515,7 +515,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <span>{t('saved')}</span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-6 py-6 md:px-12 md:py-10">
+                    <div className="flex-1 overflow-y-auto px-6 py-6 md:px-12 md:py-10 pb-20 md:pb-10 min-h-0">
                         {/* --- ACCOUNT SECTION --- */}
                         {selectedSection === 'account' && (
                             <div className="max-w-2xl space-y-12 animate-in fade-in duration-300">

@@ -531,7 +531,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         isOpen={isSidebarOpen}
                         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                         isRecording={isRecording}
-                        onOpenSearch={() => setView('search')}
+                        onOpenSearch={() => { setView('search'); if (isMobile) setIsSidebarOpen(false); }}
                     />
                 </div>
             </div>
@@ -557,7 +557,14 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <button
+                            onClick={() => { setView('search'); if (isMobile) setIsSidebarOpen(false); }}
+                            className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors md:hidden"
+                        >
+                            <Search size={20} />
+                        </button>
+
                         <button
                             onClick={() => handleAskDiktalo(displayedRecordings)}
                             className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
@@ -567,14 +574,13 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                             <span className="hidden md:inline">{t('askDiktalo') || 'Preguntar a Diktalo'}</span>
                         </button>
 
-                        {/* Plan Badge (Quick Access) */}
                         <button
                             onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
-                            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group"
+                            className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 bg-slate-50 dark:bg-slate-800/50 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group"
                             title="Ver planes"
                         >
                             <span className={`size-2 rounded-full ${user.subscription.planId === 'pro' ? 'bg-purple-500' : user.subscription.planId === 'business' ? 'bg-blue-500' : user.subscription.planId === 'business_plus' ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
+                            <span className="text-[10px] md:text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase">
                                 {user.subscription.planId === 'pro' ? t('planPro') || 'Pro' : user.subscription.planId === 'business' ? t('planBiz') || 'Business' : user.subscription.planId === 'business_plus' ? t('planBizPlus') || 'Business+' : t('planFree') || 'Free'}
                             </span>
                         </button>

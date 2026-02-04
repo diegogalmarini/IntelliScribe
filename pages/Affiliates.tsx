@@ -67,10 +67,7 @@ export const Affiliates: React.FC<AffiliatesProps> = ({ user, onUpdateUser }) =>
                         transition={{ duration: 0.8 }}
                         className="mb-12"
                     >
-                        <div className="w-20 h-20 bg-slate-900 dark:bg-white rounded-[2rem] mx-auto flex items-center justify-center mb-10 shadow-xl">
-                            {/* Simple Diktalo Logo Icon equivalent */}
-                            <div className="w-8 h-8 rounded-full bg-primary animate-pulse"></div>
-                        </div>
+
 
                         <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[1.1] max-w-4xl mx-auto">
                             {t('affiliates_hero_title')} & <br className="hidden md:block" />
@@ -142,18 +139,41 @@ export const Affiliates: React.FC<AffiliatesProps> = ({ user, onUpdateUser }) =>
                 </section>
 
                 {/* 3. Final Bottom CTA */}
-                <section className="max-w-4xl mx-auto px-6 text-center border-t border-slate-100 dark:border-white/5 pt-32">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter">
-                        {t('affiliates_cta_join')}
-                    </h2>
-                    <a
-                        href="https://billing.diktalo.com/affiliates"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block px-12 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-full hover:scale-105 transition-transform shadow-2xl"
+                <section className="max-w-6xl mx-auto px-6 text-center border-t border-slate-100 dark:border-white/5 pt-32 mb-20">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        className="relative rounded-[3rem] overflow-hidden bg-slate-900 p-8 md:p-16 mb-20"
                     >
-                        {t('affiliates_cta_join')}
-                    </a>
+                        <div className="absolute inset-0 z-0">
+                            <img
+                                src="/influencer-panel.webp"
+                                alt="Influencers making money"
+                                className="w-full h-full object-cover opacity-40"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                        </div>
+
+                        <div className="relative z-10 max-w-2xl mx-auto">
+                            <h2 className="text-3xl md:text-5xl font-black text-white mb-8 tracking-tighter leading-tight italic">
+                                Ya hay influencers haciendo dinero con Diktalo
+                            </h2>
+                            <div className="flex flex-col items-center gap-6">
+                                <a
+                                    href="https://billing.diktalo.com/affiliates"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center px-12 py-5 bg-primary text-white text-xl font-black rounded-xl hover:bg-blue-600 transition-all shadow-2xl shadow-primary/20 transform hover:-translate-y-1"
+                                >
+                                    {t('affiliates_cta_join')}
+                                </a>
+                                <a href="https://app.lemonsqueezy.com/login" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-white/50 hover:text-white transition-colors">
+                                    {t('affiliates_cta_login')} &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </motion.div>
                 </section>
             </main>
             <Footer />
