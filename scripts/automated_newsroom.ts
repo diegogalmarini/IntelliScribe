@@ -91,35 +91,23 @@ async function generateContentWithGemini(newsItem: NewsItem) {
 }
 
 async function generateImageWithGemini(prompt: string, slug: string): Promise<string> {
-    if (!GEMINI_API_KEY) {
-        console.warn("⚠️ GEMINI_API_KEY missing. Skipping real image generation.");
-        return "/images/blog/placeholder-realistic.png";
-    }
-
     console.log(`🎨 Generating realistic AI image for: ${slug}...`);
     try {
-        // Since we are in a node environment, we use fetch to call the Gemini API directly
-        // Note: This is a conceptual implementation of the Imagen 3 call via Gemini 2.0
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `Generate a photorealistic, cinematic image for a professional blog. 
-                        Prompt: ${prompt}. 
-                        Style: Professional, high-end photography, cinematic lighting. 
-                        No text, no logos, no abstract blue graphics. 
-                        Return the image as a base64 string.`
-                    }]
-                }]
-            })
-        });
+        // We use Pollinations.ai (FLUX model) for stable, realistic AI images. 
+        // This is robust for CI environments and produces the "realistic people" style requested.
+        const encodedPrompt = encodeURIComponent(prompt + ", photorealistic, high resolution, professional photography, cinematic lighting, no text, no logos");
+        const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=768&model=flux&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
 
-        const data = await response.json();
+        console.log(`📸 Requesting image from: ${imageUrl}`);
+        const response = await fetch(imageUrl);
 
-        // Mocking the save process for the prototype
-        // In reality, we'd extract the base64 and write it to public/images/blog/${slug}.png
+        if (!response.ok) {
+            throw new Error(`Image API failed with status: ${response.status}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
         const imagePath = `/images/blog/${slug}.png`;
         const fullPath = path.join(process.cwd(), 'public', imagePath);
 
@@ -127,14 +115,15 @@ async function generateImageWithGemini(prompt: string, slug: string): Promise<st
         const dir = path.dirname(fullPath);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-        // For this step, we'll create a dummy file to simulate the success
-        fs.writeFileSync(fullPath, "MOCK_IMAGE_DATA");
+        // Write REAL binary image data (not mock strings)
+        fs.writeFileSync(fullPath, buffer);
 
-        console.log(`✅ Image generated and saved to: ${imagePath}`);
+        console.log(`✅ Real image generated and saved to: ${imagePath} (${buffer.length} bytes)`);
         return imagePath;
     } catch (error) {
         console.error("❌ Error generating image:", error);
-        return "/images/blog/error-fallback.png";
+        // Fallback to a high-quality professional office image if generation fails
+        return "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80";
     }
 }
 
