@@ -899,7 +899,7 @@ const AppContent: React.FC = () => {
 
         return (
             <motion.div className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && currentRoute !== AppRoute.SETTINGS && currentRoute !== AppRoute.INTEGRATIONS && currentRoute !== AppRoute.MANUAL && (
+                {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && currentRoute !== AppRoute.SETTINGS && currentRoute !== AppRoute.INTEGRATIONS && currentRoute !== AppRoute.MANUAL && currentRoute !== AppRoute.AFFILIATES && (
                     <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={setSelectedFolderId} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onDeleteFolder={handleDeleteFolder} />
                 )}
 
