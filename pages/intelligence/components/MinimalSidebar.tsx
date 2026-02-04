@@ -155,7 +155,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     return (
         <div className="flex flex-col h-full bg-surface-light dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05] pt-0">
             {/* NEW: Sidebar Header (Gemini Style) */}
-            <div className="flex items-center gap-2 px-4 py-3">
+            <div className="flex items-center justify-between px-4 py-3">
                 <button
                     onClick={onToggle}
                     className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
@@ -193,19 +193,67 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                 </div>
                             </div>
 
-                            {/* Storage Usage (Condensed for cleaner sidebar) */}
-                            {(user.subscription.storageUsed || 0) > 0 && (
-                                <div className="space-y-1.5">
-                                    <div className="flex justify-between items-center text-[11px]">
-                                        <span className="font-medium">
-                                            Storage
-                                        </span>
-                                        <span className="font-medium">
-                                            {((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(0)} MB
-                                        </span>
-                                    </div>
+                            {/* Storage Usage (Full) */}
+                            <div className="space-y-1.5">
+                                <div className="flex justify-between items-center text-[11px]">
+                                    <span className="font-medium">
+                                        {(user.subscription.storageUsed || 0) / 1024 / 1024 < 1024
+                                            ? `${((user.subscription.storageUsed || 0) / 1024 / 1024).toFixed(1)} MB`
+                                            : `${((user.subscription.storageUsed || 0) / 1024 / 1024 / 1024).toFixed(1)} GB`}
+                                        / {user.subscription.storageLimit === -1 ? '∞' : ((user.subscription.storageLimit || 0) / 1024 / 1024 / 1024).toFixed(1)} GB
+                                    </span>
+                                    <span className="font-medium">
+                                        {(user.subscription.storageLimit || 0) > 0 ? Math.min(100, Math.round(((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)) : 0}%
+                                    </span>
                                 </div>
-                            )}
+                                <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full transition-all duration-500 bg-[#0055FF]"
+                                        style={{
+                                            width: `${(user.subscription.storageLimit || 0) > 0
+                                                ? Math.min(100, ((user.subscription.storageUsed || 0) / user.subscription.storageLimit!) * 100)
+                                                : 0}%`
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Days Usage (Restored) */}
+                            {(() => {
+                                const startDateStr = user.createdAt;
+                                const endDateStr = user.subscription.trialEndsAt || user.subscription.currentPeriodEnd;
+
+                                if (!startDateStr || !endDateStr) return null;
+
+                                const startDate = new Date(startDateStr);
+                                const endDate = new Date(endDateStr);
+                                const now = new Date();
+
+                                // Total duration of the cycle
+                                const totalMs = endDate.getTime() - startDate.getTime();
+                                const totalDays = Math.max(1, Math.ceil(totalMs / (1000 * 60 * 60 * 24)));
+
+                                // Days elapsed since start
+                                const elapsedMs = now.getTime() - startDate.getTime();
+                                const usedDays = Math.max(0, Math.min(totalDays, Math.ceil(elapsedMs / (1000 * 60 * 60 * 24))));
+
+                                const percentage = Math.min(100, Math.round((usedDays / totalDays) * 100));
+
+                                return (
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between items-center text-[11px]">
+                                            <span className="font-medium">{usedDays} / {totalDays} {t('days_short')}</span>
+                                            <span className="font-medium">{percentage}%</span>
+                                        </div>
+                                        <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full transition-all duration-500 bg-[#0055FF]"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     )}
                 </div>
