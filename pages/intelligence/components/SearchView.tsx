@@ -67,17 +67,6 @@ export const SearchView: React.FC<SearchViewProps> = ({
                                         <X size={18} />
                                     </button>
                                 )}
-                                <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-1"></div>
-                                <button
-                                    onClick={onToggleSemantic}
-                                    className={`p-2 rounded-full transition-colors ${useSemanticSearch
-                                            ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40'
-                                            : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                        }`}
-                                    title="Búsqueda Semántica (IA)"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
-                                </button>
                             </div>
                         </div>
                     </div>

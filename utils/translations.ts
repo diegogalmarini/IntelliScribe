@@ -4,6 +4,10 @@ export type Language = 'en' | 'es';
 
 export const translations = {
   en: {
+    // Search
+    search_title: "Search",
+    search_placeholder: "Search your recordings...",
+
     // Auth
     welcomeBack: "Welcome back",
     createAccount: "Create Account", // NEW
