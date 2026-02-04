@@ -205,6 +205,7 @@ const AppContent: React.FC = () => {
         else if (path === '/contact') newRoute = AppRoute.CONTACT;
         else if (path === '/roadmap') newRoute = AppRoute.ROADMAP;
         else if (path === '/blog' || path.startsWith('/blog/')) newRoute = path.includes('/', 6) ? AppRoute.BLOG_POST : AppRoute.BLOG;
+        else if (path === '/affiliates') newRoute = AppRoute.AFFILIATES; // NEW
 
         if (newRoute !== currentRoute) {
             setCurrentRoute(newRoute);
