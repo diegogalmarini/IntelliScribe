@@ -467,13 +467,15 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     const [tempRecording, setTempRecording] = useState<Recording | null>(null);
     const displayedRecordings = React.useMemo(() => {
-        let base = searchQuery.trim() ? searchResults : recordings;
+        // ALWAYS use recordings as base for sidebar, ignoring search
+        // The Search functions via the SearchModal, which maintains its own filtered list (searchResults)
+        let base = recordings;
         if (selectedFolderId && selectedFolderId !== 'ALL' && selectedFolderId !== 'FAVORITES') {
             base = base.filter(r => r.folderId === selectedFolderId);
         }
         if (tempRecording && !base.find(r => r.id === tempRecording.id)) return [tempRecording, ...base];
         return base;
-    }, [searchQuery, searchResults, recordings, tempRecording, selectedFolderId]);
+    }, [recordings, tempRecording, selectedFolderId]); // REMOVED searchQuery, searchResults
 
     const activeRecording = (selectedId && tempRecording?.id === selectedId) ? tempRecording : recordings.find(r => r.id === selectedId) || searchResults.find(r => r.id === selectedId);
 
