@@ -157,7 +157,7 @@ export const Affiliates: React.FC<AffiliatesProps> = ({ user, onUpdateUser }) =>
 
                         <div className="relative z-10 max-w-2xl mx-auto">
                             <h2 className="text-3xl md:text-5xl font-black text-white mb-8 tracking-tighter leading-tight italic">
-                                Ya hay influencers haciendo dinero con Diktalo
+                                {t('affiliates_social_proof')}
                             </h2>
                             <div className="flex flex-col items-center gap-6">
                                 <a

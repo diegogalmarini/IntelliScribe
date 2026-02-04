@@ -157,7 +157,7 @@ export const Features: React.FC = () => {
                                 className="absolute inset-0 flex flex-col md:flex-row items-center"
                             >
                                 {/* Texto Descriptivo (Izquierda en desktop) */}
-                                <div className="w-full md:w-1/3 p-8 md:p-12 flex flex-col justify-center z-10 bg-white/90 dark:bg-[#161b22]/90 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none h-full md:h-auto absolute bottom-0 md:relative">
+                                <div className="w-full md:w-1/3 p-8 md:p-12 flex flex-col justify-center z-10 bg-white/90 dark:bg-[#161b22]/90 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none h-full md:h-auto relative">
                                     <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
                                         {React.createElement(features[activeTab].icon, { className: "w-6 h-6" })}
                                     </div>

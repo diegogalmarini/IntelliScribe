@@ -39,8 +39,8 @@ export const translations = {
     affiliates_faq_how_desc: "All you have to do is recommend us using your affiliate link on your website, blog, and social media. We track your clicks and transactions so you can get paid.",
     affiliates_faq_minimum_title: "What are the payout minimums?",
     affiliates_faq_minimum_desc: "We require a minimum balance of $50.00 before processing an affiliate payout.",
-    affiliates_faq_signup_title: "How do I sign up?",
     affiliates_faq_signup_desc: "The Lemon Squeezy affiliate hub hosts our affiliate program. Click the button below to join.",
+    affiliates_social_proof: "Influencers are already making money with Diktalo",
 
 
     // Auth
@@ -709,6 +709,10 @@ export const translations = {
     footerTerms: "Terms of Service",
     footerSupport: "Support",
     footerContact: "Contact Us",
+    footerContactUs: "Contact Us",
+    footerAllRights: "All rights reserved.",
+    footerSystemActive: "System active",
+    step_label: "STEP",
 
 
     // Expanded FAQs
@@ -1181,7 +1185,8 @@ export const translations = {
     affiliates_faq_minimum_title: "¿Cuáles son los mínimos de pago?",
     affiliates_faq_minimum_desc: "Requerimos un balance mínimo de $50.00 USD antes de procesar un pago de afiliado.",
     affiliates_faq_signup_title: "¿Cómo me registro?",
-    affiliates_faq_signup_desc: "El hub de afiliados de Lemon Squeezy aloja nuestro programa. Haz clic en el botón de abajo para unirte.",
+    affiliates_faq_signup_desc: "El centro de afiliados de Lemon Squeezy gestiona nuestro programa. Haz clic en el siguiente botón para unirte.",
+    affiliates_social_proof: "Ya hay influencers haciendo dinero con Diktalo",
     affiliates_step_1_title: "Únete",
     affiliates_step_1_desc: "Regístrate en segundos vía Lemon Squeezy.",
     affiliates_step_2_title: "Promociona",
@@ -1379,6 +1384,10 @@ export const translations = {
     viewImage: "Ver Imagen", // NEW
     inPersonMeetings: "Reuniones presenciales",
     integratedVoIP: "Telefonía IP integrada",
+    footerContactUs: "Contactanos",
+    footerAllRights: "Todos los derechos reservados.",
+    footerSystemActive: "Sistema activo",
+    step_label: "PASO",
 
     // System Report
     sysReportTitle: "Diagnóstico del Sistema",
