@@ -184,6 +184,7 @@ export enum AppRoute {
   ROADMAP = 'roadmap',
   BLOG = 'blog',
   BLOG_POST = 'blog-post',
+  AFFILIATES = 'affiliates', // NEW
   CONFIRM_SUBSCRIPTION = 'confirm-subscription'
 }
 

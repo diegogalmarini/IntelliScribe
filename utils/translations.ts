@@ -8,6 +8,27 @@ export const translations = {
     search_title: "Search",
     search_placeholder: "Search your recordings...",
 
+    // Affiliates
+    affiliates_title: "Affiliate Program",
+    affiliates_hero_title: "Partner with Diktalo",
+    affiliates_hero_subtitle: "Earn 20% recurring lifetime commissions by empowering professionals with AI.",
+    affiliates_cta_join: "Join the Partner Program",
+    affiliates_cta_login: "Affiliate Login",
+    affiliates_benefit_recurring_title: "Recurring Revenue",
+    affiliates_benefit_recurring_desc: "Don't settle for one-time payouts. Build a passive income stream that grows with us.",
+    affiliates_benefit_cookie_title: "30-Day Cookie",
+    affiliates_benefit_cookie_desc: "We track your referrals for 30 days, ensuring you get credit even if they don't buy immediately.",
+    affiliates_benefit_global_title: "Global Product",
+    affiliates_benefit_global_desc: "Promote Diktalo to anyone in the world. Our platform supports multiple languages.",
+    affiliates_steps_title: "How it works",
+    affiliates_step_1_title: "Join",
+    affiliates_step_1_desc: "Sign up in seconds via Lemon Squeezy.",
+    affiliates_step_2_title: "Promote",
+    affiliates_step_2_desc: "Share your unique link with your audience.",
+    affiliates_step_3_title: "Earn",
+    affiliates_step_3_desc: "Get paid 20% of every subscription, forever.",
+
+
     // Auth
     welcomeBack: "Welcome back",
     createAccount: "Create Account", // NEW
@@ -1113,6 +1134,27 @@ export const translations = {
     // Search
     search_title: "Buscar",
     search_placeholder: "Busca en tus grabaciones...",
+
+    // Affiliates
+    affiliates_title: "Programa de Afiliados",
+    affiliates_hero_title: "Asóciate con Diktalo",
+    affiliates_hero_subtitle: "Gana 20% de comisión recurrente de por vida empoderando a profesionales con IA.",
+    affiliates_cta_join: "Unirse al Programa",
+    affiliates_cta_login: "Acceso Afiliados",
+    affiliates_benefit_recurring_title: "Ingresos Recurrentes",
+    affiliates_benefit_recurring_desc: "No te conformes con pagos únicos. Construye un flujo de ingresos pasivos que crece con nosotros.",
+    affiliates_benefit_cookie_title: "Cookie de 30 Días",
+    affiliates_benefit_cookie_desc: "Rastreamos tus referidos por 30 días, asegurando tu comisión aunque no compren de inmediato.",
+    affiliates_benefit_global_title: "Producto Global",
+    affiliates_benefit_global_desc: "Promociona Diktalo a cualquier persona. Nuestra plataforma soporta múltiples idiomas.",
+    affiliates_steps_title: "Cómo funciona",
+    affiliates_step_1_title: "Únete",
+    affiliates_step_1_desc: "Regístrate en segundos vía Lemon Squeezy.",
+    affiliates_step_2_title: "Promociona",
+    affiliates_step_2_desc: "Comparte tu enlace único con tu audiencia.",
+    affiliates_step_3_title: "Gana",
+    affiliates_step_3_desc: "Recibe el 20% de cada suscripción, para siempre.",
+
 
     // Auth
     welcomeBack: "Bienvenido de nuevo",

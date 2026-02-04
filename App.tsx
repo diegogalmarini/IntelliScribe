@@ -37,6 +37,7 @@ import { Contact } from './pages/Contact';
 import { About } from './pages/About';
 import { Roadmap } from './pages/Roadmap';
 import { Blog } from './pages/Blog';
+import { Affiliates } from './pages/Affiliates'; // NEW
 import { SubscriptionConfirm } from './pages/SubscriptionConfirm';
 import { useIdleTimer } from './hooks/useIdleTimer';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
@@ -74,6 +75,7 @@ const AppContent: React.FC = () => {
         if (path === '/contact') return AppRoute.CONTACT;
         if (path === '/about') return AppRoute.ABOUT;
         if (path === '/roadmap') return AppRoute.ROADMAP;
+        if (path === '/affiliates') return AppRoute.AFFILIATES; // NEW
         if (path === '/blog' || path.startsWith('/blog/')) return path.includes('/', 6) ? AppRoute.BLOG_POST : AppRoute.BLOG;
         if (path === '/confirm-subscription') return AppRoute.CONFIRM_SUBSCRIPTION;
         if (path === '/dashboard' || path === '/recordings' || path.startsWith('/transcript/')) return AppRoute.DASHBOARD;
@@ -914,6 +916,7 @@ const AppContent: React.FC = () => {
                     )}
 
                     {currentRoute === AppRoute.MANUAL && <ScrollablePage><Manual /></ScrollablePage>}
+                    {currentRoute === AppRoute.AFFILIATES && <ScrollablePage><Affiliates user={user} onUpdateUser={handleUpdateUser} /></ScrollablePage>}
                     {currentRoute === AppRoute.RESET_PASSWORD && <div className="flex-1 flex flex-col items-center justify-center p-4"><ResetPassword onNavigate={navigate} /></div>}
                 </div>
             </motion.div>
@@ -928,7 +931,7 @@ const AppContent: React.FC = () => {
             )}
             {(() => {
                 const isPaidPlan = user && user.subscription && ['pro', 'business', 'business_plus'].includes(user.subscription.planId);
-                const isPublicPage = [AppRoute.LANDING, AppRoute.LOGIN, AppRoute.TERMS, AppRoute.PRIVACY, AppRoute.TRUST, AppRoute.COOKIES, AppRoute.CONTACT, AppRoute.ABOUT, AppRoute.PRICING_COMPARISON].includes(currentRoute);
+                const isPublicPage = [AppRoute.LANDING, AppRoute.LOGIN, AppRoute.TERMS, AppRoute.PRIVACY, AppRoute.TRUST, AppRoute.COOKIES, AppRoute.CONTACT, AppRoute.ABOUT, AppRoute.PRICING_COMPARISON, AppRoute.AFFILIATES].includes(currentRoute);
                 const isDashboardArea = [AppRoute.DASHBOARD, AppRoute.INTELLIGENCE, AppRoute.SUBSCRIPTION, AppRoute.SETTINGS, AppRoute.INTEGRATIONS, AppRoute.MANUAL].includes(currentRoute);
 
                 if (isPublicPage) return <SupportBot recordings={[]} folders={folders} user={user} position="right" onAction={(type, payload) => navigate(AppRoute.DASHBOARD)} />;
