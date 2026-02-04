@@ -8,17 +8,28 @@ Diktalo utiliza un sistema de "Webhooks" para enviar automáticamente los conten
 3. **Webhook Trigger**: Envía un JSON con los contenidos a una URL externa.
 4. **Make.com / Buffer**: Recibe el JSON y lo distribuye a las plataformas vinculadas.
 
-## 2. Configuración en Make.com (Recomendado)
+## 2. Configuración en Redes (Agnóstico)
 
-### Paso A: Crear un Escenario
-1. Añade un módulo de **Webhooks > Custom Webhook**.
-2. Copia la URL generada (ej: `https://hook.make.com/xxxxxx`).
-3. Pega esta URL en los Secretos de GitHub como `SOCIAL_WEBHOOK_URL`.
+El sistema envía un JSON con esta estructura a tu Webhook:
+```json
+{
+  "twitter_copy": "...",
+  "linkedin_copy": "...",
+  "instagram_caption": "...",
+  "instagram_prompt": "..."
+}
+```
 
-### Paso B: Conectar Canales
-- **Módulo X (Twitter)**: Configura "Create a Tweet". Usa el campo `twitter_copy` del JSON.
-- **Módulo LinkedIn**: Configura "Create an Organization Share". Usa `linkedin_copy`.
-- **Módulo Instagram**: Configura "Create a Photo Post". Usa `instagram_prompt` para generar la imagen (vía DALL-E) y `instagram_caption` para el texto.
+### Opción A: n8n (Recomendado - Tu Servidor Propio) 🚀
+1. **Webhook Node**: Crea un nodo "Webhook" en n8n.
+   - HTTP Method: `POST`
+   - Path: `diktalo-newsroom`
+2. **Social Nodes**: Conecta el Webhook a los nodos de:
+   - **X (Twitter)**: Usa el campo `twitter_copy`.
+   - **LinkedIn**: Usa `linkedin_copy`.
+   - **OpenAI/DALL-E**: (Opcional) Pasa el `instagram_prompt` para generar la imagen y luego envíala al nodo de **Instagram**.
+
+### Opción B: Make.com
 
 ## 3. Secretos de GitHub Necesarios
 Para que la automatización funcione, debes configurar estos secretos en `Settings > Secrets and variables > Actions`:
