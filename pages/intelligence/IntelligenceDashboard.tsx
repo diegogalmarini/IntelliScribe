@@ -1,62 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
-import { MinimalSidebar } from './components/MinimalSidebar';
-import { ProfileAvatar } from './components/ProfileAvatar';
-import { EmptyStateClean } from './components/EmptyStateClean';
-import { SettingsModal } from './components/SettingsModal';
 import { SearchView } from './components/SearchView';
-
-// ... inside component ...
-
-// Update view state type to include 'search'
-const [view, setView] = useState<'recordings' | 'subscription' | 'integrations' | 'templates' | 'search'>(
-    (searchParams.get('view') as any) || initialView || 'recordings'
-);
-
-// ... inside render ...
-
-                    <MinimalSidebar
-                        // ... existing props ...
-                        onOpenSearch={() => setView('search')} // SWITCH VIEW INSTEAD OF MODAL
-                    />
-
-// ... inside main content render ...
-
-                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
-                    {showMultiAudioUploader ? (
-                        <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} />
-                    ) : view === 'search' ? (
-                        <SearchView
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            searchResults={searchResults}
-                            onSelectResult={(id) => {
-                                onSelectRecording(id);
-                                setSelectedId(id);
-                                setView('recordings'); // Return to recordings view on select
-                            }}
-                            isSearching={isSearching}
-                            useSemanticSearch={useSemanticSearch}
-                            onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)}
-                        />
-                    ) : view === 'subscription' ? (
-                        <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div>
-                    ) : view === 'templates' ? (
-                        <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} />
-                    ) : view === 'integrations' ? (
-                        <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div>
-                    ) : isEditorOpen && activeRecording ? (
-                        <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} />
-                    ) : isRecording ? (
-                        <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} />
-                    ) : activeRecording ? (
-                        <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} />
-                    ) : (
-                        <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />
-                    )}
-                </div>
-
 import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
