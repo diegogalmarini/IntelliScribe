@@ -251,6 +251,8 @@ diktalo/
 
 ### Lemon Squeezy Setup
 
+Lemon Squeezy serves as our **Merchant of Record (MoR)**, handling all international taxes (VAT/GST), compliance, and billing. This was chosen over Stripe to eliminate administrative overhead and ensure a 100% focus on product development.
+
 1. Create products in Lemon Squeezy dashboard
 2. Copy checkout UUIDs
 3. Configure in Admin Panel: `/admin/plans`

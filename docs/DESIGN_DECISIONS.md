@@ -24,6 +24,11 @@ Diktalo no es solo una herramienta, es una experiencia. Este documento explica e
 - **Razón:** Si un usuario no sabe qué existe la función de "Análisis con IA", nunca sentirá la necesidad de comprar el plan Pro.
 - **UX:** El `UpgradeModal` no es agresivo; es informativo, resaltando el valor de lo que el usuario está a punto de desbloquear.
 
+## 5. Pagos: Lemon Squeezy vs. Stripe
+**Decisión:** Utilizar **Lemon Squeezy** como única pasarela de pago y *Merchant of Record* (MoR).
+- **Razón:** A diferencia de Stripe (que es solo una pasarela), Lemon Squeezy actúa como el vendedor oficial. Esto elimina la complejidad de gestionar el IVA (VAT) internacional, el cumplimiento fiscal en cada país y la facturación global, permitiendo al equipo de Diktalo centrarse al 100% en el producto sin fricciones administrativas.
+- **Beneficios:** Soporte nativo para afiliados, gestión de suscripciones automatizada y facturación sin intervención manual.
+
 ---
 
 ## 🛠️ Tecnologías Elegidas

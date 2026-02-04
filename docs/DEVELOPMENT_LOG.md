@@ -57,3 +57,23 @@ Este documento registra la evolución del proyecto durante la **Fase 4: Búsqued
     - **Mejora de Inteligencia (Chat):** Actualizado el modelo de chat a **Gemini 2.5 Pro**, habilitando un razonamiento superior para análisis complejos de grabaciones y una ventana de contexto de 1M de tokens.
 - **Robustez del Servicio:** Refinada la lógica de *fallback* en el backend (`api/ai.ts`) para priorizar modelos estables y asegurar continuidad de servicio.
 - **Documentación Técnica:** Creado análisis profundo sobre la hoja de ruta de Google Gemini (v2.5, v3) y recomendaciones para futuras integraciones.
+
+---
+
+## 📅 Febrero 2026: Refinamiento de Producto y Monetización
+
+### 💰 Programa de Afiliados y Pagos
+**Objetivo:** Escalar la adquisición de usuarios mediante incentivos y simplificar la gestión financiera.
+
+- **Fidelización con Afiliados:** Implementada página de `/affiliates` y sistema de tracking basado en Lemon Squeezy. Esto permite a los usuarios recomendar Diktalo y recibir comisiones automáticamente.
+- **Lemon Squeezy vs. Stripe:** Se formalizó la decisión de utilizar Lemon Squeezy como *Merchant of Record* principal. Esto garantiza que Diktalo no tenga que gestionar impuestos locales o facturación internacional manualmente.
+- **Traducciones:** Corregidos mix de idiomas en la página de afiliados y añadido soporte bilingüe completo para strings de "Social Proof".
+
+### 🎨 Refinamiento de UI/UX (Landing & Dashboard)
+**Objetivo:** Elevar la percepción de calidad visual y corregir fricciones en dispositivos móviles.
+
+- **Landing Page Re-balanceada:**
+    - **Sección Blog:** Centrado de cabecera y botón en móviles para evitar el "espacio vacío" lateral.
+    - **Visualizador de Funciones:** Restructurado el componente `Features.tsx` para móviles; ahora los elementos se apilan verticalmente evitando solapamientos entre imagen y texto.
+- **Funcionalidad "Watch Demo":** Corregido el enlace de ancla; ahora el botón desplaza al usuario suavemente hasta el reproductor de vídeo principal.
+- **GitHub Sync:** Todas las iteraciones de diseño y lógica de pagos sincronizadas con la rama principal.
