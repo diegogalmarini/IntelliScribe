@@ -45,8 +45,11 @@ export const SearchView: React.FC<SearchViewProps> = ({
                             flex items-center w-full px-5 py-3 md:py-4
                             bg-[#f0f4f9] dark:bg-[#1e1e1e]
                             rounded-full
-                            border border-transparent focus-within:border-transparent focus-within:bg-white dark:focus-within:bg-[#2a2a2a]
-                            focus-within:shadow-md transition-all duration-200
+                            border border-transparent 
+                            transition-all duration-200 ease-in-out
+                            hover:bg-[#e3e7eb] dark:hover:bg-[#2a2a2a]
+                            focus-within:bg-white dark:focus-within:bg-[#303030]
+                            focus-within:shadow-[0_1px_6px_0_rgba(32,33,36,0.28)]
                         `}>
                             <Search className="text-gray-500 mr-3" size={20} />
                             <input
@@ -54,8 +57,8 @@ export const SearchView: React.FC<SearchViewProps> = ({
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => onSearchChange(e.target.value)}
-                                placeholder={t('search_placeholder') || "Buscar en tus grabaciones..."}
-                                className="flex-1 bg-transparent border-none outline-none text-base md:text-lg text-[#1f1f1f] dark:text-[#e3e3e3] placeholder:text-gray-500"
+                                placeholder={t('search_placeholder') || "Busca en tus grabaciones..."}
+                                className="flex-1 bg-transparent border-none outline-none ring-0 text-base md:text-lg text-[#1f1f1f] dark:text-[#e3e3e3] placeholder:text-gray-500"
                             />
 
                             <div className="flex items-center gap-2 ml-2">
