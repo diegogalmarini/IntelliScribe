@@ -13,25 +13,34 @@ Diktalo utiliza un sistema de "Webhooks" para enviar automáticamente los conten
 El sistema envía un JSON con esta estructura a tu Webhook:
 ```json
 {
-  "twitter_copy": "...",
-  "linkedin_copy": "...",
-  "instagram_caption": "...",
-  "instagram_prompt": "..."
+  "twitter": "...",
+  "linkedin": "...",
+  "instagram": "..."
 }
 ```
 
 ### Opción A: Make.com (Recomendado - Gratuito y Fiable) 🚀
-1. **Paso Inicial**: Crea una cuenta en [Make.com](https://www.make.com). El plan gratuito de 1,000 operaciones es más que suficiente para este flujo (solo consumiremos unas 40-50 operaciones al mes).
+1. **Paso Inicial**: Crea una cuenta en [Make.com](https://www.make.com).
 2. **Webhook Node**: Crea un módulo de **Webhooks > Custom Webhook**.
 3. **Configuración en GitHub**: Copia la URL generada y pégala en los Secretos de GitHub como `SOCIAL_WEBHOOK_URL`.
-4. **Social Modules**: Conecta el Webhook a los módulos de:
-   - **X (Twitter)**: Usa el campo `twitter_copy`.
-   - **LinkedIn**: Usa `linkedin_copy`.
-   - **Instagram for Business**: Usa `instagram_caption` y `instagram_prompt`.
+4. **Social Modules**:
+    - **X (Twitter) - Método Expert (OAuth 2.0)**:
+      1. Selecciona el módulo **HTTP > Make an OAuth 2.0 request**.
+      2. Crea una conexión con estas URLs de X:
+         - **Authorize URI**: `https://twitter.com/i/oauth2/authorize`
+         - **Token URI**: `https://api.twitter.com/2/oauth2/token`
+         - **Scope**: `tweet.read tweet.write users.read offline.access`
+      3. **Configuración del Request**:
+         - **URL**: `https://api.twitter.com/2/tweets`
+         - **Method**: `POST`
+         - **Body Type**: `Raw (JSON)`
+         - **Content**: `{"text": "{{1.twitter}}" }` (Mapea el campo `twitter` del Webhook).
+    - **LinkedIn**: Usa el módulo nativo con el campo `linkedin`.
+    - **Instagram**: Usa el módulo nativo con el campo `instagram`.
 
 ### Opción B: n8n (Si reactivas tu servidor)
 1. **Webhook Node**: Crea un nodo "Webhook" (`POST`) con el path `diktalo-newsroom`.
-2. **Conexión**: Sigue el mismo proceso de mapeo de campos (`twitter_copy`, etc.) que en Make.
+2. **Conexión**: Sigue el mismo proceso de mapeo de campos (`twitter`, etc.) que en Make.
 
 ## 3. Secretos de GitHub Necesarios
 Para que la automatización funcione, debes configurar estos secretos en `Settings > Secrets and variables > Actions`:
