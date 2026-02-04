@@ -5,7 +5,58 @@ import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
 import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
-import { SearchModal } from './components/SearchModal'; // NEW
+import { SearchView } from './components/SearchView';
+
+// ... inside component ...
+
+// Update view state type to include 'search'
+const [view, setView] = useState<'recordings' | 'subscription' | 'integrations' | 'templates' | 'search'>(
+    (searchParams.get('view') as any) || initialView || 'recordings'
+);
+
+// ... inside render ...
+
+                    <MinimalSidebar
+                        // ... existing props ...
+                        onOpenSearch={() => setView('search')} // SWITCH VIEW INSTEAD OF MODAL
+                    />
+
+// ... inside main content render ...
+
+                <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
+                    {showMultiAudioUploader ? (
+                        <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} />
+                    ) : view === 'search' ? (
+                        <SearchView
+                            searchQuery={searchQuery}
+                            onSearchChange={setSearchQuery}
+                            searchResults={searchResults}
+                            onSelectResult={(id) => {
+                                onSelectRecording(id);
+                                setSelectedId(id);
+                                setView('recordings'); // Return to recordings view on select
+                            }}
+                            isSearching={isSearching}
+                            useSemanticSearch={useSemanticSearch}
+                            onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)}
+                        />
+                    ) : view === 'subscription' ? (
+                        <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div>
+                    ) : view === 'templates' ? (
+                        <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} />
+                    ) : view === 'integrations' ? (
+                        <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div>
+                    ) : isEditorOpen && activeRecording ? (
+                        <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} />
+                    ) : isRecording ? (
+                        <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} />
+                    ) : activeRecording ? (
+                        <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} />
+                    ) : (
+                        <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />
+                    )}
+                </div>
+
 import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
 import { ProfileAvatar } from './components/ProfileAvatar';
@@ -89,7 +140,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
     // State for local views
     // Priority: SearchParams > initialView > default 'recordings'
-    const [view, setView] = useState<'recordings' | 'subscription' | 'integrations' | 'templates'>(
+    const [view, setView] = useState<'recordings' | 'subscription' | 'integrations' | 'templates' | 'search'>(
         (searchParams.get('view') as any) || initialView || 'recordings'
     );
 
@@ -107,7 +158,6 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
     const [searchResults, setSearchResults] = useState<Recording[]>([]);
     const [isSearching, setIsSearching] = useState(false);
-    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); // NEW
     const [useSemanticSearch, setUseSemanticSearch] = useState(false);
     const [isMobile] = useState(window.innerWidth < 768);
     const [showMultiAudioUploader, setShowMultiAudioUploader] = useState(false);
@@ -537,7 +587,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         isOpen={isSidebarOpen}
                         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                         isRecording={isRecording}
-                        onOpenSearch={() => setIsSearchModalOpen(true)}
+                        onOpenSearch={() => setView('search')}
                     />
                 </div>
             </div>
@@ -591,20 +641,9 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
-                    {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} /> : <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />}
+                    {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} /> : view === 'search' ? <SearchView searchQuery={searchQuery} onSearchChange={setSearchQuery} searchResults={searchResults} onSelectResult={(id) => { onSelectRecording(id); setSelectedId(id); setView('recordings'); }} isSearching={isSearching} useSemanticSearch={useSemanticSearch} onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} /> : <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />}
                 </div>
             </div>
-            <SearchModal
-                isOpen={isSearchModalOpen}
-                onClose={() => setIsSearchModalOpen(false)}
-                onSearch={setSearchQuery}
-                searchQuery={searchQuery}
-                searchResults={searchResults}
-                onSelectResult={handleSelectRecording}
-                useSemanticSearch={useSemanticSearch}
-                onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)}
-                isSearching={isSearching}
-            />
             <SettingsModal user={user} isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onUpdateUser={onUpdateUser} onNavigate={onNavigate} onLogout={onLogout} onAction={onAction} />
             <ChatModal isOpen={chatState.isOpen} onClose={() => setChatState(prev => ({ ...prev, isOpen: false }))} recordings={chatState.recordings} title={chatState.title} onOpenRecording={handleSelectRecording} />
             <AlertModal isOpen={alertState.isOpen} onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} title={alertState.title} message={alertState.message} type={alertState.type} />
