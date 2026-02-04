@@ -112,17 +112,43 @@ async function injectPostToBlogData(newPost: BlogPost) {
     console.log("✅ blogData.ts updated successfully.");
 }
 
+async function sendToSocialWebhook(socials: any) {
+    const webhookUrl = process.env.SOCIAL_WEBHOOK_URL;
+    if (!webhookUrl) {
+        console.warn("⚠️ SOCIAL_WEBHOOK_URL not found in environment. Skipping social distribution.");
+        return;
+    }
+
+    console.log("📤 Sending social media copy to Make.com...");
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(socials)
+        });
+
+        if (response.ok) {
+            console.log("✅ Successfully sent to Social Webhook.");
+        } else {
+            console.error(`❌ Webhook failed with status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("❌ Error sending to Webhook:", error);
+    }
+}
+
 async function runNewsroom() {
     try {
         const news = await fetchLatestNews();
-        const bestItem = news[0]; // Assuming the first item is the most relevant for this prototype
+        const bestItem = news[0];
         const draftedContent = await generateContentWithGemini(bestItem);
 
         await injectPostToBlogData(draftedContent.blog);
 
+        // --- NEW: Actually send to Make.com ---
+        await sendToSocialWebhook(draftedContent.socials);
+
         console.log("🚀 Automated Newsletter cycle complete!");
-        console.log("--- SOCIAL MEDIA READY ---");
-        console.log(draftedContent.socials);
     } catch (error) {
         console.error("❌ Automation failed:", error);
         process.exit(1);

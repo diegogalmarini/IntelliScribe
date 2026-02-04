@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-node-version: '20'
+          node-version: '20'
 
       - name: Install Dependencies
         run: npm install
@@ -27,7 +27,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SOCIAL_WEBHOOK_URL: ${{ secrets.SOCIAL_WEBHOOK_URL }} # Webhook to Make.com/Buffer for cross-posting
-        run: npx ts-node scripts/automated_newsroom.ts
+        run: npx ts-node --esm scripts/automated_newsroom.ts
 
       - name: Commit and Push Changes
         run: |
