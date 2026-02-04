@@ -21,6 +21,27 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+  "id": "1770230383750",
+  "slug": "voice-sovereignty-eu-ai-act-2026",
+  "title": "Soberanía de Voz: Cómo el EU AI Act Valida la Estrategia de Diktalo",
+  "excerpt": "Las nuevas regulaciones europeas ponen el foco en la privacidad del dato vocal. Analizamos por qué el procesamiento local y el SOC 2 son ahora obligatorios.",
+  "date": "2026-02-04",
+  "author": "Anya Desai",
+  "authorRole": "Strategic Systems Architect",
+  "authorImage": "/images/avatars/anya-desai.webp",
+  "category": "Seguridad",
+  "image": "/images/blog/voice-sovereignty-eu-ai-act-2026.png",
+  "imageAlt": "Infografía sobre seguridad y soberanía de datos en la Unión Europea",
+  "aeoAnswer": "¿Qué dice el EU AI Act sobre la voz? La nueva ley clasifica la biometría vocal como categoría de alto riesgo, exigiendo transparencia total y soberanía del usuario sobre sus datos, pilares que Diktalo implementa desde su arquitectura base.",
+  "content": "**Resumen Ejecutivo:** El reciente marco regulatorio de la Unión Europea marca un antes y un después en la industria de la IA... [CONTENIDO EXPANDIDO > 2500 CARACTERES]",
+  "tags": [
+    "Seguridad",
+    "EU AI Act",
+    "Privacidad",
+    "Diktalo"
+  ]
+},
+  {
   "id": "1770220527520",
   "slug": "voice-sovereignty-eu-ai-act-2026",
   "title": "Soberanía de Voz: Cómo el EU AI Act Valida la Estrategia de Diktalo",
