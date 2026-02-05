@@ -55,8 +55,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const analyserRef = React.useRef<AnalyserNode | null>(null);
 
     useEffect(() => {
-        if (isOpen && user && status === 'Idle') {
-            callService.prepareToken(user.email || 'guest');
+        if (isOpen && user?.id && status === 'Idle') {
+            callService.prepareToken(user.id);
             if (Analytics && typeof Analytics.trackEvent === 'function') {
                 Analytics.trackEvent('dialer_opened');
             }
