@@ -142,11 +142,19 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 // Monitor volume to debug one-way audio
                 call.on('sample', (sample: any) => {
                     // Twilio returns volume values between 0 and 32767
-                    const volume = Math.floor((sample.inputVolume / 32767) * 100);
-                    if (volume > 5) { // Only log if there's actual sound
-                        console.log(`[DIALER] Mic Input Level: ${volume}%`);
+                    // Monitor both directions to avoid "Silence" label while remote is speaking
+                    const inputLevel = Math.floor((sample.inputVolume / 32767) * 100);
+                    const outputLevel = Math.floor((sample.outputVolume / 32767) * 100);
+                    const maxLevel = Math.max(inputLevel, outputLevel);
+
+                    if (inputLevel > 15) {
+                        console.log(`[DIALER] Local Mic Level: ${inputLevel}%`);
                     }
-                    setInputVolume(volume);
+                    if (outputLevel > 15) {
+                        console.log(`[DIALER] Remote Audio Level: ${outputLevel}%`);
+                    }
+
+                    setInputVolume(maxLevel);
                 });
 
                 call.on('disconnect', () => {
@@ -319,13 +327,13 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     <div className="w-full max-w-[120px] flex flex-col items-center gap-1 mb-2">
                         <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
                             <div
-                                className={`h-full transition-all duration-75 ${inputVolume > 10 ? 'bg-brand-green' : 'bg-slate-300'}`}
+                                className={`h-full transition-all duration-75 ${inputVolume > 8 ? 'bg-brand-green' : 'bg-slate-300'}`}
                                 style={{ width: `${Math.min(100, inputVolume * 2)}%` }}
                             />
                         </div>
                         {status === 'In Call' && (
                             <span className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
-                                {inputVolume > 5 ? 'Mic Active' : 'Silence...'}
+                                {inputVolume > 8 ? 'Audio Active' : 'Silence...'}
                             </span>
                         )}
                     </div>

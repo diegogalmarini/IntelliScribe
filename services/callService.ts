@@ -86,7 +86,23 @@ export class CallService {
             } else {
                 this.device = new Device(this.token!, {
                     logLevel: 1,
-                    closeProtection: true
+                    closeProtection: true,
+                    // Use standard settings for better PC compatibility
+                    edge: ['roaming']
+                });
+
+                // --- DIAGNOSTICS FOR PC ISSUES ---
+                this.device.on('error', (err: any) => {
+                    console.error('[CALL-SERVICE] Twilio Device Error:', err.message, err.code);
+                    // Critical for PC debugging: check for 31000/31005
+                });
+
+                this.device.on('unregistered', () => {
+                    console.warn('[CALL-SERVICE] Device unregistered');
+                });
+
+                this.device.on('registered', () => {
+                    console.log('[CALL-SERVICE] Device registered successfully');
                 });
             }
 
