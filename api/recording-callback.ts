@@ -16,36 +16,35 @@ function formatDuration(seconds: number): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    console.log('📞 [RECORDING-CALLBACK] Received Twilio recording callback');
+    console.log('📞 [RECORDING-CALLBACK] NEW EVENT RECEIVED');
 
     try {
-        // Log basic request info for debugging
-        console.log(`[RECORDING-CALLBACK] Method: ${req.method}, Query:`, req.query);
-
-        // Extract Twilio parameters
+        // 1. EXTRACT DATA & LOG
         const {
             RecordingSid,
             RecordingUrl,
             RecordingDuration,
             To,
             From,
-            RecordingStatus
+            RecordingStatus,
+            CallSid
         } = req.body;
 
-        console.log(`[RECORDING-CALLBACK] Body Params: SID=${RecordingSid}, Status=${RecordingStatus}, Duration=${RecordingDuration}`);
-
-        const userId = req.query.userId as string;
+        const userId = (req.query.userId || req.body.userId) as string;
         const queryTo = req.query.to as string;
-        // Logic: if 'to' is in query (from our voice.ts), it's more accurate.
         const numberToCall = queryTo ? decodeURIComponent(queryTo) : To;
 
-        if (!userId || userId === 'unknown' || !isValidUUID(userId)) {
-            console.error(`❌ [RECORDING-CALLBACK] Invalid or missing userId: ${userId}`);
-            return res.status(400).json({ error: 'Invalid userId' });
+        console.log(`[RECORDING-CALLBACK] User: ${userId}, CallSid: ${CallSid}, Sid: ${RecordingSid}, Status: ${RecordingStatus}`);
+        console.log(`[RECORDING-CALLBACK] Metadata: To=${To}, QueryTo=${queryTo}, Duration=${RecordingDuration}s`);
+
+        // BASIC VALIDATION
+        if (!userId) {
+            console.error('❌ [RECORDING-CALLBACK] Missing userId');
+            return res.status(400).json({ error: 'Missing userId' });
         }
 
         if (RecordingStatus !== 'completed') {
-            console.log(`[RECORDING-CALLBACK] Skipping: Status is ${RecordingStatus}`);
+            console.log(`[RECORDING-CALLBACK] Wait: Status is ${RecordingStatus}`);
             return res.status(200).json({ message: 'Recording not ready' });
         }
 
@@ -53,19 +52,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!supabaseUrl || !supabaseServiceKey) {
-            console.error('❌ [RECORDING-CALLBACK] Missing Supabase credentials in environment');
-            throw new Error('Missing Supabase credentials');
+            console.error('❌ [RECORDING-CALLBACK] Missing Supabase Env Variables');
+            throw new Error('Supabase configuration error');
         }
 
-        // --- NEW: Calculate and Deduct Credits ---
+        // 2. CALCULATE CREDITS
         const durationSeconds = parseInt(RecordingDuration) || 0;
         const minutesCharged = Math.max(1, Math.ceil(durationSeconds / 60));
         const tier = getTierForNumber(numberToCall || '');
         const creditsToDeduct = minutesCharged * tier.multiplier;
 
-        console.log(`💰 [RECORDING-CALLBACK] Charging ${creditsToDeduct} credits (${minutesCharged} min * ${tier.multiplier}x) for user ${userId}`);
+        console.log(`💰 [RECORDING-CALLBACK] Charged: ${creditsToDeduct} credits for ${minutesCharged}m`);
 
-        // Atomic deduction via RPC
+        // ATOMIC DEDUCTION
         try {
             const rpcResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/decrement_voice_credits`, {
                 method: 'POST',
@@ -80,18 +79,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 })
             });
 
-            if (!rpcResponse.ok) {
-                const errorText = await rpcResponse.text();
-                console.error('❌ [RECORDING-CALLBACK] Credit deduction failed:', errorText);
-            } else {
-                console.log(`✅ [RECORDING-CALLBACK] Deducted ${creditsToDeduct} credits from user ${userId}`);
-            }
-        } catch (rpcErr: any) {
-            console.error('❌ [RECORDING-CALLBACK] RPC Error:', rpcErr.message);
+            if (!rpcResponse.ok) console.error('❌ [RECORDING-CALLBACK] RPC Credit Deduction failed');
+        } catch (rpcErr) {
+            console.warn('[RECORDING-CALLBACK] RPC Error (non-critical):', rpcErr);
         }
 
-        // Step 1: Download recording from Twilio
-        console.log(`⬇️ [RECORDING-CALLBACK] Downloading audio from Twilio: ${RecordingUrl}.mp3`);
+        // 3. DOWNLOAD FROM TWILIO
+        console.log(`⬇️ [RECORDING-CALLBACK] Downloading: ${RecordingUrl}.mp3`);
 
         const twilioAuth = Buffer.from(
             `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
@@ -103,18 +97,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         if (!audioResponse.ok) {
-            console.error(`❌ [RECORDING-CALLBACK] Twilio download failed: ${audioResponse.status} ${audioResponse.statusText}`);
-            throw new Error(`Failed to download audio from Twilio: ${audioResponse.statusText}`);
+            console.error(`❌ [RECORDING-CALLBACK] Twilio Download Error: ${audioResponse.status}`);
+            throw new Error(`Twilio download failed: ${audioResponse.status}`);
         }
 
         const audioBuffer = await audioResponse.arrayBuffer();
-        console.log(`✅ [RECORDING-CALLBACK] Downloaded ${audioBuffer.byteLength} bytes`);
+        console.log(`✅ [RECORDING-CALLBACK] File Size: ${audioBuffer.byteLength} bytes`);
 
-        // Step 2: Upload to Supabase Storage
-        const fileName = `${userId}/${RecordingSid}.mp3`;
+        // 4. UPLOAD TO SUPABASE STORAGE
+        const fileName = `${userId}/${RecordingSid || CallSid || Date.now()}.mp3`;
         const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${fileName}`;
 
-        console.log(`⬆️ [RECORDING-CALLBACK] Uploading to Supabase Storage: recordings/${fileName}`);
+        console.log(`⬆️ [RECORDING-CALLBACK] Uploading to Storage: recordings/${fileName}`);
 
         const uploadResponse = await fetch(storageUrl, {
             method: 'POST',
@@ -122,33 +116,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 'Authorization': `Bearer ${supabaseServiceKey}`,
                 'Content-Type': 'audio/mpeg',
                 'apikey': supabaseServiceKey,
-                'x-upsert': 'true' // Allow overwriting if callback triggers twice
+                'x-upsert': 'true'
             },
             body: audioBuffer
         });
 
         if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            console.error(`❌ [RECORDING-CALLBACK] Supabase upload failed: ${errorText}`);
-            throw new Error(`Failed to upload to storage: ${errorText}`);
+            const upError = await uploadResponse.text();
+            console.error(`❌ [RECORDING-CALLBACK] Storage Upload failed: ${upError}`);
+            throw new Error('Supabase Storage error');
         }
 
         const publicAudioUrl = `${supabaseUrl}/storage/v1/object/public/recordings/${fileName}`;
-        console.log(`✅ [RECORDING-CALLBACK] Audio available at: ${publicAudioUrl}`);
+        console.log(`✅ [RECORDING-CALLBACK] Public URL: ${publicAudioUrl}`);
 
-        // Step 4: Create recording entry
+        // 5. INSERT DB RECORD
         const formattedDuration = formatDuration(durationSeconds);
-        const recipient = numberToCall || 'Unknown Number';
+        const recipient = numberToCall || To || 'Unknown Number';
         const sender = From || 'Diktalo User';
 
         const recordingData = {
             user_id: userId,
             title: `Call to ${recipient}`,
-            description: `Recorded conversation between ${sender} and ${recipient}`,
+            description: `Recorded call from ${sender} to ${recipient}`,
             date: new Date().toISOString(),
             duration: formattedDuration,
             duration_seconds: durationSeconds,
-            status: 'Completed', // Start as Completed since audio is ready
+            status: 'Completed',
             audio_url: publicAudioUrl,
             participants: 2,
             folder_id: null,
@@ -160,11 +154,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 voice_tier: tier.id,
                 multiplier: tier.multiplier,
                 credits_deducted: creditsToDeduct,
-                twilio_sid: RecordingSid
+                twilio_sid: RecordingSid,
+                call_sid: CallSid
             }
         };
 
-        console.log('💾 [RECORDING-CALLBACK] Inserting recording into database...');
+        console.log('💾 [RECORDING-CALLBACK] Saving to recordings table...');
 
         const dbResponse = await fetch(`${supabaseUrl}/rest/v1/recordings`, {
             method: 'POST',
@@ -178,26 +173,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         if (!dbResponse.ok) {
-            const errorText = await dbResponse.text();
-            console.error(`❌ [RECORDING-CALLBACK] Database insert failed: ${errorText}`);
-            throw new Error(`Failed to insert into database: ${errorText}`);
+            const dbError = await dbResponse.text();
+            console.error(`❌ [RECORDING-CALLBACK] DB Insert failed: ${dbError}`);
+            throw new Error('Database insert error');
         }
 
-        const recordingArray = await dbResponse.json();
-        const recording = recordingArray[0];
-        console.log(`✅ [RECORDING-CALLBACK] Created recording ID: ${recording?.id}`);
+        const savedData = await dbResponse.json();
+        console.log(`✅ [RECORDING-CALLBACK] SUCCESS: Created Recording ID: ${savedData[0]?.id}`);
 
-        return res.status(200).json({
-            success: true,
-            recordingId: recording?.id,
-            creditsDeducted: creditsToDeduct
-        });
+        return res.status(200).json({ success: true, id: savedData[0]?.id });
 
     } catch (error: any) {
         console.error('🔥 [RECORDING-CALLBACK] CRITICAL ERROR:', error.message);
-        return res.status(500).json({
-            error: 'Internal server error',
-            details: error.message
-        });
+        return res.status(500).json({ error: error.message });
     }
 }

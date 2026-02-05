@@ -53,7 +53,54 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const monitorStreamRef = React.useRef<MediaStream | null>(null);
     const requestRef = React.useRef<number | null>(null);
     const analyserRef = React.useRef<AnalyserNode | null>(null);
+    const volumeLevelRef = React.useRef<number>(0);
 
+    // 1. DEDICATED ANIMATION LOOP (Independent of status)
+    useEffect(() => {
+        if (!isOpen) return;
+
+        let lastFrameTime = 0;
+        const animate = (time: number) => {
+            // Limits to ~30fps for UI stability
+            if (time - lastFrameTime < 33) {
+                requestRef.current = requestAnimationFrame(animate);
+                return;
+            }
+            lastFrameTime = time;
+
+            // Take data from analyser (Idle) or volumeLevelRef (In Call)
+            let level = 0;
+            if (analyserRef.current && (status === 'Idle' || status === 'Ready')) {
+                const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+                analyserRef.current.getByteFrequencyData(dataArray);
+                // Simple average of low-mid frequencies
+                const subset = dataArray.slice(0, 32);
+                level = subset.reduce((a, b) => a + b, 0) / subset.length;
+            } else {
+                // Pull from Twilio sample data stored in ref
+                level = volumeLevelRef.current;
+            }
+
+            // Generate dancing bars
+            const barCount = 15;
+            const newData = [];
+            for (let i = 0; i < barCount; i++) {
+                // min 2%, max 100%, with slight randomness for "dancing"
+                const base = Math.max(2, (level / 255) * 100);
+                const jitter = (Math.random() - 0.5) * (base * 0.4);
+                newData.push(Math.min(100, Math.max(2, base + jitter)));
+            }
+            setVisualizerData(newData);
+            requestRef.current = requestAnimationFrame(animate);
+        };
+
+        requestRef.current = requestAnimationFrame(animate);
+        return () => {
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        };
+    }, [isOpen, status]);
+
+    // 2. TOKEN & MONITORING EFFECT
     useEffect(() => {
         const isIdleOrReady = status === 'Idle' || status === 'Ready';
         if (isOpen && user?.id && isIdleOrReady) {
@@ -63,7 +110,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             }
         }
 
-        // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS (Idle/Ready only) ---
+        // --- REAL-TIME MIC MONITORING (Idle/Ready only) ---
         if (isOpen && isIdleOrReady) {
             const startMonitor = async () => {
                 try {
@@ -110,35 +157,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         await audioContext.resume();
                     }
 
-                    // Start Animation Loop (Throttle for performance)
-                    let lastFrameTime = 0;
-                    const animate = (time: number) => {
-                        if (!analyserRef.current) return;
-
-                        // Limit to ~30fps for UI stability on heavy components
-                        if (time - lastFrameTime < 33) {
-                            requestRef.current = requestAnimationFrame(animate);
-                            return;
-                        }
-                        lastFrameTime = time;
-
-                        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-                        analyserRef.current.getByteFrequencyData(dataArray);
-
-                        const barCount = 15;
-                        const newData = [];
-                        const step = Math.floor(dataArray.length / 2 / barCount);
-
-                        for (let i = 0; i < barCount; i++) {
-                            const val = dataArray[i * step] || 0;
-                            const h = Math.max(2, (val / 255) * 100);
-                            newData.push(h);
-                        }
-                        setVisualizerData(newData);
-                        requestRef.current = requestAnimationFrame(animate);
-                    };
-                    requestRef.current = requestAnimationFrame(animate);
-
                 } catch (err) {
                     console.error('[DIALER] Mic monitoring failed:', err);
                 }
@@ -147,7 +165,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         return () => {
-            if (requestRef.current) cancelAnimationFrame(requestRef.current);
             if (monitorStreamRef.current) {
                 monitorStreamRef.current.getTracks().forEach(t => {
                     t.stop();
@@ -156,8 +173,17 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 monitorStreamRef.current = null;
             }
             analyserRef.current = null;
+            volumeLevelRef.current = 0;
         };
     }, [isOpen, user?.id, status, selectedDeviceId]);
+
+    // 3. HOT-SWAP MIC DURING CALL
+    useEffect(() => {
+        if (activeCall && selectedDeviceId) {
+            console.log('[DIALER] Hotswapping mic during call to:', selectedDeviceId);
+            callService.setInputDevice(selectedDeviceId);
+        }
+    }, [selectedDeviceId, activeCall]);
 
     // Resume audio context on interaction for PC compatibility
     const ensureAudioIsLive = () => {
@@ -228,26 +254,16 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 // Monitor volume to debug one-way audio
                 call.on('sample', (sample: any) => {
                     // Twilio returns volume values between 0 and 32767
-                    // Monitor both directions to avoid "Silence" label while remote is speaking
-                    const inputLevel = Math.floor((sample.inputVolume / 32767) * 100);
-                    const outputLevel = Math.floor((sample.outputVolume / 32767) * 100);
+                    const inputLevel = Math.floor((sample.inputVolume / 32767) * 255);
+                    const outputLevel = Math.floor((sample.outputVolume / 32767) * 255);
                     const maxLevel = Math.max(inputLevel, outputLevel);
 
-                    if (inputLevel > 15) {
-                        console.log(`[DIALER] Local Mic Level: ${inputLevel}%`);
-                    }
-                    if (outputLevel > 15) {
-                        console.log(`[DIALER] Remote Audio Level: ${outputLevel}%`);
-                    }
+                    // Update ref for animation loop
+                    volumeLevelRef.current = maxLevel;
 
-                    // DRIVE VISUALIZER DURING CALL
-                    // Since monitor is OFF, we use Twilio's data to move the bars
-                    const scaledLevel = Math.min(100, maxLevel * 1.5); // Boost for better visuals
-                    const newData = visualizerData.map(() => {
-                        // Pulse with slight randomization for "dancing" effect
-                        return 2 + (scaledLevel * 0.7) + (Math.random() * scaledLevel * 0.3);
-                    });
-                    setVisualizerData(newData);
+                    if (inputLevel > 40) {
+                        console.log(`[DIALER] Call Mic Active: ${Math.floor(inputLevel / 2.55)}%`);
+                    }
                 });
 
                 call.on('disconnect', () => {
