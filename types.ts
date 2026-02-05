@@ -115,6 +115,7 @@ export interface UserSubscription {
   trialEndsAt?: string; // Manual trial expiration
   usageResetDate?: string; // Next reset date
   extraMinutes?: number; // One-time purchased minutes
+  voiceCredits?: number; // Credits for international VoIP calls
 }
 
 export interface UserProfile {

@@ -1,16 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
-const VoiceResponse = twilio.twiml.VoiceResponse;
+import { getTierForNumber } from '../utils/voiceRates';
 
-// Lista de países permitidos (puedes ampliarla)
-const ALLOWED_PREFIXES = ['+1', '+34', '+44', '+33', '+49', '+39'];
+const VoiceResponse = twilio.twiml.VoiceResponse;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const twiml = new VoiceResponse();
 
     // Obtener datos
     const to = req.body.To || req.query.To;
-    const userId = req.body.userId || req.query.userId; // NEW: Get userId to lookup verified caller ID
+    const userId = req.query.userId || req.body.userId;
 
     // Ohio number as fallback
     const fallbackCallerId = process.env.TWILIO_CALLER_ID;
@@ -24,18 +23,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).send(twiml.toString());
     }
 
-    // Query verified caller ID if userId provided
-    let callerId = fallbackCallerId;
-    let verificationStatus = 'none'; // For logging
+    // --- NEW: Voice Credit & Tier System ---
+    let numberToCall = to.replace(/[\s\-\(\)]/g, '');
+    if (!numberToCall.startsWith('+')) numberToCall = '+' + numberToCall;
 
-    if (userId) {
+    const tier = getTierForNumber(numberToCall);
+    console.log(`[VOICE] Destination Tier: ${tier.id} (Multiplier: ${tier.multiplier})`);
+
+    if (tier.id === 'BLOCKED') {
+        console.warn(`[VOICE] 🛑 Blocked destination: ${numberToCall}`);
+        twiml.say({ language: 'es-ES' }, 'Lo sentimos, este destino no está incluido en su plan actual o no está permitido por seguridad.');
+        res.setHeader('Content-Type', 'text/xml');
+        return res.status(200).send(twiml.toString());
+    }
+
+    // Query verified caller ID and credits if userId provided
+    let callerId = fallbackCallerId;
+    let verificationStatus = 'none';
+
+    if (userId && userId !== 'guest' && userId !== 'unknown') {
         try {
             const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
             const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
             if (supabaseUrl && supabaseServiceKey) {
                 const response = await fetch(
-                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified,plan_id`,
+                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified,plan_id,voice_credits`,
                     {
                         headers: {
                             'apikey': supabaseServiceKey,
@@ -49,10 +62,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (data.length > 0) {
                         const profile = data[0];
 
-                        // 🔴 SEGURIDAD: Bloquear llamada si el plan no es el correcto
+                        // 🔴 SECURITY: Block call if plan doesn't allow VoIP
                         if (profile.plan_id !== 'business_plus') {
-                            console.warn(`[VOICE] 🛑 Bloqueando llamada para user ${userId} (Plan: ${profile.plan_id})`);
+                            console.warn(`[VOICE] 🛑 Plan restriction for user ${userId} (Plan: ${profile.plan_id})`);
                             twiml.say({ language: 'es-ES' }, 'Su suscripción actual no permite realizar llamadas salientes. Por favor, actualice su plan.');
+                            res.setHeader('Content-Type', 'text/xml');
+                            return res.status(200).send(twiml.toString());
+                        }
+
+                        // 🔴 CREDIT CHECK: Ensure user has at least enough for 1 minute of this tier
+                        const credits = profile.voice_credits || 0;
+                        if (credits < tier.multiplier) {
+                            console.warn(`[VOICE] 🛑 Insufficient credits for user ${userId} (${credits} credits available, ${tier.multiplier} needed)`);
+                            twiml.say({ language: 'es-ES' }, 'No tienes suficientes créditos de voz para realizar esta llamada. Por favor, recarga tu cuenta.');
                             res.setHeader('Content-Type', 'text/xml');
                             return res.status(200).send(twiml.toString());
                         }
@@ -72,17 +94,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
             }
         } catch (error) {
-            console.error('[VOICE] Error querying verified caller ID:', error);
-            // Continue with fallback
+            console.error('[VOICE] Error querying profile for call:', error);
         }
     } else {
-        console.warn('[VOICE] ⚠️ No userId provided. Blocking call for security reasons.');
-        twiml.say({ language: 'es-ES' }, 'Error de autenticación. Por favor, recargue la página.');
+        console.warn('[VOICE] ⚠️ No valid userId provided. Blocking call.');
+        twiml.say({ language: 'es-ES' }, 'Error de autenticación. Por favor, inicie sesión.');
         res.setHeader('Content-Type', 'text/xml');
         return res.status(200).send(twiml.toString());
     }
 
-    console.log(`[VOICE] Calling ${to} from ${callerId} (verified: ${verificationStatus})`);
+    console.log(`[VOICE] Proceeding with call to ${numberToCall} from ${callerId} (Tier: ${tier.id})`);
 
     if (!callerId) {
         twiml.say('Error de configuración: no hay caller ID disponible.');
@@ -90,47 +111,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).send(twiml.toString());
     }
 
-    // Limpieza de número
-    let numberToCall = to.replace(/[\s\-\(\)]/g, '');
-    if (!numberToCall.startsWith('+')) numberToCall = '+' + numberToCall;
-
-    // Validación de seguridad simple
-    const isAllowed = ALLOWED_PREFIXES.some(p => numberToCall.startsWith(p));
-    if (!isAllowed) {
-        twiml.say({ language: 'es-ES' }, 'Destino no permitido.');
-        res.setHeader('Content-Type', 'text/xml');
-        return res.status(200).send(twiml.toString());
-    }
-
-    // CONEXIÓN con caller ID y grabación configurados
-    // Use hardcoded production URL for reliability
     const callbackUrl = 'https://www.diktalo.com/api/recording-callback';
 
-    console.log(`[VOICE] Recording callback URL: ${callbackUrl}?userId=${userId || 'NONE'}`);
-
-    // Only include recordingStatusCallback if we have a valid userId
-    // Otherwise, recording will still happen but won't be saved to database
-    // "record-from-answer-dual" is usually silent. If prompts occur, it might be due to 'announcements' or legal requirements in Twilio Console settings.
     const dialOptions: any = {
-        callerId: callerId,  // Use verified phone or fallback
+        callerId: callerId,
         answerOnBridge: true,
-        timeout: 30,  // Add timeout to prevent hanging
-        record: 'record-from-answer-dual',  // Record both sides of call, should be silent
-        recordingStatusCallbackMethod: 'POST',  // Ensure Twilio uses POST
-        recordingStatusCallbackEvent: ['completed']  // Only notify when recording is done
+        timeout: 30,
+        record: 'record-from-answer-dual',
+        recordingStatusCallbackMethod: 'POST',
+        recordingStatusCallbackEvent: ['completed']
     };
 
-    // Only add callback URL if we have a valid userId (not 'guest', 'unknown', etc.)
-    if (userId && userId !== 'guest' && userId !== 'unknown') {
-        dialOptions.recordingStatusCallback = `${callbackUrl}?userId=${userId}&to=${encodeURIComponent(numberToCall)}`;
-        console.log(`[VOICE] ✅ Recording will be saved to database for user ${userId}`);
-    } else {
-        console.log(`[VOICE] ⚠️ Recording will be created in Twilio but NOT saved to database (no valid userId)`);
-    }
+    dialOptions.recordingStatusCallback = `${callbackUrl}?userId=${userId}&to=${encodeURIComponent(numberToCall)}`;
+    console.log(`[VOICE] ✅ Recording will be saved to database for user ${userId}`);
 
     const dial = twiml.dial(dialOptions);
 
-    // Detectar si es número o cliente
     if (/^[\d\+\-\(\) ]+$/.test(numberToCall)) {
         dial.number(numberToCall);
     } else {
