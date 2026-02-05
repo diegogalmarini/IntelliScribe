@@ -62,8 +62,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             }
         }
 
-        // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS ---
-        if (isOpen && (status === 'Idle' || status === 'Calling...' || status === 'In Call')) {
+        // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS (Idle only) ---
+        if (isOpen && status === 'Idle') {
             const startMonitor = async () => {
                 try {
                     // Enumerate devices first if not done
@@ -204,6 +204,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 await callService.setInputDevice(selectedDeviceId);
             }
 
+            // 2. WAIT FOR MONITOR TO STOP & DEVICE READY
+            // Small delay to ensure hardware is released by the monitor before Twilio starts
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             const call = await callService.makeCall(
                 numberToCall,
                 user.id,  // Pass user ID for caller ID lookup (now guaranteed to exist)
@@ -227,6 +231,15 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     if (outputLevel > 15) {
                         console.log(`[DIALER] Remote Audio Level: ${outputLevel}%`);
                     }
+
+                    // DRIVE VISUALIZER DURING CALL
+                    // Since monitor is OFF, we use Twilio's data to move the bars
+                    const scaledLevel = Math.min(100, maxLevel * 1.5); // Boost for better visuals
+                    const newData = visualizerData.map(() => {
+                        // Pulse with slight randomization for "dancing" effect
+                        return 2 + (scaledLevel * 0.7) + (Math.random() * scaledLevel * 0.3);
+                    });
+                    setVisualizerData(newData);
                 });
 
                 call.on('disconnect', () => {
