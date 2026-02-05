@@ -30,6 +30,9 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const [isPasting, setIsPasting] = useState(false);
     const [showVerification, setShowVerification] = useState(false);
     const [inputVolume, setInputVolume] = useState(0);
+    const [availableDevices, setAvailableDevices] = useState<MediaDeviceInfo[]>([]);
+    const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
+    const [showDeviceSelector, setShowDeviceSelector] = useState(false);
 
     useEffect(() => {
         if (isOpen && user && status === 'Idle') {
@@ -49,7 +52,29 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         if (isOpen && status === 'Idle') {
             const startMonitor = async () => {
                 try {
-                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    // Enumerate devices first if not done
+                    if (availableDevices.length === 0) {
+                        try {
+                            // Temporary stream to trigger permissions and get labels
+                            const bootstrapStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            bootstrapStream.getTracks().forEach(t => t.stop());
+                        } catch (e) {
+                            console.warn('[DIALER] Could not bootstrap mic labels:', e);
+                        }
+
+                        const devices = await navigator.mediaDevices.enumerateDevices();
+                        const mics = devices.filter(d => d.kind === 'audioinput');
+                        setAvailableDevices(mics);
+                        if (mics.length > 0 && !selectedDeviceId) {
+                            setSelectedDeviceId(mics[0].deviceId);
+                        }
+                    }
+
+                    const constraints = {
+                        audio: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : true
+                    };
+
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
                     audioContext = new AudioContext();
                     analyser = audioContext.createAnalyser();
                     microphone = audioContext.createMediaStreamSource(stream);
@@ -84,7 +109,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             if (audioContext) audioContext.close();
             if (stream) stream.getTracks().forEach(t => t.stop());
         };
-    }, [isOpen, user, status]);
+    }, [isOpen, user, status, selectedDeviceId]);
 
     const handleCall = async () => {
         // 1. CHEQUEO DE VERIFICACIÓN
@@ -130,6 +155,11 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
 
         try {
+            // Set input device in Twilio before connecting
+            if (selectedDeviceId) {
+                await callService.setInputDevice(selectedDeviceId);
+            }
+
             const call = await callService.makeCall(
                 numberToCall,
                 user.id,  // Pass user ID for caller ID lookup (now guaranteed to exist)
@@ -303,6 +333,35 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                             <span className="material-symbols-outlined text-[14px]">contacts</span>
                         </button>
                     )}
+
+                    {/* Selector de Micrófono */}
+                    <div className="absolute top-2 right-4">
+                        <button
+                            onClick={() => setShowDeviceSelector(!showDeviceSelector)}
+                            className="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors flex items-center"
+                            title="Seleccionar Micrófono"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">settings_voice</span>
+                        </button>
+
+                        {showDeviceSelector && availableDevices.length > 0 && (
+                            <div className="absolute top-full right-0 mt-1 w-48 max-h-40 overflow-y-auto bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded shadow-xl z-[60] py-1">
+                                {availableDevices.map(device => (
+                                    <button
+                                        key={device.deviceId}
+                                        onClick={() => {
+                                            setSelectedDeviceId(device.deviceId);
+                                            setShowDeviceSelector(false);
+                                        }}
+                                        className={`w-full text-left px-3 py-1.5 text-[11px] hover:bg-slate-50 dark:hover:bg-white/5 truncate ${selectedDeviceId === device.deviceId ? 'text-brand-green font-bold' : 'text-slate-600 dark:text-slate-300'
+                                            }`}
+                                    >
+                                        {device.label || `Mic ${device.deviceId.slice(0, 5)}...`}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     <div className="flex items-center justify-center w-full mb-2 px-8">
                         <span className="text-xl font-light text-slate-400 mr-1 select-none">+</span>

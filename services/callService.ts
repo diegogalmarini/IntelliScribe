@@ -179,6 +179,18 @@ export class CallService {
         }
     }
 
+    async setInputDevice(deviceId: string): Promise<boolean> {
+        if (!this.device) return false;
+        try {
+            await this.device.audio.setInputDevice(deviceId);
+            console.log('[CALL-SERVICE] Input device set to:', deviceId);
+            return true;
+        } catch (error) {
+            console.error('[CALL-SERVICE] Failed to set input device:', error);
+            return false;
+        }
+    }
+
     disconnect() {
         if (this.device) {
             console.log('📞 Hanging up...');
