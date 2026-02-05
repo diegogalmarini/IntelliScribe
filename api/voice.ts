@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
-import { getTierForNumber } from '../utils/voiceRates';
+import { getTierForNumber } from '../utils/voiceRates.js';
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
