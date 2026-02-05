@@ -250,9 +250,9 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
 
                     {/* Tier Badge */}
                     {number.length >= 2 && (
-                        <div className="mt-2 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 w-full max-w-[240px]">
-                            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1 px-1">
-                                <div className="flex items-center gap-1">
+                        <div className="mt-4 flex flex-col gap-2 items-center animate-in fade-in slide-in-from-top-1 w-full max-w-[280px]">
+                            <div className="flex flex-col items-center gap-1.5 text-center bg-slate-50 dark:bg-white/5 p-3 rounded-2xl w-full border border-slate-100 dark:border-white/5">
+                                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
                                     <span className="material-symbols-outlined text-[14px]">
                                         {getTierForNumber('+' + number).id === 'BLOCKED' ? 'block' : 'info'}
                                     </span>
@@ -260,9 +260,9 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                 </div>
 
                                 {getTierForNumber('+' + number).id !== 'BLOCKED' && (
-                                    <span className="font-medium text-slate-700">
+                                    <div className="text-[12px] font-medium text-slate-700 dark:text-slate-200 leading-tight">
                                         {t('creditsRemaining').replace('{minutes}', Math.floor((user.voiceCredits || 0) / getTierForNumber('+' + number).multiplier).toString())}
-                                    </span>
+                                    </div>
                                 )}
                             </div>
 
@@ -270,7 +270,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                             {getTierForNumber('+' + number).id !== 'BLOCKED' && (user.voiceCredits || 0) / getTierForNumber('+' + number).multiplier < 5 && (
                                 <button
                                     onClick={() => onNavigate(AppRoute.SETTINGS)}
-                                    className="text-[10px] text-brand-blue hover:underline flex items-center gap-1 self-start px-1"
+                                    className="text-[10px] text-brand-blue hover:underline flex items-center gap-1 self-center px-1 font-bold mt-1"
                                 >
                                     <span className="material-symbols-outlined text-[12px]">add_circle</span>
                                     {t('buyMoreCredits')}
