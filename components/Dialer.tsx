@@ -419,23 +419,45 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                             </button>
                         )}
                     </div>
+                </div>
 
-                    {/* Selector de Micrófono (Fino) */}
-                    <div className="relative">
+                <div className="pt-4 pb-8 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] shrink-0 relative">
+
+                    <div className="flex items-center justify-center w-full mb-3 px-8">
+                        <span className="text-lg font-light text-slate-300 dark:text-slate-700 mr-2 select-none">+</span>
+
+                        {/* Native Input for Cursor & Editing */}
+                        <input
+                            type="tel"
+                            value={number}
+                            onChange={(e) => {
+                                // Strip non-digit characters to avoid errors
+                                // Also handles pasting '+34...' -> '34...'
+                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                setNumber(val);
+                            }}
+                            className="text-xl font-light text-center text-slate-900 dark:text-white tracking-wider bg-transparent border-none outline-none w-full placeholder:text-slate-100 dark:placeholder:text-white/5"
+                            placeholder="34..."
+                            autoFocus
+                        />
+                    </div>
+
+                    {/* Centered Microphone Selector NEW POSITION */}
+                    <div className="relative mb-5">
                         <button
                             onClick={() => setShowDeviceSelector(!showDeviceSelector)}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f8fafc] dark:bg-[#2a2a2a] text-[11px] font-medium text-[#64748b] dark:text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-[#3c3c3c] transition-all border border-slate-200 dark:border-white/5 active:scale-95"
+                            className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-[#f8fafc] dark:bg-[#2a2a2a] text-[11px] font-medium text-[#64748b] dark:text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-[#3c3c3c] transition-all border border-slate-200 dark:border-white/5 active:scale-95"
                             title="Seleccionar Micrófono"
                         >
                             <Mic size={14} strokeWidth={1.2} className={selectedDeviceId ? 'text-[#0055FF]' : ''} />
-                            <span className="max-w-[120px] truncate">
+                            <span className="max-w-[120px] truncate text-center">
                                 {availableDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'Micrófono'}
                             </span>
                             <ChevronDown size={14} strokeWidth={1.2} />
                         </button>
 
                         {showDeviceSelector && availableDevices.length > 0 && (
-                            <div className="absolute top-full right-0 mt-2 w-64 max-h-60 overflow-y-auto bg-white dark:bg-[#2a2a2a] border border-black/10 dark:border-white/10 rounded-xl shadow-2xl z-[70] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 max-h-60 overflow-y-auto bg-white dark:bg-[#2a2a2a] border border-black/10 dark:border-white/10 rounded-xl shadow-2xl z-[70] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                                 <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#8e8e8e] border-b border-black/[0.05] dark:border-white/[0.05] mb-1">
                                     Dispositivos de Entrada
                                 </div>
@@ -455,28 +477,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                 ))}
                             </div>
                         )}
-                    </div>
-                </div>
-
-                <div className="p-8 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] shrink-0 relative">
-
-                    <div className="flex items-center justify-center w-full mb-4 px-8">
-                        <span className="text-lg font-light text-slate-300 dark:text-slate-700 mr-2 select-none">+</span>
-
-                        {/* Native Input for Cursor & Editing */}
-                        <input
-                            type="tel"
-                            value={number}
-                            onChange={(e) => {
-                                // Strip non-digit characters to avoid errors
-                                // Also handles pasting '+34...' -> '34...'
-                                const val = e.target.value.replace(/[^0-9]/g, '');
-                                setNumber(val);
-                            }}
-                            className="text-xl font-light text-center text-slate-900 dark:text-white tracking-wider bg-transparent border-none outline-none w-full placeholder:text-slate-100 dark:placeholder:text-white/5"
-                            placeholder="34..."
-                            autoFocus
-                        />
                     </div>
 
                     {/* Volume Indicator (Subtle - Dancing Bars) */}
