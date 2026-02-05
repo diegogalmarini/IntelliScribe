@@ -118,11 +118,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).send(twiml.toString());
     }
 
-    const callbackUrl = 'https://www.diktalo.com/api/recording-callback';
+    // --- DYNAMIC CALLBACK URL ---
+    // Use the host from the request to ensure we hit the correct environment (production or preview)
+    const host = req.headers.host || 'www.diktalo.com';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const callbackUrl = `${protocol}://${host}/api/recording-callback`;
 
     const dialOptions: any = {
         callerId: callerId,
-        // ⚠️ FIXED: Removed answerOnBridge: true to avoid 31005 error when gateway hangs up early
         answerOnBridge: false,
         timeout: 30,
         record: 'record-from-answer-dual',
@@ -131,7 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     dialOptions.recordingStatusCallback = `${callbackUrl}?userId=${userId}&to=${encodeURIComponent(numberToCall)}`;
-    console.log(`[VOICE] ✅ Recording will be saved to database for user ${userId}`);
+    console.log(`[VOICE] ✅ Recording callback set to: ${dialOptions.recordingStatusCallback}`);
 
     const dial = twiml.dial(dialOptions);
 

@@ -68,22 +68,22 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             }
             lastFrameTime = time;
 
-            // Take data from analyser (Idle) or volumeLevelRef (In Call)
+            // Take data from analyser (Local Monitor)
+            // We now keep the monitor alive during calls for stable UI
             let rawLevel = 0;
-            if (analyserRef.current && (status === 'Idle' || status === 'Ready')) {
+            if (analyserRef.current) {
                 const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
                 analyserRef.current.getByteFrequencyData(dataArray);
                 // Extract low-mid frequencies (most voice energy)
                 const subset = dataArray.slice(0, 32);
                 rawLevel = subset.reduce((a, b) => a + b, 0) / subset.length;
-            } else {
-                // Pull from Twilio sample data
-                rawLevel = volumeLevelRef.current || 0;
+            } else if (volumeLevelRef.current > 0) {
+                // Fallback to Twilio sample data if monitor fails
+                rawLevel = volumeLevelRef.current;
             }
 
             // --- BOOST SENSITIVITY ---
-            // Use square root scaling to make small sounds more visible
-            // Linear 0.1 -> 10%, SQRT 0.1 -> 31%
+            // SQRT scaling: Linear 0.1 -> 10%, SQRT 0.1 -> 31%
             const normalized = rawLevel / 255;
             const sensitiveLevel = Math.sqrt(normalized) * 100;
 
@@ -91,7 +91,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             const barCount = 15;
             const newData = [];
             for (let i = 0; i < barCount; i++) {
-                // min 2%, max 100%, with slight randomness
                 const base = Math.max(2, sensitiveLevel);
                 const jitter = (Math.random() - 0.5) * (base * 0.3);
                 newData.push(Math.min(100, Math.max(2, base + jitter)));
@@ -225,17 +224,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         // ...
 
         try {
-            // 🛑 FORCE STOP MONITOR TO RELEASE HARDWARE
-            if (monitorStreamRef.current) {
-                console.log('[DIALER] Force stopping monitor before call startup...');
-                monitorStreamRef.current.getTracks().forEach(track => {
-                    track.stop();
-                    track.enabled = false;
-                });
-                monitorStreamRef.current = null;
-            }
-
-            // Set input device in Twilio before connecting
+            // Keep monitor running for visual stability
+            // Only ensure we set the device for Twilio
             if (selectedDeviceId) {
                 try {
                     await callService.setInputDevice(selectedDeviceId);
