@@ -271,7 +271,7 @@ export const adminService = {
                 'free': 24,
                 'pro': 200,
                 'business': 600,
-                'business_plus': 1200 // Default to 1200 (20 hours) matching owner profile
+                'business_plus': 850 // Default to 1200 (20 hours) matching owner profile
             };
 
             let minutesLimit = DEFAULT_LIMITS[planId] || 24;
@@ -816,4 +816,5 @@ export const adminService = {
         }
     }
 };
+
 
