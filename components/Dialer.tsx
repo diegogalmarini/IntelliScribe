@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from 'react';
 import { callService } from '../services/callService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { UserProfile, AppRoute } from '../types';
 import { PhoneVerificationModal } from './PhoneVerificationModal';
 import * as Analytics from '../utils/analytics';
 import { getTierForNumber } from '../utils/voiceRates';
+import {
+    Phone,
+    X,
+    Mic,
+    MicOff,
+    ChevronDown,
+    Delete,
+    Settings2,
+    Search,
+    PhoneOff,
+    Info,
+    AlertCircle
+} from 'lucide-react';
 
 
 interface DialerProps {
@@ -258,10 +270,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             <button
                 id="dialer-button"
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-brand-green hover:bg-brand-green/90 text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50 transition-colors"
+                className="fixed bottom-6 right-6 w-14 h-14 bg-brand-green hover:bg-brand-green/90 text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-105 active:scale-95"
                 title="Open dialer"
             >
-                <span className="material-symbols-outlined text-2xl">call</span>
+                <Phone size={24} fill="currentColor" />
             </button>
         );
     }
@@ -306,15 +318,18 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     return (
         <>
             {/* El Dialer Visual */}
-            <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-80 w-full h-full bg-white dark:bg-card-dark sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50">
+            <div
+                onClick={ensureAudioIsLive}
+                className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[340px] w-full h-full sm:h-auto sm:min-h-[580px] bg-white dark:bg-[#1a1a1a] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50 animate-in fade-in zoom-in-95 duration-200"
+            >
                 {/* Header */}
-                <div className="bg-slate-100 dark:bg-surface-dark p-3 flex justify-between items-center shrink-0">
-                    <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${status === 'In Call' ? 'bg-green-500' : 'bg-slate-400'} `} />
-                        <span className="text-xs font-medium text-slate-500">{status}</span>
+                <div className="bg-slate-50 dark:bg-[#2a2a2a] px-5 py-4 flex justify-between items-center shrink-0 border-b border-black/[0.05] dark:border-white/[0.05]">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full animate-pulse ${status === 'In Call' ? 'bg-green-500' : 'bg-slate-400'} `} />
+                        <span className="text-[11px] font-bold uppercase tracking-widest text-[#8e8e8e]">{status}</span>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="p-2 text-slate-400">
-                        <span className="material-symbols-outlined">close</span>
+                    <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors">
+                        <X size={20} />
                     </button>
                 </div>
 
@@ -363,8 +378,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         )}
                     </div>
 
-                    <div className="flex items-center justify-center w-full mb-2 px-8">
-                        <span className="text-xl font-light text-slate-400 mr-1 select-none">+</span>
+                    <div className="flex items-center justify-center w-full mb-4 px-8">
+                        <span className="text-3xl font-light text-slate-300 dark:text-slate-700 mr-2 select-none">+</span>
 
                         {/* Native Input for Cursor & Editing */}
                         <input
@@ -376,23 +391,29 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                 const val = e.target.value.replace(/[^0-9]/g, '');
                                 setNumber(val);
                             }}
-                            className="text-xl font-light text-center text-slate-900 dark:text-white tracking-wide bg-transparent border-none outline-none w-full placeholder:text-slate-200 dark:placeholder:text-slate-800"
+                            className="text-4xl font-light text-center text-slate-900 dark:text-white tracking-wider bg-transparent border-none outline-none w-full placeholder:text-slate-100 dark:placeholder:text-white/5"
                             placeholder="34..."
                             autoFocus
                         />
                     </div>
 
                     {/* Volume Indicator (Always visible for diagnostic) */}
-                    <div className="w-full max-w-[120px] flex flex-col items-center gap-1 mb-2">
-                        <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                            <div
-                                className={`h-full transition-all duration-75 ${inputVolume > 8 ? 'bg-brand-green' : 'bg-slate-300'}`}
-                                style={{ width: `${Math.min(100, inputVolume * 2)}%` }}
-                            />
+                    {/* Visualizer Row */}
+                    <div className="w-full flex flex-col items-center gap-2 mb-4">
+                        <div className="flex items-center gap-1 h-6 w-full justify-center">
+                            {[...Array(15)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`w-1 rounded-full transition-all duration-75 ${inputVolume > (i * 4)
+                                            ? 'bg-brand-green h-full shadow-[0_0_8px_rgba(34,197,94,0.5)]'
+                                            : 'bg-slate-200 dark:bg-white/5 h-1'
+                                        }`}
+                                />
+                            ))}
                         </div>
                         {status === 'In Call' && (
-                            <span className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
-                                {inputVolume > 8 ? 'Audio Active' : 'Silence...'}
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8e8e8e]">
+                                {inputVolume > 8 ? 'Audio Detectado' : 'Silencio...'}
                             </span>
                         )}
                     </div>
@@ -401,10 +422,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     {number.length >= 2 && (
                         <div className="mt-4 flex flex-col gap-2 items-center animate-in fade-in slide-in-from-top-1 w-full max-w-[280px]">
                             <div className="flex flex-col items-center gap-1.5 text-center bg-slate-50 dark:bg-white/5 p-3 rounded-2xl w-full border border-slate-100 dark:border-white/5">
-                                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
-                                    <span className="material-symbols-outlined text-[14px]">
-                                        {getTierForNumber('+' + number).id === 'BLOCKED' ? 'block' : 'info'}
-                                    </span>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                    <Info size={14} className={getTierForNumber('+' + number).id === 'BLOCKED' ? 'text-red-500' : ''} />
                                     <span>{getTierForNumber('+' + number).label} ({getTierForNumber('+' + number).multiplier}x)</span>
                                 </div>
 
@@ -460,23 +479,23 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 </div>
 
                 {/* Actions */}
-                <div className="p-6 bg-white dark:bg-card-dark grid grid-cols-3 gap-4 border-t border-slate-100 dark:border-border-dark shrink-0 mb-safe">
-                    <button onClick={toggleMute} className={`rounded-full w-14 h-14 mx-auto flex items-center justify-center ${isMuted ? 'bg-slate-200 text-black' : 'text-slate-400'}`}>
-                        <span className="material-symbols-outlined">{isMuted ? 'mic_off' : 'mic'}</span>
+                <div className="p-8 bg-white dark:bg-[#1a1a1a] grid grid-cols-3 gap-6 border-t border-black/[0.05] dark:border-white/[0.05] shrink-0 sm:mb-2">
+                    <button onClick={toggleMute} className={`rounded-full w-14 h-14 mx-auto flex items-center justify-center transition-all active:scale-90 ${isMuted ? 'bg-red-50 text-red-500' : 'bg-slate-50 dark:bg-white/5 text-slate-400'}`}>
+                        {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
                     </button>
 
                     {status === 'In Call' || status === 'Calling...' ? (
-                        <button onClick={handleHangup} className="bg-red-500 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-lg">
-                            <span className="material-symbols-outlined text-3xl">call_end</span>
+                        <button onClick={handleHangup} className="bg-red-500 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-xl shadow-red-500/20 active:scale-95 transition-all">
+                            <PhoneOff size={32} />
                         </button>
                     ) : (
-                        <button onClick={handleCall} className="bg-green-500 hover:bg-green-600 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-lg transition-transform active:scale-90">
-                            <span className="material-symbols-outlined text-3xl">call</span>
+                        <button onClick={handleCall} className="bg-brand-green text-slate-900 rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-xl shadow-green-500/20 active:scale-95 transition-all">
+                            <Phone size={32} fill="currentColor" />
                         </button>
                     )}
 
-                    <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-14 h-14 mx-auto flex items-center justify-center text-slate-400">
-                        <span className="material-symbols-outlined">backspace</span>
+                    <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-14 h-14 mx-auto flex items-center justify-center bg-slate-50 dark:bg-white/5 text-slate-400 active:scale-90 transition-all">
+                        <Delete size={24} />
                     </button>
                 </div>
             </div>
