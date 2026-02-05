@@ -20,6 +20,7 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
     const [plans, setPlans] = useState<PlanConfig[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [minutePacks, setMinutePacks] = useState<any[]>([]);
+    const [callCreditPacks, setCallCreditPacks] = useState<any[]>([]);
     const [legalFooter, setLegalFooter] = useState<string>('');
 
     // FAQ State
@@ -60,6 +61,17 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
                 if (!packsError) {
                     setMinutePacks(packsData || []);
+                }
+
+                // Fetch call credit packs
+                const { data: callPacksData, error: callPacksError } = await supabase
+                    .from('call_credit_packs')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('order', { ascending: true });
+
+                if (!callPacksError) {
+                    setCallCreditPacks(callPacksData || []);
                 }
             } catch (error) {
                 console.error('Error loading subscription data:', error);
@@ -369,16 +381,21 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                         </div>
                     </div>
 
-                    {/* Needs More Minutes */}
-                    <div className="bg-[#f9fafb] dark:bg-[#1f1f1f] rounded-2xl p-8 mb-16 border border-slate-200 dark:border-slate-800">
+                    {/* Needs More Minutes - Transcription */}
+                    <div className="bg-[#f9fafb] dark:bg-[#1f1f1f] rounded-2xl p-8 mb-8 border border-slate-200 dark:border-slate-800">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                            <div>
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                    {t('minutes_title') || '¿Necesitas más minutos?'}
-                                </h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                    Los minutos de packs no caducan y se usan cuando agotas tu plan mensual.
-                                </p>
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-blue-500/10 rounded-xl">
+                                    <Check className="w-6 h-6 text-blue-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                        {t('minutes_title') || '¿Necesitas más minutos de transcripción?'}
+                                    </h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        Los minutos de packs no caducan y se usan cuando agotas tu plan mensual.
+                                    </p>
+                                </div>
                             </div>
                             <div className="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                                 <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Saldo Extra</div>
@@ -388,44 +405,100 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
 
                         {currentLevel === 0 ? (
                             <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-xl p-6 text-center">
-                                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Plus size={24} className="text-blue-600 dark:text-blue-400" />
-                                </div>
                                 <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">
-                                    {t('minutes_packs_restricted_title') || 'Packs disponibles para Planes Pro'}
+                                    Packs disponibles para Planes Pro
                                 </h4>
                                 <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-6">
-                                    {t('minutes_packs_restricted_desc') || 'Para comprar packs de minutos extra permanentes, necesitas estar en un plan de pago. ¡Sube de nivel para acceder!'}
+                                    Para comprar packs de minutos extra permanentes, necesitas estar en un plan de pago.
                                 </p>
                                 <button
                                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20"
+                                    className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl"
                                 >
-                                    {t('upgrade_now') || 'Ver Planes'}
+                                    Ver Planes
                                 </button>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {minutePacks.length > 0 ? minutePacks.map((pack) => (
-                                    <div key={pack.id} className="bg-white dark:bg-[#2a2a2a] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+                                {minutePacks.map((pack) => (
+                                    <div key={pack.id} className="bg-white dark:bg-[#2a2a2a] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-300 transition-colors">
                                         <div className="text-base font-bold text-slate-900 dark:text-white mb-1">
-                                            {pack.minutes} {t('minutes_suffix_lower') || 'minutos'}
+                                            {pack.minutes} minutos
                                         </div>
-                                        <div className="text-xl font-black text-slate-900 dark:text-white mb-1">
+                                        <div className="text-xl font-black text-slate-900 dark:text-white mb-4">
                                             €{pack.price}
                                         </div>
-                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-4 uppercase font-bold tracking-tight"> Pago único • Sin caducidad</div>
                                         <button
                                             onClick={() => window.open(pack.checkout_url, '_blank')}
-                                            className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                            className="w-full py-2 bg-blue-600 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2"
                                         >
                                             <Plus size={14} />
-                                            {t('minutes_buy') || 'Comprar Pack'}
+                                            Comprar
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Needs More Credits - Calls */}
+                    <div className="bg-[#f9fafb] dark:bg-[#1f1f1f] rounded-2xl p-8 mb-16 border border-slate-200 dark:border-slate-800">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-green-500/10 rounded-xl">
+                                    <Plus className="w-6 h-6 text-green-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                        ¿Necesitas más créditos de llamada?
+                                    </h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        Créditos válidos para llamadas VoIP internacionales. Sin caducidad.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Saldo de Créditos</div>
+                                <div className="text-sm font-bold text-green-600 dark:text-green-400">{user.subscription?.voiceCredits || 0} min</div>
+                            </div>
+                        </div>
+
+                        {currentLevel === 0 ? (
+                            <div className="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20 rounded-xl p-6 text-center">
+                                <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">
+                                    Créditos disponibles para Planes Pro
+                                </h4>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-6">
+                                    Mejora tu plan para poder adquirir créditos de llamada y comunicarte con todo el mundo.
+                                </p>
+                                <button
+                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                    className="px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-xl"
+                                >
+                                    Ver Planes
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {callCreditPacks.length > 0 ? callCreditPacks.map((pack) => (
+                                    <div key={pack.id} className="bg-white dark:bg-[#2a2a2a] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-green-300 transition-colors">
+                                        <div className="text-base font-bold text-slate-900 dark:text-white mb-1">
+                                            {pack.minutes} créditos
+                                        </div>
+                                        <div className="text-xl font-black text-slate-900 dark:text-white mb-4">
+                                            €{pack.price}
+                                        </div>
+                                        <button
+                                            onClick={() => window.open(pack.checkout_url, '_blank')}
+                                            className="w-full py-2 bg-green-600 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2"
+                                        >
+                                            <Plus size={14} />
+                                            Comprar
                                         </button>
                                     </div>
                                 )) : (
                                     <div className="col-span-full py-10 text-center text-slate-400 text-sm italic">
-                                        Cargando packs disponibles...
+                                        No hay packs de créditos disponibles en este momento.
                                     </div>
                                 )}
                             </div>

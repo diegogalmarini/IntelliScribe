@@ -7,7 +7,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { uploadAvatar, checkStorageLimit } from '../services/storageService';
 import { supabase } from '../lib/supabase';
 
-type SettingsTab = 'profile' | 'security' | 'notifications' | 'developer' | 'credits';
+type SettingsTab = 'profile' | 'security' | 'notifications' | 'developer';
 
 interface SettingsProps {
     user: UserProfile;
@@ -537,88 +537,6 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                         </section>
                     </div>
                 );
-            case 'credits':
-                return (
-                    <div className="flex flex-col gap-8 animate-in fade-in duration-300">
-                        {/* Balance Header */}
-                        <section className="bg-brand-blue/5 border border-brand-blue/20 p-6 rounded-2xl flex items-center justify-between">
-                            <div>
-                                <h4 className="text-brand-blue text-sm font-bold uppercase tracking-wider mb-1">{t('creditsBalance')}</h4>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-4xl font-black text-slate-900 dark:text-white">{user.voiceCredits || 0}</span>
-                                    <span className="text-slate-500 font-medium">créditos</span>
-                                </div>
-                            </div>
-                            <div className="size-16 rounded-full bg-brand-blue/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-brand-blue text-3xl">payments</span>
-                            </div>
-                        </section>
-
-                        {/* Rate Table */}
-                        <section>
-                            <h4 className="text-slate-900 dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-brand-green">language</span>
-                                {t('comparison_title')}
-                            </h4>
-                            <div className="overflow-hidden border border-slate-200 dark:border-border-dark rounded-xl">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="bg-slate-50 dark:bg-surface-dark/50 text-slate-500 uppercase text-[10px] font-bold">
-                                        <tr>
-                                            <th className="px-4 py-3">{t('rateTableCountry')}</th>
-                                            <th className="px-4 py-3 text-center">{t('rateTableFixed')}</th>
-                                            <th className="px-4 py-3 text-center">{t('rateTableMobile')}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-border-dark">
-                                        {[
-                                            { name: 'USA / Canada / Mexico', flag: '🇺🇸', fixed: '1x', mobile: '1x' },
-                                            { name: 'Spain', flag: '🇪🇸', fixed: '1x', mobile: '10x' },
-                                            { name: 'United Kingdom', flag: '🇬🇧', fixed: '1x', mobile: '5x' },
-                                            { name: 'France / Portugal', flag: '🇫🇷', fixed: '1x', mobile: '5x' },
-                                            { name: 'Germany / Italy / Norway', flag: '🇩🇪', fixed: '1x', mobile: '10x' },
-                                            { name: 'Switzerland / Ireland', flag: '🇨🇭', fixed: '1x', mobile: '10x' },
-                                            { name: 'Japan / Turkey / Israel', flag: '🇯🇵', fixed: '5x', mobile: '5x' },
-                                            { name: 'South Africa', flag: '🇿🇦', fixed: '1x', mobile: '10x' },
-                                            { name: 'Singapore / Hong Kong', flag: '🇸🇬', fixed: '1x', mobile: '1x' },
-                                        ].map((row, i) => (
-                                            <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                                                <td className="px-4 py-3 font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                                                    <span>{row.flag}</span> {row.name}
-                                                </td>
-                                                <td className="px-4 py-3 text-center text-slate-500 uppercase font-bold text-[10px]">{row.fixed}</td>
-                                                <td className="px-4 py-3 text-center text-slate-500 uppercase font-bold text-[10px]">{row.mobile}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-
-                        {/* Purchase Packs */}
-                        <section>
-                            <div className="mb-6">
-                                <h4 className="text-slate-900 dark:text-white text-lg font-bold">{t('buyCreditsTitle')}</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">{t('buyCreditsDesc')}</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                {[10, 30, 50, 100, 1000].map(amount => (
-                                    <button
-                                        key={amount}
-                                        onClick={() => window.open(`https://diktalo.lemonsqueezy.com/checkout/buy/credits-${amount}`, '_blank')}
-                                        className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl hover:border-brand-blue hover:shadow-lg hover:shadow-brand-blue/10 transition-all group"
-                                    >
-                                        <span className="text-xl font-black text-slate-900 dark:text-white group-hover:text-brand-blue">{amount}</span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">créds</span>
-                                        <div className="mt-2 text-xs font-bold text-brand-blue">
-                                            {t('minutes_buy')}
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </section>
-                    </div>
-                );
         }
         return null;
     };
@@ -692,16 +610,6 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     <span className={`material-symbols-outlined text-[20px] ${activeTab === 'developer' ? 'material-symbols-filled' : ''}`}>code</span>
                                     Developer
                                 </button>
-                                {user.subscription?.planId === 'business_plus' && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveTab('credits')}
-                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors font-medium text-sm w-full text-left ${activeTab === 'credits' ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20 font-bold' : 'text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 border-transparent'}`}
-                                    >
-                                        <span className={`material-symbols-outlined text-[20px] ${activeTab === 'credits' ? 'material-symbols-filled' : ''}`}>payments</span>
-                                        {t('voiceCredits')}
-                                    </button>
-                                )}
                             </div>
                         </aside>
 

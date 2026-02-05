@@ -254,6 +254,25 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                     </div>
                                 );
                             })()}
+
+                            {/* Call Minutes Usage (Included in Plan) */}
+                            <div className="space-y-1.5 pt-1 border-t border-black/[0.03] dark:border-white/[0.03]">
+                                <div className="flex justify-between items-center text-[11px]">
+                                    <span className="font-medium">{(user.subscription.callMinutesUsed || 0)} / {user.subscription.callLimit || 0} {t('calls_short') || 'Llam.'}</span>
+                                    <span className="font-medium">{(user.subscription.callLimit || 0) > 0 ? Math.min(100, Math.round(((user.subscription.callMinutesUsed || 0) / user.subscription.callLimit!) * 100)) : 0}%</span>
+                                </div>
+                                <div className="h-1 bg-slate-100 dark:bg-card-dark rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full transition-all duration-500 bg-green-500"
+                                        style={{ width: `${(user.subscription.callLimit || 0) > 0 ? Math.min(100, ((user.subscription.callMinutesUsed || 0) / user.subscription.callLimit!) * 100) : 0}%` }}
+                                    />
+                                </div>
+                                {/* Purchased Voice Credits Balance */}
+                                <div className="flex justify-between items-center mt-1">
+                                    <span className="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">Créditos de Voz</span>
+                                    <span className="text-[11px] font-bold text-green-600 dark:text-green-400">{(user.subscription.voiceCredits || 0).toFixed(0)} creds</span>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

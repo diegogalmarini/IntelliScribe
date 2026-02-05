@@ -62,9 +62,9 @@ Deno.serve(async (req) => {
 
                 if (error) {
                     // Fallback if RPC not exists yet
-                    const { data: profile } = await supabase.from('user_profiles').select('extra_minutes').eq('id', userId).single();
+                    const { data: profile } = await supabase.from('profiles').select('extra_minutes').eq('id', userId).single();
                     const newTotal = (profile?.extra_minutes || 0) + minutesToAdd;
-                    await supabase.from('user_profiles').update({ extra_minutes: newTotal }).eq('id', userId);
+                    await supabase.from('profiles').update({ extra_minutes: newTotal }).eq('id', userId);
                 }
 
                 return new Response('OK', { status: 200 });

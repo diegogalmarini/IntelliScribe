@@ -94,6 +94,17 @@ export interface MinutePack {
   created_at?: string;
 }
 
+export interface CallCreditPack {
+  id: string;
+  name: string;
+  minutes: number;
+  price: number;
+  checkout_url: string;
+  is_active: boolean;
+  order: number;
+  created_at?: string;
+}
+
 export interface IntegrationState {
   id: string;
   name: string;
@@ -116,6 +127,8 @@ export interface UserSubscription {
   usageResetDate?: string; // Next reset date
   extraMinutes?: number; // One-time purchased minutes
   voiceCredits?: number; // Credits for international VoIP calls
+  callMinutesUsed?: number; // Minutes used in outbound calls
+  callLimit?: number; // Limit from plan
 }
 
 export interface UserProfile {
@@ -174,6 +187,7 @@ export enum AppRoute {
   ADMIN_USERS = 'admin-users',
   ADMIN_FINANCIALS = 'admin-financials',
   ADMIN_MINUTE_PACKS = 'admin-minute-packs', // NEW
+  ADMIN_CALL_CREDITS = 'admin-call-credits', // NEW
   ADMIN_PLANS = 'admin-plans',
   ADMIN_ANALYTICS = 'admin-analytics',
   INTELLIGENCE = 'intelligence', // NEW: Intelligence Dashboard (testing)
@@ -239,6 +253,9 @@ export interface AdminUser {
   minutesLimit: number;
   usagePercentage: number;
   minutesUsed: number; // Restored
+  callMinutesUsed?: number;
+  callLimit?: number;
+  voiceCredits?: number;
   storageUsed?: number;
   storageLimit?: number;
   trialEndsAt?: string;
@@ -285,6 +302,17 @@ export interface PlanConfig {
   badge_text?: string | null;
   is_active: boolean;
   updated_at?: string;
+}
+
+export interface CallCreditPack {
+  id: string;
+  name: string;
+  amount_minutes: number;
+  price: number;
+  currency: string;
+  checkout_url: string;
+  order: number;
+  created_at: string;
 }
 
 export interface AppSetting {

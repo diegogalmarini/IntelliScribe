@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting, MinutePack } from '../types';
+import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting, MinutePack, CallCreditPack } from '../types';
 import { autoTranslatePlan, autoTranslateSetting } from './aiTranslationService';
 
 /**
@@ -22,7 +22,7 @@ export const adminService = {
             if (user.email === 'diegogalmarini@gmail.com' || user.email === 'testadmin@example.com') return true;
 
             const { data, error } = await supabase
-                .from('user_profiles')
+                .from('profiles')
                 .select('role')
                 .eq('id', user.id)
                 .single();
@@ -187,6 +187,9 @@ export const adminService = {
                 status: profile.subscription_status || 'active',
                 minutesUsed: profile.minutes_used || 0,
                 minutesLimit: profile.minutes_limit || 24,
+                callMinutesUsed: profile.call_minutes_used || 0,
+                callLimit: profile.call_limit || 0,
+                voiceCredits: profile.voice_credits || 0,
                 storageUsed: profile.storage_used || 0,
                 storageLimit: profile.storage_limit || 0,
                 trialEndsAt: profile.trial_ends_at,
@@ -250,9 +253,6 @@ export const adminService = {
         }
     },
 
-    /**
-     * Update user's plan manually
-     */
     /**
      * Update user's plan manually
      * Fix: Dynamically fetches minutes_limit from plans_configuration to ensure accuracy
@@ -517,6 +517,9 @@ export const adminService = {
             status: profile.subscription_status || 'active',
             minutesUsed: profile.minutes_used || 0,
             minutesLimit: profile.minutes_limit || 24,
+            callMinutesUsed: profile.call_minutes_used || 0,
+            callLimit: profile.call_limit || 0,
+            voiceCredits: profile.voice_credits || 0,
             usagePercentage: profile.minutes_limit > 0
                 ? Math.round((profile.minutes_used / profile.minutes_limit) * 100)
                 : 0,
@@ -699,6 +702,71 @@ export const adminService = {
 
         if (error) {
             console.error('[adminService] Error deleting minute pack:', error);
+            return false;
+        }
+        return true;
+    },
+
+    // --- GESTIÓN DE PACKS DE CRÉDITOS DE LLAMADA ---
+
+    /**
+     * Obtener todos los packs de créditos de llamada
+     */
+    async getCallCreditPacks(): Promise<CallCreditPack[]> {
+        const { data, error } = await supabase
+            .from('call_credit_packs')
+            .select('*')
+            .order('order', { ascending: true });
+
+        if (error) {
+            console.error('[adminService] Error fetching call credit packs:', error);
+            return [];
+        }
+        return data || [];
+    },
+
+    /**
+     * Crear un nuevo pack de créditos de llamada
+     */
+    async createCallCreditPack(pack: Partial<CallCreditPack>): Promise<boolean> {
+        const { error } = await supabase
+            .from('call_credit_packs')
+            .insert(pack);
+
+        if (error) {
+            console.error('[adminService] Error creating call credit pack:', error);
+            return false;
+        }
+        return true;
+    },
+
+    /**
+     * Actualizar un pack de créditos de llamada
+     */
+    async updateCallCreditPack(packId: string, updates: Partial<CallCreditPack>): Promise<boolean> {
+        const { error } = await supabase
+            .from('call_credit_packs')
+            .update(updates)
+            .eq('id', packId);
+
+        if (error) {
+            console.error('[adminService] Error updating call credit pack:', error);
+            return false;
+        }
+        return true;
+    },
+
+    /**
+     * Eliminar un pack de créditos de llamada
+     */
+    async deleteCallCreditPack(packId: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('call_credit_packs')
+            .delete()
+            .eq('id', packId);
+
+        if (error) {
+            console.error('[adminService] Error deleting call credit pack:', error);
             return false;
         }
         return true;

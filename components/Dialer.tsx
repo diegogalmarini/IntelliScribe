@@ -261,20 +261,38 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
 
                                 {getTierForNumber('+' + number).id !== 'BLOCKED' && (
                                     <div className="text-[12px] font-medium text-slate-700 dark:text-slate-200 leading-tight">
-                                        {t('creditsRemaining').replace('{minutes}', Math.floor((user.voiceCredits || 0) / getTierForNumber('+' + number).multiplier).toString())}
+                                        {(() => {
+                                            const remainingPlanMinutes = Math.max(0, (user.subscription.callLimit || 0) - (user.subscription.callMinutesUsed || 0));
+                                            const tierMultiplier = getTierForNumber('+' + number).multiplier;
+                                            const totalEffectiveCredits = remainingPlanMinutes + (user.subscription?.voiceCredits || 0);
+                                            const minutesAvailable = Math.floor(totalEffectiveCredits / tierMultiplier);
+                                            return t('creditsRemaining').replace('{minutes}', minutesAvailable.toString());
+                                        })()}
                                     </div>
                                 )}
                             </div>
 
                             {/* Recharge Link if credits are low */}
-                            {getTierForNumber('+' + number).id !== 'BLOCKED' && (user.voiceCredits || 0) / getTierForNumber('+' + number).multiplier < 5 && (
-                                <button
-                                    onClick={() => onNavigate(AppRoute.SETTINGS)}
-                                    className="text-[10px] text-brand-blue hover:underline flex items-center gap-1 self-center px-1 font-bold mt-1"
-                                >
-                                    <span className="material-symbols-outlined text-[12px]">add_circle</span>
-                                    {t('buyMoreCredits')}
-                                </button>
+                            {getTierForNumber('+' + number).id !== 'BLOCKED' && (
+                                (() => {
+                                    const remainingPlanMinutes = Math.max(0, (user.subscription.callLimit || 0) - (user.subscription.callMinutesUsed || 0));
+                                    const totalEffectiveCredits = remainingPlanMinutes + (user.subscription?.voiceCredits || 0);
+                                    const tierMultiplier = getTierForNumber('+' + number).multiplier;
+                                    const minutesAvailable = totalEffectiveCredits / tierMultiplier;
+
+                                    if (minutesAvailable < 5) {
+                                        return (
+                                            <button
+                                                onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
+                                                className="text-[10px] text-brand-blue hover:underline flex items-center gap-1 self-center px-1 font-bold mt-1"
+                                            >
+                                                <span className="material-symbols-outlined text-[12px]">add_circle</span>
+                                                {t('buyMoreCredits')}
+                                            </button>
+                                        );
+                                    }
+                                    return null;
+                                })()
                             )}
                         </div>
                     )}

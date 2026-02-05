@@ -393,7 +393,7 @@ export const databaseService = {
 
             // Fetch current usage to calculate deduction
             const { data: profile } = await supabase
-                .from('user_profiles')
+                .from('profiles')
                 .select('minutes_used, minutes_limit, extra_minutes')
                 .eq('id', user.id)
                 .single();
@@ -408,14 +408,14 @@ export const databaseService = {
                 if (minutesToDeduct <= remainingPlan) {
                     // Fits in plan
                     await supabase
-                        .from('user_profiles')
+                        .from('profiles')
                         .update({ minutes_used: used + minutesToDeduct })
                         .eq('id', user.id);
                 } else {
                     // Plan exhausted, use Extra
                     const overPlan = minutesToDeduct - remainingPlan;
                     await supabase
-                        .from('user_profiles')
+                        .from('profiles')
                         .update({
                             minutes_used: limit, // Plan fully used
                             extra_minutes: Math.max(0, extra - overPlan) // Deduct from extra
