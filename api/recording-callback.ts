@@ -16,10 +16,10 @@ function formatDuration(seconds: number): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    console.log('📞 [RECORDING-CALLBACK] NEW EVENT RECEIVED');
+    console.log(`📞 [RECORDING-CALLBACK] RECVD: ${req.method} | SID: ${req.body?.RecordingSid}`);
 
     try {
-        // 1. EXTRACT DATA & LOG
+        // 1. EXTRACT DATA & LOG EVERYTHING
         const {
             RecordingSid,
             RecordingUrl,
@@ -30,21 +30,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             CallSid
         } = req.body;
 
+        // Try to find userId in query, then body, then headers if needed
         const userId = (req.query.userId || req.body.userId) as string;
         const queryTo = req.query.to as string;
         const numberToCall = queryTo ? decodeURIComponent(queryTo) : To;
 
-        console.log(`[RECORDING-CALLBACK] User: ${userId}, CallSid: ${CallSid}, Sid: ${RecordingSid}, Status: ${RecordingStatus}`);
-        console.log(`[RECORDING-CALLBACK] Metadata: To=${To}, QueryTo=${queryTo}, Duration=${RecordingDuration}s`);
+        console.log('[RECORDING-CALLBACK] DATA:', {
+            userId,
+            RecordingSid,
+            RecordingStatus,
+            Duration: RecordingDuration,
+            CallSid
+        });
 
-        // BASIC VALIDATION
-        if (!userId) {
-            console.error('❌ [RECORDING-CALLBACK] Missing userId');
-            return res.status(400).json({ error: 'Missing userId' });
+        // BASIC VALIDATION - If no userId, we can't save to the right profile
+        if (!userId || userId === 'unknown') {
+            console.error('❌ [RECORDING-CALLBACK] Missing or invalid userId:', userId);
+            return res.status(400).json({ error: 'Missing userId', received: userId });
         }
 
         if (RecordingStatus !== 'completed') {
-            console.log(`[RECORDING-CALLBACK] Wait: Status is ${RecordingStatus}`);
+            console.log(`[RECORDING-CALLBACK] Wait: Status is ${RecordingStatus}. Returning 200 to acknowledge.`);
             return res.status(200).json({ message: 'Recording not ready' });
         }
 
@@ -62,9 +68,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const tier = getTierForNumber(numberToCall || '');
         const creditsToDeduct = minutesCharged * tier.multiplier;
 
-        console.log(`💰 [RECORDING-CALLBACK] Charged: ${creditsToDeduct} credits for ${minutesCharged}m`);
+        console.log(`💰 [RECORDING-CALLBACK] Charging: ${creditsToDeduct} credits for ${minutesCharged}m`);
 
-        // ATOMIC DEDUCTION
+        // ATOMIC DEDUCTION (NON-BLOCKING)
+        // If this fails (e.g. missing function), we still want to save the recording.
         try {
             const rpcResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/decrement_voice_credits`, {
                 method: 'POST',
@@ -79,19 +86,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 })
             });
 
-            if (!rpcResponse.ok) console.error('❌ [RECORDING-CALLBACK] RPC Credit Deduction failed');
+            if (!rpcResponse.ok) {
+                const rpcErr = await rpcResponse.text();
+                console.warn('⚠️ [RECORDING-CALLBACK] Credit Deduction skipped/failed (Function might be missing):', rpcErr);
+            } else {
+                console.log('✅ [RECORDING-CALLBACK] Credits deducted successfully');
+            }
         } catch (rpcErr) {
-            console.warn('[RECORDING-CALLBACK] RPC Error (non-critical):', rpcErr);
+            console.warn('[RECORDING-CALLBACK] Credit RPC Error (ignoring):', rpcErr);
         }
 
         // 3. DOWNLOAD FROM TWILIO
-        console.log(`⬇️ [RECORDING-CALLBACK] Downloading: ${RecordingUrl}.mp3`);
+        const audioUrl = RecordingUrl + '.mp3';
+        console.log(`⬇️ [RECORDING-CALLBACK] Downloading: ${audioUrl}`);
 
         const twilioAuth = Buffer.from(
             `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
         ).toString('base64');
 
-        const audioUrl = RecordingUrl + '.mp3';
         const audioResponse = await fetch(audioUrl, {
             headers: { 'Authorization': `Basic ${twilioAuth}` }
         });
@@ -102,7 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const audioBuffer = await audioResponse.arrayBuffer();
-        console.log(`✅ [RECORDING-CALLBACK] File Size: ${audioBuffer.byteLength} bytes`);
+        console.log(`✅ [RECORDING-CALLBACK] Downloaded ${audioBuffer.byteLength} bytes`);
 
         // 4. UPLOAD TO SUPABASE STORAGE
         const fileName = `${userId}/${RecordingSid || CallSid || Date.now()}.mp3`;

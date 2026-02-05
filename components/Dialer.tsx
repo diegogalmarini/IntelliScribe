@@ -69,25 +69,31 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             lastFrameTime = time;
 
             // Take data from analyser (Idle) or volumeLevelRef (In Call)
-            let level = 0;
+            let rawLevel = 0;
             if (analyserRef.current && (status === 'Idle' || status === 'Ready')) {
                 const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
                 analyserRef.current.getByteFrequencyData(dataArray);
-                // Simple average of low-mid frequencies
+                // Extract low-mid frequencies (most voice energy)
                 const subset = dataArray.slice(0, 32);
-                level = subset.reduce((a, b) => a + b, 0) / subset.length;
+                rawLevel = subset.reduce((a, b) => a + b, 0) / subset.length;
             } else {
-                // Pull from Twilio sample data stored in ref
-                level = volumeLevelRef.current;
+                // Pull from Twilio sample data
+                rawLevel = volumeLevelRef.current || 0;
             }
+
+            // --- BOOST SENSITIVITY ---
+            // Use square root scaling to make small sounds more visible
+            // Linear 0.1 -> 10%, SQRT 0.1 -> 31%
+            const normalized = rawLevel / 255;
+            const sensitiveLevel = Math.sqrt(normalized) * 100;
 
             // Generate dancing bars
             const barCount = 15;
             const newData = [];
             for (let i = 0; i < barCount; i++) {
-                // min 2%, max 100%, with slight randomness for "dancing"
-                const base = Math.max(2, (level / 255) * 100);
-                const jitter = (Math.random() - 0.5) * (base * 0.4);
+                // min 2%, max 100%, with slight randomness
+                const base = Math.max(2, sensitiveLevel);
+                const jitter = (Math.random() - 0.5) * (base * 0.3);
                 newData.push(Math.min(100, Math.max(2, base + jitter)));
             }
             setVisualizerData(newData);
