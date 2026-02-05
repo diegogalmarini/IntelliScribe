@@ -34,37 +34,56 @@ Deno.serve(async (req) => {
                 return new Response('No user_id', { status: 400 });
             }
 
-            // 1. Find the minute pack associated with this variant/checkout
-            // In a real scenario, we'd map Lemon Squeezy Variant IDs to our minute_packs.
-            // For simplicity, we can pass 'minutes' in custom_data if configured in the checkout URL.
+            // 1. Determine which type of pack was purchased
             let minutesToAdd = parseInt(customData.minutes || '0');
+            let isCallCredit = customData.type === 'voice' || customData.type === 'call';
 
             if (minutesToAdd === 0) {
-                // Fallback: look up in minute_packs table by variant_id if you decide to store variant_id there
-                const { data: pack } = await supabase
+                // Fallback: look up in minute_packs first
+                const { data: mPack } = await supabase
                     .from('minute_packs')
                     .select('minutes')
                     .filter('checkout_url', 'ilike', `%${variantId}%`)
                     .single();
 
-                if (pack) minutesToAdd = pack.minutes;
+                if (mPack) {
+                    minutesToAdd = mPack.minutes;
+                    isCallCredit = false;
+                } else {
+                    // Try call_credit_packs
+                    const { data: cPack } = await supabase
+                        .from('call_credit_packs')
+                        .select('minutes')
+                        .filter('checkout_url', 'ilike', `%${variantId}%`)
+                        .single();
+
+                    if (cPack) {
+                        minutesToAdd = cPack.minutes;
+                        isCallCredit = true;
+                    }
+                }
             }
 
             if (minutesToAdd > 0) {
-                console.log(`[Webhook] Adding ${minutesToAdd} minutes to user ${userId}`);
+                if (isCallCredit) {
+                    console.log(`[Webhook] Adding ${minutesToAdd} VOICE credits to user ${userId}`);
+                    // Update user's voice_credits
+                    const { data: profile } = await supabase.from('profiles').select('voice_credits').eq('id', userId).single();
+                    const newTotal = (profile?.voice_credits || 0) + minutesToAdd;
+                    await supabase.from('profiles').update({ voice_credits: newTotal }).eq('id', userId);
+                } else {
+                    console.log(`[Webhook] Adding ${minutesToAdd} TRANSCRIPTION minutes to user ${userId}`);
+                    // Update user's extra_minutes (using RPC or fallback)
+                    const { error } = await supabase.rpc('increment_extra_minutes', {
+                        user_id: userId,
+                        amount: minutesToAdd
+                    });
 
-                // 2. Update user's extra_minutes
-                // We use an atomic increment approach
-                const { error } = await supabase.rpc('increment_extra_minutes', {
-                    user_id: userId,
-                    amount: minutesToAdd
-                });
-
-                if (error) {
-                    // Fallback if RPC not exists yet
-                    const { data: profile } = await supabase.from('profiles').select('extra_minutes').eq('id', userId).single();
-                    const newTotal = (profile?.extra_minutes || 0) + minutesToAdd;
-                    await supabase.from('profiles').update({ extra_minutes: newTotal }).eq('id', userId);
+                    if (error) {
+                        const { data: profile } = await supabase.from('profiles').select('extra_minutes').eq('id', userId).single();
+                        const newTotal = (profile?.extra_minutes || 0) + minutesToAdd;
+                        await supabase.from('profiles').update({ extra_minutes: newTotal }).eq('id', userId);
+                    }
                 }
 
                 return new Response('OK', { status: 200 });

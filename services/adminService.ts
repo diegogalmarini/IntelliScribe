@@ -770,5 +770,49 @@ export const adminService = {
             return false;
         }
         return true;
+    },
+
+    /**
+     * Añadir créditos de voz o ajustar límite de llamadas
+     */
+    async addVoiceCredits(
+        userId: string,
+        amount: number,
+        type: 'limit' | 'balance'
+    ): Promise<boolean> {
+        try {
+            const { data: profile, error: fetchError } = await supabase
+                .from('profiles')
+                .select('voice_credits, call_limit')
+                .eq('id', userId)
+                .single();
+
+            if (fetchError || !profile) {
+                console.error('[adminService] Error fetching user profile for voice credits:', fetchError);
+                return false;
+            }
+
+            const updates: any = {};
+
+            if (type === 'limit') {
+                updates.call_limit = (profile.call_limit || 0) + amount;
+            } else {
+                updates.voice_credits = (profile.voice_credits || 0) + amount;
+            }
+
+            const { error } = await supabase
+                .from('profiles')
+                .update(updates)
+                .eq('id', userId);
+
+            if (error) {
+                console.error('[adminService] Error adjusting voice credits:', error);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('[adminService] Exception in addVoiceCredits:', error);
+            return false;
+        }
     }
 };

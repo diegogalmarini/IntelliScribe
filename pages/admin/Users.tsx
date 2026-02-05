@@ -345,6 +345,25 @@ export const Users: React.FC = () => {
                                                     </div>
                                                 ) : null}
 
+                                                {/* Call Plans (Business+) */}
+                                                {(user.callLimit > 0 || (user.voiceCredits || 0) > 0) && (
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex justify-between text-[10px] text-slate-500">
+                                                            <span>Calls</span>
+                                                            <span className="font-mono">
+                                                                {user.callMinutesUsed}/{user.callLimit}m
+                                                                {(user.voiceCredits || 0) > 0 && <span className="text-purple-500 ml-1">+{user.voiceCredits}p</span>}
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-24 h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                                            <div
+                                                                className={`h-full rounded-full ${user.callMinutesUsed >= user.callLimit ? 'bg-orange-500' : 'bg-purple-500'}`}
+                                                                style={{ width: `${Math.min((user.callMinutesUsed / user.callLimit) * 100, 100)}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {/* Days Remaining */}
                                                 {user.trialEndsAt && new Date(user.trialEndsAt) > new Date() && (
                                                     <div className="flex flex-col gap-1">
@@ -437,15 +456,23 @@ export const Users: React.FC = () => {
                         setShowCreditsModal(false);
                         setSelectedUser(null);
                     }}
-                    onConfirm={async (userId, minutes, type) => {
-                        const success = await adminService.addCredits(userId, minutes, type);
+                    onConfirm={async (userId, amount, asset, type) => {
+                        let success = false;
+
+                        if (asset === 'transcription') {
+                            success = await adminService.addCredits(userId, amount, type as 'limit' | 'used');
+                        } else {
+                            // type for voice is 'limit' (monthly) or 'balance' (prepaid)
+                            success = await adminService.addVoiceCredits(userId, amount, type as 'limit' | 'balance');
+                        }
+
                         if (success) {
                             loadUsers();
                             setShowCreditsModal(false);
                             setSelectedUser(null);
-                            showToast('Credits added successfully', 'success');
+                            showToast('Credits/Limits updated successfully', 'success');
                         } else {
-                            showToast('Failed to add credits', 'error');
+                            showToast('Failed to update credits', 'error');
                         }
                     }}
                 />
