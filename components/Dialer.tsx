@@ -29,6 +29,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const [errorMessage, setErrorMessage] = useState('');
     const [isPasting, setIsPasting] = useState(false);
     const [showVerification, setShowVerification] = useState(false);
+    const [inputVolume, setInputVolume] = useState(0);
 
     useEffect(() => {
         if (isOpen && user && status === 'Idle') {
@@ -44,6 +45,16 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         // 1. CHEQUEO DE VERIFICACIÓN
         if (!user.phoneVerified) {
             setShowVerification(true);
+            return;
+        }
+
+        // 1.5. MIC PERMISSION CHECK
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            console.error('[DIALER] Microphone permission denied:', err);
+            setErrorMessage('Permiso de micrófono denegado. Por favor, actívalo en tu navegador.');
+            setStatus('Error');
             return;
         }
 
@@ -82,6 +93,17 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             if (call) {
                 setActiveCall(call);
                 setStatus('In Call');
+
+                // Monitor volume to debug one-way audio
+                call.on('sample', (sample: any) => {
+                    // Twilio returns volume values between 0 and 32767
+                    const volume = Math.floor((sample.inputVolume / 32767) * 100);
+                    if (volume > 5) { // Only log if there's actual sound
+                        console.log(`[DIALER] Mic Input Level: ${volume}%`);
+                    }
+                    setInputVolume(volume);
+                });
+
                 call.on('disconnect', () => {
                     setStatus('Ready');
                     setActiveCall(null);
@@ -247,6 +269,16 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                             autoFocus
                         />
                     </div>
+
+                    {/* Volume Indicator (Diagnostic) */}
+                    {status === 'In Call' && (
+                        <div className="w-full max-w-[120px] h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden mb-2">
+                            <div
+                                className={`h-full transition-all duration-75 ${inputVolume > 10 ? 'bg-brand-green' : 'bg-slate-300'}`}
+                                style={{ width: `${Math.min(100, inputVolume * 2)}%` }}
+                            />
+                        </div>
+                    )}
 
                     {/* Tier Badge */}
                     {number.length >= 2 && (
