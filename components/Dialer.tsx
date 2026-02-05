@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { callService } from '../services/callService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { UserProfile, AppRoute } from '../types';
