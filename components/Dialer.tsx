@@ -301,10 +301,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             <button
                 id="dialer-button"
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-brand-green hover:bg-brand-green/90 text-slate-900 rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-105 active:scale-95"
+                className="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] hover:bg-[#25D366]/90 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-105 active:scale-95"
                 title="Open dialer"
             >
-                <Phone size={24} fill="currentColor" />
+                <Phone size={24} strokeWidth={1.5} fill="currentColor" />
             </button>
         );
     }
@@ -356,7 +356,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 {/* Header */}
                 <div className="bg-slate-50 dark:bg-[#2a2a2a] px-5 py-4 flex justify-between items-center shrink-0 border-b border-black/[0.05] dark:border-white/[0.05]">
                     <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full animate-pulse ${status === 'In Call' ? 'bg-green-500' : 'bg-slate-400'} `} />
+                        <div className={`w-2 h-2 rounded-full animate-pulse ${status === 'In Call' ? 'bg-[#25D366]' : 'bg-slate-400'} `} />
                         <span className="text-[11px] font-bold uppercase tracking-widest text-[#8e8e8e]">{status}</span>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="p-2 -mr-2 text-[#8e8e8e] hover:text-[#1f1f1f] dark:hover:text-white transition-colors">
@@ -389,11 +389,11 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f8fafc] dark:bg-[#2a2a2a] text-[11px] font-medium text-[#64748b] dark:text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-[#3c3c3c] transition-all border border-slate-200 dark:border-white/5 active:scale-95"
                             title="Seleccionar Micrófono"
                         >
-                            <Mic size={14} strokeWidth={1.5} className={selectedDeviceId ? 'text-[#0055FF]' : ''} />
+                            <Mic size={14} strokeWidth={1.2} className={selectedDeviceId ? 'text-[#0055FF]' : ''} />
                             <span className="max-w-[120px] truncate">
                                 {availableDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'Micrófono'}
                             </span>
-                            <ChevronDown size={14} strokeWidth={1.5} />
+                            <ChevronDown size={14} strokeWidth={1.2} />
                         </button>
 
                         {showDeviceSelector && availableDevices.length > 0 && (
@@ -435,7 +435,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                 const val = e.target.value.replace(/[^0-9]/g, '');
                                 setNumber(val);
                             }}
-                            className="text-4xl font-light text-center text-slate-900 dark:text-white tracking-wider bg-transparent border-none outline-none w-full placeholder:text-slate-100 dark:placeholder:text-white/5"
+                            className="text-3xl font-light text-center text-slate-900 dark:text-white tracking-wider bg-transparent border-none outline-none w-full placeholder:text-slate-100 dark:placeholder:text-white/5"
                             placeholder="34..."
                             autoFocus
                         />
@@ -518,22 +518,22 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
 
                 {/* Actions */}
                 <div className="p-8 bg-white dark:bg-[#1a1a1a] flex justify-around items-center border-t border-black/[0.05] dark:border-white/[0.05] shrink-0">
-                    <button onClick={toggleMute} className={`rounded-full w-12 h-12 flex items-center justify-center transition-all active:scale-90 ${isMuted ? 'bg-red-50 text-red-500' : 'bg-slate-50 dark:bg-white/5 text-slate-400'}`}>
-                        {isMuted ? <MicOff size={20} strokeWidth={1.5} /> : <Mic size={20} strokeWidth={1.5} />}
+                    <button onClick={toggleMute} className={`rounded-full w-12 h-12 flex items-center justify-center transition-all active:scale-90 ${isMuted ? 'bg-red-50 text-[#ef4444]' : 'bg-slate-50 dark:bg-white/5 text-slate-400'}`}>
+                        {isMuted ? <MicOff size={20} strokeWidth={1.2} /> : <Mic size={20} strokeWidth={1.2} />}
                     </button>
 
                     {status === 'In Call' || status === 'Calling...' ? (
                         <button onClick={handleHangup} className="bg-[#ef4444] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-all">
-                            <PhoneOff size={26} strokeWidth={1.5} />
+                            <PhoneOff size={26} strokeWidth={1.2} />
                         </button>
                     ) : (
-                        <button onClick={handleCall} className="bg-[#22c55e] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-all">
-                            <Phone size={26} strokeWidth={1.5} fill="currentColor" />
+                        <button onClick={handleCall} className="bg-[#25D366] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-all">
+                            <Phone size={26} strokeWidth={1.2} fill="currentColor" />
                         </button>
                     )}
 
                     <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-12 h-12 flex items-center justify-center bg-slate-50 dark:bg-white/5 text-slate-400 active:scale-90 transition-all">
-                        <Delete size={20} strokeWidth={1.5} />
+                        <Delete size={20} strokeWidth={1.2} />
                     </button>
                 </div>
             </div>
