@@ -43,7 +43,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const [errorMessage, setErrorMessage] = useState('');
     const [isPasting, setIsPasting] = useState(false);
     const [showVerification, setShowVerification] = useState(false);
-    const [inputVolume, setInputVolume] = useState(0);
+    const [visualizerData, setVisualizerData] = useState<number[]>(new Array(15).fill(2));
     const [availableDevices, setAvailableDevices] = useState<MediaDeviceInfo[]>([]);
     const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
     const [showDeviceSelector, setShowDeviceSelector] = useState(false);
@@ -51,6 +51,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     // REFS for audio management
     const audioContextRef = React.useRef<AudioContext | null>(null);
     const monitorStreamRef = React.useRef<MediaStream | null>(null);
+    const requestRef = React.useRef<number | null>(null);
+    const analyserRef = React.useRef<AnalyserNode | null>(null);
 
     useEffect(() => {
         if (isOpen && user && status === 'Idle') {
@@ -61,17 +63,12 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS ---
-        let analyser: AnalyserNode;
-        let microphone: MediaStreamAudioSourceNode;
-        let javascriptNode: ScriptProcessorNode;
-
         if (isOpen && status === 'Idle') {
             const startMonitor = async () => {
                 try {
                     // Enumerate devices first if not done
                     if (availableDevices.length === 0) {
                         try {
-                            // Temporary stream to trigger permissions and get labels
                             const bootstrapStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                             bootstrapStream.getTracks().forEach(t => t.stop());
                         } catch (e) {
@@ -99,33 +96,41 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     }
                     const audioContext = audioContextRef.current;
 
-                    analyser = audioContext.createAnalyser();
-                    microphone = audioContext.createMediaStreamSource(stream);
-                    javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                    const analyser = audioContext.createAnalyser();
+                    analyser.smoothingTimeConstant = 0.7; // Brisk and fluid
+                    analyser.fftSize = 256;
+                    analyserRef.current = analyser;
 
-                    analyser.smoothingTimeConstant = 0.8;
-                    analyser.fftSize = 1024;
-
+                    const microphone = audioContext.createMediaStreamSource(stream);
                     microphone.connect(analyser);
-                    analyser.connect(javascriptNode);
-                    javascriptNode.connect(audioContext.destination);
 
-                    javascriptNode.onaudioprocess = () => {
-                        const array = new Uint8Array(analyser.frequencyBinCount);
-                        analyser.getByteFrequencyData(array);
-                        let values = 0;
-                        const length = array.length;
-                        for (let i = 0; i < length; i++) {
-                            values += array[i];
-                        }
-                        const average = values / length;
-                        setInputVolume(Math.round(average));
-                    };
-
-                    // Resume if suspended (common on PC)
+                    // Resume if suspended
                     if (audioContext.state === 'suspended') {
                         await audioContext.resume();
                     }
+
+                    // Start Animation Loop
+                    const animate = () => {
+                        if (!analyserRef.current) return;
+                        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+                        analyserRef.current.getByteFrequencyData(dataArray);
+
+                        // Take middle-low frequencies for the "dancing" bars
+                        const barCount = 15;
+                        const newData = [];
+                        const step = Math.floor(dataArray.length / 2 / barCount);
+
+                        for (let i = 0; i < barCount; i++) {
+                            const val = dataArray[i * step] || 0;
+                            // Scale to % height (min 2, max 100)
+                            const h = Math.max(2, (val / 255) * 100);
+                            newData.push(h);
+                        }
+                        setVisualizerData(newData);
+                        requestRef.current = requestAnimationFrame(animate);
+                    };
+                    animate();
+
                 } catch (err) {
                     console.error('[DIALER] Mic monitoring failed:', err);
                 }
@@ -134,9 +139,12 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         return () => {
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
             if (monitorStreamRef.current) {
                 monitorStreamRef.current.getTracks().forEach(t => t.stop());
+                monitorStreamRef.current = null;
             }
+            analyserRef.current = null;
         };
     }, [isOpen, user, status, selectedDeviceId]);
 
@@ -441,16 +449,17 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         />
                     </div>
 
-                    {/* Volume Indicator (Subtle) */}
-                    <div className="w-full flex flex-col items-center gap-2 mb-4">
-                        <div className="flex items-center gap-1 h-3 w-full justify-center">
-                            {[...Array(15)].map((_, i) => (
+                    {/* Volume Indicator (Subtle - Dancing Bars) */}
+                    <div className="w-full flex flex-col items-center gap-2 mb-4 h-6 justify-center">
+                        <div className="flex items-end gap-1 h-4 w-full justify-center">
+                            {visualizerData.map((h, i) => (
                                 <div
                                     key={i}
-                                    className={`w-1 rounded-full transition-all duration-75 ${inputVolume > (i * 4)
-                                        ? 'bg-[#0055FF] h-full shadow-[0_0_4px_rgba(0,85,255,0.3)]'
-                                        : 'bg-slate-100 dark:bg-white/5 h-1'
-                                        }`}
+                                    className="w-1 rounded-full bg-[#0055FF] transition-all duration-75"
+                                    style={{
+                                        height: `${h}%`,
+                                        opacity: 0.2 + (h / 120)
+                                    }}
                                 />
                             ))}
                         </div>
