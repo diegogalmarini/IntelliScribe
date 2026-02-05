@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTierForNumber } from '../utils/voiceRates';
+import { getTierForNumber } from '../utils/voiceRates.js';
 
 // Helper to validate UUID format
 function isValidUUID(uuid: string): boolean {
