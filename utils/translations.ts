@@ -212,6 +212,7 @@ export const translations = {
     showMeWhere: "Show me where",
     deepSearchAction: "Search in all recordings",
     deepSearchStatus: "Searching in your digital brain...",
+    calls_short: "calls",
 
     // Dashboard / Home
     welcomeUser: "Good morning, {name}",
@@ -1320,6 +1321,7 @@ export const translations = {
     showMeWhere: "Muéstrame dónde",
     deepSearchAction: "Buscar en todos mis audios",
     deepSearchStatus: "Buscando en tu cerebro digital...",
+    calls_short: "llam.",
 
     // Dashboard / Home
     welcomeUser: "Hola, {name}",

@@ -116,7 +116,10 @@ const AppContent: React.FC = () => {
             currentPeriodEnd: new Date().toISOString(),
             minutesUsed: 0,
             minutesLimit: 24,
-            storageDaysLimit: 7
+            storageDaysLimit: 7,
+            voiceCredits: 0,
+            callLimit: 0,
+            callMinutesUsed: 0
         },
         integrations: [], // NEW
     };
@@ -357,7 +360,10 @@ const AppContent: React.FC = () => {
                     extraMinutes: data.extra_minutes || 0,
                     storageUsed: data.storage_used || 0,
                     storageLimit: data.storage_limit || 0,
-                    trialEndsAt: data.trial_ends_at
+                    trialEndsAt: data.trial_ends_at,
+                    voiceCredits: data.voice_credits || 0,
+                    callLimit: data.call_limit || 0,
+                    callMinutesUsed: data.call_minutes_used || 0
                 },
                 hasCompletedTour: data.has_completed_tour || false,
                 integrations: (data.integrations as IntegrationState[]) || defaultIntegrations,
@@ -797,7 +803,23 @@ const AppContent: React.FC = () => {
     };
 
     const handleUpdateUser = async (updatedUser: Partial<UserProfile>) => {
-        setUser(prev => ({ ...prev, ...updatedUser }));
+        setUser(prev => {
+            if (!prev) return prev;
+
+            // Special handling for nested subscription object to prevent overwriting missing fields
+            if (updatedUser.subscription && prev.subscription) {
+                return {
+                    ...prev,
+                    ...updatedUser,
+                    subscription: {
+                        ...prev.subscription,
+                        ...updatedUser.subscription
+                    }
+                };
+            }
+
+            return { ...prev, ...updatedUser };
+        });
         const targetUserId = user.id || supabaseUser?.id;
         if (targetUserId) {
             if (updatedUser.timezone) localStorage.setItem(`diktalo_settings_timezone_${targetUserId}`, updatedUser.timezone);

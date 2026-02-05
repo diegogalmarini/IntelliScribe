@@ -266,29 +266,23 @@ export const adminService = {
                 .eq('id', planId)
                 .single();
 
-            // Default fallbacks only if DB fetch fails completely
-            const DEFAULT_LIMITS: Record<string, number> = {
-                'free': 24,
-                'pro': 200,
-                'business': 600,
-                'business_plus': 850 // Default to 1200 (20 hours) matching owner profile
-            };
-
-            let minutesLimit = DEFAULT_LIMITS[planId] || 24;
-
-            if (planConfig?.limits && typeof planConfig.limits.transcription_minutes === 'number') {
-                minutesLimit = planConfig.limits.transcription_minutes;
-            } else if (configError) {
-                console.warn('[adminService] Could not fetch plan config, using defaults:', configError);
+            if (configError || !planConfig) {
+                console.error('[adminService] Critical: Could not fetch plan config for', planId, configError);
+                // We keep some safe defaults in case the DB is missing a config entry, 
+                // but the goal is to drive everything from the 'plans_configuration' table.
             }
 
+            const limits = planConfig?.limits || {};
+
             // 2. Update user profile with new plan AND all correct limits (IA, Storage, Calls)
-            // Using values from the plan configuration or defaults matching the screenshots
             const updates = {
                 plan_id: planId,
-                minutes_limit: planConfig?.limits?.transcription_minutes ?? DEFAULT_LIMITS[planId] ?? 24,
-                storage_limit: (planConfig?.limits?.storage_gb ?? (planId === 'business_plus' ? 50 : planId === 'business' ? 20 : planId === 'pro' ? 5 : 0)) * 1073741824,  // GB to bytes
-                call_limit: planConfig?.limits?.call_minutes ?? (planId === 'business_plus' ? 300 : (planId === 'business' ? 100 : 0))
+                // Transcription Minutes
+                minutes_limit: limits.transcription_minutes ?? (planId === 'business_plus' ? 850 : planId === 'business' ? 600 : planId === 'pro' ? 200 : 24),
+                // Storage (GB to bytes)
+                storage_limit: (limits.storage_gb ?? (planId === 'business_plus' ? 50 : planId === 'business' ? 20 : planId === 'pro' ? 5 : 0)) * 1073741824,
+                // Outbound Calls (Monthly Included)
+                call_limit: limits.call_limit ?? limits.call_minutes ?? (planId === 'business_plus' ? 300 : (planId === 'business' ? 100 : 0))
             };
 
             const { error } = await supabase
@@ -806,9 +800,10 @@ export const adminService = {
                 .eq('id', userId);
 
             if (error) {
-                console.error('[adminService] Error adjusting voice credits:', error);
+                console.error('[adminService] Error adjusting voice credits for user', userId, error);
                 return false;
             }
+            console.log(`[adminService] Successfully updated ${type} for user ${userId} with amount ${amount}`);
             return true;
         } catch (error) {
             console.error('[adminService] Exception in addVoiceCredits:', error);
