@@ -115,8 +115,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             }
         }
 
-        // --- REAL-TIME MIC MONITORING (Idle/Ready only) ---
-        if (isOpen && isIdleOrReady) {
+        // --- REAL-TIME MIC MONITORING ---
+        // Enhanced: Keep monitor alive during 'In Call' and 'Calling...' for stable UI
+        const isOperational = status === 'Idle' || status === 'Ready' || status === 'In Call' || status === 'Calling...';
+        if (isOpen && isOperational) {
             const startMonitor = async () => {
                 try {
                     // Enumerate devices first if not done
@@ -170,15 +172,19 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         return () => {
-            if (monitorStreamRef.current) {
-                monitorStreamRef.current.getTracks().forEach(t => {
-                    t.stop();
-                    t.enabled = false;
-                });
-                monitorStreamRef.current = null;
+            // Only stop tracks if the dialer is closing or in terminal Error
+            const isClosing = !isOpen || status === 'Error';
+            if (isClosing) {
+                if (monitorStreamRef.current) {
+                    monitorStreamRef.current.getTracks().forEach(t => {
+                        t.stop();
+                        t.enabled = false;
+                    });
+                    monitorStreamRef.current = null;
+                }
+                analyserRef.current = null;
+                volumeLevelRef.current = 0;
             }
-            analyserRef.current = null;
-            volumeLevelRef.current = 0;
         };
     }, [isOpen, user?.id, status, selectedDeviceId]);
 

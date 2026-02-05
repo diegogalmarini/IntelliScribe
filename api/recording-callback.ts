@@ -16,41 +16,44 @@ function formatDuration(seconds: number): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    console.log(`📞 [RECORDING-CALLBACK] RECVD: ${req.method} | SID: ${req.body?.RecordingSid}`);
+    const start = Date.now();
+    console.log(`📞 [RECORDING-CALLBACK] RECVD: ${req.method} | SID: ${req.body?.RecordingSid || req.query?.RecordingSid}`);
 
     try {
         // 1. EXTRACT DATA & LOG EVERYTHING
-        const {
-            RecordingSid,
-            RecordingUrl,
-            RecordingDuration,
-            To,
-            From,
-            RecordingStatus,
-            CallSid
-        } = req.body;
+        const body = req.body || {};
+        const query = req.query || {};
 
-        // Try to find userId in query, then body, then headers if needed
-        const userId = (req.query.userId || req.body.userId) as string;
-        const queryTo = req.query.to as string;
+        const RecordingSid = body.RecordingSid || query.RecordingSid;
+        const RecordingUrl = body.RecordingUrl || query.RecordingUrl;
+        const RecordingDuration = body.RecordingDuration || query.RecordingDuration;
+        const To = body.To || query.To;
+        const From = body.From || query.From;
+        const RecordingStatus = body.RecordingStatus || query.RecordingStatus;
+        const CallSid = body.CallSid || query.CallSid;
+
+        // HIGH PRIORITY: Try to find userId everywhere
+        // Twilio might strip query params if not configured correctly, so check body too
+        const userId = (query.userId || body.userId || body.userId_custom) as string;
+        const queryTo = query.to as string;
         const numberToCall = queryTo ? decodeURIComponent(queryTo) : To;
 
-        console.log('[RECORDING-CALLBACK] DATA:', {
+        console.log('[RECORDING-CALLBACK] CONTEXT:', {
             userId,
             RecordingSid,
-            RecordingStatus,
-            Duration: RecordingDuration,
-            CallSid
+            Status: RecordingStatus,
+            CallSid,
+            host: req.headers.host
         });
 
-        // BASIC VALIDATION - If no userId, we can't save to the right profile
-        if (!userId || userId === 'unknown') {
-            console.error('❌ [RECORDING-CALLBACK] Missing or invalid userId:', userId);
-            return res.status(400).json({ error: 'Missing userId', received: userId });
+        // If no userId, we are stuck. Acknowledge so Twilio doesn't retry infinitely.
+        if (!userId || userId === 'unknown' || userId === 'undefined') {
+            console.error('❌ [RECORDING-CALLBACK] Missing userId. Cannot save.');
+            return res.status(200).json({ error: 'Missing userId', status: 'ignored' });
         }
 
         if (RecordingStatus !== 'completed') {
-            console.log(`[RECORDING-CALLBACK] Wait: Status is ${RecordingStatus}. Returning 200 to acknowledge.`);
+            console.log(`[RECORDING-CALLBACK] Skipping: Status is ${RecordingStatus}`);
             return res.status(200).json({ message: 'Recording not ready' });
         }
 
@@ -58,8 +61,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!supabaseUrl || !supabaseServiceKey) {
-            console.error('❌ [RECORDING-CALLBACK] Missing Supabase Env Variables');
-            throw new Error('Supabase configuration error');
+            console.error('❌ [RECORDING-CALLBACK] Missing Env Vars');
+            throw new Error('Supabase config error');
         }
 
         // 2. CALCULATE CREDITS
@@ -68,10 +71,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const tier = getTierForNumber(numberToCall || '');
         const creditsToDeduct = minutesCharged * tier.multiplier;
 
-        console.log(`💰 [RECORDING-CALLBACK] Charging: ${creditsToDeduct} credits for ${minutesCharged}m`);
+        console.log(`💰 [RECORDING-CALLBACK] Charge: ${creditsToDeduct} for ${durationSeconds}s`);
 
         // ATOMIC DEDUCTION (NON-BLOCKING)
-        // If this fails (e.g. missing function), we still want to save the recording.
+        // Ensure this RPC uses the correct 'profiles' table internally (updated in SQL)
         try {
             const rpcResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/decrement_voice_credits`, {
                 method: 'POST',
@@ -88,18 +91,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (!rpcResponse.ok) {
                 const rpcErr = await rpcResponse.text();
-                console.warn('⚠️ [RECORDING-CALLBACK] Credit Deduction skipped/failed (Function might be missing):', rpcErr);
+                console.warn('⚠️ [RECORDING-CALLBACK] Deduction RPC Failed:', rpcErr);
             } else {
-                console.log('✅ [RECORDING-CALLBACK] Credits deducted successfully');
+                console.log('✅ [RECORDING-CALLBACK] Credits deducted');
             }
         } catch (rpcErr) {
-            console.warn('[RECORDING-CALLBACK] Credit RPC Error (ignoring):', rpcErr);
+            console.warn('[RECORDING-CALLBACK] RPC error:', rpcErr);
         }
 
         // 3. DOWNLOAD FROM TWILIO
         const audioUrl = RecordingUrl + '.mp3';
-        console.log(`⬇️ [RECORDING-CALLBACK] Downloading: ${audioUrl}`);
-
         const twilioAuth = Buffer.from(
             `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
         ).toString('base64');
@@ -116,11 +117,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const audioBuffer = await audioResponse.arrayBuffer();
         console.log(`✅ [RECORDING-CALLBACK] Downloaded ${audioBuffer.byteLength} bytes`);
 
-        // 4. UPLOAD TO SUPABASE STORAGE
+        // 4. UPLOAD TO STORAGE
         const fileName = `${userId}/${RecordingSid || CallSid || Date.now()}.mp3`;
         const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${fileName}`;
-
-        console.log(`⬆️ [RECORDING-CALLBACK] Uploading to Storage: recordings/${fileName}`);
 
         const uploadResponse = await fetch(storageUrl, {
             method: 'POST',
@@ -135,43 +134,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!uploadResponse.ok) {
             const upError = await uploadResponse.text();
-            console.error(`❌ [RECORDING-CALLBACK] Storage Upload failed: ${upError}`);
+            console.error(`❌ [RECORDING-CALLBACK] Storage Error: ${upError}`);
             throw new Error('Supabase Storage error');
         }
 
         const publicAudioUrl = `${supabaseUrl}/storage/v1/object/public/recordings/${fileName}`;
-        console.log(`✅ [RECORDING-CALLBACK] Public URL: ${publicAudioUrl}`);
 
         // 5. INSERT DB RECORD
         const formattedDuration = formatDuration(durationSeconds);
-        const recipient = numberToCall || To || 'Unknown Number';
-        const sender = From || 'Diktalo User';
+        const recipient = numberToCall || To || 'Unknown';
 
         const recordingData = {
             user_id: userId,
             title: `Call to ${recipient}`,
-            description: `Recorded call from ${sender} to ${recipient}`,
+            description: `Recorded call to ${recipient}`,
             date: new Date().toISOString(),
             duration: formattedDuration,
             duration_seconds: durationSeconds,
             status: 'Completed',
             audio_url: publicAudioUrl,
             participants: 2,
-            folder_id: null,
             tags: ['phone-call'],
-            notes: [],
-            media: [],
-            segments: [],
             metadata: {
                 voice_tier: tier.id,
-                multiplier: tier.multiplier,
                 credits_deducted: creditsToDeduct,
                 twilio_sid: RecordingSid,
                 call_sid: CallSid
             }
         };
-
-        console.log('💾 [RECORDING-CALLBACK] Saving to recordings table...');
 
         const dbResponse = await fetch(`${supabaseUrl}/rest/v1/recordings`, {
             method: 'POST',
@@ -186,17 +176,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!dbResponse.ok) {
             const dbError = await dbResponse.text();
-            console.error(`❌ [RECORDING-CALLBACK] DB Insert failed: ${dbError}`);
+            console.error(`❌ [RECORDING-CALLBACK] DB Error: ${dbError}`);
             throw new Error('Database insert error');
         }
 
         const savedData = await dbResponse.json();
-        console.log(`✅ [RECORDING-CALLBACK] SUCCESS: Created Recording ID: ${savedData[0]?.id}`);
+        console.log(`✅ [RECORDING-CALLBACK] Finalized in ${Date.now() - start}ms. ID: ${savedData[0]?.id}`);
 
         return res.status(200).json({ success: true, id: savedData[0]?.id });
 
     } catch (error: any) {
-        console.error('🔥 [RECORDING-CALLBACK] CRITICAL ERROR:', error.message);
-        return res.status(500).json({ error: error.message });
+        console.error('🔥 [RECORDING-CALLBACK] CRITICAL:', error.message);
+        // Still return 200 to keep Twilio happy, but logs will tell us the error
+        return res.status(200).json({ error: error.message });
     }
 }
