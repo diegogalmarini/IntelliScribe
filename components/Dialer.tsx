@@ -63,7 +63,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS ---
-        if (isOpen && status === 'Idle') {
+        if (isOpen && (status === 'Idle' || status === 'Calling...' || status === 'In Call')) {
             const startMonitor = async () => {
                 try {
                     // Enumerate devices first if not done
@@ -199,13 +199,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
 
         try {
-            // STOP MONITOR BEFORE TWILIO TAKES OVER
-            if (monitorStreamRef.current) {
-                console.log('[DIALER] Stopping monitor stream for Twilio...');
-                monitorStreamRef.current.getTracks().forEach(t => t.stop());
-                monitorStreamRef.current = null;
-            }
-
             // Set input device in Twilio before connecting
             if (selectedDeviceId) {
                 await callService.setInputDevice(selectedDeviceId);
@@ -234,8 +227,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     if (outputLevel > 15) {
                         console.log(`[DIALER] Remote Audio Level: ${outputLevel}%`);
                     }
-
-                    setInputVolume(maxLevel);
                 });
 
                 call.on('disconnect', () => {
