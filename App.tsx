@@ -739,6 +739,7 @@ const AppContent: React.FC = () => {
             [AppRoute.ADMIN_FINANCIALS]: '/admin/financials',
             [AppRoute.ADMIN_PLANS]: '/admin/plans',
             [AppRoute.ADMIN_MINUTE_PACKS]: '/admin/minute-packs', // NEW
+            [AppRoute.ADMIN_CALL_CREDITS]: '/admin/call-credits', // NEW
             [AppRoute.ADMIN_ANALYTICS]: '/admin/analytics', // NEW ROUTE
             [AppRoute.CONTACT]: '/contact',
             [AppRoute.ABOUT]: '/about',
