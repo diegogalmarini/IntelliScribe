@@ -48,6 +48,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
     const [showDeviceSelector, setShowDeviceSelector] = useState(false);
 
+    // REFS for audio management
+    const audioContextRef = React.useRef<AudioContext | null>(null);
+    const monitorStreamRef = React.useRef<MediaStream | null>(null);
+
     useEffect(() => {
         if (isOpen && user && status === 'Idle') {
             callService.prepareToken(user.email || 'guest');
@@ -60,7 +64,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         let analyser: AnalyserNode;
         let microphone: MediaStreamAudioSourceNode;
         let javascriptNode: ScriptProcessorNode;
-        let stream: MediaStream;
 
         if (isOpen && status === 'Idle') {
             const startMonitor = async () => {
@@ -87,7 +90,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         audio: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : true
                     };
 
-                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    monitorStreamRef.current = stream;
 
                     if (!audioContextRef.current) {
                         const Ctx = window.AudioContext || (window as any).webkitAudioContext;
@@ -130,7 +134,9 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         return () => {
-            if (stream) stream.getTracks().forEach(t => t.stop());
+            if (monitorStreamRef.current) {
+                monitorStreamRef.current.getTracks().forEach(t => t.stop());
+            }
         };
     }, [isOpen, user, status, selectedDeviceId]);
 
@@ -185,6 +191,13 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
 
         try {
+            // STOP MONITOR BEFORE TWILIO TAKES OVER
+            if (monitorStreamRef.current) {
+                console.log('[DIALER] Stopping monitor stream for Twilio...');
+                monitorStreamRef.current.getTracks().forEach(t => t.stop());
+                monitorStreamRef.current = null;
+            }
+
             // Set input device in Twilio before connecting
             if (selectedDeviceId) {
                 await callService.setInputDevice(selectedDeviceId);
@@ -354,33 +367,33 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 {errorMessage && <div className="bg-red-500 text-white text-xs p-2 text-center">{errorMessage}</div>}
 
                 {/* Top Actions Row */}
-                <div className="px-5 py-3 flex items-center justify-between border-b border-black/[0.03] dark:border-white/[0.03]">
+                <div className="px-5 py-4 flex items-center justify-between border-b border-black/[0.03] dark:border-white/[0.03]">
                     {/* Botón Contactos */}
                     <div className="flex gap-2">
                         {'contacts' in navigator && 'ContactsManager' in window && (
                             <button
                                 onClick={handleContacts}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5f5f5] dark:bg-[#2f2f2f] text-[11px] font-medium text-[#444746] dark:text-[#e3e3e3] hover:bg-[#ebebeb] dark:hover:bg-[#3c3c3c] transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5f5f5] dark:bg-[#2f2f2f] text-[11px] font-medium text-[#444746] dark:text-[#e3e3e3] hover:text-[#0055FF] transition-colors"
                                 title="Buscar Contacto"
                             >
-                                <Search size={14} />
+                                <Search size={16} strokeWidth={1.5} />
                                 <span>Contactos</span>
                             </button>
                         )}
                     </div>
 
-                    {/* Selector de Micrófono (Estilo Premium) */}
+                    {/* Selector de Micrófono (Fino) */}
                     <div className="relative">
                         <button
                             onClick={() => setShowDeviceSelector(!showDeviceSelector)}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f1f5f9] dark:bg-[#2a2a2a] text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8] hover:bg-[#e2e8f0] dark:hover:bg-[#3c3c3c] transition-all border border-slate-200 dark:border-white/5 active:scale-95"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f8fafc] dark:bg-[#2a2a2a] text-[11px] font-medium text-[#64748b] dark:text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-[#3c3c3c] transition-all border border-slate-200 dark:border-white/5 active:scale-95"
                             title="Seleccionar Micrófono"
                         >
-                            <Mic size={14} className={selectedDeviceId ? 'text-brand-green' : ''} />
+                            <Mic size={14} strokeWidth={1.5} className={selectedDeviceId ? 'text-[#0055FF]' : ''} />
                             <span className="max-w-[120px] truncate">
                                 {availableDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'Micrófono'}
                             </span>
-                            <ChevronDown size={14} />
+                            <ChevronDown size={14} strokeWidth={1.5} />
                         </button>
 
                         {showDeviceSelector && availableDevices.length > 0 && (
@@ -395,10 +408,10 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                             setSelectedDeviceId(device.deviceId);
                                             setShowDeviceSelector(false);
                                         }}
-                                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-[#f8fafc] dark:hover:bg-white/5 flex items-center gap-3 ${selectedDeviceId === device.deviceId ? 'text-brand-green font-bold' : 'text-[#1f1f1f] dark:text-[#e3e3e3]'
+                                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-[#f8fafc] dark:hover:bg-white/5 flex items-center gap-3 ${selectedDeviceId === device.deviceId ? 'text-[#0055FF] font-bold' : 'text-[#1f1f1f] dark:text-[#e3e3e3]'
                                             }`}
                                     >
-                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedDeviceId === device.deviceId ? 'bg-brand-green' : 'bg-transparent'}`} />
+                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedDeviceId === device.deviceId ? 'bg-[#0055FF]' : 'bg-transparent'}`} />
                                         <span className="truncate">{device.label || `Mic ${device.deviceId.slice(0, 5)}...`}</span>
                                     </button>
                                 ))}
@@ -407,7 +420,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     </div>
                 </div>
 
-                <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] shrink-0 relative">
+                <div className="p-8 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] shrink-0 relative">
 
                     <div className="flex items-center justify-center w-full mb-4 px-8">
                         <span className="text-3xl font-light text-slate-300 dark:text-slate-700 mr-2 select-none">+</span>
@@ -428,25 +441,19 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         />
                     </div>
 
-                    {/* Volume Indicator (Always visible for diagnostic) */}
-                    {/* Visualizer Row */}
+                    {/* Volume Indicator (Subtle) */}
                     <div className="w-full flex flex-col items-center gap-2 mb-4">
-                        <div className="flex items-center gap-1 h-6 w-full justify-center">
+                        <div className="flex items-center gap-1 h-3 w-full justify-center">
                             {[...Array(15)].map((_, i) => (
                                 <div
                                     key={i}
                                     className={`w-1 rounded-full transition-all duration-75 ${inputVolume > (i * 4)
-                                        ? 'bg-brand-green h-full shadow-[0_0_8px_rgba(34,197,94,0.5)]'
-                                        : 'bg-slate-200 dark:bg-white/5 h-1'
+                                        ? 'bg-[#0055FF] h-full shadow-[0_0_4px_rgba(0,85,255,0.3)]'
+                                        : 'bg-slate-100 dark:bg-white/5 h-1'
                                         }`}
                                 />
                             ))}
                         </div>
-                        {status === 'In Call' && (
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8e8e8e]">
-                                {inputVolume > 8 ? 'Audio Detectado' : 'Silencio...'}
-                            </span>
-                        )}
                     </div>
 
                     {/* Tier Badge */}
@@ -498,35 +505,35 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                 </div>
 
                 {/* Keypad */}
-                <div className="flex-1 grid grid-cols-3 gap-3 p-6 bg-slate-50 dark:bg-surface-dark/50">
+                <div className="flex-1 grid grid-cols-3 gap-2 px-8 py-4 bg-slate-50 dark:bg-surface-dark/30">
                     {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(digit => (
-                        <button key={digit} onClick={() => handleDigit(digit)} className="h-full rounded-2xl bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 font-medium text-2xl shadow-sm active:scale-95 flex items-center justify-center">
+                        <button key={digit} onClick={() => handleDigit(digit)} className="h-14 rounded-xl bg-white dark:bg-white/5 text-slate-600 dark:text-slate-200 font-medium text-xl shadow-sm active:scale-95 flex items-center justify-center hover:bg-slate-100 transition-colors">
                             {digit}
                         </button>
                     ))}
                     <div className="col-start-2">
-                        <button onClick={() => handleDigit('0')} className="h-full w-full rounded-2xl bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 font-medium text-2xl shadow-sm active:scale-95 flex items-center justify-center">0</button>
+                        <button onClick={() => handleDigit('0')} className="h-14 w-full rounded-xl bg-white dark:bg-white/5 text-slate-600 dark:text-slate-200 font-medium text-xl shadow-sm active:scale-95 flex items-center justify-center hover:bg-slate-100 transition-colors">0</button>
                     </div>
                 </div>
 
                 {/* Actions */}
-                <div className="p-8 bg-white dark:bg-[#1a1a1a] grid grid-cols-3 gap-6 border-t border-black/[0.05] dark:border-white/[0.05] shrink-0 sm:mb-2">
-                    <button onClick={toggleMute} className={`rounded-full w-14 h-14 mx-auto flex items-center justify-center transition-all active:scale-90 ${isMuted ? 'bg-red-50 text-red-500' : 'bg-slate-50 dark:bg-white/5 text-slate-400'}`}>
-                        {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
+                <div className="p-8 bg-white dark:bg-[#1a1a1a] flex justify-around items-center border-t border-black/[0.05] dark:border-white/[0.05] shrink-0">
+                    <button onClick={toggleMute} className={`rounded-full w-12 h-12 flex items-center justify-center transition-all active:scale-90 ${isMuted ? 'bg-red-50 text-red-500' : 'bg-slate-50 dark:bg-white/5 text-slate-400'}`}>
+                        {isMuted ? <MicOff size={20} strokeWidth={1.5} /> : <Mic size={20} strokeWidth={1.5} />}
                     </button>
 
                     {status === 'In Call' || status === 'Calling...' ? (
-                        <button onClick={handleHangup} className="bg-red-500 text-white rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-xl shadow-red-500/20 active:scale-95 transition-all">
-                            <PhoneOff size={32} />
+                        <button onClick={handleHangup} className="bg-[#ef4444] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-all">
+                            <PhoneOff size={26} strokeWidth={1.5} />
                         </button>
                     ) : (
-                        <button onClick={handleCall} className="bg-brand-green text-slate-900 rounded-full w-16 h-16 mx-auto flex items-center justify-center shadow-xl shadow-green-500/20 active:scale-95 transition-all">
-                            <Phone size={32} fill="currentColor" />
+                        <button onClick={handleCall} className="bg-[#22c55e] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg active:scale-95 transition-all">
+                            <Phone size={26} strokeWidth={1.5} fill="currentColor" />
                         </button>
                     )}
 
-                    <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-14 h-14 mx-auto flex items-center justify-center bg-slate-50 dark:bg-white/5 text-slate-400 active:scale-90 transition-all">
-                        <Delete size={24} />
+                    <button onClick={() => setNumber(prev => prev.slice(0, -1))} className="rounded-full w-12 h-12 flex items-center justify-center bg-slate-50 dark:bg-white/5 text-slate-400 active:scale-90 transition-all">
+                        <Delete size={20} strokeWidth={1.5} />
                     </button>
                 </div>
             </div>
