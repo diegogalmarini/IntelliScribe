@@ -55,15 +55,16 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const analyserRef = React.useRef<AnalyserNode | null>(null);
 
     useEffect(() => {
-        if (isOpen && user?.id && status === 'Idle') {
+        const isIdleOrReady = status === 'Idle' || status === 'Ready';
+        if (isOpen && user?.id && isIdleOrReady) {
             callService.prepareToken(user.id);
             if (Analytics && typeof Analytics.trackEvent === 'function') {
                 Analytics.trackEvent('dialer_opened');
             }
         }
 
-        // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS (Idle only) ---
-        if (isOpen && status === 'Idle') {
+        // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS (Idle/Ready only) ---
+        if (isOpen && isIdleOrReady) {
             const startMonitor = async () => {
                 try {
                     // Enumerate devices first if not done
@@ -109,27 +110,34 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         await audioContext.resume();
                     }
 
-                    // Start Animation Loop
-                    const animate = () => {
+                    // Start Animation Loop (Throttle for performance)
+                    let lastFrameTime = 0;
+                    const animate = (time: number) => {
                         if (!analyserRef.current) return;
+
+                        // Limit to ~30fps for UI stability on heavy components
+                        if (time - lastFrameTime < 33) {
+                            requestRef.current = requestAnimationFrame(animate);
+                            return;
+                        }
+                        lastFrameTime = time;
+
                         const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
                         analyserRef.current.getByteFrequencyData(dataArray);
 
-                        // Take middle-low frequencies for the "dancing" bars
                         const barCount = 15;
                         const newData = [];
                         const step = Math.floor(dataArray.length / 2 / barCount);
 
                         for (let i = 0; i < barCount; i++) {
                             const val = dataArray[i * step] || 0;
-                            // Scale to % height (min 2, max 100)
                             const h = Math.max(2, (val / 255) * 100);
                             newData.push(h);
                         }
                         setVisualizerData(newData);
                         requestRef.current = requestAnimationFrame(animate);
                     };
-                    animate();
+                    requestRef.current = requestAnimationFrame(animate);
 
                 } catch (err) {
                     console.error('[DIALER] Mic monitoring failed:', err);
@@ -141,12 +149,15 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         return () => {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
             if (monitorStreamRef.current) {
-                monitorStreamRef.current.getTracks().forEach(t => t.stop());
+                monitorStreamRef.current.getTracks().forEach(t => {
+                    t.stop();
+                    t.enabled = false;
+                });
                 monitorStreamRef.current = null;
             }
             analyserRef.current = null;
         };
-    }, [isOpen, user, status, selectedDeviceId]);
+    }, [isOpen, user?.id, status, selectedDeviceId]);
 
     // Resume audio context on interaction for PC compatibility
     const ensureAudioIsLive = () => {
@@ -172,43 +183,43 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         setErrorMessage('');
-        const numberToCall = '+' + number;
         setStatus('Calling...');
 
-        // TRACK: Start Call
-        if (Analytics && typeof Analytics.trackEvent === 'function') {
-            Analytics.trackEvent('start_call', {
-                transcription_language: user.transcriptionLanguage || 'es'
-            });
-        }
+        // 🟢 FIX: CRITICAL NUMBER SANITIZATION
+        // Ensure we don't end up with '++34...' if number already has '+'
+        const sanitizedNumber = number.replace(/[^0-9]/g, '');
+        const numberToCall = '+' + sanitizedNumber;
 
-
-        // DEBUG: Check user phone value
-        console.log('[DIALER] user.id:', user.id);
-        console.log('[DIALER] user.phone:', user.phone);
-        console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
+        // ...
 
         try {
             // 🛑 FORCE STOP MONITOR TO RELEASE HARDWARE
             if (monitorStreamRef.current) {
                 console.log('[DIALER] Force stopping monitor before call startup...');
-                monitorStreamRef.current.getTracks().forEach(track => track.stop());
+                monitorStreamRef.current.getTracks().forEach(track => {
+                    track.stop();
+                    track.enabled = false;
+                });
                 monitorStreamRef.current = null;
             }
 
             // Set input device in Twilio before connecting
             if (selectedDeviceId) {
-                await callService.setInputDevice(selectedDeviceId);
+                try {
+                    await callService.setInputDevice(selectedDeviceId);
+                } catch (devErr) {
+                    console.warn('[DIALER] Could not set input device pre-call:', devErr);
+                }
             }
 
             // 2. WAIT FOR HARDWARE RELEASE
-            // Increased delay to 350ms for stable handoff on Windows/Bluetooth
-            await new Promise(resolve => setTimeout(resolve, 350));
+            // Increased delay to 500ms for robust handoff on problematic Windows drivers
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             const call = await callService.makeCall(
                 numberToCall,
-                user.id,  // Pass user ID for caller ID lookup (now guaranteed to exist)
-                user.phone  // Pass verified phone for caller ID
+                user.id,
+                user.phone
             );
             if (call) {
                 setActiveCall(call);
