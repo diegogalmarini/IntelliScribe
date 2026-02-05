@@ -48,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (supabaseUrl && supabaseServiceKey) {
                 const response = await fetch(
-                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified,plan_id,voice_credits`,
+                    `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=phone,phone_verified,caller_id_verified,plan_id,voice_credits`,
                     {
                         headers: {
                             'apikey': supabaseServiceKey,
@@ -79,11 +79,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             return res.status(200).send(twiml.toString());
                         }
 
-                        // Use user's phone if phone_verified is true
-                        if (profile.phone_verified && profile.phone) {
+                        // Use user's phone if caller_id_verified is true
+                        // ⚠️ CHANGE: We now check caller_id_verified specifically for Twilio
+                        if (profile.caller_id_verified && profile.phone) {
                             callerId = profile.phone;
                             verificationStatus = 'verified';
                             console.log(`[VOICE] ✅ Using verified caller ID: ${callerId} for user ${userId}`);
+                        } else if (profile.phone_verified && profile.phone) {
+                            // Temporary fallback: If phone verified via SMS but not yet in Twilio
+                            // Note: This might still trigger 31005 if Twilio hasn't verified it
+                            callerId = profile.phone;
+                            verificationStatus = 'partially_verified';
+                            console.log(`[VOICE] ⚠️ Using SMS-verified phone: ${callerId} for user ${userId}. Twilio might reject this.`);
                         } else {
                             verificationStatus = 'unverified';
                             console.log(`[VOICE] ⚠️ User ${userId} has not verified caller ID, using fallback: ${fallbackCallerId}`);
@@ -115,7 +122,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const dialOptions: any = {
         callerId: callerId,
-        answerOnBridge: true,
+        // ⚠️ FIXED: Removed answerOnBridge: true to avoid 31005 error when gateway hangs up early
+        answerOnBridge: false,
         timeout: 30,
         record: 'record-from-answer-dual',
         recordingStatusCallbackMethod: 'POST',

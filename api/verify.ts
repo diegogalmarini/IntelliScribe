@@ -178,7 +178,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         console.log(`✅ [VERIFY] Updating Supabase via REST API for user: ${userId}`);
                         await updateSupabaseProfile(userId, {
                             phone: phoneNumber,
-                            phone_verified: true
+                            phone_verified: true,
+                            caller_id_verified: false // Reset Twilio verification when phone changes
                         });
                         console.log("✅ [VERIFY] Database updated successfully");
 
