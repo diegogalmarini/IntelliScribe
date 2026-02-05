@@ -111,11 +111,11 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
                         {asset === 'transcription' ? (
                             <>
                                 <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Used (Trans)</div>
+                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Used (Minutes)</div>
                                     <div className="text-base font-medium text-white">{user.minutesUsed} min</div>
                                 </div>
                                 <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Limit (Trans)</div>
+                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Limit (Minutes)</div>
                                     <div className="text-base font-medium text-white">
                                         {user.minutesLimit === -1 ? '∞' : `${user.minutesLimit} min`}
                                     </div>
@@ -124,12 +124,12 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
                         ) : (
                             <>
                                 <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Balance (Vox)</div>
-                                    <div className="text-base font-medium text-white">{user.voiceCredits || 0} min</div>
+                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Prepaid balance (Credits)</div>
+                                    <div className="text-base font-medium text-white">{user.voiceCredits || 0} cred</div>
                                 </div>
                                 <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Limit (Vox)</div>
-                                    <div className="text-base font-medium text-white">{user.callLimit || 0} min</div>
+                                    <div className="text-[11px] uppercase tracking-wider text-slate-400 mb-1">Monthly limit (Credits)</div>
+                                    <div className="text-base font-medium text-white">{user.callLimit || 0} cred</div>
                                 </div>
                             </>
                         )}
@@ -257,3 +257,4 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
         </div>
     );
 };
+

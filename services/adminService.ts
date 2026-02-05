@@ -288,7 +288,7 @@ export const adminService = {
                 plan_id: planId,
                 minutes_limit: planConfig?.limits?.transcription_minutes ?? DEFAULT_LIMITS[planId] ?? 24,
                 storage_limit: (planConfig?.limits?.storage_gb ?? (planId === 'business_plus' ? 50 : planId === 'business' ? 20 : planId === 'pro' ? 5 : 0)) * 1073741824,  // GB to bytes
-                call_limit: planConfig?.limits?.call_minutes ?? (planId === 'business_plus' ? 300 : 0)
+                call_limit: planConfig?.limits?.call_minutes ?? (planId === 'business_plus' ? 300 : (planId === 'business' ? 100 : 0))
             };
 
             const { error } = await supabase
@@ -816,3 +816,4 @@ export const adminService = {
         }
     }
 };
+

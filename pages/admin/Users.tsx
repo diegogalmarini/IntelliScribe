@@ -345,11 +345,11 @@ export const Users: React.FC = () => {
                                                     </div>
                                                 ) : null}
 
-                                                {/* Call Plans (Business+) */}
-                                                {(user.callLimit > 0 || (user.voiceCredits || 0) > 0) && (
+                                                {/* Call Plans (Créditos) */}
+                                                {(user.callLimit > 0 || (user.voiceCredits || 0) > 0 || user.planId.includes('business')) && (
                                                     <div className="flex flex-col gap-1">
                                                         <div className="flex justify-between text-[10px] text-slate-500">
-                                                            <span>Calls</span>
+                                                            <span>Credits</span>
                                                             <span className="font-mono">
                                                                 {user.callMinutesUsed}/{user.callLimit}m
                                                                 {(user.voiceCredits || 0) > 0 && <span className="text-purple-500 ml-1">+{user.voiceCredits}p</span>}
@@ -357,8 +357,8 @@ export const Users: React.FC = () => {
                                                         </div>
                                                         <div className="w-24 h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
                                                             <div
-                                                                className={`h-full rounded-full ${user.callMinutesUsed >= user.callLimit ? 'bg-orange-500' : 'bg-purple-500'}`}
-                                                                style={{ width: `${Math.min((user.callMinutesUsed / user.callLimit) * 100, 100)}%` }}
+                                                                className={`h-full rounded-full ${user.callLimit > 0 && user.callMinutesUsed >= user.callLimit ? 'bg-orange-500' : 'bg-green-500'}`}
+                                                                style={{ width: `${user.callLimit > 0 ? Math.min((user.callMinutesUsed / user.callLimit) * 100, 100) : 0}%` }}
                                                             />
                                                         </div>
                                                     </div>
