@@ -39,7 +39,52 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             }
         }
 
-    }, [isOpen, user]);
+        // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS ---
+        let audioContext: AudioContext;
+        let analyser: AnalyserNode;
+        let microphone: MediaStreamAudioSourceNode;
+        let javascriptNode: ScriptProcessorNode;
+        let stream: MediaStream;
+
+        if (isOpen && status === 'Idle') {
+            const startMonitor = async () => {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    audioContext = new AudioContext();
+                    analyser = audioContext.createAnalyser();
+                    microphone = audioContext.createMediaStreamSource(stream);
+                    javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+                    analyser.smoothingTimeConstant = 0.8;
+                    analyser.fftSize = 1024;
+
+                    microphone.connect(analyser);
+                    analyser.connect(javascriptNode);
+                    javascriptNode.connect(audioContext.destination);
+
+                    javascriptNode.onaudioprocess = () => {
+                        const array = new Uint8Array(analyser.frequencyBinCount);
+                        analyser.getByteFrequencyData(array);
+                        let values = 0;
+                        const length = array.length;
+                        for (let i = 0; i < length; i++) {
+                            values += array[i];
+                        }
+                        const average = values / length;
+                        setInputVolume(Math.round(average));
+                    };
+                } catch (err) {
+                    console.error('[DIALER] Mic monitoring failed:', err);
+                }
+            };
+            startMonitor();
+        }
+
+        return () => {
+            if (audioContext) audioContext.close();
+            if (stream) stream.getTracks().forEach(t => t.stop());
+        };
+    }, [isOpen, user, status]);
 
     const handleCall = async () => {
         // 1. CHEQUEO DE VERIFICACIÓN
@@ -270,15 +315,20 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         />
                     </div>
 
-                    {/* Volume Indicator (Diagnostic) */}
-                    {status === 'In Call' && (
-                        <div className="w-full max-w-[120px] h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden mb-2">
+                    {/* Volume Indicator (Always visible for diagnostic) */}
+                    <div className="w-full max-w-[120px] flex flex-col items-center gap-1 mb-2">
+                        <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all duration-75 ${inputVolume > 10 ? 'bg-brand-green' : 'bg-slate-300'}`}
                                 style={{ width: `${Math.min(100, inputVolume * 2)}%` }}
                             />
                         </div>
-                    )}
+                        {status === 'In Call' && (
+                            <span className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
+                                {inputVolume > 5 ? 'Mic Active' : 'Silence...'}
+                            </span>
+                        )}
+                    </div>
 
                     {/* Tier Badge */}
                     {number.length >= 2 && (
