@@ -119,9 +119,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // --- DYNAMIC CALLBACK URL ---
-    // Use the host from the request to ensure we hit the correct environment (production or preview)
-    const host = req.headers.host || 'www.diktalo.com';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
+    // If we are on localhost, Twilio cannot call back to us.
+    // We force production URL so the audio is at least saved in the main DB and Storage.
+    let host = req.headers.host || 'www.diktalo.com';
+    let protocol = 'https';
+
+    if (host.includes('localhost') || host.includes('127.0.0.1')) {
+        console.log(`[VOICE] 🏠 Localhost detected (${host}). Redirecting callback to production for Twilio reachability.`);
+        host = 'www.diktalo.com';
+    }
+
     const callbackUrl = `${protocol}://${host}/api/recording-callback`;
 
     const dialOptions: any = {

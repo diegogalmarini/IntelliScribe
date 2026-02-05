@@ -16,8 +16,8 @@ function formatDuration(seconds: number): string {
 }
 
 // Helper for diagnostic logging
-async function logDiagnostic(supabaseUrl: string, supabaseKey: string, userId: string | null, event: string, status: string, details: any) {
-    if (!userId || userId === 'unknown') return;
+async function logDiagnostic(supabaseUrl: string, supabaseKey: string, userId: string | null, status: string, payload: any, error?: string) {
+    if (!userId || userId === 'unknown' || userId === 'undefined') return;
     try {
         await fetch(`${supabaseUrl}/rest/v1/integration_logs`, {
             method: 'POST',
@@ -28,10 +28,14 @@ async function logDiagnostic(supabaseUrl: string, supabaseKey: string, userId: s
             },
             body: JSON.stringify({
                 user_id: userId,
-                service: 'TWILIO_VOICE',
-                event,
-                status,
-                details
+                status: status,
+                payload: {
+                    ...payload,
+                    service: 'TWILIO_VOICE',
+                    timestamp: new Date().toISOString()
+                },
+                error_message: error || null,
+                response_code: error ? 500 : 200
             })
         });
     } catch (e) {
@@ -61,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!supabaseUrl || !supabaseServiceKey) throw new Error('Missing Supabase Config');
 
         // Step 1: Log Start
-        await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALLBACK_RECEIVED', 'IN_PROGRESS', {
+        await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALLBACK_RECEIVED', {
             RecordingSid,
             RecordingStatus,
             params: { query, body }
@@ -99,12 +103,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
             if (!rpcResponse.ok) {
                 const errText = await rpcResponse.text();
-                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_DEDUCTION', 'FAILED', { error: errText, amount: creditsToDeduct });
+                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_DEDUCTION_FAILED', { amount: creditsToDeduct }, errText);
             } else {
-                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_DEDUCTION', 'SUCCESS', { amount: creditsToDeduct });
+                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_DEDUCTION_SUCCESS', { amount: creditsToDeduct });
             }
         } catch (rpcErr: any) {
             console.warn('[REC-CALLBACK] RPC Error:', rpcErr.message);
+            await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_RPC_ERROR', { amount: creditsToDeduct }, rpcErr.message);
         }
 
         // Step 3: Download & Upload
@@ -176,19 +181,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!dbResponse.ok) {
             const dbErr = await dbResponse.text();
-            await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'DB_INSERT', 'FAILED', { error: dbErr, data: recordingData });
+            await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'DB_INSERT_FAILED', { data: recordingData }, dbErr);
             throw new Error(`DB Insert Failed: ${dbErr}`);
         }
 
         const savedData = await dbResponse.json();
-        await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALLBACK_FINISHED', 'SUCCESS', { recordingId: savedData[0]?.id });
+        await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALLBACK_FINISHED', { recordingId: savedData[0]?.id });
 
         console.log(`✅ [REC-CALLBACK] Done in ${Date.now() - start}ms`);
         return res.status(200).json({ success: true, id: savedData[0]?.id });
 
     } catch (err: any) {
         console.error('🔥 [REC-CALLBACK] CRITICAL:', err.message);
-        await logDiagnostic(supabaseUrl!, supabaseServiceKey!, userId, 'CALLBACK_ERROR', 'FAILED', { error: err.message });
+        await logDiagnostic(supabaseUrl!, supabaseServiceKey!, userId, 'CALLBACK_CRITICAL_ERROR', {}, err.message);
         return res.status(200).json({ error: err.message }); // 200 to stop Twilio retries
     }
 }
