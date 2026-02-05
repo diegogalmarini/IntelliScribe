@@ -25,6 +25,15 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
         setActiveTab(initialTab);
     }, [initialTab]);
 
+    // Handle deep links via query params (e.g. /settings?tab=credits)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab === 'credits') {
+            setActiveTab('credits');
+        }
+    }, []);
+
     // Expose tab navigation to window (for Dialer usage)
     useEffect(() => {
         (window as any).navigateToSettings = (tab: SettingsTab) => {

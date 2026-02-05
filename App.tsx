@@ -746,7 +746,12 @@ const AppContent: React.FC = () => {
         };
 
         if (pathMap[route]) {
-            navigateRR(pathMap[route]);
+            // Special handling for settings credits button in Dialer
+            if (route === AppRoute.SETTINGS && user.subscription?.planId?.includes('business')) {
+                navigateRR('/settings?tab=credits');
+            } else {
+                navigateRR(pathMap[route]);
+            }
         }
 
         setCurrentRoute(route);

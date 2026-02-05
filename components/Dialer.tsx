@@ -250,21 +250,17 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
 
                     {/* Tier Badge */}
                     {number.length >= 2 && (
-                        <div className="mt-2 flex flex-col gap-2 animate-in fade-in slide-in-from-top-1">
-                            <div className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-between gap-1.5 ${getTierForNumber('+' + number).id === 'BLOCKED' ? 'bg-red-100 text-red-600 dark:bg-red-900/30' :
-                                getTierForNumber('+' + number).id === 'ULTRA' ? 'bg-brand-green/20 text-brand-green border border-brand-green/30' :
-                                    getTierForNumber('+' + number).id === 'PREMIUM' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30' :
-                                        'bg-slate-100 text-slate-500 dark:bg-slate-800'
-                                }`}>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-[12px]">
-                                        {getTierForNumber('+' + number).id === 'BLOCKED' ? 'block' : 'payments'}
+                        <div className="mt-2 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 w-full max-w-[240px]">
+                            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1 px-1">
+                                <div className="flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[14px]">
+                                        {getTierForNumber('+' + number).id === 'BLOCKED' ? 'block' : 'info'}
                                     </span>
-                                    {getTierForNumber('+' + number).label} ({getTierForNumber('+' + number).multiplier}x {t('rateTableRate')})
+                                    <span>{getTierForNumber('+' + number).label} ({getTierForNumber('+' + number).multiplier}x)</span>
                                 </div>
 
                                 {getTierForNumber('+' + number).id !== 'BLOCKED' && (
-                                    <span className="opacity-80">
+                                    <span className="font-medium text-slate-700">
                                         {t('creditsRemaining').replace('{minutes}', Math.floor((user.voiceCredits || 0) / getTierForNumber('+' + number).multiplier).toString())}
                                     </span>
                                 )}
@@ -273,8 +269,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                             {/* Recharge Link if credits are low */}
                             {getTierForNumber('+' + number).id !== 'BLOCKED' && (user.voiceCredits || 0) / getTierForNumber('+' + number).multiplier < 5 && (
                                 <button
-                                    onClick={() => (window as any).navigateToSettings?.('credits')}
-                                    className="text-[10px] font-bold text-brand-blue hover:underline flex items-center gap-1 self-start px-1"
+                                    onClick={() => onNavigate(AppRoute.SETTINGS)}
+                                    className="text-[10px] text-brand-blue hover:underline flex items-center gap-1 self-start px-1"
                                 >
                                     <span className="material-symbols-outlined text-[12px]">add_circle</span>
                                     {t('buyMoreCredits')}
