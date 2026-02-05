@@ -55,7 +55,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         // --- REAL-TIME MIC MONITORING FOR DIAGNOSTICS ---
-        let audioContext: AudioContext;
         let analyser: AnalyserNode;
         let microphone: MediaStreamAudioSourceNode;
         let javascriptNode: ScriptProcessorNode;
@@ -87,7 +86,13 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     };
 
                     stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    audioContext = new AudioContext();
+
+                    if (!audioContextRef.current) {
+                        const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+                        audioContextRef.current = new Ctx();
+                    }
+                    const audioContext = audioContextRef.current;
+
                     analyser = audioContext.createAnalyser();
                     microphone = audioContext.createMediaStreamSource(stream);
                     javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
@@ -110,6 +115,11 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         const average = values / length;
                         setInputVolume(Math.round(average));
                     };
+
+                    // Resume if suspended (common on PC)
+                    if (audioContext.state === 'suspended') {
+                        await audioContext.resume();
+                    }
                 } catch (err) {
                     console.error('[DIALER] Mic monitoring failed:', err);
                 }
@@ -118,10 +128,16 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         }
 
         return () => {
-            if (audioContext) audioContext.close();
             if (stream) stream.getTracks().forEach(t => t.stop());
         };
     }, [isOpen, user, status, selectedDeviceId]);
+
+    // Resume audio context on interaction for PC compatibility
+    const ensureAudioIsLive = () => {
+        if (audioContextRef.current?.state === 'suspended') {
+            audioContextRef.current.resume();
+        }
+    };
 
     const handleCall = async () => {
         // 1. CHEQUEO DE VERIFICACIÓN
@@ -335,32 +351,41 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
 
                 {errorMessage && <div className="bg-red-500 text-white text-xs p-2 text-center">{errorMessage}</div>}
 
-                {/* Display */}
-                <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-card-dark shrink-0 relative">
+                {/* Top Actions Row */}
+                <div className="px-5 py-3 flex items-center justify-between border-b border-black/[0.03] dark:border-white/[0.03]">
+                    {/* Botón Contactos */}
+                    <div className="flex gap-2">
+                        {'contacts' in navigator && 'ContactsManager' in window && (
+                            <button
+                                onClick={handleContacts}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f5f5f5] dark:bg-[#2f2f2f] text-[11px] font-medium text-[#444746] dark:text-[#e3e3e3] hover:bg-[#ebebeb] dark:hover:bg-[#3c3c3c] transition-colors"
+                                title="Buscar Contacto"
+                            >
+                                <Search size={14} />
+                                <span>Contactos</span>
+                            </button>
+                        )}
+                    </div>
 
-                    {/* Botón Contactos - Visible solo si soportado (Android/Chrome) */}
-                    {'contacts' in navigator && 'ContactsManager' in window && (
-                        <button
-                            onClick={handleContacts}
-                            className="absolute top-2 left-4 text-xs font-medium px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors flex items-center gap-1"
-                            title="Buscar Contacto"
-                        >
-                            <span className="material-symbols-outlined text-[14px]">contacts</span>
-                        </button>
-                    )}
-
-                    {/* Selector de Micrófono */}
-                    <div className="absolute top-2 right-4">
+                    {/* Selector de Micrófono (Estilo Premium) */}
+                    <div className="relative">
                         <button
                             onClick={() => setShowDeviceSelector(!showDeviceSelector)}
-                            className="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-brand-green transition-colors flex items-center"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f1f5f9] dark:bg-[#2a2a2a] text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8] hover:bg-[#e2e8f0] dark:hover:bg-[#3c3c3c] transition-all border border-slate-200 dark:border-white/5 active:scale-95"
                             title="Seleccionar Micrófono"
                         >
-                            <span className="material-symbols-outlined text-[16px]">settings_voice</span>
+                            <Mic size={14} className={selectedDeviceId ? 'text-brand-green' : ''} />
+                            <span className="max-w-[120px] truncate">
+                                {availableDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'Micrófono'}
+                            </span>
+                            <ChevronDown size={14} />
                         </button>
 
                         {showDeviceSelector && availableDevices.length > 0 && (
-                            <div className="absolute top-full right-0 mt-1 w-48 max-h-40 overflow-y-auto bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded shadow-xl z-[60] py-1">
+                            <div className="absolute top-full right-0 mt-2 w-64 max-h-60 overflow-y-auto bg-white dark:bg-[#2a2a2a] border border-black/10 dark:border-white/10 rounded-xl shadow-2xl z-[70] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#8e8e8e] border-b border-black/[0.05] dark:border-white/[0.05] mb-1">
+                                    Dispositivos de Entrada
+                                </div>
                                 {availableDevices.map(device => (
                                     <button
                                         key={device.deviceId}
@@ -368,15 +393,19 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                             setSelectedDeviceId(device.deviceId);
                                             setShowDeviceSelector(false);
                                         }}
-                                        className={`w-full text-left px-3 py-1.5 text-[11px] hover:bg-slate-50 dark:hover:bg-white/5 truncate ${selectedDeviceId === device.deviceId ? 'text-brand-green font-bold' : 'text-slate-600 dark:text-slate-300'
+                                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-[#f8fafc] dark:hover:bg-white/5 flex items-center gap-3 ${selectedDeviceId === device.deviceId ? 'text-brand-green font-bold' : 'text-[#1f1f1f] dark:text-[#e3e3e3]'
                                             }`}
                                     >
-                                        {device.label || `Mic ${device.deviceId.slice(0, 5)}...`}
+                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedDeviceId === device.deviceId ? 'bg-brand-green' : 'bg-transparent'}`} />
+                                        <span className="truncate">{device.label || `Mic ${device.deviceId.slice(0, 5)}...`}</span>
                                     </button>
                                 ))}
                             </div>
                         )}
                     </div>
+                </div>
+
+                <div className="p-6 flex flex-col items-center justify-center bg-white dark:bg-[#1a1a1a] shrink-0 relative">
 
                     <div className="flex items-center justify-center w-full mb-4 px-8">
                         <span className="text-3xl font-light text-slate-300 dark:text-slate-700 mr-2 select-none">+</span>
@@ -405,8 +434,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                 <div
                                     key={i}
                                     className={`w-1 rounded-full transition-all duration-75 ${inputVolume > (i * 4)
-                                            ? 'bg-brand-green h-full shadow-[0_0_8px_rgba(34,197,94,0.5)]'
-                                            : 'bg-slate-200 dark:bg-white/5 h-1'
+                                        ? 'bg-brand-green h-full shadow-[0_0_8px_rgba(34,197,94,0.5)]'
+                                        : 'bg-slate-200 dark:bg-white/5 h-1'
                                         }`}
                                 />
                             ))}
