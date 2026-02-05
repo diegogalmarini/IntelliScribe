@@ -15,7 +15,8 @@ import {
     Search,
     PhoneOff,
     Info,
-    AlertCircle
+    AlertCircle,
+    PlusCircle
 } from 'lucide-react';
 
 
@@ -483,7 +484,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                                                 onClick={() => onNavigate(AppRoute.SUBSCRIPTION)}
                                                 className="text-[10px] text-brand-blue hover:underline flex items-center gap-1 self-center px-1 font-bold mt-1"
                                             >
-                                                <span className="material-symbols-outlined text-[12px]">add_circle</span>
+                                                <PlusCircle size={12} />
                                                 {t('buyMoreCredits')}
                                             </button>
                                         );
