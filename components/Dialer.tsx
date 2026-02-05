@@ -162,16 +162,6 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
             return;
         }
 
-        // 1.5. MIC PERMISSION CHECK
-        try {
-            await navigator.mediaDevices.getUserMedia({ audio: true });
-        } catch (err) {
-            console.error('[DIALER] Microphone permission denied:', err);
-            setErrorMessage('Permiso de micrófono denegado. Por favor, actívalo en tu navegador.');
-            setStatus('Error');
-            return;
-        }
-
         if (!number) return;
 
         // Ensure we have a valid user ID before making a call
@@ -199,14 +189,21 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         console.log('[DIALER] user.phoneVerified:', user.phoneVerified);
 
         try {
+            // 🛑 FORCE STOP MONITOR TO RELEASE HARDWARE
+            if (monitorStreamRef.current) {
+                console.log('[DIALER] Force stopping monitor before call startup...');
+                monitorStreamRef.current.getTracks().forEach(track => track.stop());
+                monitorStreamRef.current = null;
+            }
+
             // Set input device in Twilio before connecting
             if (selectedDeviceId) {
                 await callService.setInputDevice(selectedDeviceId);
             }
 
-            // 2. WAIT FOR MONITOR TO STOP & DEVICE READY
-            // Small delay to ensure hardware is released by the monitor before Twilio starts
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // 2. WAIT FOR HARDWARE RELEASE
+            // Increased delay to 350ms for stable handoff on Windows/Bluetooth
+            await new Promise(resolve => setTimeout(resolve, 350));
 
             const call = await callService.makeCall(
                 numberToCall,
