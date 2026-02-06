@@ -67,7 +67,8 @@ async function generateContentWithGemini(newsItem: NewsItem) {
     // Using the official SDK for text generation (which is stable)
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    // ADHERING TO SKILL STANDARD: gemini-2.5-flash
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
     ACT AS: Senior Tech Journalist & SEO Specialist for Diktalo (Voice Intelligence Platform).
