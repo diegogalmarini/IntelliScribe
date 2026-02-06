@@ -17,7 +17,7 @@ const GEMINI_CONFIG = {
     ],
     actions: {
         summary: { preferredModel: 'gemini-1.5-flash', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-1.5-pro', temperature: 0.8 },
+        chat: { preferredModel: 'gemini-1.5-flash', temperature: 0.8 }, // Switched to Flash for reliability
         support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 }, // Nati Pol needs speed
         transcription: { preferredModel: 'gemini-1.5-flash', temperature: 0.1 }, // Flash is best for long audio
         embed: { preferredModel: 'text-embedding-004' }
@@ -285,6 +285,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
  CRITICAL INSTRUCTION: The output MUST be entirely in ${targetLanguageName}. 
  If the audio contains any other language, you MUST translate it accurately into ${targetLanguageName} while transcribing. 
  
+ SPEAKER IDENTIFICATION:
+ - Analyze the audio for names (e.g., "Hi Diego", "This is Natalia").
+ - If a name is mentioned, associate it with the speaker's voice.
+ - In 'suggestedSpeakers', map the generic ID (SPEAKER_00) to the Real Name (Diego).
+ 
  Return a JSON object with:
  1. 'segments': An array of objects. Each object must have: 'timestamp' (MM:SS), 'speaker' (e.g. SPEAKER_0, SPEAKER_1), and 'text'.
  2. 'suggestedSpeakers': A dictionary mapping the speaker IDs (e.g. SPEAKER_0) to a real name if you can identify it from the conversation context. If you can't identify a name, use the ID itself.` }
@@ -404,8 +409,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             const results = [];
             for (const chunk of chunks) {
-                const embedResult = await model.embedContent(chunk.text);
-                const embedding = embedResult.embedding.values;
+                let embedding = [];
+                try {
+                    const embedResult = await model.embedContent(chunk.text);
+                    embedding = embedResult.embedding.values;
+                } catch (err: any) {
+                    console.warn(`[AI_API] RAG Sync Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to embedding-001. Error: ${err.message}`);
+                    const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+                    const embedResult = await fallbackModel.embedContent(chunk.text);
+                    embedding = embedResult.embedding.values;
+                }
 
                 const dbResponse = await fetch(`${supabaseUrl}/rest/v1/recording_chunks`, {
                     method: 'POST',
