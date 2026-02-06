@@ -48,11 +48,11 @@ async function fetchLatestNews(): Promise<NewsItem[]> {
     // Mocking news fetch - in production this would use `search_web` or a News API
     return [
         {
-            title: "The Rise of Voice Sovereignty in the EU AI Act",
-            source: "TechCrunch",
-            url: "https://techcrunch.com/mock-news-1",
+            title: "Google Launches Gemini 2.5 with Enhanced Reasoning",
+            source: "Google DeepMind Blog",
+            url: "https://blog.google/technology/ai/gemini-2-5-launch",
             relevance: 10,
-            summary: "New regulations emphasize data localized processing for voice biometrics."
+            summary: "The new Gemini 2.5 model introduces superior reasoning capabilities and 1M context window, setting a new standard for voice intelligence."
         }
     ];
 }
@@ -62,7 +62,7 @@ async function generateContentWithGemini(newsItem: NewsItem) {
         throw new Error("GEMINI_API_KEY is missing. Cannot generate content.");
     }
 
-    console.log("🧠 Generating authority content with Gemini 2.0 Flash...");
+    console.log("🧠 Generating authority content with Gemini 2.5 Flash...");
 
     // Using the official SDK for text generation (which is stable)
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
@@ -87,7 +87,7 @@ async function generateContentWithGemini(newsItem: NewsItem) {
        - Content (Markdown, use ## H2 for sections, **bold** for emphasis, bullet points)
        - AEO Answer (Direct answer to a "People Also Ask" question related to the topic)
        - Social Media Posts (Twitter, LinkedIn, Instagram text)
-    4. FOCUS: Connect the news to "Voice Sovereignty", "Local Processing", "Privacy", and "Diktalo's Strategy".
+    4. FOCUS: Analyze the news from Diktalo's perspective (Voice Intelligence, AI, Security). If relevant, mention "Voice Sovereignty" or "Privacy", but prioritize the actual news topic.
     5. LANGUAGE: Spanish (Spain).
 
     OUTPUT FORMAT: JSON ONLY.
@@ -222,7 +222,7 @@ async function injectPostToBlogData(newPost: BlogPost) {
     console.log("✅ blogData.ts updated successfully.");
 }
 
-async function sendToSocialWebhook(blogPost: BlogPost) {
+async function sendToSocialWebhook(blogPost: BlogPost, aiSocials?: { twitter: string, linkedin: string }) {
     const webhookUrl = process.env.SOCIAL_WEBHOOK_URL;
     if (!webhookUrl) {
         console.warn("⚠️ SOCIAL_WEBHOOK_URL not found in environment. Skipping social distribution.");
@@ -230,22 +230,34 @@ async function sendToSocialWebhook(blogPost: BlogPost) {
     }
 
     const postUrl = `https://diktalo.com/blog/${blogPost.slug}`;
-    const imageUrl = `https://diktalo.com${blogPost.image}`; // Assuming image path is relative like /images/blog/...
+    const imageUrl = `https://diktalo.com${blogPost.image}`;
 
     // --- 1. Generate X Text (Max 280) ---
-    // Format: "{title} — {url}"
-    let xTitle = blogPost.title;
-    const xUrlSuffix = ` — ${postUrl}`;
-    const xMaxLen = 280 - xUrlSuffix.length;
+    // PRIORITY: Use AI-generated text if available, otherwise fallback to template
+    let xText = "";
+    if (aiSocials && aiSocials.twitter) {
+        xText = aiSocials.twitter;
+    } else {
+        // Fallback Logic
+        let xTitle = blogPost.title;
+        const xUrlSuffix = ` — ${postUrl}`;
+        const xMaxLen = 280 - xUrlSuffix.length;
 
-    if (xTitle.length > xMaxLen) {
-        xTitle = xTitle.substring(0, xMaxLen - 3) + "..."; // Truncate with ellipsis
+        if (xTitle.length > xMaxLen) {
+            xTitle = xTitle.substring(0, xMaxLen - 3) + "...";
+        }
+        xText = `${xTitle}${xUrlSuffix}`;
     }
-    const xText = `${xTitle}${xUrlSuffix}`;
 
-    // --- 2. Generate LinkedIn Text (Max 3000) ---
-    // Format: "{title}\n\n{summary}\n\n👉 Probalo: {url}"
-    const linkedinText = `${blogPost.title}\n\n${blogPost.excerpt}\n\n👉 Probalo: ${postUrl}`;
+    // --- 2. Generate LinkedIn Text ---
+    // PRIORITY: Use AI-generated text if available, otherwise fallback to template
+    let linkedinText = "";
+    if (aiSocials && aiSocials.linkedin) {
+        linkedinText = aiSocials.linkedin;
+    } else {
+        // Fallback Logic
+        linkedinText = `${blogPost.title}\n\n${blogPost.excerpt}\n\n👉 Probalo: ${postUrl}`;
+    }
 
     // Construct Payload
     const payload = {
@@ -285,7 +297,7 @@ async function runNewsroom() {
         await injectPostToBlogData(draftedContent.blog);
 
         // --- Send Blog Post Data to Make.com for Socials ---
-        await sendToSocialWebhook(draftedContent.blog);
+        await sendToSocialWebhook(draftedContent.blog, draftedContent.socials);
 
         console.log("🚀 Automated Newsletter cycle complete!");
     } catch (error) {
