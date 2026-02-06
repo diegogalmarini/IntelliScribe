@@ -89,6 +89,7 @@ async function generateContentWithGemini(newsItem: NewsItem) {
        - Social Media Posts (Twitter, LinkedIn, Instagram text)
     4. FOCUS: Analyze the news from Diktalo's perspective (Voice Intelligence, AI, Security). If relevant, mention "Voice Sovereignty" or "Privacy", but prioritize the actual news topic.
     5. LANGUAGE: Spanish (Spain).
+    6. FORMATTING: STRICT JSON. Escape all double quotes (") inside the content strings with backslash (\"). Do not include any markdown code blocks.
 
     OUTPUT FORMAT: JSON ONLY.
     {
