@@ -420,39 +420,6 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
                     </div>
                 </div>
 
-                {/* Security & Privacy Section */}
-                <section className="max-w-4xl mx-auto mt-24 mb-16 px-6 text-center">
-                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-3xl p-8 border border-slate-200 dark:border-white/5">
-                        <div className="flex justify-center mb-6">
-                            <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
-                                <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-3xl">shield_lock</span>
-                            </div>
-                        </div>
-
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
-                            Tu seguridad y privacidad son nuestra máxima prioridad
-                        </h2>
-
-                        <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed space-y-4 text-justify max-w-3xl mx-auto">
-                            <p>
-                                En Diktalo, sabemos que la confianza es la base de tu trabajo. Por ello, hemos implementado una <strong>infraestructura de seguridad de nivel bancario</strong> para proteger cada segundo de audio y cada palabra transcrita.
-                            </p>
-                            <p>
-                                <strong>Encriptación de Extremo a Extremo:</strong> Todos tus archivos se almacenan utilizando encriptación <strong>AES-256</strong> y se transmiten mediante protocolos seguros <strong>TLS 1.3</strong>, garantizando que tu información sea inaccesible para terceros no autorizados.
-                            </p>
-                            <p>
-                                <strong>Soberanía de Datos:</strong> Tú eres el único dueño de tu información. Diktalo cumple estrictamente con el <strong>RGPD</strong> (Reglamento General de Protección de Datos), asegurando que tus datos nunca serán vendidos, compartidos ni utilizados para entrenar modelos de IA públicos sin tu consentimiento explícito.
-                            </p>
-                            <p>
-                                <strong>Infraestructura Robusta:</strong> Alojamos nuestros servicios en centros de datos con certificaciones de seguridad líderes en la industria (ISO 27001, SOC 2), con monitoreo 24/7 y copias de seguridad redundantes para asegurar la disponibilidad e integridad de tu trabajo.
-                            </p>
-                            <p className="pt-4 border-t border-slate-200 dark:border-white/10 mt-4 text-center italic">
-                                "Ya seas un profesional legal, médico, periodista o directivo, puedes operar con la tranquilidad absoluta de que Diktalo protege tu confidencialidad con el mismo rigor profesional que tú aplicas en tu día a día."
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
             </main>
 
             <Footer />
