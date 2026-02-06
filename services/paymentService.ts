@@ -17,39 +17,45 @@ const PLANS = {
  * @param userId - User's Supabase ID (optional)
  */
 export const createCheckout = async (
-    checkoutId: string,
+    checkoutIdOrUrl: string,
     userEmail?: string,
     userId?: string
 ) => {
-    // Validate checkout ID format (UUID)
-    if (!checkoutId || !checkoutId.match(/^[0-9a-f-]{36}$/i)) {
-        console.error('Invalid checkout ID:', checkoutId);
-        throw new Error('ID de checkout inválido');
+    let checkoutUrlStr = '';
+
+    // Check if it's a full URL
+    if (checkoutIdOrUrl && (checkoutIdOrUrl.startsWith('http://') || checkoutIdOrUrl.startsWith('https://'))) {
+        checkoutUrlStr = checkoutIdOrUrl;
+    }
+    // Check if it's a UUID
+    else if (checkoutIdOrUrl && checkoutIdOrUrl.match(/^[0-9a-f-]{36}$/i)) {
+        checkoutUrlStr = `https://diktalosaas.lemonsqueezy.com/checkout/buy/${checkoutIdOrUrl}`;
+    } else {
+        console.error('Invalid checkout ID or URL:', checkoutIdOrUrl);
+        throw new Error('ID de checkout o URL inválida');
     }
 
-    // Build checkout URL
-    let checkoutUrl = `https://diktalosaas.lemonsqueezy.com/checkout/buy/${checkoutId}`;
+    try {
+        // Use URL API for safe parameter appending
+        const url = new URL(checkoutUrlStr);
 
-    // Get current domain for redirect
-    const currentDomain = window.location.origin;
-    const redirectUrl = `${currentDomain}/dashboard`;
+        // Get current domain for redirect
+        const currentDomain = window.location.origin;
+        const redirectUrl = `${currentDomain}/dashboard`;
 
-    // Add optional query parameters for pre-filling
-    const params = new URLSearchParams();
-    if (userEmail) params.append('checkout[email]', userEmail);
-    if (userId) params.append('checkout[custom][user_id]', userId);
+        // Add params
+        if (userEmail) url.searchParams.append('checkout[email]', userEmail);
+        if (userId) url.searchParams.append('checkout[custom][user_id]', userId);
+        url.searchParams.append('checkout[custom][redirect_url]', redirectUrl);
 
-    // Add redirect URL
-    params.append('checkout[custom][redirect_url]', redirectUrl);
+        console.log('Redirecting to Lemon Squeezy checkout:', url.toString());
 
-    if (params.toString()) {
-        checkoutUrl += `?${params.toString()}`;
+        // Direct redirect to checkout
+        window.location.href = url.toString();
+    } catch (e) {
+        console.error('Error constructing checkout URL:', e);
+        throw new Error('Error al procesar la URL de pago');
     }
-
-    console.log('Redirecting to Lemon Squeezy checkout:', checkoutUrl);
-
-    // Direct redirect to checkout
-    window.location.href = checkoutUrl;
 };
 
 /**

@@ -43,14 +43,18 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                 // Fetch legal footer with language
                 const { data: settingsData, error: settingsError } = await supabase
                     .from('app_settings')
-                    .select(language === 'en' ? 'value_en as value' : 'value')
-                    .eq('key', 'legal_footer_text')
+                    .select('value, value_en')
+                    .eq('key', 'legal_disclaimer_plans') // Fixed key to match Admin Panel
                     .single();
 
                 console.log('[Dashboard] Legal footer fetch:', { settingsData, settingsError });
 
                 if (!settingsError && settingsData) {
-                    setLegalFooter((settingsData as any).value);
+                    // Choose correct language
+                    const text = language === 'en' && settingsData.value_en
+                        ? settingsData.value_en
+                        : settingsData.value;
+                    setLegalFooter(text);
                 }
 
                 // Fetch minute packs
