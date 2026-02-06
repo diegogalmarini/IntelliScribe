@@ -140,6 +140,15 @@ export const VoiceRatesTable: React.FC = () => {
                         10 Créditos/min
                     </div>
                 </div>
+
+                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 text-[11px] leading-relaxed text-slate-400 text-center max-w-3xl mx-auto">
+                    <p className="mb-2">
+                        El servicio de llamadas (Dialer) incluido en el plan <strong>Business+</strong> está optimizado para España, Europa (fijos) y EE. UU. El uso abusivo de llamadas a móviles internacionales puede estar sujeto a cargos adicionales.
+                    </p>
+                    <p>
+                        * Las llamadas salientes incluidas están limitadas a destinos de la <strong>Zona 1 (Fijos y Móviles)</strong>: España, Estados Unidos, Canadá, Reino Unido y Unión Europea Occidental (Alemania, Francia, Italia, Portugal, Irlanda, Países Bajos, Bélgica). El resto de destinos o números de tarificación especial requieren la compra de créditos adicionales.
+                    </p>
+                </div>
             </div>
         </section>
     );
