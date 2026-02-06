@@ -366,8 +366,8 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
 
                         <div className="grid gap-10">
                             <div>
-                                <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4 text-left flex items-center gap-2">
-                                    <span className="material-symbols-outlined">help</span>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 text-left flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-slate-400">help</span>
                                     ¿Qué incluye la transcripción ilimitada en el plan Pro?
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -376,8 +376,8 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400 mb-4 text-left flex items-center gap-2">
-                                    <span className="material-symbols-outlined">hub</span>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 text-left flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-slate-400">hub</span>
                                     ¿Cómo funciona la integración con Zapier en Diktalo?
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -386,8 +386,8 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mb-4 text-left flex items-center gap-2">
-                                    <span className="material-symbols-outlined">verified_user</span>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 text-left flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-slate-400">verified_user</span>
                                     ¿Es seguro usar Diktalo para información sensible?
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
