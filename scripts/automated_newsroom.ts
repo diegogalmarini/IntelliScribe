@@ -92,43 +92,58 @@ async function generateContentWithGemini(newsItem: NewsItem) {
 
 async function generateImageWithGemini(prompt: string, slug: string): Promise<string> {
     console.log(`🎨 Generating realistic AI image for: ${slug}...`);
+    // --- GEMINI IMAGEN 3.0 GENERATION (REST API) ---
+    // User requested "Nano Banana" (Imagen)
     try {
-        // We use Pollinations.ai (FLUX model) for stable, realistic AI images. 
-        // This is robust for CI environments and produces the "realistic people" style requested.
-        const encodedPrompt = encodeURIComponent(prompt + ", photorealistic, high resolution, professional photography, cinematic lighting, no text, no logos");
-        const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=768&model=flux&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
+        console.log(`🎨 Generating AI image with Gemini Imagen 3.0 for: "${prompt}"...`);
 
-        console.log(`📸 Requesting image from: ${imageUrl}`);
-        const response = await fetch(imageUrl);
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                instances: [{ prompt: prompt + " --aspect_ratio 16:9 --photorealistic --high_quality" }],
+                parameters: { aspectRatio: "16:9", sampleCount: 1 }
+            })
+        });
 
         if (!response.ok) {
-            throw new Error(`Image API failed with status: ${response.status}`);
+            const errText = await response.text();
+            throw new Error(`Gemini Imagen API failed: ${response.status} ${errText}`);
         }
 
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('image')) {
-            throw new Error(`Invalid content-type: ${contentType}. Expected image.`);
+        const data = await response.json();
+
+        // Gemini returns base64
+        if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
+            const base64Data = data.predictions[0].bytesBase64Encoded;
+            const buffer = Buffer.from(base64Data, 'base64');
+
+            const imagePath = `/images/blog/${slug}.png`;
+            const fullPath = path.join(process.cwd(), 'public', imagePath);
+
+            const dir = path.dirname(fullPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+            fs.writeFileSync(fullPath, buffer);
+            console.log(`✅ Gemini Imagen generated and saved to: ${imagePath} (${buffer.length} bytes)`);
+            return imagePath;
+        } else {
+            throw new Error("Gemini response missing image data");
         }
 
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+    } catch (error: any) {
+        console.warn(`⚠️ Gemini Image Generation failed: ${error.message}`);
+        console.log("🔄 Falling back to Unsplash high-quality stock photo...");
 
-        const imagePath = `/images/blog/${slug}.png`;
-        const fullPath = path.join(process.cwd(), 'public', imagePath);
-
-        // Ensure directory exists
-        const dir = path.dirname(fullPath);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-        // Write REAL binary image data (not mock strings)
-        fs.writeFileSync(fullPath, buffer);
-
-        console.log(`✅ Real image generated and saved to: ${imagePath} (${buffer.length} bytes)`);
-        return imagePath;
-    } catch (error) {
-        console.error("❌ Error generating image:", error);
-        // Fallback to a high-quality professional office image if generation fails
-        return "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80";
+        // --- FALLBACK: UNSPLASH ---
+        // Using a reliable tech/business query
+        const fallbackUrl = `https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80`;
+        return fallbackUrl;
     }
 }
 
