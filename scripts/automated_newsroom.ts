@@ -59,34 +59,76 @@ async function fetchLatestNews(): Promise<NewsItem[]> {
 
 async function generateContentWithGemini(newsItem: NewsItem) {
     if (!GEMINI_API_KEY) {
-        console.warn("⚠️ GEMINI_API_KEY missing. Generating mock content for testing.");
+        throw new Error("GEMINI_API_KEY is missing. Cannot generate content.");
     }
 
-    // Logic to call Gemini 2.0 would go here.
-    // For now, we return a high-quality draft based on the 'media-automator' skill instructions.
+    console.log("🧠 Generating authority content with Gemini 2.0 Flash...");
 
+    // Using the official SDK for text generation (which is stable)
+    const { GoogleGenerativeAI } = await import("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `
+    ACT AS: Senior Tech Journalist & SEO Specialist for Diktalo (Voice Intelligence Platform).
+    TASK: Write a comprehensive, high-authority blog post based on this news:
+    
+    NEWS TITLE: "${newsItem.title}"
+    SUMMARY: "${newsItem.summary}"
+    SOURCE: "${newsItem.source}"
+
+    REQUIREMENTS:
+    1. LENGTH: > 2500 characters. Deep analysis, not just news reporting.
+    2. TONE: Professional, insightful, authoritative, yet accessible.
+    3. STRUCTURE:
+       - Title (Engaging, SEO-optimized)
+       - Excerpt (Tweet-style summary)
+       - Content (Markdown, use ## H2 for sections, **bold** for emphasis, bullet points)
+       - AEO Answer (Direct answer to a "People Also Ask" question related to the topic)
+       - Social Media Posts (Twitter, LinkedIn, Instagram text)
+    4. FOCUS: Connect the news to "Voice Sovereignty", "Local Processing", "Privacy", and "Diktalo's Strategy".
+    5. LANGUAGE: Spanish (Spain).
+
+    OUTPUT FORMAT: JSON ONLY.
+    {
+      "blog": {
+        "title": "...",
+        "slug": "...", // kebab-case, english or spanish
+        "excerpt": "...",
+        "content": "...", // The full markdown article
+        "aeoAnswer": "...",
+        "tags": ["Tag1", "Tag2"]
+      },
+      "socials": {
+        "twitter": "...", // Max 280 chars
+        "linkedin": "...", // Professional tone
+        "instagram": "..." // Visual/Engagement focused
+      }
+    }
+    `;
+
+    const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const responseText = result.response.text();
+    const data = JSON.parse(responseText);
+
+    // Merge with static defaults
     return {
         blog: {
             id: Date.now().toString(),
-            slug: `voice-sovereignty-eu-ai-act-${new Date().getFullYear()}`,
-            title: "Soberanía de Voz: Cómo el EU AI Act Valida la Estrategia de Diktalo",
-            excerpt: "Las nuevas regulaciones europeas ponen el foco en la privacidad del dato vocal. Analizamos por qué el procesamiento local y el SOC 2 son ahora obligatorios.",
             date: new Date().toISOString().split('T')[0],
             author: "Anya Desai",
             authorRole: "Strategic Systems Architect",
             authorImage: "/images/avatars/anya-desai.webp",
             category: "Seguridad",
-            image: "/images/blog/eu_ai_act_security.png",
-            imageAlt: "Infografía sobre seguridad y soberanía de datos en la Unión Europea",
-            aeoAnswer: "¿Qué dice el EU AI Act sobre la voz? La nueva ley clasifica la biometría vocal como categoría de alto riesgo, exigiendo transparencia total y soberanía del usuario sobre sus datos, pilares que Diktalo implementa desde su arquitectura base.",
-            content: `**Resumen Ejecutivo:** El reciente marco regulatorio de la Unión Europea marca un antes y un después en la industria de la IA... [CONTENIDO EXPANDIDO > 2500 CARACTERES]`,
-            tags: ["Seguridad", "EU AI Act", "Privacidad", "Diktalo"]
+            image: "", // Will be filled by image generator
+            imageAlt: `Concepto visual sobre ${data.blog.title}`,
+            ...data.blog
         },
-        socials: {
-            twitter: "🧵 El EU AI Act no es un obstáculo, es un validador. Diktalo nació bajo la premisa de la Soberanía de Datos que hoy la ley exige. Aquí te explicamos por qué tu proveedor de IA actual podría estar en riesgo. 👇 [Link]",
-            linkedin: "La soberanía de datos ya no es una opción 'nice-to-have', es un requisito legal. El EU AI Act pone el foco en la biometría vocal y en Diktalo llevamos ventaja. #AI #Sovereignty #Privacy",
-            instagram: "Slide 1: ¿Tu voz te pertenece? Slide 2: El EU AI Act dice que sí. Slide 3: Cómo Diktalo te protege. Slide 4: Link en Bio."
-        }
+        socials: data.socials
     };
 }
 
