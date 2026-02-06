@@ -114,7 +114,11 @@ async function generateContentWithGemini(newsItem: NewsItem) {
     });
 
     const responseText = result.response.text();
-    const data = JSON.parse(responseText);
+
+    // CLEANUP: Remove markdown code blocks if present (Gemini often wraps JSON in ```json ... ```)
+    const cleanedText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    const data = JSON.parse(cleanedText);
 
     // Merge with static defaults
     return {
