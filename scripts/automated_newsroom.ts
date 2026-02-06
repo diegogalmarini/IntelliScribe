@@ -105,6 +105,11 @@ async function generateImageWithGemini(prompt: string, slug: string): Promise<st
             throw new Error(`Image API failed with status: ${response.status}`);
         }
 
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('image')) {
+            throw new Error(`Invalid content-type: ${contentType}. Expected image.`);
+        }
+
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
