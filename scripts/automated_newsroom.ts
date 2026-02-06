@@ -159,19 +159,48 @@ async function injectPostToBlogData(newPost: BlogPost) {
     console.log("✅ blogData.ts updated successfully.");
 }
 
-async function sendToSocialWebhook(socials: any) {
+async function sendToSocialWebhook(blogPost: BlogPost) {
     const webhookUrl = process.env.SOCIAL_WEBHOOK_URL;
     if (!webhookUrl) {
         console.warn("⚠️ SOCIAL_WEBHOOK_URL not found in environment. Skipping social distribution.");
         return;
     }
 
-    console.log("📤 Sending social media copy to Make.com...");
+    const postUrl = `https://diktalo.com/blog/${blogPost.slug}`;
+    const imageUrl = `https://diktalo.com${blogPost.image}`; // Assuming image path is relative like /images/blog/...
+
+    // --- 1. Generate X Text (Max 280) ---
+    // Format: "{title} — {url}"
+    let xTitle = blogPost.title;
+    const xUrlSuffix = ` — ${postUrl}`;
+    const xMaxLen = 280 - xUrlSuffix.length;
+
+    if (xTitle.length > xMaxLen) {
+        xTitle = xTitle.substring(0, xMaxLen - 3) + "..."; // Truncate with ellipsis
+    }
+    const xText = `${xTitle}${xUrlSuffix}`;
+
+    // --- 2. Generate LinkedIn Text (Max 3000) ---
+    // Format: "{title}\n\n{summary}\n\n👉 Probalo: {url}"
+    const linkedinText = `${blogPost.title}\n\n${blogPost.excerpt}\n\n👉 Probalo: ${postUrl}`;
+
+    // Construct Payload
+    const payload = {
+        title: blogPost.title,
+        summary: blogPost.excerpt,
+        url: postUrl,
+        image_url: imageUrl,
+        x_text: xText,
+        linkedin_text: linkedinText
+    };
+
+    console.log("📤 Sending structured payload to Make.com:", JSON.stringify(payload, null, 2));
+
     try {
         const response = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(socials)
+            body: JSON.stringify(payload)
         });
 
         if (response.ok) {
@@ -192,8 +221,8 @@ async function runNewsroom() {
 
         await injectPostToBlogData(draftedContent.blog);
 
-        // --- NEW: Actually send to Make.com ---
-        await sendToSocialWebhook(draftedContent.socials);
+        // --- Send Blog Post Data to Make.com for Socials ---
+        await sendToSocialWebhook(draftedContent.blog);
 
         console.log("🚀 Automated Newsletter cycle complete!");
     } catch (error) {
