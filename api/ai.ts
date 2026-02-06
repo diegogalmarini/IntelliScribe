@@ -381,7 +381,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const model = genAI.getGenerativeModel({
                         model: GEMINI_CONFIG.actions.embed.preferredModel
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
-                    return await model.embedContent(text);
+                    return await model.embedContent({
+                        content: { role: 'user', parts: [{ text }] },
+                        outputDimensionality: 768
+                    });
                 } catch (err: any) {
                     console.warn(`[AI_API] Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to legacy embedding-001. Error: ${err.message}`);
                     const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
@@ -411,7 +414,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             for (const chunk of chunks) {
                 let embedding = [];
                 try {
-                    const embedResult = await model.embedContent(chunk.text);
+                    const embedResult = await model.embedContent({
+                        content: { role: 'user', parts: [{ text: chunk.text }] },
+                        outputDimensionality: 768
+                    });
                     embedding = embedResult.embedding.values;
                 } catch (err: any) {
                     console.warn(`[AI_API] RAG Sync Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to legacy embedding-001. Error: ${err.message}`);
