@@ -235,7 +235,9 @@ async function sendToSocialWebhook(blogPost: BlogPost, aiSocials?: { twitter: st
     }
 
     const postUrl = `https://diktalo.com/blog/${blogPost.slug}`;
-    const imageUrl = `https://diktalo.com${blogPost.image}`;
+    const imageUrl = blogPost.image.startsWith('http')
+        ? blogPost.image
+        : `https://diktalo.com${blogPost.image}`;
 
     // --- 1. Generate X Text (Max 280) ---
     // PRIORITY: Use AI-generated text if available, otherwise fallback to template
