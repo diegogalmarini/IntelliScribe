@@ -1345,4 +1345,5 @@ Diktalo no es un coste, es una inversión recuperable en semanas.
     }]
   }
 }`, tags: ["Negocios", "ROI", "Finanzas", "Eficiencia"]
-},
+}
+];
