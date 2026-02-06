@@ -38,5 +38,7 @@ jobs:
           git config --global user.email "bot@diktalo.com"
           git add utils/blogData.ts public/images/blog/
           git commit -m "chore(blog): auto-generate article and images via newsroom" || echo "No changes to commit"
+          # Discard any other changes (e.g. package-lock.json or temp files) that block rebase
+          git reset --hard
           git pull --rebase origin main
           git push origin main
