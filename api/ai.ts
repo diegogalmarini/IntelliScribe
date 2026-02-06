@@ -12,14 +12,14 @@ initSentry();
 const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
     modelPriorities: [
-        'gemini-2.5-flash',
-        'gemini-2.5-pro'
+        'gemini-1.5-flash',
+        'gemini-1.5-pro'
     ],
     actions: {
-        summary: { preferredModel: 'gemini-2.5-flash', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
-        support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 }, // Nati Pol needs speed
-        transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 }, // Flash is best for long audio
+        summary: { preferredModel: 'gemini-1.5-flash', temperature: 0.7 },
+        chat: { preferredModel: 'gemini-1.5-pro', temperature: 0.8 },
+        support: { preferredModel: 'gemini-1.5-flash', temperature: 0.9 }, // Nati Pol needs speed
+        transcription: { preferredModel: 'gemini-1.5-flash', temperature: 0.1 }, // Flash is best for long audio
         embed: { preferredModel: 'text-embedding-004' }
     }
 };
@@ -371,11 +371,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (!text) throw new Error('No text provided for embedding');
 
             console.log(`[AI_API] Generating embedding for text (${text.length} chars)`);
-            const model = genAI.getGenerativeModel({
-                model: GEMINI_CONFIG.actions.embed.preferredModel
-            }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+            const embedWithFallback = async (text: string) => {
+                try {
+                    const model = genAI.getGenerativeModel({
+                        model: GEMINI_CONFIG.actions.embed.preferredModel
+                    }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+                    return await model.embedContent(text);
+                } catch (err: any) {
+                    console.warn(`[AI_API] Embedding optimization failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to embedding-001. Error: ${err.message}`);
+                    const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+                    return await fallbackModel.embedContent(text);
+                }
+            };
 
-            const embedResult = await model.embedContent(text);
+            const embedResult = await embedWithFallback(text);
             result = embedResult.embedding.values;
         }
 

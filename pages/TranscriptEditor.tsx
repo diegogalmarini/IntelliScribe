@@ -349,16 +349,40 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
             const targetLang = user.transcriptionLanguage || language || 'es';
             const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
 
-            const newSegments: TranscriptSegment[] = result.map((s, index) => ({
-                id: Date.now().toString() + index,
-                timestamp: s.timestamp || "00:00",
-                speaker: s.speaker || "Speaker",
-                text: s.text || "",
-                speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
-            }));
+            // Handle both legacy array and new object return types
+            let finalSegments: TranscriptSegment[] = [];
+            let speakerMap: Record<string, string> = {};
 
-            setSegments(newSegments);
-            onUpdateRecording(recording.id, { segments: newSegments, status: 'Completed' });
+            if (result && !Array.isArray(result) && result.segments) {
+                // New Format: { segments: [...], suggestedSpeakers: {...} }
+                finalSegments = result.segments as TranscriptSegment[];
+                speakerMap = result.suggestedSpeakers || {};
+            } else if (Array.isArray(result)) {
+                // Legacy Format: [...]
+                finalSegments = result;
+            }
+
+            // Apply suggested speaker names if available
+            const processedSegments: TranscriptSegment[] = finalSegments.map((s, index) => {
+                // Default speaker name (e.g. SPEAKER_00)
+                let speakerName = s.speaker || "Speaker";
+
+                // If we have a suggestion and the current name looks like an ID, use the suggestion
+                if (speakerMap && speakerMap[speakerName]) {
+                    speakerName = speakerMap[speakerName];
+                }
+
+                return {
+                    id: Date.now().toString() + index,
+                    timestamp: s.timestamp || "00:00",
+                    speaker: speakerName,
+                    text: s.text || "",
+                    speakerColor: index % 2 === 0 ? 'from-blue-400 to-purple-500' : 'from-orange-400 to-red-500'
+                };
+            });
+
+            setSegments(processedSegments);
+            onUpdateRecording(recording.id, { segments: processedSegments, status: 'Completed' });
             await databaseService.incrementUsage(user.id!, recording.durationSeconds);
 
         } catch (error) {

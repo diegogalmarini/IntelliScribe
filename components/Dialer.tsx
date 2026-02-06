@@ -54,6 +54,29 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
     const requestRef = React.useRef<number | null>(null);
     const analyserRef = React.useRef<AnalyserNode | null>(null);
     const volumeLevelRef = React.useRef<number>(0);
+    const dialerRef = React.useRef<HTMLDivElement>(null); // NEW: Ref for click outside
+
+    // CLICK OUTSIDE TO CLOSE
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dialerRef.current && !dialerRef.current.contains(event.target as Node) && isOpen) {
+                // Only close if NOT clicking the floating button (which toggles it)
+                const floatingBtn = document.getElementById('dialer-button');
+                if (floatingBtn && floatingBtn.contains(event.target as Node)) {
+                    return;
+                }
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen]);
+
 
     // 1. DEDICATED ANIMATION LOOP (Independent of status)
     useEffect(() => {
@@ -272,6 +295,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                     setStatus('Ready');
                     setActiveCall(null);
                     if (onCallFinished) onCallFinished(); // Validate recordings refresh
+                    // AUTO CLOSE ON HANGUP (Remote)
+                    setTimeout(() => setIsOpen(false), 2000);
                 });
                 call.on('error', (err: any) => setErrorMessage(err.message));
             }
@@ -292,6 +317,8 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         setStatus('Ready');
         setActiveCall(null);
         if (onCallFinished) onCallFinished();
+        // AUTO CLOSE ON HANGUP (Local)
+        setTimeout(() => setIsOpen(false), 1500);
     };
 
     const toggleMute = () => {
@@ -388,6 +415,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
         <>
             {/* El Dialer Visual */}
             <div
+                ref={dialerRef}
                 onClick={ensureAudioIsLive}
                 className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[340px] w-full h-full sm:h-auto sm:min-h-[580px] bg-white dark:bg-[#1a1a1a] sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50 animate-in fade-in zoom-in-95 duration-200"
             >
