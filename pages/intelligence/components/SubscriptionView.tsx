@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import * as Analytics from '../../../utils/analytics';
 import { useToast } from '../../../components/Toast';
 import { createCheckout } from '../../../services/paymentService';
+import { VoiceRatesTable } from '../../../components/VoiceRatesTable';
 
 interface SubscriptionViewProps {
     user: UserProfile;
@@ -503,6 +504,11 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                 )}
                             </div>
                         )}
+                    </div>
+
+                    {/* VOICE RATES TABLE (Public for Dashboard) */}
+                    <div className="mb-12">
+                        <VoiceRatesTable />
                     </div>
 
                     {/* FAQ */}
