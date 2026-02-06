@@ -251,10 +251,8 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
                     </section>
                 )}
 
-                {/* VOICE RATES TABLE (Business Plus Only) */}
-                {user && user.subscription?.planId === 'business_plus' && (
-                    <VoiceRatesTable />
-                )}
+                {/* VOICE RATES TABLE (Public) */}
+                <VoiceRatesTable />
 
                 {/* Comparison Table */}
                 <section className="max-w-7xl mx-auto mb-24 overflow-hidden">
