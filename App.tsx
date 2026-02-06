@@ -894,7 +894,7 @@ const AppContent: React.FC = () => {
         if (currentRoute === AppRoute.PRIVACY) return <Privacy />;
         if (currentRoute === AppRoute.TRUST) return <TrustCenter />;
         if (currentRoute === AppRoute.COOKIES) return <Cookies />;
-        if (currentRoute === AppRoute.PRICING_COMPARISON) return <ScrollablePage><PricingComparison /></ScrollablePage>; // MOVED HERE
+        if (currentRoute === AppRoute.PRICING_COMPARISON) return <ScrollablePage><PricingComparison user={user} /></ScrollablePage>; // MOVED HERE
         if (currentRoute === AppRoute.ABOUT) return <About user={user} />;
         if (currentRoute === AppRoute.ROADMAP) return <Roadmap user={user} />;
         if (currentRoute === AppRoute.BLOG || currentRoute === AppRoute.BLOG_POST) {

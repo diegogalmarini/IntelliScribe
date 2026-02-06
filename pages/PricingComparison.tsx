@@ -3,11 +3,16 @@ import { Navbar } from '../components/Landing/Navbar';
 import { Footer } from '../components/Footer';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
-import { PlanConfig, MinutePack } from '../types';
+import { PlanConfig, MinutePack, UserProfile } from '../types';
 import { Check, Plus, Minus, Zap, Shield, Users, Globe } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { VoiceRatesTable } from '../components/VoiceRatesTable';
 
-export const PricingComparison: React.FC = () => {
+interface PricingComparisonProps {
+    user?: UserProfile;
+}
+
+export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) => {
     const { t } = useLanguage();
     const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('annual');
     const [plans, setPlans] = useState<PlanConfig[]>([]);
@@ -244,6 +249,11 @@ export const PricingComparison: React.FC = () => {
                             ))}
                         </div>
                     </section>
+                )}
+
+                {/* VOICE RATES TABLE (Business Plus Only) */}
+                {user && user.subscription?.planId === 'business_plus' && (
+                    <VoiceRatesTable />
                 )}
 
                 {/* Comparison Table */}
