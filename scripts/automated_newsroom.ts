@@ -186,7 +186,6 @@ async function generateImage(title: string, slug: string): Promise<string> {
                 "photo-1550751827-4bd374c3f58b", // Circuit (Teal)
                 "photo-1518770660439-4636190af475", // CPU
                 "photo-1451187580459-43490279c0fa", // Digital Network
-                "photo-1519389950473-acc7a968bb27", // Team/Tech
                 "photo-1485827404703-89b55fcc595e", // AI/Future
                 "photo-1558494949-ef010cbdcc31"  // Data center
             ];
@@ -255,12 +254,19 @@ async function runNewsroom() {
                     .replace(/\[LINK\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
             };
 
-            await fetch(webhookUrl, {
+            const response = await fetch(webhookUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            console.log("✅ Alpha LinkedIn post sent to Make.");
+
+            if (response.ok) {
+                console.log("✅ Alpha LinkedIn post sent to Make.");
+            } else {
+                console.error(`❌ Failed to send LinkedIn post to Make. Status: ${response.status}`);
+                const errorText = await response.text();
+                console.error(`Response content: ${errorText}`);
+            }
         }
 
         console.log("✨ Newsroom cycle completed successfully.");
