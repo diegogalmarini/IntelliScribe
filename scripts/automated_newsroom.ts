@@ -181,8 +181,19 @@ async function generateImage(title: string, slug: string): Promise<string> {
         });
 
         if (!response.ok) {
-            console.warn(`ÔÜá´©Å Imagen API failed with status ${response.status}. Using dynamic Unsplash fallback.`);
-            return `https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200&sig=${slug}`;
+            console.warn(`ÔÜá´©Å Imagen API failed with status ${response.status}. Using varied Unsplash fallback.`);
+            const fallbackPool = [
+                "photo-1550751827-4bd374c3f58b", // Circuit (Teal)
+                "photo-1518770660439-4636190af475", // CPU
+                "photo-1451187580459-43490279c0fa", // Digital Network
+                "photo-1519389950473-acc7a968bb27", // Team/Tech
+                "photo-1485827404703-89b55fcc595e", // AI/Future
+                "photo-1558494949-ef010cbdcc31"  // Data center
+            ];
+            // Deterministic selection based on slug
+            const charCodeSum = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const photoId = fallbackPool[charCodeSum % fallbackPool.length];
+            return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=80&w=1200`;
         }
 
         const data: any = await response.json();
