@@ -91,7 +91,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const model = genAI.getGenerativeModel({
                         model: modelName,
                         systemInstruction,
-                        generationConfig: { temperature: config.temperature }
+                        generationConfig: { temperature: (config as any).temperature }
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
 
                     // Wrap the actual task execution with retry logic

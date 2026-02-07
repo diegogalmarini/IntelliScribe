@@ -333,3 +333,22 @@ export interface SpeakerProfile {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  author: string;
+  authorRole?: string;
+  authorImage?: string;
+  authorLinkedIn?: string;
+  category: string;
+  image: string;
+  imageAlt: string;
+  aeoAnswer: string;
+  jsonLd?: string;
+  tags: string[];
+}

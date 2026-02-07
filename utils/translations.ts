@@ -848,7 +848,6 @@ export const translations = {
     // Hero/How It Works Section
     hero_automate_title: "Automate your success",
     hero_automate_subtitle: "in 4 simple steps.",
-    step_label: "STEP",
     step1_capture: "Omnichannel Capture",
     step2_ai: "Artificial Intelligence",
     step3_sync: "Automatic Sync",
@@ -1197,13 +1196,7 @@ export const translations = {
     affiliates_faq_minimum_desc: "Requerimos un balance mínimo de $50.00 USD antes de procesar un pago de afiliado.",
     affiliates_faq_signup_title: "¿Cómo me registro?",
     affiliates_faq_signup_desc: "El centro de afiliados de Lemon Squeezy gestiona nuestro programa. Haz clic en el siguiente botón para unirte.",
-    affiliates_social_proof: "Ya hay influencers haciendo dinero con Diktalo",
-    affiliates_step_1_title: "Únete",
-    affiliates_step_1_desc: "Regístrate en segundos vía Lemon Squeezy.",
-    affiliates_step_2_title: "Promociona",
-    affiliates_step_2_desc: "Comparte tu enlace único con tu audiencia.",
-    affiliates_step_3_title: "Gana",
-    affiliates_step_3_desc: "Recibe el 20% de cada suscripción, para siempre.",
+
 
 
     // Auth
@@ -1959,15 +1952,7 @@ export const translations = {
     table_zapier: "Integración Zapier",
     table_calls: "Llamadas",
 
-    // Hero/How It Works Section
-    hero_automate_title: "Automatiza tu éxito",
-    hero_automate_subtitle: "en 4 pasos simples.",
-    step_label: "PASO",
-    step1_capture: "Captura Omnicanal",
-    step2_ai: "Inteligencia Artificial",
-    step3_sync: "Sync Automático",
-    step4_memory: "Memoria Eterna",
-    hero_capture: "Captura",
+
 
     // Solutions Section
     sol_sales_bant: "Ventas (BANT)",
