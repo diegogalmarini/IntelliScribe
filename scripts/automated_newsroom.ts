@@ -73,38 +73,33 @@ async function generateAuthoritativeContent(topic: string) {
 
     --- BLOCK 1: ARTICLE CONSTRAINTS ---
     1. LENGTH: Must be > 3500 characters. 
-    2. STRUCTURE:
+    You are an expert AI content generator for Diktalo. Your task is to create a comprehensive, authoritative blog post and a compelling LinkedIn post based on the provided topic. Adhere strictly to the Diktalo Content Master V5 SOP.
+
+    **Topic: ${topic}**
+
+    GUIDELINES:
+    1. CONTENT LENGTH: 3000-5000 characters. Deep technical insight.
+    2. AUTHOR: Use "Anya Desai" or "Nati Pol".
+    3. LANGUAGE: Spanish (ES).
+    4. STRUCTURE: Use Markdown for the content.
        - Párrafo 0 (Snippet Trigger): 40-50 words direct technical answer to a complex question.
        - H2 headers as questions (AEO optimized).
        - Mandatory Markdown Table: Comparative/Roadmap/Impact Analysis.
        - Sections: "Impacto por Industria", "Guía de Implementación", "FAQ Técnica".
-    3. TONE: Senior Expert Architect. Avoid AI buzzwords. Use "Soberanía de Voz" and "Privacidad por Diseño".
-    4. LANG: Spanish (Spain).
+    5. TONE: Senior Expert Architect. Avoid AI buzzwords. Use "Soberanía de Voz" and "Privacidad por Diseño".
 
-    --- BLOCK 2: SOCIAL IMPACT (LINKEDIN ALPHA COPY) ---
-    Template to follow:
-    "🚨ÚLTIMA HORA: [Noticia Impactante]
-    [Narrativa de impacto/testeo]
-    [Bullet points de problemas resueltos]
-    ✓ [Beneficio Técnico 1]
-    ✓ [Beneficio Técnico 2]
-    Esto es lo que significa para ti:
-    [Valor estratégico]
-    He recopilado [Magnet]...
-    👉 Lee el análisis completo: [URL]"
-
-    OUTPUT FORMAT: STRICT JSON ONLY.
+    Return a JSON object with this schema:
     {
       "article": {
-        "title": "...",
-        "slug": "...", // keyword-year format
-        "excerpt": "...",
-        "content": "...", // Full Markdown text
-        "aeoAnswer": "...",
-        "category": "...", // Select from: Seguridad, Innovación, Producto, Negocios
-        "tags": ["...", "..."]
+        "title": "string",
+        "slug": "string",
+        "excerpt": "string",
+        "content": "string",
+        "aeoAnswer": "string",
+        "category": "string",
+        "tags": ["string"]
       },
-      "linkedin": "..." // This must be the dynamic, high-engagement post
+      "linkedin": "string"
     }
     `;
 
@@ -118,22 +113,28 @@ async function generateAuthoritativeContent(topic: string) {
 
         console.log("🧠 TRACE: Initializing Gemini...");
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            generationConfig: { responseMimeType: "application/json" }
+        }, { apiVersion: "v1beta" });
 
         console.log("🧠 TRACE: Prompt prepared. Sending to Gemini...");
         const result = await model.generateContent(prompt);
-
-        console.log("🧠 TRACE: Response received from Gemini. Awaiting response object...");
         const response = await result.response;
+        const jsonStr = response.text();
 
-        console.log("🧠 TRACE: Extracting text from response...");
-        const text = response.text();
-        console.log(`🧠 TRACE: Text extracted (Length: ${text.length}). Cleaning JSON...`);
+        console.log(`🧠 TRACE: JSON received (Length: ${jsonStr.length}).`);
 
-        const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
         console.log("🧠 TRACE: Attempting JSON.parse...");
-        const data = JSON.parse(jsonStr);
-        console.log("🧠 TRACE: JSON parsed successfully.");
+        let data;
+        try {
+            data = JSON.parse(jsonStr);
+            console.log("🧠 TRACE: JSON parsed successfully.");
+        } catch (parseError: any) {
+            console.error("🧠 TRACE: JSON Parse failed. Writing raw output to failed_newsroom_output.txt for debugging.");
+            fs.writeFileSync(path.join(process.cwd(), 'failed_newsroom_output.txt'), jsonStr);
+            throw parseError;
+        }
 
         const category = data.article.category || "Innovación";
         const author = AUTHORS.find(a => a.categories.includes(category)) || AUTHORS[1];
