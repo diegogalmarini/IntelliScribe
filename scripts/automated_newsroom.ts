@@ -214,12 +214,18 @@ async function runNewsroom() {
 
         // Inject to Blog
         const blogData = fs.readFileSync(BLOG_DATA_PATH, 'utf-8');
-        const injectionMarker = "export const blogPosts: BlogPost[] = [";
-        const idx = blogData.indexOf(injectionMarker) + injectionMarker.length;
 
-        const updatedBlogData = blogData.slice(0, idx) + "\n  " + JSON.stringify(data.blog, null, 2) + "," + blogData.slice(idx);
-        fs.writeFileSync(BLOG_DATA_PATH, updatedBlogData);
-        console.log("✅ Blog Updated with V5 Article.");
+        // Simple idempotency check
+        if (blogData.includes(`"slug": "${data.blog.slug}"`)) {
+            console.log(`⚠️ Article with slug "${data.blog.slug}" already exists. Skipping injection.`);
+        } else {
+            const injectionMarker = "export const blogPosts: BlogPost[] = [";
+            const idx = blogData.indexOf(injectionMarker) + injectionMarker.length;
+
+            const updatedBlogData = blogData.slice(0, idx) + "\n  " + JSON.stringify(data.blog, null, 2) + "," + blogData.slice(idx);
+            fs.writeFileSync(BLOG_DATA_PATH, updatedBlogData);
+            console.log("✅ Blog Updated with V5 Article.");
+        }
 
         // Distribution
         const webhookUrl = process.env.SOCIAL_WEBHOOK_URL;
