@@ -1,0 +1,30 @@
+­ƒÜÇ Starting Diktalo Intelligence Newsroom...
+­ƒöì Brainstorming trending topics for Voice AI & Security...
+­ƒºá TRACE: Starting content generation for topic: AI voice deepfake fraud surge 2026 prevention
+­ƒºá TRACE: Checking API Key...
+­ƒºá TRACE: Importing GoogleGenerativeAI...
+­ƒºá TRACE: Initializing Gemini...
+­ƒºá TRACE: Prompt prepared. Sending to Gemini...
+­ƒºá TRACE: CRITICAL ERROR IN generateAuthoritativeContent:
+GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/diego/Diktalo/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/diego/Diktalo/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/diego/Diktalo/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async generateAuthoritativeContent (C:\Users\diego\Diktalo\scripts\automated_newsroom.ts:122:24)
+    at async runNewsroom (C:\Users\diego\Diktalo\scripts\automated_newsroom.ts:211:22) {
+  status: 404,
+  statusText: 'Not Found',
+  errorDetails: undefined
+}
+ÔØî Newsroom failed: GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/diego/Diktalo/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/diego/Diktalo/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/diego/Diktalo/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async generateAuthoritativeContent (C:\Users\diego\Diktalo\scripts\automated_newsroom.ts:122:24)
+    at async runNewsroom (C:\Users\diego\Diktalo\scripts\automated_newsroom.ts:211:22) {
+  status: 404,
+  statusText: 'Not Found',
+  errorDetails: undefined
+}
