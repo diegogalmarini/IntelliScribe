@@ -99,7 +99,7 @@ async function generateAuthoritativeContent(topic: string) {
         "category": "string",
         "tags": ["string"]
       },
-      "linkedin": "string"
+      "linkedin": "string (Use [URL] as a placeholder for the article link)"
     }
     `;
 
@@ -249,7 +249,10 @@ async function runNewsroom() {
                 title: data.blog.title,
                 url: `https://diktalo.com/blog/${data.blog.slug}`,
                 image_url: data.blog.image.startsWith('http') ? data.blog.image : `https://diktalo.com${data.blog.image}`,
-                linkedin_text: data.linkedin.replace("[URL]", `https://diktalo.com/blog/${data.blog.slug}`)
+                linkedin_text: data.linkedin
+                    .replace(/\[URL\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
+                    .replace(/\[LINK_AL_ARTICULO\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
+                    .replace(/\[LINK\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
             };
 
             await fetch(webhookUrl, {
