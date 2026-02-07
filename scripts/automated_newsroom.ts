@@ -180,7 +180,10 @@ async function generateImage(title: string, slug: string): Promise<string> {
             })
         });
 
-        if (!response.ok) throw new Error("Imagen generation failed");
+        if (!response.ok) {
+            console.warn(`ÔÜá´©Å Imagen API failed with status ${response.status}. Using dynamic Unsplash fallback.`);
+            return `https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200&sig=${slug}`;
+        }
 
         const data: any = await response.json();
         if (data.predictions?.[0]?.bytesBase64Encoded) {
