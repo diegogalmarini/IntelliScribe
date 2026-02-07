@@ -20,7 +20,7 @@ const GEMINI_CONFIG = {
         chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
         support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 },
         transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 },
-        embed: { preferredModel: 'gemini-embedding-001' }
+        embed: { preferredModel: 'gemini-embedding-001', temperature: 0 }
     }
 };
 
@@ -382,8 +382,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         model: GEMINI_CONFIG.actions.embed.preferredModel
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
                     return await model.embedContent({
-                        content: { role: 'user', parts: [{ text }] },
-                        outputDimensionality: 768
+                        content: { role: 'user', parts: [{ text }] }
                     });
                 } catch (err: any) {
                     console.warn(`[AI_API] Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to legacy embedding-001. Error: ${err.message}`);
@@ -415,8 +414,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 let embedding = [];
                 try {
                     const embedResult = await model.embedContent({
-                        content: { role: 'user', parts: [{ text: chunk.text }] },
-                        outputDimensionality: 768
+                        content: { role: 'user', parts: [{ text: chunk.text }] }
                     });
                     embedding = embedResult.embedding.values;
                 } catch (err: any) {
