@@ -69,37 +69,29 @@ async function generateAuthoritativeContent(topic: string) {
     
     TOPIC FOR TODAY: "${topic}"
 
-    GOAL: Create a "Flagship" blog post for Diktalo.com and a high-impact LinkedIn "Alpha Copy".
-
-    --- BLOCK 1: ARTICLE CONSTRAINTS ---
-    1. LENGTH: Must be > 3500 characters. 
-    You are an expert AI content generator for Diktalo. Your task is to create a comprehensive, authoritative blog post and a compelling LinkedIn post based on the provided topic. Adhere strictly to the Diktalo Content Master V5 SOP.
-
-    **Topic: ${topic}**
-
+    GOAL: Create a "Flagship" blog post for Diktalo.com (min 2000 characters) and a high-impact LinkedIn "Alpha Copy".
+    
     GUIDELINES:
-    1. CONTENT LENGTH: 3000-5000 characters. Deep technical insight.
+    1. CONTENT LENGTH: 2000-3000 characters. Deep technical insight.
     2. AUTHOR: Use "Anya Desai" or "Nati Pol".
     3. LANGUAGE: Spanish (ES).
-    4. STRUCTURE: Use Markdown for the content.
-       - Párrafo 0 (Snippet Trigger): 40-50 words direct technical answer to a complex question.
-       - H2 headers as questions (AEO optimized).
-       - Mandatory Markdown Table: Comparative/Roadmap/Impact Analysis.
-       - Sections: "Impacto por Industria", "Guía de Implementación", "FAQ Técnica".
-    5. TONE: Senior Expert Architect. Avoid AI buzzwords. Use "Soberanía de Voz" and "Privacidad por Diseño".
+    4. STRUCTURE: Use Markdown for the article content.
+    5. TONE: Senior Expert Architect.
 
-    Return a JSON object with this schema:
+    **CRITICAL**: You MUST return a VALID JSON object. No conversational filler. No raw text between fields.
+    
+    JSON SCHEMA:
     {
       "article": {
         "title": "string",
         "slug": "string",
         "excerpt": "string",
-        "content": "string",
+        "content": "string (The full article markdown)",
         "aeoAnswer": "string",
         "category": "string",
         "tags": ["string"]
       },
-      "linkedin": "string (Use [URL] as a placeholder for the article link)"
+      "linkedin": "string (Use [URL] for the link)"
     }
     `;
 
@@ -128,10 +120,18 @@ async function generateAuthoritativeContent(topic: string) {
         console.log("🧠 TRACE: Attempting JSON.parse...");
         let data;
         try {
-            data = JSON.parse(jsonStr);
+            // Robust JSON extraction
+            let sanitizedJson = jsonStr.trim();
+            if (sanitizedJson.startsWith("```json")) {
+                sanitizedJson = sanitizedJson.replace(/^```json/, '').replace(/```$/, '').trim();
+            } else if (sanitizedJson.startsWith("```")) {
+                sanitizedJson = sanitizedJson.replace(/^```/, '').replace(/```$/, '').trim();
+            }
+
+            data = JSON.parse(sanitizedJson);
             console.log("🧠 TRACE: JSON parsed successfully.");
         } catch (parseError: any) {
-            console.error("🧠 TRACE: JSON Parse failed. Writing raw output to failed_newsroom_output.txt for debugging.");
+            console.error(`🧠 TRACE: JSON Parse failed at position ${parseError.at || 'unknown'}: ${parseError.message}`);
             fs.writeFileSync(path.join(process.cwd(), 'failed_newsroom_output.txt'), jsonStr);
             throw parseError;
         }
