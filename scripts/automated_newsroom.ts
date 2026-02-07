@@ -166,7 +166,7 @@ async function generateImage(title: string, slug: string): Promise<string> {
 
     try {
         console.log(`🎨 Generating specialized AI visual for: ${slug}`);
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
 
         // Detailed prompt for Imagen
         const prompt = `Realistic high-quality technical office environment with subtle futuristic UI elements, focused on a professional looking at a voice waveform on a clean, premium desktop setup. Depth of field, volumetric lighting, photorealistic. Topic: ${title}`;
@@ -175,23 +175,46 @@ async function generateImage(title: string, slug: string): Promise<string> {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                instances: [{ prompt: prompt + " --aspect_ratio 16:9" }],
-                parameters: { aspectRatio: "16:9", sampleCount: 1 }
+                instances: [{ prompt: prompt }],
+                parameters: {
+                    aspectRatio: "16:9",
+                    sampleCount: 1,
+                    negativePrompt: "low quality, blurry, distorted text"
+                }
             })
         });
 
         if (!response.ok) {
-            console.warn(`ÔÜá´©Å Imagen API failed with status ${response.status}. Using varied Unsplash fallback.`);
+            console.warn(`⚠️ Imagen API failed with status ${response.status}. Using varied Unsplash fallback.`);
             const fallbackPool = [
                 "photo-1550751827-4bd374c3f58b", // Circuit (Teal)
                 "photo-1518770660439-4636190af475", // CPU
                 "photo-1451187580459-43490279c0fa", // Digital Network
-                "photo-1485827404703-89b55fcc595e", // AI/Future
-                "photo-1558494949-ef010cbdcc31"  // Data center
+                "photo-1485827404703-89b55fcc595e", // Robot/AI
+                "photo-1558494949-ef010cbdcc31", // Data Center
+                "photo-1507413245164-6160d8298b31", // Abstract Science
+                "photo-1531297484001-80022131f5a1", // Modern Tech
+                "photo-1488590528505-98d2b5aba04b", // Hardware Close-up
+                "photo-1517077304055-6e89a38219c7", // Microchip
+                "photo-1460925895917-afdab827c52f", // Dashboard/Data
+                "photo-1526374965328-7f61d4dc18c5", // Code/Binary
+                "photo-1504384308090-c894fdcc538d", // Modern Workspace
+                "photo-1516321318423-f06f85e504b3", // Digital Connection
+                "photo-1496065187959-7f07b8353c55", // Neon Particles
+                "photo-1515378866543-d75b1c31c7ed", // Computer Screen
+                "photo-1523961123396-5e678cc3fac1", // Future Tech Abstract
+                "photo-1504639725590-34d0984388bd", // Circuit Board White
+                "photo-1510511459019-5dee667ff1f4", // Cyber Security Matrix
+                "photo-1535223289827-42f1e9919769", // Tech Lab Dark
+                "photo-1581091226825-a6a2a5aee158"  // Industrial Tech
             ];
-            // Deterministic selection based on slug
-            const charCodeSum = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const photoId = fallbackPool[charCodeSum % fallbackPool.length];
+
+            // Maximum variety: Hashing slug, title and adding a random seed from Date
+            const slugHash = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const titleHash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const hash = slugHash + titleHash + (new Date().getSeconds());
+
+            const photoId = fallbackPool[hash % fallbackPool.length];
             return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=80&w=1200`;
         }
 
@@ -209,7 +232,7 @@ async function generateImage(title: string, slug: string): Promise<string> {
         throw new Error("No image in response");
     } catch (e) {
         console.warn("⚠️ Falling back to curated tech stock image.");
-        return "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200";
+        return "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&q=80&w=1200";
     }
 }
 

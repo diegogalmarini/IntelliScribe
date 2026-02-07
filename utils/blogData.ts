@@ -84,7 +84,7 @@ export const blogPosts: BlogPost[] = [
     "author": "Anya Desai",
     "authorRole": "Strategic Systems Architect",
     "authorImage": "/images/avatars/anya-desai.webp",
-    "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200",
+    "image": "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=1200",
     "imageAlt": "AnÃ¡lisis estratÃ©gico sobre ProtecciÃ³n de la SoberanÃ­a de Voz: Estrategias Avanzadas contra el Fraude por Deepfake de Audio en 2026 - Diktalo Tech",
     "title": "ProtecciÃ³n de la SoberanÃ­a de Voz: Estrategias Avanzadas contra el Fraude por Deepfake de Audio en 2026",
     "slug": "fraude-deepfake-audio-prevencion-2026",
