@@ -1,6 +1,4 @@
-
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import Stripe from 'stripe';
 import twilio from 'twilio';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -48,28 +46,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             fetchSupabase('recordings', 'id,user_id,metadata,tags,description')
         ]);
 
-        // 2. Stripe Stats
-        let stripeStats = { balance: 0, mrr: 0, currency: 'eur' };
-        if (process.env.STRIPE_SECRET_KEY) {
-            const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY, {
-                apiVersion: '2023-10-16' as any,
-            });
-
-            try {
-                const balance = await stripeClient.balance.retrieve();
-                stripeStats.balance = balance.available[0].amount / 100;
-                stripeStats.currency = balance.available[0].currency;
-
-                const subs = await stripeClient.subscriptions.list({ status: 'active', limit: 100 });
-                stripeStats.mrr = subs.data.reduce((sum, sub) => {
-                    const amount = (sub as any).items.data[0].price.unit_amount || 0;
-                    const interval = (sub as any).items.data[0].price.recurring.interval;
-                    return sum + (interval === 'month' ? amount : amount / 12);
-                }, 0) / 100;
-            } catch (sErr: any) {
-                console.error('[API] Stripe Fetch Error:', sErr.message);
-            }
-        }
+        // 2. Revenue Stats (Lemon Squeezy handled via Supabase or external dashboard)
+        const revenueStats = { balance: 0, mrr: 0, currency: 'eur' };
 
         // 3. Twilio Stats
         let twilioStats = { usage: 0 };
@@ -119,7 +97,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const activeUsersCount = new Set(recordings?.filter((r: any) => r.user_id).map((r: any) => r.user_id)).size;
 
         return res.status(200).json({
-            revenue: stripeStats,
+            revenue: revenueStats,
             costs: { twilio: twilioStats.usage, google: 0 },
             distribution: {
                 devices: Object.entries(devices).map(([name, value]) => ({ name, value })),

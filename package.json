@@ -34,7 +34,6 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "^6.6.0",
-    "stripe": "^17.0.0",
     "twilio": "^5.10.7",
     "vite-plugin-pwa": "^1.2.0"
   },
