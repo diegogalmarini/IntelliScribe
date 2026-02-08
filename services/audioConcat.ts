@@ -1,10 +1,11 @@
 // @ts-ignore
 import * as lamejs from 'lamejs';
 
-// Fix for iOS/Safari: lamejs might expect MPEGMode to be globally available
+// Fix for iOS/Safari: lamejs might expect MPEGMode, Lame and BitStream to be globally available
 if (typeof window !== 'undefined') {
+    const l = lamejs as any;
     if (!(window as any).MPEGMode) {
-        (window as any).MPEGMode = {
+        (window as any).MPEGMode = l.MPEGMode || {
             STEREO: 0,
             JOINT_STEREO: 1,
             DUAL_CHANNEL: 2,
@@ -12,7 +13,10 @@ if (typeof window !== 'undefined') {
         };
     }
     if (!(window as any).Lame) {
-        (window as any).Lame = (lamejs as any).Lame || (lamejs as any);
+        (window as any).Lame = l.Lame || l;
+    }
+    if (!(window as any).BitStream) {
+        (window as any).BitStream = l.BitStream;
     }
 }
 

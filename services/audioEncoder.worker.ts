@@ -1,9 +1,10 @@
 import * as lamejs from 'lamejs';
 
-// Setup MPEGMode and Lame globals if missing (common in lamejs)
+// Setup MPEGMode, Lame and BitStream globals if missing (critical for lamejs internals)
 if (typeof self !== 'undefined') {
+    const l = lamejs as any;
     if (!(self as any).MPEGMode) {
-        (self as any).MPEGMode = {
+        (self as any).MPEGMode = l.MPEGMode || {
             STEREO: 0,
             JOINT_STEREO: 1,
             DUAL_CHANNEL: 2,
@@ -11,7 +12,10 @@ if (typeof self !== 'undefined') {
         };
     }
     if (!(self as any).Lame) {
-        (self as any).Lame = (lamejs as any).Lame || (lamejs as any);
+        (self as any).Lame = l.Lame || l;
+    }
+    if (!(self as any).BitStream) {
+        (self as any).BitStream = l.BitStream;
     }
 }
 
