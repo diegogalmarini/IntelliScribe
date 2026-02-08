@@ -938,13 +938,35 @@ const AppContent: React.FC = () => {
         return (
             <motion.div className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && currentRoute !== AppRoute.SETTINGS && currentRoute !== AppRoute.INTEGRATIONS && currentRoute !== AppRoute.MANUAL && currentRoute !== AppRoute.AFFILIATES && (
-                    <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={setSelectedFolderId} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onDeleteFolder={handleDeleteFolder} />
+                    <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={setSelectedFolderId} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder} />
                 )}
 
                 <div id="tour-welcome" className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                     {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE || currentRoute === AppRoute.SETTINGS || currentRoute === AppRoute.INTEGRATIONS || currentRoute === AppRoute.SUBSCRIPTION) && (
                         <IntelligenceDashboard
-                            user={user} recordings={recordings} onNavigate={navigate} activeRecordingId={activeRecordingId} initialSearchQuery={activeSearchQuery} onSelectRecording={handleSelectRecordingIntelligence} onDeleteRecording={handleDeleteRecording} onRenameRecording={handleRenameRecording} onMoveRecording={handleMoveRecording} selectedFolderId={selectedFolderId} folders={folders} onLogout={handleLogout} onSearch={handleSearch} onRecordingComplete={handleRecordingComplete} onUpdateRecording={handleUpdateRecording} initialView={currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' : currentRoute === AppRoute.INTEGRATIONS ? 'integrations' : 'recordings'} initialSettingsOpen={currentRoute === AppRoute.SETTINGS} onSelectFolder={setSelectedFolderId} onUpdateUser={handleUpdateUser} onAppStateChange={handleAppStateChange}
+                            user={user}
+                            recordings={recordings}
+                            onNavigate={navigate}
+                            activeRecordingId={activeRecordingId}
+                            initialSearchQuery={activeSearchQuery}
+                            onSelectRecording={handleSelectRecordingIntelligence}
+                            onDeleteRecording={handleDeleteRecording}
+                            onRenameRecording={handleRenameRecording}
+                            onMoveRecording={handleMoveRecording}
+                            selectedFolderId={selectedFolderId}
+                            folders={folders}
+                            onLogout={handleLogout}
+                            onSearch={handleSearch}
+                            onRecordingComplete={handleRecordingComplete}
+                            onUpdateRecording={handleUpdateRecording}
+                            initialView={currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' : currentRoute === AppRoute.INTEGRATIONS ? 'integrations' : 'recordings'}
+                            initialSettingsOpen={currentRoute === AppRoute.SETTINGS}
+                            onSelectFolder={setSelectedFolderId}
+                            onUpdateUser={handleUpdateUser}
+                            onAppStateChange={handleAppStateChange}
+                            onAddFolder={handleAddFolder}
+                            onRenameFolder={handleRenameFolder}
+                            onDeleteFolder={handleDeleteFolder}
                             onAction={(type, payload) => {
                                 if (type === 'START_TOUR') {
                                     setTourInitialStep(payload?.stepIndex || 0);

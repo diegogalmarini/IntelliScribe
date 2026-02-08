@@ -10,6 +10,7 @@ interface SidebarProps {
   onSelectFolder: (folderId: string) => void;
   folders: Folder[];
   onAddFolder: (name: string) => void;
+  onRenameFolder: (id: string, name: string) => void;
   onDeleteFolder: (id: string) => void;
   user: UserProfile;
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectFolder,
   folders,
   onAddFolder,
+  onRenameFolder,
   onDeleteFolder,
   user,
   isOpen,

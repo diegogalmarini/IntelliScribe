@@ -532,6 +532,9 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                         isRecording={isRecording}
                         onOpenSearch={() => { setView('search'); if (isMobile) setIsSidebarOpen(false); }}
+                        onAddFolder={onAddFolder}
+                        onRenameFolder={onRenameFolder}
+                        onDeleteFolder={onDeleteFolder}
                     />
                 </div>
             </div>
