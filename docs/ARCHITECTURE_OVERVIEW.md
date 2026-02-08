@@ -27,6 +27,12 @@ Este documento detalla la infraestructura y el flujo de datos que hace que Dikta
     - Gemini analiza el texto para generar el resumen, tareas y etiquetas.
 4.  **Consumo:** El usuario interacciona con los datos mediante el Chat Contextual (RAG local).
 
-## 5. Integración con Chrome Extension
 - La extensión utiliza **Manifest V3**.
 - Se comunica con el dashboard mediante mensajes nativos y comparte la sesión de Supabase si el usuario está logueado en la web, permitiendo sincronización instantánea.
++
++## 6. Monitoreo y Estabilidad (Sentry)
++Diktalo utiliza **Sentry** para el rastreo de errores en tiempo real tanto en frontend como en backend.
++
++> [!IMPORTANT]
++> **Regla de Oro para el Partner Tecnológico:** Siempre, antes de comenzar cualquier ciclo de desarrollo o investigación, es **OBLIGATORIO** revisar el panel de incidencias en [Sentry Issues](https://diktalo.sentry.io/issues/).
++> Ignorar este paso puede llevar a solapar errores críticos ya detectados en producción.

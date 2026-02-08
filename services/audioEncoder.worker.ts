@@ -1,13 +1,18 @@
 import * as lamejs from 'lamejs';
 
-// Setup MPEGMode global if missing (common in lamejs)
-if (typeof self !== 'undefined' && !(self as any).MPEGMode) {
-    (self as any).MPEGMode = {
-        STEREO: 0,
-        JOINT_STEREO: 1,
-        DUAL_CHANNEL: 2,
-        MONO: 3
-    };
+// Setup MPEGMode and Lame globals if missing (common in lamejs)
+if (typeof self !== 'undefined') {
+    if (!(self as any).MPEGMode) {
+        (self as any).MPEGMode = {
+            STEREO: 0,
+            JOINT_STEREO: 1,
+            DUAL_CHANNEL: 2,
+            MONO: 3
+        };
+    }
+    if (!(self as any).Lame) {
+        (self as any).Lame = (lamejs as any).Lame;
+    }
 }
 
 let encoder: any = null;

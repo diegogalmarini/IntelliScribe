@@ -82,3 +82,21 @@ Este documento registra la evolución del proyecto durante la **Fase 4: Búsqued
     - Creado script `automated_newsroom.ts` que inyecta artículos directamente en el blog y genera copias para redes sociales (X, LinkedIn, Instagram).
     - Documentada la integración con **Make.com** para el cross-posting automatizado.
 - **GitHub Sync:** Todas las iteraciones de diseño, lógica de pagos y automatización sincronizadas con la rama principal.
+
+---
+
+## 📅 08 Febrero 2026: Rediseño de Proyectos (Gemini UI) y Estabilidad
+
+### 📁 Gestión de Proyectos mediante Modales
+**Objetivo:** Eliminar la fragilidad de la edición "inline" y mejorar la robustez de la persistencia de datos.
+
+- **Nuevo `FolderModal.tsx`**: Implementado componente de modal centrado y elegante integrado con `framer-motion` para acciones de creación y renombrado.
+- **Refactorización de `FolderList.tsx`**: Eliminados los inputs inline inestables. Ahora la interacción se dispara mediante disparadores (triggers) laterales hacia el modal central.
+- **Resolución de Error Crítico de Prop Drilling**: Corregido fallo de comunicación entre `App.tsx` e `IntelligenceDashboard` que impedía que las acciones sobre proyectos se persistieran en la base de datos para la versión de escritorio.
+- **Sincronización de Estado y Toasts**: Implementada lógica de rollback optimista y notificaciones `useToast` localizadas (EN/ES) para toda la gestión de carpetas (Crear, Renombrar, Borrar).
+
+### 🛠️ Protocolo de Estabilidad (Sentry)
+**Objetivo:** Institucionalizar el monitoreo proactivo del sistema.
+
+- **Hito Tecnológico:** Se establece como **obligación mandatoria** para el Partner Tecnológico chequear semanalmente el dashboard de [Sentry Issues](https://diktalo.sentry.io/issues/) antes de cualquier otra tarea de desarrollo.
+- **GitHub Sync:** Todas las mejoras de UI y configuraciones de estabilidad pusheadas a la rama `main`.
