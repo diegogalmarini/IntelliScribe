@@ -798,8 +798,15 @@ const AppContent: React.FC = () => {
     };
 
     const handleRenameFolder = async (id: string, newName: string) => {
+        // Optimistic update
+        const originalFolders = [...folders];
         setFolders(prev => prev.map(f => f.id === id ? { ...f, name: newName } : f));
-        await databaseService.renameFolder(id, newName);
+
+        const response = await databaseService.renameFolder(id, newName);
+        if (!response.success) {
+            setFolders(originalFolders); // Rollback
+            throw new Error(response.error || 'Failed to rename folder');
+        }
     };
 
     const handleUpdateUser = async (updatedUser: Partial<UserProfile>) => {
