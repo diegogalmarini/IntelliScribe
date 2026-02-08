@@ -504,6 +504,8 @@ export const translations = {
     recordingNotFoundDesc: "The requested recording could not be found.",
     connectionErrorTitle: "Connection error",
     connectionErrorDesc: "There was a problem retrieving the recording.",
+    showMore: "Show more",
+    showLess: "Show less",
 
     // Settings New
     settings_account: "Account",
@@ -1665,6 +1667,8 @@ export const translations = {
     recordingNotFoundDesc: "No se pudo encontrar la grabación solicitada.",
     connectionErrorTitle: "Error de conexión",
     connectionErrorDesc: "Hubo un problema al recuperar la grabación.",
+    showMore: "Mostrar más",
+    showLess: "Mostrar menos",
 
     // Settings New
     settings_account: "Cuenta",

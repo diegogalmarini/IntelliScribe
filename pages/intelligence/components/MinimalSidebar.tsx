@@ -284,7 +284,6 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 </div>
             </div>
 
-            {/* FOLDER LIST INTEGRATION */}
             <div id="folder-list-section" className="mt-2">
                 {onSelectFolder && (
                     <FolderList
@@ -292,6 +291,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                         selectedFolderId={selectedFolderId || null}
                         userId={user?.id}
                         folders={folders}
+                        recordings={recordings}
                         onCreateFolder={onAddFolder}
                         onRenameFolder={onRenameFolder}
                         onDeleteFolder={onDeleteFolder}

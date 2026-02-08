@@ -13,7 +13,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, fea
     const navigate = useNavigate();
 
     const handleUpgrade = () => {
-        navigate('/subscription');
+        navigate('/plans');
         onClose();
     };
 
