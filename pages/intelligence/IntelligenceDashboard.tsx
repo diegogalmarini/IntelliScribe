@@ -340,7 +340,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const targetLang = user.transcriptionLanguage || 'es';
             const fullTranscription = await transcribeAudio(undefined, 'audio/mp3', targetLang, signedUrl!);
 
-            const allSegments: any[] = fullTranscription.map((seg, idx) => {
+            const allSegments: any[] = (fullTranscription.segments || []).map((seg: any, idx: number) => {
                 const segTime = timeToSeconds(seg.timestamp || '0:00');
                 let speakerIndex = 0;
                 for (let j = 0; j < segmentOffsets.length; j++) { if (segTime >= segmentOffsets[j]) speakerIndex = j; }
