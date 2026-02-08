@@ -29,10 +29,10 @@ Este documento detalla la infraestructura y el flujo de datos que hace que Dikta
 
 - La extensión utiliza **Manifest V3**.
 - Se comunica con el dashboard mediante mensajes nativos y comparte la sesión de Supabase si el usuario está logueado en la web, permitiendo sincronización instantánea.
-+
-+## 6. Monitoreo y Estabilidad (Sentry)
-+Diktalo utiliza **Sentry** para el rastreo de errores en tiempo real tanto en frontend como en backend.
-+
-+> [!IMPORTANT]
-+> **Regla de Oro para el Partner Tecnológico:** Siempre, antes de comenzar cualquier ciclo de desarrollo o investigación, es **OBLIGATORIO** revisar el panel de incidencias en [Sentry Issues](https://diktalo.sentry.io/issues/).
-+> Ignorar este paso puede llevar a solapar errores críticos ya detectados en producción.
+## 6. Monitoreo y Estabilidad (Sentry & Skills)
+Diktalo utiliza **Sentry** para el rastreo de errores en tiempo real tanto en frontend como en backend.
+
+> [!IMPORTANT]
+> **Regla de Oro para el Partner Tecnológico:** 
+> 1. **REVISIÓN DE SENTRY**: Siempre, antes de comenzar cualquier ciclo de desarrollo o investigación, es **OBLIGATORIO** revisar el panel en [Sentry Issues](https://diktalo.sentry.io/issues/).
+> 2. **REVISIÓN DE SKILLS**: Nunca tomes decisiones sobre modelos de IA o arquitectura sin consultar primero los archivos en `.agent/skills/`. Los Skills (especialmente `optimizing-gemini-models`) son la verdad absoluta del proyecto.

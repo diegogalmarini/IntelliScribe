@@ -95,8 +95,9 @@ Este documento registra la evolución del proyecto durante la **Fase 4: Búsqued
 - **Resolución de Error Crítico de Prop Drilling**: Corregido fallo de comunicación entre `App.tsx` e `IntelligenceDashboard` que impedía que las acciones sobre proyectos se persistieran en la base de datos para la versión de escritorio.
 - **Sincronización de Estado y Toasts**: Implementada lógica de rollback optimista y notificaciones `useToast` localizadas (EN/ES) para toda la gestión de carpetas (Crear, Renombrar, Borrar).
 
-### 🛠️ Protocolo de Estabilidad (Sentry)
-**Objetivo:** Institucionalizar el monitoreo proactivo del sistema.
+### 🛠️ Protocolo de Estabilidad (Sentry & Skills)
+**Objetivo:** Institucionalizar el monitoreo proactivo y el respeto a los estándares del proyecto.
 
-- **Hito Tecnológico:** Se establece como **obligación mandatoria** para el Partner Tecnológico chequear semanalmente el dashboard de [Sentry Issues](https://diktalo.sentry.io/issues/) antes de cualquier otra tarea de desarrollo.
+- **Hito Tecnológico:** Se establece como **obligación mandatoria** para el Partner Tecnológico chequear semanalmente el dashboard de [Sentry Issues](https://diktalo.sentry.io/issues/) y **SIEMPRE** consultar los Skills en `.agent/skills/` antes de realizar cambios estructurales o de IA.
+- **Corrección de Modelos (Gemini 2.5)**: Se revierte el error de migración a modelos legacy (1.5) y se reafirma el uso de **Gemini 2.5 Flash/Pro** y `gemini-embedding-001` como el estándar innegociable de Diktalo.
 - **GitHub Sync:** Todas las mejoras de UI y configuraciones de estabilidad pusheadas a la rama `main`.
