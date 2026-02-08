@@ -12,17 +12,31 @@
 
 // Essential internal imports (LameJS doesn't export these in index.js)
 import * as common from 'lamejs/src/js/common.js';
-import MPEGMode from 'lamejs/src/js/MPEGMode.js';
-import Lame from 'lamejs/src/js/Lame.js';
-import BitStream from 'lamejs/src/js/BitStream.js';
-import Encoder from 'lamejs/src/js/Encoder.js';
-import Quantize from 'lamejs/src/js/Quantize.js';
-import QuantizePVT from 'lamejs/src/js/QuantizePVT.js';
-import CBRNewIterationLoop from 'lamejs/src/js/CBRNewIterationLoop.js';
-import LameInternalFlags from 'lamejs/src/js/LameInternalFlags.js';
-import LameGlobalFlags from 'lamejs/src/js/LameGlobalFlags.js';
-import Tables from 'lamejs/src/js/Tables.js';
-import VbrMode from 'lamejs/src/js/VbrMode.js';
+import * as MPEGModeMod from 'lamejs/src/js/MPEGMode.js';
+import * as LameMod from 'lamejs/src/js/Lame.js';
+import * as BitStreamMod from 'lamejs/src/js/BitStream.js';
+import * as EncoderMod from 'lamejs/src/js/Encoder.js';
+import * as QuantizeMod from 'lamejs/src/js/Quantize.js';
+import * as QuantizePVTMod from 'lamejs/src/js/QuantizePVT.js';
+import * as CBRNewIterationLoopMod from 'lamejs/src/js/CBRNewIterationLoop.js';
+import * as LameInternalFlagsMod from 'lamejs/src/js/LameInternalFlags.js';
+import * as LameGlobalFlagsMod from 'lamejs/src/js/LameGlobalFlags.js';
+import * as TablesMod from 'lamejs/src/js/Tables.js';
+
+// Helpers to extract the default (module.exports) for better interop
+const getExport = (mod: any) => mod.default || mod;
+
+const MPEGMode = getExport(MPEGModeMod);
+const Lame = getExport(LameMod);
+const BitStream = getExport(BitStreamMod);
+const Encoder = getExport(EncoderMod);
+const Quantize = getExport(QuantizeMod);
+const QuantizePVT = getExport(QuantizePVTMod);
+const CBRNewIterationLoop = getExport(CBRNewIterationLoopMod);
+const LameInternalFlags = getExport(LameInternalFlagsMod);
+const LameGlobalFlags = getExport(LameGlobalFlagsMod);
+const Tables = getExport(TablesMod);
+const VbrMode = common.VbrMode; // VbrMode is in common.js
 
 export function setupLamePolyfill() {
     const global = typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : globalThis);
