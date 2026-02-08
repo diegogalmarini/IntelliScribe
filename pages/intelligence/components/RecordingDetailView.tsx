@@ -141,7 +141,6 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
     const handleZapierSync = async () => {
         if (!['business', 'business_plus'].includes(user.subscription?.planId || '')) {
-            showToast(t('zapierPlanRequirement') || 'Tu plan actual no incluye la integración con Zapier. Por favor, sube a Plan Business.', 'error');
             setUpgradeFeatureName('Zapier Sync');
             setUpgradeModalOpen(true);
             return;
