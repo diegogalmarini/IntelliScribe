@@ -35,7 +35,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, fea
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-[1000] p-8"
+                        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-[1000] p-8"
                     >
                         {/* Close Button */}
                         <button
