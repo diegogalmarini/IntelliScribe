@@ -22,9 +22,211 @@ interface MultiAudioUploaderProps {
 }
 
 export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, onProcess, onCancel, isProcessing = false }) => {
-    // ... existing state ...
+    const [audioFiles, setAudioFiles] = useState<AudioFileItem[]>([]);
+    const [step, setStep] = useState<'upload' | 'mapping'>('upload');
+    const [speakerMapping, setSpeakerMapping] = useState<Record<string, string>>({});
+    const [playingId, setPlayingId] = useState<string | null>(null);
+    const audioRefs = useRef<Record<string, HTMLAudioElement>>({});
 
-    // ... existing functions ...
+    // Predefined speaker options
+    const speakerOptions = [
+        'Hablante 1',
+        'Hablante 2',
+        'Hablante 3',
+        'Hablante 4',
+        'Hablante 5',
+        'Hablante 6',
+        'Hablante 7',
+        'Hablante 8',
+        'Hablante 9',
+        'Hablante 10'
+    ];
+
+    const parseAudioFilename = (filename: string): Date | null => {
+        const match = filename.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
+        if (!match) return null;
+        const [_, year, month, day, hour, min, sec] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(min), parseInt(sec));
+    };
+
+    const getAudioDuration = (file: File): Promise<number> => {
+        return new Promise((resolve) => {
+            const audio = new Audio();
+            audio.src = URL.createObjectURL(file);
+            audio.onloadedmetadata = () => resolve(audio.duration);
+            audio.onerror = () => resolve(0);
+        });
+    };
+
+    const [isDragging, setIsDragging] = useState(false);
+
+    // Common file processor
+    const processFiles = async (files: File[]) => {
+        const processedFiles = await Promise.all(
+            files.map(async (file, index) => {
+                const duration = await getAudioDuration(file);
+                const extractedDate = parseAudioFilename(file.name);
+                const audioUrl = URL.createObjectURL(file);
+                return {
+                    id: `${Date.now()}-${index}`,
+                    file,
+                    filename: file.name,
+                    duration,
+                    size: file.size,
+                    extractedDate,
+                    assignedSpeaker: '',
+                    order: index,
+                    audioUrl
+                };
+            })
+        );
+        setAudioFiles(prev => [...prev, ...processedFiles]);
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        await processFiles(files);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('audio/'));
+        if (files.length > 0) {
+            await processFiles(files);
+        }
+    };
+
+    const sortByDate = () => {
+        const sorted = [...audioFiles].sort((a, b) => {
+            if (!a.extractedDate || !b.extractedDate) return 0;
+            return a.extractedDate.getTime() - b.extractedDate.getTime();
+        });
+        setAudioFiles(sorted.map((item, idx) => ({ ...item, order: idx })));
+    };
+
+    const moveUp = (id: string) => {
+        const index = audioFiles.findIndex(f => f.id === id);
+        if (index <= 0) return;
+        const newFiles = [...audioFiles];
+        [newFiles[index], newFiles[index - 1]] = [newFiles[index - 1], newFiles[index]];
+        setAudioFiles(newFiles.map((item, idx) => ({ ...item, order: idx })));
+    };
+
+    const moveDown = (id: string) => {
+        const index = audioFiles.findIndex(f => f.id === id);
+        if (index >= audioFiles.length - 1) return;
+        const newFiles = [...audioFiles];
+        [newFiles[index], newFiles[index + 1]] = [newFiles[index + 1], newFiles[index]];
+        setAudioFiles(newFiles.map((item, idx) => ({ ...item, order: idx })));
+    };
+
+    const removeFile = (id: string) => {
+        const file = audioFiles.find(f => f.id === id);
+        if (file?.audioUrl) URL.revokeObjectURL(file.audioUrl);
+        setAudioFiles(prev => prev.filter(f => f.id !== id).map((item, idx) => ({ ...item, order: idx })));
+    };
+
+    const updateSpeaker = (id: string, speaker: string) => {
+        setAudioFiles(prev => prev.map(f => f.id === id ? { ...f, assignedSpeaker: speaker } : f));
+    };
+
+    const togglePlayAudio = (id: string) => {
+        const file = audioFiles.find(f => f.id === id);
+        if (!file?.audioUrl) return;
+
+        if (playingId && playingId !== id) {
+            const currentAudio = audioRefs.current[playingId];
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+        }
+
+        let audio = audioRefs.current[id];
+        if (!audio) {
+            audio = new Audio(file.audioUrl);
+            audioRefs.current[id] = audio;
+            audio.onended = () => setPlayingId(null);
+        }
+
+        if (playingId === id) {
+            audio.pause();
+            audio.currentTime = 0;
+            setPlayingId(null);
+        } else {
+            audio.play();
+            setPlayingId(id);
+        }
+    };
+
+    const formatDuration = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const formatFileSize = (bytes: number) => (bytes / 1024).toFixed(0) + ' KB';
+
+    const formatDateTime = (date: Date | null) => {
+        if (!date) return 'Fecha desconocida';
+        return date.toLocaleString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getUniqueSpeakers = () => [...new Set(audioFiles.map(f => f.assignedSpeaker).filter(Boolean))];
+
+    const canProceed = audioFiles.length > 0 && audioFiles.every(f => f.assignedSpeaker);
+
+    const handleNext = () => {
+        const speakers = getUniqueSpeakers();
+        if (speakers.length > 0) {
+            const mapping: Record<string, string> = {};
+            speakers.forEach(speaker => { mapping[speaker] = speaker; });
+            setSpeakerMapping(mapping);
+            setStep('mapping');
+        }
+    };
+
+    const handleProcessFinal = () => {
+        console.log('[MultiAudioUploader] handleProcessFinal called');
+        console.log('[MultiAudioUploader] audioFiles:', audioFiles.length);
+        console.log('[MultiAudioUploader] speakerMapping:', speakerMapping);
+
+        // Apply speaker mapping
+        const mappedFiles = audioFiles.map(file => ({
+            ...file,
+            assignedSpeaker: speakerMapping[file.assignedSpeaker] || file.assignedSpeaker
+        }));
+
+        console.log('[MultiAudioUploader] Calling onProcess with:', mappedFiles);
+        onProcess(mappedFiles);
+    };
+
+    const canFinalize = Object.values(speakerMapping).every(name => name.trim().length > 0);
+
+    useEffect(() => {
+        return () => {
+            audioFiles.forEach(file => { if (file.audioUrl) URL.revokeObjectURL(file.audioUrl); });
+            Object.values(audioRefs.current).forEach(audio => audio.pause());
+        };
+    }, []);
 
     return (
         <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#1a1a1a] overflow-hidden relative">
