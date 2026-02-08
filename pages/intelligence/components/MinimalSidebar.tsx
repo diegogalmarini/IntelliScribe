@@ -77,6 +77,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     const [renameValue, setRenameValue] = useState('');
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
     const [moveModalId, setMoveModalId] = useState<string | null>(null);
+    const [pendingRename, setPendingRename] = useState<{ id: string, value: string } | null>(null);
     const renameInputRef = useRef<HTMLInputElement>(null);
 
     // ... (UseEffects and ContextMenu handlers remain the same) ...
@@ -87,6 +88,16 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             renameInputRef.current.select();
         }
     }, [renamingId]);
+
+    // Clear pending rename when the prop updates to match
+    useEffect(() => {
+        if (pendingRename) {
+            const recording = recordings.find(r => r.id === pendingRename.id);
+            if (recording && recording.title === pendingRename.value) {
+                setPendingRename(null);
+            }
+        }
+    }, [recordings, pendingRename]);
 
     const handleContextMenu = (e: React.MouseEvent, recordingId: string) => {
         e.stopPropagation();
@@ -109,6 +120,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     const saveRename = () => {
         if (renamingId && renameValue.trim() && onRenameRecording) {
             onRenameRecording(renamingId, renameValue.trim());
+            setPendingRename({ id: renamingId, value: renameValue.trim() });
         }
         setRenamingId(null);
         setRenameValue('');
@@ -337,7 +349,9 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                                                 />
                                             ) : (
                                                 <div className="truncate font-normal">
-                                                    {recording.title || t('untitledRecording')}
+                                                    {(pendingRename && pendingRename.id === recording.id)
+                                                        ? pendingRename.value
+                                                        : (recording.title || t('untitledRecording'))}
                                                 </div>
                                             )}
                                             <div className="text-[11px] text-[#8e8e8e] dark:text-[#8e8e8e] mt-0.5">
