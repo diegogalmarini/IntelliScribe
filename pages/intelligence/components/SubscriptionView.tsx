@@ -446,44 +446,29 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                         )}
                     </div>
 
-                    {/* Needs More Credits - Calls */}
-                    <div className="bg-[#f9fafb] dark:bg-[#1f1f1f] rounded-2xl p-8 mb-16 border border-slate-200 dark:border-slate-800">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-green-500/10 rounded-xl">
-                                    <Plus className="w-6 h-6 text-green-500" />
+                    {/* Needs More Credits - Calls (Business Plus Only) */}
+                    {user.subscription?.planId === 'business_plus' && (
+                        <div className="bg-[#f9fafb] dark:bg-[#1f1f1f] rounded-2xl p-8 mb-16 border border-slate-200 dark:border-slate-800">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-green-500/10 rounded-xl">
+                                        <Plus className="w-6 h-6 text-green-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                            ¿Necesitas más créditos de llamada?
+                                        </h3>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                            Créditos válidos para llamadas VoIP internacionales. Sin caducidad.
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                        ¿Necesitas más créditos de llamada?
-                                    </h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                        Créditos válidos para llamadas VoIP internacionales. Sin caducidad.
-                                    </p>
+                                <div className="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Saldo de Créditos</div>
+                                    <div className="text-sm font-bold text-green-600 dark:text-green-400">{user.subscription?.voiceCredits || 0} min</div>
                                 </div>
                             </div>
-                            <div className="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Saldo de Créditos</div>
-                                <div className="text-sm font-bold text-green-600 dark:text-green-400">{user.subscription?.voiceCredits || 0} min</div>
-                            </div>
-                        </div>
 
-                        {currentLevel === 0 ? (
-                            <div className="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20 rounded-xl p-6 text-center">
-                                <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">
-                                    Créditos disponibles para Planes Pro
-                                </h4>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-6">
-                                    Mejora tu plan para poder adquirir créditos de llamada y comunicarte con todo el mundo.
-                                </p>
-                                <button
-                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                                    className="px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-xl"
-                                >
-                                    Ver Planes
-                                </button>
-                            </div>
-                        ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {callCreditPacks.length > 0 ? callCreditPacks.map((pack) => (
                                     <div key={pack.id} className="bg-white dark:bg-[#2a2a2a] p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-green-300 transition-colors">
@@ -507,8 +492,8 @@ export const SubscriptionView: React.FC<SubscriptionViewProps> = ({ user }) => {
                                     </div>
                                 )}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
 
                     {/* VOICE RATES TABLE (Public for Dashboard) */}
                     <div className="mb-12">
