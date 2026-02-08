@@ -20,7 +20,7 @@ const GEMINI_CONFIG = {
         chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
         support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 },
         transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 },
-        embed: { preferredModel: 'gemini-embedding-001', temperature: 0 }
+        embed: { preferredModel: 'text-embedding-004', temperature: 0, outputDimensionality: 768 }
     }
 };
 
@@ -381,8 +381,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const model = genAI.getGenerativeModel({
                         model: GEMINI_CONFIG.actions.embed.preferredModel
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+
+                    // For text-embedding-004, we must use embedContent with correct structure
                     return await model.embedContent({
-                        content: { role: 'user', parts: [{ text }] }
+                        content: { role: 'user', parts: [{ text }] },
+                        outputDimensionality: (GEMINI_CONFIG.actions.embed as any).outputDimensionality
                     });
                 } catch (err: any) {
                     console.warn(`[AI_API] Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to legacy embedding-001. Error: ${err.message}`);
