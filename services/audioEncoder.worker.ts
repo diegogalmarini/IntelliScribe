@@ -11,7 +11,7 @@ if (typeof self !== 'undefined') {
         };
     }
     if (!(self as any).Lame) {
-        (self as any).Lame = (lamejs as any).Lame;
+        (self as any).Lame = (lamejs as any).Lame || (lamejs as any);
     }
 }
 

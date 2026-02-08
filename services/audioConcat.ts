@@ -2,13 +2,18 @@
 import * as lamejs from 'lamejs';
 
 // Fix for iOS/Safari: lamejs might expect MPEGMode to be globally available
-if (typeof window !== 'undefined' && !(window as any).MPEGMode) {
-    (window as any).MPEGMode = {
-        STEREO: 0,
-        JOINT_STEREO: 1,
-        DUAL_CHANNEL: 2,
-        MONO: 3
-    };
+if (typeof window !== 'undefined') {
+    if (!(window as any).MPEGMode) {
+        (window as any).MPEGMode = {
+            STEREO: 0,
+            JOINT_STEREO: 1,
+            DUAL_CHANNEL: 2,
+            MONO: 3
+        };
+    }
+    if (!(window as any).Lame) {
+        (window as any).Lame = (lamejs as any).Lame || (lamejs as any);
+    }
 }
 
 // Exported for single file compression
