@@ -1,28 +1,8 @@
+import { setupLamePolyfill } from './lamePolyfill';
 import * as lamejs from 'lamejs';
 
-// Setup exhaustive lamejs globals if missing (critical for internal dependencies like BitStream, EQ, etc.)
-if (typeof self !== 'undefined') {
-    const l = lamejs as any;
-    // Map all exports to global scope
-    for (const key in l) {
-        if (Object.prototype.hasOwnProperty.call(l, key)) {
-            (self as any)[key] = l[key];
-        }
-    }
-    // Ensure 'Lame' is specifically mapped to the module root if missing
-    if (!(self as any).Lame) {
-        (self as any).Lame = l.Lame || l;
-    }
-    // Fallback for MPEGMode if it's not in the exports
-    if (!(self as any).MPEGMode) {
-        (self as any).MPEGMode = {
-            STEREO: 0,
-            JOINT_STEREO: 1,
-            DUAL_CHANNEL: 2,
-            MONO: 3
-        };
-    }
-}
+// Initialize exhaustive globals needed by lamejs internals
+setupLamePolyfill();
 
 let encoder: any = null;
 let sampleRate = 0;

@@ -1,29 +1,9 @@
+import { setupLamePolyfill } from './lamePolyfill';
 // @ts-ignore
 import * as lamejs from 'lamejs';
 
-// Fix for iOS/Safari: Setup exhaustive lamejs globals if missing (critical for internal dependencies like BitStream, EQ, etc.)
-if (typeof window !== 'undefined') {
-    const l = lamejs as any;
-    // Map all exports to global scope (window)
-    for (const key in l) {
-        if (Object.prototype.hasOwnProperty.call(l, key)) {
-            (window as any)[key] = l[key];
-        }
-    }
-    // Ensure 'Lame' is specifically mapped to the module root if missing
-    if (!(window as any).Lame) {
-        (window as any).Lame = l.Lame || l;
-    }
-    // Fallback for MPEGMode if it's not in the exports
-    if (!(window as any).MPEGMode) {
-        (window as any).MPEGMode = {
-            STEREO: 0,
-            JOINT_STEREO: 1,
-            DUAL_CHANNEL: 2,
-            MONO: 3
-        };
-    }
-}
+// Setup exhaustive lamejs globals if missing (critical for internal dependencies like BitStream, EQ, etc.)
+setupLamePolyfill();
 
 // Exported for single file compression
 export async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: number = 22050): Promise<AudioBuffer> {
