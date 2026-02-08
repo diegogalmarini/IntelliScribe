@@ -417,7 +417,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 let embedding = [];
                 try {
                     const embedResult = await model.embedContent({
-                        content: { role: 'user', parts: [{ text: chunk.text }] }
+                        content: { role: 'user', parts: [{ text: chunk.text }] },
+                        outputDimensionality: (GEMINI_CONFIG.actions.embed as any).outputDimensionality
                     });
                     embedding = embedResult.embedding.values;
                 } catch (err: any) {
