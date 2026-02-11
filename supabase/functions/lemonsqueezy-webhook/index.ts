@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const LEMON_SQUEEZY_SIGNING_SECRET = Deno.env.get('LEMON_SQUEEZY_SIGNING_SECRET')!;
+const LEMONSQUEEZY_WEBHOOK_SECRET = Deno.env.get('LEMONSQUEEZY_WEBHOOK_SECRET')!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -15,9 +15,31 @@ Deno.serve(async (req) => {
         }
 
         const body = await req.text();
+        const encoder = new TextEncoder();
 
-        // NOTE: Real signature verification should happen here using LEMON_SQUEEZY_SIGNING_SECRET
-        // For now, we assume the payload is correct while the user sets up secrets.
+        // Verify HMAC signature
+        const key = await crypto.subtle.importKey(
+            "raw",
+            encoder.encode(LEMONSQUEEZY_WEBHOOK_SECRET),
+            { name: "HMAC", hash: "SHA-256" },
+            false,
+            ["verify"]
+        );
+
+        function hexToUint8Array(hexString: string): Uint8Array {
+            const matches = hexString.match(/.{1,2}/g);
+            if (!matches) return new Uint8Array();
+            return new Uint8Array(matches.map((byte) => parseInt(byte, 16)));
+        }
+
+        const signatureBytes = hexToUint8Array(signature);
+        const bodyBytes = encoder.encode(body);
+        const verified = await crypto.subtle.verify("HMAC", key, signatureBytes, bodyBytes);
+
+        if (!verified) {
+            console.error('[Webhook] Invalid signature');
+            return new Response('Invalid signature', { status: 401 });
+        }
 
         const payload = JSON.parse(body);
         const eventName = payload.meta.event_name;

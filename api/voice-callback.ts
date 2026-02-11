@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { validateTwilioRequest } from '../utils/twilioSecurity.js';
 
 /**
  * Twilio StatusCallback handler for OutgoingCallerID verification
@@ -70,6 +70,11 @@ async function findUserByPhone(phoneNumber: string): Promise<string | null> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // 🔒 SECURITY: Validate Twilio Signature
+    if (!validateTwilioRequest(req, res)) {
+        return; // Response already handled by middleware
+    }
+
     console.log('🔔 [VOICE-CALLBACK] Received Twilio StatusCallback');
     console.log('📋 [VOICE-CALLBACK] Request body:', JSON.stringify(req.body, null, 2));
 

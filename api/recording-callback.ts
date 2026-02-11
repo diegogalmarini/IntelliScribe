@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { validateTwilioRequest } from '../utils/twilioSecurity.js';
 import { getTierForNumber } from '../utils/voiceRates.js';
 
 // Helper to validate UUID format
@@ -44,6 +44,11 @@ async function logDiagnostic(supabaseUrl: string, supabaseKey: string, userId: s
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // 🔒 SECURITY: Validate Twilio Signature
+    if (!validateTwilioRequest(req, res)) {
+        return; // Response already handled by middleware
+    }
+
     const start = Date.now();
     const body = req.body || {};
     const query = req.query || {};

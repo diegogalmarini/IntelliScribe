@@ -512,7 +512,7 @@ export const databaseService = {
     async checkUsageLimit(userId: string): Promise<{ allowed: boolean; message?: string }> {
         const { data, error } = await supabase
             .from('profiles')
-            .select('minutes_used, minutes_limit, subscription_status, trial_ends_at')
+            .select('minutes_used, minutes_limit, extra_minutes, subscription_status, trial_ends_at')
             .eq('id', userId)
             .single();
 
@@ -521,16 +521,20 @@ export const databaseService = {
             return { allowed: false, message: 'Error verifying account limits.' };
         }
 
-        // Check if account is paused/banned
-        // If there's an active manual trial, it overrides the subscription_status for access
         const isTrialActive = data.trial_ends_at && new Date(data.trial_ends_at) > new Date();
+        const hasExtra = (data.extra_minutes || 0) > 0;
 
-        if (data.subscription_status !== 'active' && !isTrialActive) {
-            return { allowed: false, message: 'Your account is paused. Please update your payment method.' };
+        // Allow access if Subscription Active OR Trial Active OR Has Extra Minutes
+        if (data.subscription_status !== 'active' && !isTrialActive && !hasExtra) {
+            return { allowed: false, message: 'Your account is paused. Please update your payment method or buy a Minute Pack.' };
         }
 
-        if ((data.minutes_used || 0) >= (data.minutes_limit || 0)) {
-            return { allowed: false, message: 'You have reached your monthly limit. Please upgrade your plan.' };
+        // Check limits
+        const used = data.minutes_used || 0;
+        const limit = data.minutes_limit || 0;
+
+        if (used >= limit && !hasExtra) {
+            return { allowed: false, message: 'You have reached your monthly limit. Please upgrade your plan or buy a Minute Pack.' };
         }
 
         return { allowed: true };
@@ -587,18 +591,39 @@ export const databaseService = {
         // 1. Get current usage
         const { data: profile } = await supabase
             .from('profiles')
-            .select('minutes_used')
+            .select('minutes_used, minutes_limit, extra_minutes')
             .eq('id', userId)
             .single();
 
         if (!profile) return false;
 
-        const newUsage = (profile.minutes_used || 0) + minutes;
+        const limit = profile.minutes_limit || 0;
+        const used = profile.minutes_used || 0;
+        const extra = profile.extra_minutes || 0;
+
+        let newUsed = used;
+        let newExtra = extra;
+
+        // Logic: Consume from Plan (minutes_used) first, then Extra (extra_minutes)
+        const availableInPlan = Math.max(0, limit - used);
+
+        if (availableInPlan >= minutes) {
+            // Fully covered by plan
+            newUsed += minutes;
+        } else {
+            // Partially or not covered by plan
+            newUsed += availableInPlan; // Fill up the plan usage
+            const remainder = minutes - availableInPlan;
+            newExtra = Math.max(0, extra - remainder); // Deduct from extra
+        }
 
         // 2. Update usage
         const { error } = await supabase
             .from('profiles')
-            .update({ minutes_used: newUsage })
+            .update({
+                minutes_used: newUsed,
+                extra_minutes: newExtra
+            })
             .eq('id', userId);
 
         if (error) {

@@ -1,10 +1,13 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import twilio from 'twilio';
-import { getTierForNumber } from '../utils/voiceRates.js';
+import { validateTwilioRequest } from '../utils/twilioSecurity.js';
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // 🔒 SECURITY: Validate Twilio Signature
+    if (!validateTwilioRequest(req, res)) {
+        return; // Response already handled by middleware
+    }
+
     const twiml = new VoiceResponse();
 
     // Obtener datos
