@@ -153,6 +153,17 @@ async function generateAuthoritativeContent(topic: string) {
             const data = await cleanAndParseJSON(jsonStr);
             console.log("🧠 TRACE: JSON parsed successfully.");
 
+            // VALIDATION: Ensure critical fields exist
+            if (!data.article || !data.article.title || !data.article.content) {
+                throw new Error("JSON missing 'article' or core fields.");
+            }
+
+            // Fallback for LinkedIn text if missing
+            if (!data.linkedin) {
+                console.warn("⚠️ 'linkedin' field missing in JSON. Generating fallback from excerpt.");
+                data.linkedin = `🚀 Nuevo artículo en Diktalo: ${data.article.title}\n\n${data.article.excerpt}\n\nLee más aquí: [URL]`;
+            }
+
             const category = data.article.category || "Innovación";
             const author = AUTHORS.find(a => a.categories.includes(category)) || AUTHORS[1];
 
