@@ -26,8 +26,11 @@ export const Footer: React.FC = () => {
                             <img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=light" width="120" alt="Fazier badge" />
                         </a>
                     </div>
-                    <a href="https://www.producthunt.com/products/diktalo?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-diktalo" target="_blank" rel="noopener noreferrer" className="mb-8 block">
+                    <a href="https://www.producthunt.com/products/diktalo?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-diktalo" target="_blank" rel="noopener noreferrer" className="mb-4 block">
                         <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1077945&theme=light&t=1770832628193" alt="Diktalo - AI-Powered Meeting Intelligence From Voice to Actionable ROI | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+                    </a>
+                    <a href="https://twelve.tools" target="_blank" rel="noopener noreferrer" className="mb-8 block">
+                        <img src="https://twelve.tools/badge3-light.svg" alt="Featured on Twelve Tools" width="200" height="54" style={{ width: '200px', height: '54px' }} />
                     </a>
                 </div>
 
