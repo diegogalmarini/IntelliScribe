@@ -117,6 +117,13 @@ async function generateAuthoritativeContent(topic: string) {
     4. STRUCTURE: Use Markdown for the article content.
     5. TONE: Senior Expert Architect.
 
+    LINKEDIN POST FORMAT (Strict):
+    - Hook: Engaging headline with emoji.
+    - Context: Brief problem statement (1-2 sentences).
+    - Solution: 3-4 bullet points using "👉" emoji.
+    - Call to Action: "Lee el artículo completo de [Author] en Diktalo.com..." with [URL] placeholder.
+    - Hashtags: 8-10 relevant hashtags including #Diktalo #[Author]Name.
+
     **CRITICAL**: You MUST return a VALID JSON object. 
     - Escape all double quotes inside string values with backslash.
     - Do NOT use unescaped backslashes in text.
