@@ -118,3 +118,5 @@ Deno.serve(async (req) => {
         return new Response('Internal Error', { status: 500 });
     }
 });
+
+// Force update deployment
