@@ -31,7 +31,7 @@ interface BlogPost {
 }
 
 const AUTHORS = [
-    { name: "Anya Desai", role: "Strategic Systems Architect", image: "/images/avatars/anya-desai.webp", categories: ["Seguridad", "Infraestructura", "IA"] },
+    { name: "Anya Desai", role: "Strategic Systems Architect", image: "/images/avatars/anya-desai.webp", categories: ["Seguridad", "Ciberseguridad", "Infraestructura", "IA"] },
     { name: "Leo Costa", role: "Strategic Architecture", image: "/images/avatars/leo-costa.webp", categories: ["Estrategia", "Negocios", "Innovación"] },
     { name: "Nati Pol", role: "Experience Strategy", image: "/images/avatars/nati-pol.webp", categories: ["UX", "Producto", "Productividad"] },
     { name: "Rohan Patel", role: "Infrastructure Lead", image: "/images/avatars/rohan-patel.webp", categories: ["Seguridad", "Legal", "Cloud"] }
@@ -112,10 +112,11 @@ async function generateAuthoritativeContent(topic: string) {
     
     GUIDELINES:
     1. CONTENT LENGTH: 2000-3000 characters. Deep technical insight.
-    2. AUTHOR: Use "Anya Desai" or "Nati Pol".
+    2. AUTHOR: Choose the most relevant: Anya Desai (Security/AI), Leo Costa (Strategy), Nati Pol (Product).
     3. LANGUAGE: Spanish (ES).
     4. STRUCTURE: Use Markdown for the article content.
     5. TONE: Senior Expert Architect.
+    6. ARTICLE FORMAT: **Pure Markdown only**. NO Emojis. NO Hashtags in the article body.
 
     LINKEDIN POST FORMAT (Strict):
     - Hook: Engaging headline with emoji.
@@ -135,12 +136,12 @@ async function generateAuthoritativeContent(topic: string) {
         "title": "string",
         "slug": "string",
         "excerpt": "string",
-        "content": "string (The full article markdown)",
+        "content": "string (The full article markdown - NO social formatting)",
         "aeoAnswer": "string",
         "category": "string",
         "tags": ["string"]
       },
-      "linkedin": "string (Use [URL] for the link)"
+      "linkedin": "string (The LinkedIn post with emojis and hashtags)"
     }
     `;
 
