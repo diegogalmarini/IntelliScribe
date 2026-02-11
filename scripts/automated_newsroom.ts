@@ -55,14 +55,53 @@ async function getNewsContext(topic: string) {
     return topic;
 }
 
+async function cleanAndParseJSON(jsonStr: string): Promise<any> {
+    // 1. Remove Markdown code blocks
+    let cleaned = jsonStr.trim();
+    if (cleaned.includes("```json")) {
+        cleaned = cleaned.split("```json")[1].split("```")[0];
+    } else if (cleaned.includes("```")) {
+        cleaned = cleaned.split("```")[1].split("```")[0];
+    }
+
+    cleaned = cleaned.trim();
+
+    // 2. Attempt direct parse
+    try {
+        return JSON.parse(cleaned);
+    } catch (e) {
+        console.warn("⚠️ Standard JSON.parse failed, attempting aggressive sanitization...");
+    }
+
+    // 3. Aggressive Sanitization (common LLM JSON errors)
+    // Fix bad escaped characters (e.g. single backslashes in text)
+    // This is risky but often necessary for "creative" LLM outputs
+    // We try to escape unescaped backslashes that aren't part of a valid escape sequence
+    // A simple approach is often safer: text replacement for common issues
+
+    // Remove control characters
+    cleaned = cleaned.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+
+    try {
+        return JSON.parse(cleaned);
+    } catch (e) {
+        throw new Error(`Failed to parse JSON even after sanitization: ${(e as Error).message}`);
+    }
+}
+
 async function generateAuthoritativeContent(topic: string) {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY missing");
 
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // Use a model that is consistent. 
+    // Gemini 2.5 is requested in user skills, using flash for speed/cost or pro for quality.
+    // Script used gemini-2.5-flash.
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json" }
+    });
 
-    // Enforcing Diktalo Content Master V5
     const prompt = `
     ACT AS: Senior Tech Content Engineer & Social Growth Specialist.
     STANDARD: DIKTALO-CONTENT-MASTER-V5.
@@ -78,7 +117,10 @@ async function generateAuthoritativeContent(topic: string) {
     4. STRUCTURE: Use Markdown for the article content.
     5. TONE: Senior Expert Architect.
 
-    **CRITICAL**: You MUST return a VALID JSON object. No conversational filler. No raw text between fields.
+    **CRITICAL**: You MUST return a VALID JSON object. 
+    - Escape all double quotes inside string values with backslash.
+    - Do NOT use unescaped backslashes in text.
+    - Do NOT add comments inside the JSON.
     
     JSON SCHEMA:
     {
@@ -95,69 +137,49 @@ async function generateAuthoritativeContent(topic: string) {
     }
     `;
 
-    console.log(`🧠 TRACE: Starting content generation for topic: ${topic}`);
-    try {
-        console.log("🧠 TRACE: Checking API Key...");
-        if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY missing");
+    const MAX_RETRIES = 3;
+    let lastError;
 
-        console.log("🧠 TRACE: Importing GoogleGenerativeAI...");
-        const { GoogleGenerativeAI } = await import("@google/generative-ai");
-
-        console.log("🧠 TRACE: Initializing Gemini...");
-        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
-        }, { apiVersion: "v1beta" });
-
-        console.log("🧠 TRACE: Prompt prepared. Sending to Gemini...");
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const jsonStr = response.text();
-
-        console.log(`🧠 TRACE: JSON received (Length: ${jsonStr.length}).`);
-
-        console.log("🧠 TRACE: Attempting JSON.parse...");
-        let data;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
-            // Robust JSON extraction
-            let sanitizedJson = jsonStr.trim();
-            if (sanitizedJson.startsWith("```json")) {
-                sanitizedJson = sanitizedJson.replace(/^```json/, '').replace(/```$/, '').trim();
-            } else if (sanitizedJson.startsWith("```")) {
-                sanitizedJson = sanitizedJson.replace(/^```/, '').replace(/```$/, '').trim();
-            }
+            console.log(`🧠 TRACE: Generation Attempt ${attempt}/${MAX_RETRIES} for topic: ${topic}`);
 
-            data = JSON.parse(sanitizedJson);
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const jsonStr = response.text();
+
+            console.log(`🧠 TRACE: JSON received (Length: ${jsonStr.length}). Parsing...`);
+
+            const data = await cleanAndParseJSON(jsonStr);
             console.log("🧠 TRACE: JSON parsed successfully.");
-        } catch (parseError: any) {
-            console.error(`🧠 TRACE: JSON Parse failed at position ${parseError.at || 'unknown'}: ${parseError.message}`);
-            fs.writeFileSync(path.join(process.cwd(), 'failed_newsroom_output.txt'), jsonStr);
-            throw parseError;
+
+            const category = data.article.category || "Innovación";
+            const author = AUTHORS.find(a => a.categories.includes(category)) || AUTHORS[1];
+
+            return {
+                blog: {
+                    id: Date.now().toString(),
+                    date: new Date().toISOString().split('T')[0],
+                    author: author.name,
+                    authorRole: author.role,
+                    authorImage: author.image,
+                    image: "", // To be filled
+                    imageAlt: `Análisis estratégico sobre ${data.article.title} - Diktalo Tech`,
+                    ...data.article
+                },
+                linkedin: data.linkedin
+            };
+
+        } catch (error) {
+            console.warn(`⚠️ Attempt ${attempt} failed: ${(error as Error).message}`);
+            lastError = error;
+            // Wait briefly before retry
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
-
-        const category = data.article.category || "Innovación";
-        const author = AUTHORS.find(a => a.categories.includes(category)) || AUTHORS[1];
-        console.log(`🧠 TRACE: Author matched: ${author.name}`);
-
-        return {
-            blog: {
-                id: Date.now().toString(),
-                date: new Date().toISOString().split('T')[0],
-                author: author.name,
-                authorRole: author.role,
-                authorImage: author.image,
-                image: "", // To be filled
-                imageAlt: `Análisis estratégico sobre ${data.article.title} - Diktalo Tech`,
-                ...data.article
-            },
-            linkedin: data.linkedin
-        };
-    } catch (err: any) {
-        console.error("🧠 TRACE: CRITICAL ERROR IN generateAuthoritativeContent:");
-        console.error(err);
-        throw err;
     }
+
+    console.error("❌ All generation attempts failed.");
+    throw lastError;
 }
 
 async function generateImage(title: string, slug: string): Promise<string> {
@@ -266,7 +288,7 @@ async function runNewsroom() {
 
         // Distribution
         const webhookUrl = process.env.SOCIAL_WEBHOOK_URL;
-        if (webhookUrl) {
+        if (webhookUrl && webhookUrl.startsWith("http")) {
             const payload = {
                 title: data.blog.title,
                 url: `https://diktalo.com/blog/${data.blog.slug}`,
@@ -277,19 +299,27 @@ async function runNewsroom() {
                     .replace(/\[LINK\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
             };
 
-            const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            console.log(`📤 Sending payload to Make (URL: ${webhookUrl})...`);
 
-            if (response.ok) {
-                console.log("✅ Alpha LinkedIn post sent to Make.");
-            } else {
-                console.error(`❌ Failed to send LinkedIn post to Make. Status: ${response.status}`);
-                const errorText = await response.text();
-                console.error(`Response content: ${errorText}`);
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    console.log("✅ Alpha LinkedIn post sent to Make.");
+                } else {
+                    console.error(`❌ Failed to send LinkedIn post to Make. Status: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error(`Response content: ${errorText}`);
+                }
+            } catch (netError) {
+                console.error(`❌ Network error sending to Make: ${(netError as Error).message}`);
             }
+        } else {
+            console.warn("⚠️ SOCIAL_WEBHOOK_URL is missing or invalid (must start with http). Skipping distribution.");
         }
 
         console.log("✨ Newsroom cycle completed successfully.");
