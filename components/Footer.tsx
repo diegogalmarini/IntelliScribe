@@ -18,14 +18,17 @@ export const Footer: React.FC = () => {
                     <p className="text-slate-500 dark:text-slate-400 text-xs font-medium max-w-xs mb-8 leading-relaxed">
                         {t('footerTagline')}
                     </p>
-                    <div className="flex items-center gap-4 mb-8">
+                    <div className="flex items-center gap-4 mb-4">
                         <a href="https://dang.ai/" target="_blank" rel="noopener noreferrer">
-                            <img src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png" alt="Dang.ai" style={{ width: '150px', height: '54px' }} width="150" height="54" />
+                            <img src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png" alt="Dang.ai" style={{ width: '120px', height: '43px' }} width="120" height="43" />
                         </a>
                         <a href="https://fazier.com/launches/www.diktalo.com" target="_blank" rel="noopener noreferrer">
                             <img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=light" width="120" alt="Fazier badge" />
                         </a>
                     </div>
+                    <a href="https://www.producthunt.com/products/diktalo?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-diktalo" target="_blank" rel="noopener noreferrer" className="mb-8 block">
+                        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1077945&theme=light&t=1770832628193" alt="Diktalo - AI-Powered Meeting Intelligence From Voice to Actionable ROI | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+                    </a>
                 </div>
 
                 {/* Column 2: Product */}
