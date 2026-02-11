@@ -18,9 +18,14 @@ export const Footer: React.FC = () => {
                     <p className="text-slate-500 dark:text-slate-400 text-xs font-medium max-w-xs mb-8 leading-relaxed">
                         {t('footerTagline')}
                     </p>
-                    <a href="https://dang.ai/" target="_blank" rel="noopener noreferrer" className="mb-8">
-                        <img src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png" alt="Dang.ai" style={{ width: '150px', height: '54px' }} width="150" height="54" />
-                    </a>
+                    <div className="flex items-center gap-4 mb-8">
+                        <a href="https://dang.ai/" target="_blank" rel="noopener noreferrer">
+                            <img src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png" alt="Dang.ai" style={{ width: '150px', height: '54px' }} width="150" height="54" />
+                        </a>
+                        <a href="https://fazier.com/launches/www.diktalo.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=light" width="120" alt="Fazier badge" />
+                        </a>
+                    </div>
                 </div>
 
                 {/* Column 2: Product */}
