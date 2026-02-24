@@ -4,6 +4,12 @@ import { BrowserRouter } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import App from './App';
 
+// Handle Vite dynamic import errors (e.g., when a new version is deployed and old chunks are missing)
+window.addEventListener('vite:preloadError', (event) => {
+  console.warn('Caught vite:preloadError, reloading page to fetch latest chunks...', event);
+  window.location.reload();
+});
+
 // Initialize Sentry for error tracking
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
