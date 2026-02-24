@@ -20,7 +20,7 @@ const GEMINI_CONFIG = {
         chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
         support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 },
         transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 },
-        embed: { preferredModel: 'text-embedding-004', temperature: 0, outputDimensionality: 768 }
+        embed: { preferredModel: 'gemini-embedding-001', temperature: 0, outputDimensionality: 768 }
     }
 };
 
@@ -138,7 +138,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 visualContext = instruction;
             }
 
-            const targetLangLabel = language === 'es' ? 'ESPÍÑOL (SPANISH)' : 'ENGLISH';
+            const targetLangLabel = language === 'es' ? 'ESPAÑOL (SPANISH)' : 'ENGLISH';
             const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             result = await runWithFallback('summary', undefined, async (model) => {
@@ -265,10 +265,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 throw new Error(`Audio file is too large (${audioSizeMB.toFixed(2)}MB). Maximum size is 10MB for reliable processing. Please split your audio into smaller segments.`);
             }
 
-            if (audioBufferSize > 20 * 1024 * 1024) {
-                console.warn('[AI_API] Audio file exceeds 20MB limit for inlineData. This might fail.');
-                // In Phase 5, implement File API upload here
-            }
+            // Note: Files >10MB are already rejected above. For files >20MB, use File API (future Phase 5).
 
             const languageNames: Record<string, string> = {
                 'es': 'Spanish', 'en': 'English', 'de': 'German', 'it': 'Italian', 'pt': 'Portuguese'

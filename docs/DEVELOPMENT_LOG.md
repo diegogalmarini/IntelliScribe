@@ -101,3 +101,20 @@ Este documento registra la evolución del proyecto durante la **Fase 4: Búsqued
 - **Hito Tecnológico:** Se establece como **obligación mandatoria** para el Partner Tecnológico chequear semanalmente el dashboard de [Sentry Issues](https://diktalo.sentry.io/issues/) y **SIEMPRE** consultar los Skills en `.agent/skills/` antes de realizar cambios estructurales o de IA.
 - **Corrección de Modelos (Gemini 2.5)**: Se revierte el error de migración a modelos legacy (1.5) y se reafirma el uso de **Gemini 2.5 Flash/Pro** y `gemini-embedding-001` como el estándar innegociable de Diktalo.
 - **GitHub Sync:** Todas las mejoras de UI y configuraciones de estabilidad pusheadas a la rama `main`.
+
+---
+
+## 📅 24 Febrero 2026: Actualización de Skills de IA
+
+### 🧠 Modernización de la directiva de Modelos Gemini
+**Objetivo:** Mantener la skill `optimizing-gemini-models` actualizada con la documentación oficial más reciente de Google (Gemini 3 y 2.5).
+
+- **Inclusión de Gemini 3:** Se documentaron las nuevas variantes de la familia Gemini 3 (3.1 Pro, 3 Flash, Nano Banana Pro) como opciones válidas para implementaciones futuras.
+- **Actualización de Gemini 2.5:** Se reafirmó la familia 2.5 (Pro, Flash, Flash-Lite, Nano Banana) como el estándar de producción actual.
+- **Política de Depreciación Estricta:** Se estableció la prohibición absoluta de utilizar modelos de las familias 1.0, 1.5 y 2.0 (ej. `gemini-2.0-flash`), así como el modelo `text-embedding-004`, los cuales deben ser reemplazados inmediatamente por `gemini-embedding-001`.
+
+### 2026-02-24: Fixed User Usage Stats Bug (Admin Dashboard)
+
+- **Bug fixed**: minutes_used and storage_used incorrectly remained at 0 in the admin dashboard.
+- **Cause**: The client-side databaseService.ts called supabase.from('profiles').update(), which silently failed because Supabase RLS policies rightly block users from updating their own usage figures.
+- **Fix**: Created SQL migration 20260224_usage_rpcs.sql introducing two security definer RPCs (increment_user_usage and increment_user_storage). Updated databaseService.ts to call these RPCs instead, safely bypassing RLS.

@@ -588,46 +588,14 @@ export const databaseService = {
         // Round up to the nearest minute to protect margin (minimum 1 minute charge)
         const minutes = Math.max(1, Math.ceil(seconds / 60));
 
-        // 1. Get current usage
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('minutes_used, minutes_limit, extra_minutes')
-            .eq('id', userId)
-            .single();
-
-        if (!profile) return false;
-
-        const limit = profile.minutes_limit || 0;
-        const used = profile.minutes_used || 0;
-        const extra = profile.extra_minutes || 0;
-
-        let newUsed = used;
-        let newExtra = extra;
-
-        // Logic: Consume from Plan (minutes_used) first, then Extra (extra_minutes)
-        const availableInPlan = Math.max(0, limit - used);
-
-        if (availableInPlan >= minutes) {
-            // Fully covered by plan
-            newUsed += minutes;
-        } else {
-            // Partially or not covered by plan
-            newUsed += availableInPlan; // Fill up the plan usage
-            const remainder = minutes - availableInPlan;
-            newExtra = Math.max(0, extra - remainder); // Deduct from extra
-        }
-
-        // 2. Update usage
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                minutes_used: newUsed,
-                extra_minutes: newExtra
-            })
-            .eq('id', userId);
+        // Use standard RPC to securely increment usage, bypassing RLS limitations
+        const { error } = await supabase.rpc('increment_user_usage', {
+            p_user_id: userId,
+            p_minutes: minutes
+        });
 
         if (error) {
-            console.error('Error updating usage:', error);
+            console.error('Error updating usage via RPC:', error);
             return false;
         }
         return true;
@@ -671,23 +639,14 @@ export const databaseService = {
      * Storage is cumulative and does NOT reset monthly
      */
     async incrementStorage(userId: string, fileSize: number): Promise<boolean> {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('storage_used')
-            .eq('id', userId)
-            .single();
-
-        if (!profile) return false;
-
-        const newStorage = (profile.storage_used || 0) + fileSize;
-
-        const { error } = await supabase
-            .from('profiles')
-            .update({ storage_used: newStorage })
-            .eq('id', userId);
+        // Use standard RPC to securely increment storage, bypassing RLS limitations
+        const { error } = await supabase.rpc('increment_user_storage', {
+            p_user_id: userId,
+            p_size_bytes: fileSize
+        });
 
         if (error) {
-            console.error('Error incrementing storage:', error);
+            console.error('Error incrementing storage via RPC:', error);
             return false;
         }
 
