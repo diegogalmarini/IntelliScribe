@@ -203,7 +203,7 @@ export const databaseService = {
             status: r.status as any,
             tags: r.tags || [],
             participants: r.participants || 1,
-            audioUrl: undefined, // Lazy load this
+            audioUrl: r.audio_url || undefined,
             folderId: r.folder_id || undefined,
             // Heavy fields are omitted for performance in the list view
             segments: [],
