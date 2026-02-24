@@ -15,6 +15,11 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
     const { t } = useLanguage();
     const { showToast } = useToast();
 
+    const onRecordingCompleteRef = useRef(onRecordingComplete);
+    useEffect(() => {
+        onRecordingCompleteRef.current = onRecordingComplete;
+    }, [onRecordingComplete]);
+
     const loadUser = () => {
         try {
             const stored = localStorage.getItem('user_profile');
@@ -241,7 +246,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                     }
 
                     console.log(`[RECORDING_STOP] Finalizing with ${secondsRef.current} seconds`);
-                    onRecordingComplete(base64Audio, secondsRef.current, sessionTitleRef.current, notesRef.current, mediaItemsRef.current, audioBlob);
+                    onRecordingCompleteRef.current(base64Audio, secondsRef.current, sessionTitleRef.current, notesRef.current, mediaItemsRef.current, audioBlob);
                 };
             };
         } catch (e) {

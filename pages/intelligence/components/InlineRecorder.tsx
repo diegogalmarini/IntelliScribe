@@ -16,6 +16,9 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
     const { t } = useLanguage();
     const { showToast } = useToast();
 
+    const onCompleteRef = useRef(onComplete);
+    useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+
     // Recording state
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
@@ -34,6 +37,8 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
 
     // Session data
     const [sessionTitle, setSessionTitle] = useState(t('newSession') || 'Nueva Sesión');
+    const sessionTitleRef = useRef(sessionTitle);
+    useEffect(() => { sessionTitleRef.current = sessionTitle; }, [sessionTitle]);
     const [recordingMode, setRecordingMode] = useState<'meeting' | 'call' | 'speaker'>('meeting');
 
     // Audio devices
@@ -169,7 +174,7 @@ export const InlineRecorder: React.FC<InlineRecorderProps> = ({ user, onComplete
                 }
                 const type = mimeTypeRef.current || 'audio/webm';
                 const audioBlob = new Blob(audioChunksRef.current, { type });
-                onComplete(audioBlob, secondsRef.current, sessionTitle, notesRef.current, mediaItemsRef.current);
+                onCompleteRef.current(audioBlob, secondsRef.current, sessionTitleRef.current, notesRef.current, mediaItemsRef.current);
 
                 // CLEANUP INDEXEDDB ON SUCCESS
                 if (recordingIdRef.current) {
