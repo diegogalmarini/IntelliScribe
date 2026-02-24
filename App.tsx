@@ -272,14 +272,15 @@ const AppContent: React.FC = () => {
 
     // --- AUTO LOGOUT PROTECTION ---
     useIdleTimer({
-        timeout: 1800000,
+        timeout: 1800000, // 30 mins
         onIdle: () => {
             if (supabaseUser) {
                 console.warn("User inactive for 30mins. Auto-logging out for security.");
                 handleLogout();
             }
         },
-        debounce: 500
+        debounce: 500,
+        enabled: !dashboardState.isRecording && !dashboardState.isUploading
     });
 
     const [selectedFolderId, setSelectedFolderId] = useState<string | 'ALL'>('ALL');

@@ -5,19 +5,22 @@ interface UseIdleTimerProps {
     onIdle: () => void;
     onActive?: () => void;
     debounce?: number;
+    enabled?: boolean;
 }
 
 export const useIdleTimer = ({
     timeout,
     onIdle,
     onActive,
-    debounce = 500
+    debounce = 500,
+    enabled = true
 }: UseIdleTimerProps) => {
     const [isIdle, setIsIdle] = useState(false);
     const lastActivityRef = useRef<number>(Date.now());
     const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleActivity = useCallback(() => {
+        if (!enabled) return;
         setIsIdle(false);
         lastActivityRef.current = Date.now();
         if (onActive) onActive();

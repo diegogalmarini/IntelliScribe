@@ -420,7 +420,10 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     };
 
     const handleGenerateTranscript = async () => {
-        if (!activeRecording) return;
+        if (!activeRecording || !activeRecording.audioUrl || activeRecording.audioUrl.startsWith('data:')) {
+            console.warn("[IntelligenceDashboard] Cannot generate transcript: Missing or invalid audioUrl");
+            return;
+        }
         try {
             const urlToUse = await getSignedAudioUrl(activeRecording.audioUrl);
             const { segments: rawSegments } = await transcribeAudio(undefined, undefined, user.transcriptionLanguage || 'es', urlToUse!);
