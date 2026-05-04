@@ -28,6 +28,7 @@ jobs:
 
       - name: Run Newsroom Script
         env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SOCIAL_WEBHOOK_URL: ${{ secrets.SOCIAL_WEBHOOK_URL }} # Webhook to Make.com/Buffer for cross-posting
         run: npx tsx scripts/automated_newsroom.ts

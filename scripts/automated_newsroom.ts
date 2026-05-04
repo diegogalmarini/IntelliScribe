@@ -204,92 +204,99 @@ async function generateAuthoritativeContent(topic: string) {
     throw lastError;
 }
 
+function buildImagePrompt(title: string, excerpt: string, category: string, tags: string[]): string {
+    const tagList = (tags || []).slice(0, 4).join(', ');
+    return `Photorealistic editorial illustration for a Spanish tech blog article. Category: ${category}. Article title: "${title}". Key themes: ${tagList}. Summary: ${excerpt.slice(0, 300)}. Visual style: cinematic lighting, clean modern composition, no text, no watermarks, no logos. The scene must directly represent the article topic — avoid generic office setups unless the article is specifically about office work.`;
+}
+
+async function generateImageWithDallE3(prompt: string, slug: string): Promise<string> {
+    const OpenAI = (await import("openai")).default;
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const response = await client.images.generate({
+        model: "dall-e-3",
+        prompt,
+        size: "1792x1024",
+        quality: "hd",
+        response_format: "b64_json",
+        n: 1,
+    });
+
+    const b64 = response.data[0].b64_json;
+    if (!b64) throw new Error("No image data in DALL-E 3 response");
+
+    const buffer = Buffer.from(b64, "base64");
+    const imagePath = `/images/blog/${slug}.png`;
+    const fullPath = path.join(process.cwd(), "public", imagePath);
+    if (!fs.existsSync(path.dirname(fullPath))) fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, buffer);
+    return imagePath;
+}
+
+async function generateImageWithGemini(prompt: string, slug: string): Promise<string> {
+    const { GoogleGenerativeAI } = await import("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-image-preview" });
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const candidate = response.candidates?.[0];
+    const part = candidate?.content?.parts?.find((p: any) => p.inlineData);
+    if (!part?.inlineData?.data) throw new Error("No image data in Gemini response");
+
+    const buffer = Buffer.from(part.inlineData.data, "base64");
+    const imagePath = `/images/blog/${slug}.png`;
+    const fullPath = path.join(process.cwd(), "public", imagePath);
+    if (!fs.existsSync(path.dirname(fullPath))) fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, buffer);
+    return imagePath;
+}
+
 async function generateImage(title: string, slug: string, excerpt: string, category: string, tags: string[]): Promise<string> {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        console.warn("⚠️ GEMINI_API_KEY missing. Using fallback.");
-        return "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200";
-    }
+    const prompt = buildImagePrompt(title, excerpt, category, tags);
 
-    try {
-        console.log(`🎨 Generating specialized AI visual with "Nano Banana Pro" for: ${slug}`);
-
-        const { GoogleGenerativeAI } = await import("@google/generative-ai");
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-image-preview" });
-
-        const tagList = (tags || []).slice(0, 4).join(', ');
-        const prompt = `Photorealistic editorial illustration for a tech article. Category: ${category}. Topic: "${title}". Key themes: ${tagList}. Context: ${excerpt}. Style: cinematic lighting, clean modern composition, no text, no logos. The image must visually represent the specific topic — avoid generic office setups unless directly relevant.`;
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-
-        // Check if the response contains an image
-        // The Gemini 3 Image Preview returns image data in the response
-        const candidate = response.candidates?.[0];
-        const part = candidate?.content?.parts?.find(p => p.inlineData);
-
-        if (part?.inlineData?.data) {
-            const base64 = part.inlineData.data;
-            const buffer = Buffer.from(base64, 'base64');
-            const imagePath = `/images/blog/${slug}.png`;
-            const fullPath = path.join(process.cwd(), 'public', imagePath);
-
-            if (!fs.existsSync(path.dirname(fullPath))) fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-            fs.writeFileSync(fullPath, buffer);
-            console.log(`✅ Image generated and saved to ${imagePath}`);
+    // 1. DALL-E 3 (primary — best quality)
+    if (process.env.OPENAI_API_KEY) {
+        try {
+            console.log(`🎨 Generating image with DALL-E 3 for: ${slug}`);
+            const imagePath = await generateImageWithDallE3(prompt, slug);
+            console.log(`✅ DALL-E 3 image saved: ${imagePath}`);
             return imagePath;
+        } catch (e) {
+            console.warn(`⚠️ DALL-E 3 failed: ${(e as Error).message}. Trying Gemini fallback.`);
         }
-
-        throw new Error("No image data found in Nano Banana Pro response");
-
-    } catch (e) {
-        console.warn(`⚠️ "Nano Banana Pro" failed or unavailable: ${(e as Error).message}. Using robust Unsplash fallback.`);
-        const fallbackPool = [
-            "photo-1550751827-4bd374c3f58b", // Circuit (Teal)
-            "photo-1518770660439-4636190af475", // CPU
-            "photo-1451187580459-43490279c0fa", // Digital Network
-            "photo-1485827404703-89b55fcc595e", // Robot/AI
-            "photo-1558494949-ef010cbdcc31", // Data Center
-            "photo-1507413245164-6160d8298b31", // Abstract Science
-            "photo-1531297484001-80022131f5a1", // Modern Tech
-            "photo-1488590528505-98d2b5aba04b", // Hardware Close-up
-            "photo-1517077304055-6e89a38219c7", // Microchip
-            "photo-1460925895917-afdab827c52f", // Dashboard/Data
-            "photo-1526374965328-7f61d4dc18c5", // Code/Binary
-            "photo-1504384308090-c894fdcc538d", // Modern Workspace
-            "photo-1516321318423-f06f85e504b3", // Digital Connection
-            "photo-1496065187959-7f07b8353c55", // Neon Particles
-            "photo-1515378866543-d75b1c31c7ed", // Computer Screen
-            "photo-1523961123396-5e678cc3fac1", // Future Tech Abstract
-            "photo-1504639725590-34d0984388bd", // Circuit Board White
-            "photo-1510511459019-5dee667ff1f4", // Cyber Security Matrix
-            "photo-1535223289827-42f1e9919769", // Tech Lab Dark
-            "photo-1581091226825-a6a2-a5aee158", // Industrial Tech
-            "photo-1509062522246-3755977927d7", // Modern Classroom
-            "photo-1519389950473-47ba0277781c", // Team Collaboration
-            "photo-1525547718501-df30305eeadc", // Laptop Workspace
-            "photo-1531482615713-2afd69097998", // Tech Support
-            "photo-1550741164-c0c27451530c", // Retro Tech
-            "photo-1563986768609-322da13575f3", // Fintech Dashboard
-            "photo-1551288049-bbbda536639a", // Data Analytics
-            "photo-1573164713714-d95e436ab8d6", // VR User
-            "photo-1580894732230-288d9921175f", // Server Maintenance
-            "photo-1518433278985-162711aae4d2"  // Network Hub
-        ];
-
-        // Improved entropy: Hash slug and title, but remove volatile factors like seconds 
-        // to keep it deterministic but varied per article.
-        const combinedString = `${slug}-${title}`;
-        let hash = 0;
-        for (let i = 0; i < combinedString.length; i++) {
-            hash = ((hash << 5) - hash) + combinedString.charCodeAt(i);
-            hash |= 0; // Convert to 32bit integer
-        }
-
-        const photoId = fallbackPool[Math.abs(hash) % fallbackPool.length];
-        return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=80&w=1200`;
     }
+
+    // 2. Gemini fallback
+    if (process.env.GEMINI_API_KEY) {
+        try {
+            console.log(`🎨 Fallback: generating image with Gemini for: ${slug}`);
+            const imagePath = await generateImageWithGemini(prompt, slug);
+            console.log(`✅ Gemini image saved: ${imagePath}`);
+            return imagePath;
+        } catch (e) {
+            console.warn(`⚠️ Gemini failed: ${(e as Error).message}. Using Unsplash fallback.`);
+        }
+    }
+
+    // 3. Unsplash last resort (deterministic hash per article)
+    const combinedString = `${slug}-${title}`;
+    let hash = 0;
+    for (let i = 0; i < combinedString.length; i++) {
+        hash = ((hash << 5) - hash) + combinedString.charCodeAt(i);
+        hash |= 0;
+    }
+    const fallbackPool = [
+        "photo-1550751827-4bd374c3f58b", "photo-1518770660439-4636190af475",
+        "photo-1451187580459-43490279c0fa", "photo-1485827404703-89b55fcc595e",
+        "photo-1558494949-ef010cbdcc31", "photo-1507413245164-6160d8298b31",
+        "photo-1531297484001-80022131f5a1", "photo-1488590528505-98d2b5aba04b",
+        "photo-1460925895917-afdab827c52f", "photo-1526374965328-7f61d4dc18c5",
+        "photo-1551288049-bbbda536639a", "photo-1573164713714-d95e436ab8d6",
+    ];
+    const photoId = fallbackPool[Math.abs(hash) % fallbackPool.length];
+    console.warn(`⚠️ Using Unsplash fallback for: ${slug}`);
+    return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=80&w=1200`;
 }
 
 async function runNewsroom() {

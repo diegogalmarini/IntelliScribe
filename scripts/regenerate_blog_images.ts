@@ -15,7 +15,6 @@ import { config } from 'dotenv';
 config({ path: '.env.local' });
 import path from 'path';
 import fs from 'fs';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const BLOG_DATA_PATH = path.join(process.cwd(), 'utils', 'blogData.ts');
 const PUBLIC_BLOG_DIR = path.join(process.cwd(), 'public', 'images', 'blog');
@@ -74,6 +73,11 @@ function parseArticles(): ArticleEntry[] {
     return articles;
 }
 
+function buildImagePrompt(title: string, excerpt: string, category: string, tags: string[]): string {
+    const tagList = (tags || []).slice(0, 4).join(', ');
+    return `Photorealistic editorial illustration for a Spanish tech blog article. Category: ${category}. Article title: "${title}". Key themes: ${tagList}. Summary: ${excerpt.slice(0, 300)}. Visual style: cinematic lighting, clean modern composition, no text, no watermarks, no logos. The scene must directly represent the article topic — avoid generic office setups unless the article is specifically about office work.`;
+}
+
 async function generateImageForArticle(
     title: string,
     slug: string,
@@ -81,27 +85,49 @@ async function generateImageForArticle(
     category: string,
     tags: string[]
 ): Promise<string | null> {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY missing');
+    const prompt = buildImagePrompt(title, excerpt, category, tags);
+    const imagePath = `/images/blog/${slug}.png`;
+    const fullPath = path.join(PUBLIC_BLOG_DIR, `${slug}.png`);
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
+    // 1. DALL-E 3 (primary)
+    if (process.env.OPENAI_API_KEY) {
+        try {
+            const OpenAI = (await import('openai')).default;
+            const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+            const response = await client.images.generate({
+                model: 'dall-e-3',
+                prompt,
+                size: '1792x1024',
+                quality: 'hd',
+                response_format: 'b64_json',
+                n: 1,
+            });
+            const b64 = response.data[0].b64_json;
+            if (!b64) throw new Error('No image data');
+            if (!fs.existsSync(PUBLIC_BLOG_DIR)) fs.mkdirSync(PUBLIC_BLOG_DIR, { recursive: true });
+            fs.writeFileSync(fullPath, Buffer.from(b64, 'base64'));
+            return imagePath;
+        } catch (e) {
+            console.warn(`  ⚠️ DALL-E 3 failed: ${(e as Error).message}. Trying Gemini.`);
+        }
+    }
 
-    const tagList = (tags || []).slice(0, 4).join(', ');
-    const prompt = `Photorealistic editorial illustration for a tech article. Category: ${category}. Topic: "${title}". Key themes: ${tagList}. Context: ${excerpt}. Style: cinematic lighting, clean modern composition, no text, no logos. The image must visually represent the specific topic — avoid generic office setups unless directly relevant.`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const candidate = response.candidates?.[0];
-    const part = candidate?.content?.parts?.find((p: any) => p.inlineData);
-
-    if (part?.inlineData?.data) {
-        const buffer = Buffer.from(part.inlineData.data, 'base64');
-        const imagePath = `/images/blog/${slug}.png`;
-        const fullPath = path.join(PUBLIC_BLOG_DIR, `${slug}.png`);
-        if (!fs.existsSync(PUBLIC_BLOG_DIR)) fs.mkdirSync(PUBLIC_BLOG_DIR, { recursive: true });
-        fs.writeFileSync(fullPath, buffer);
-        return imagePath;
+    // 2. Gemini fallback
+    if (process.env.GEMINI_API_KEY) {
+        try {
+            const { GoogleGenerativeAI } = await import('@google/generative-ai');
+            const model = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+                .getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
+            const result = await model.generateContent(prompt);
+            const candidate = result.response.candidates?.[0];
+            const part = candidate?.content?.parts?.find((p: any) => p.inlineData);
+            if (!part?.inlineData?.data) throw new Error('No image data');
+            if (!fs.existsSync(PUBLIC_BLOG_DIR)) fs.mkdirSync(PUBLIC_BLOG_DIR, { recursive: true });
+            fs.writeFileSync(fullPath, Buffer.from(part.inlineData.data, 'base64'));
+            return imagePath;
+        } catch (e) {
+            console.warn(`  ⚠️ Gemini failed: ${(e as Error).message}`);
+        }
     }
 
     return null;
