@@ -259,10 +259,10 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     const signedUrl = await getSignedAudioUrl(audioUrl);
                     if (signedUrl) {
                         const targetLang = user.transcriptionLanguage || 'es';
-                        const segments = await transcribeAudio(undefined, file.type, targetLang, signedUrl);
-                        if (segments && segments.length > 0) {
-                            await databaseService.updateRecording(createdRecording.id, { segments: segments as any, status: 'Completed' });
-                            setTempRecording(prev => prev ? ({ ...prev, segments: segments as any, status: 'Completed' }) : null);
+                        const { segments: rawSegments } = await transcribeAudio(undefined, file.type, targetLang, signedUrl);
+                        if (rawSegments && rawSegments.length > 0) {
+                            await databaseService.updateRecording(createdRecording.id, { segments: rawSegments as any, status: 'Completed' });
+                            setTempRecording(prev => prev ? ({ ...prev, segments: rawSegments as any, status: 'Completed' }) : null);
 
                             if (Analytics && typeof Analytics.trackEvent === 'function') {
                                 Analytics.trackEvent('upload_single_audio_success', {
@@ -432,8 +432,9 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             const segments = Array.isArray(rawSegments) ? rawSegments : [];
             if (segments.length === 0) return;
 
-            await databaseService.updateRecording(activeRecording.id, { segments: segments as any });
-            onUpdateRecording(activeRecording.id, { segments: segments as any });
+            await databaseService.updateRecording(activeRecording.id, { segments: segments as any, status: 'Completed' });
+            onUpdateRecording(activeRecording.id, { segments: segments as any, status: 'Completed' });
+            setTempRecording(prev => prev?.id === activeRecording.id ? ({ ...prev, segments: segments as any, status: 'Completed' }) : prev);
         } catch (error: any) {
             showToast("Error: " + error.message, 'error');
         }
