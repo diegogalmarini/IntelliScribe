@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Recording, UserProfile, Folder } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic, Search, X, LayoutTemplate, Star } from 'lucide-react';
+import { Plus, MoreHorizontal, FileText, Edit3, FolderInput, Trash2, Mic, Search, X, LayoutTemplate, Star, ChevronDown } from 'lucide-react';
 import { FolderList } from './FolderList';
 
 interface MinimalSidebarProps {
@@ -72,6 +72,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onOpenSearch
 }) => {
     const { t } = useLanguage();
+    const [statsCollapsed, setStatsCollapsed] = useState(false);
     const [contextMenuId, setContextMenuId] = useState<string | null>(null);
     const [renamingId, setRenamingId] = useState<string | null>(null);
     const [renameValue, setRenameValue] = useState('');
@@ -183,10 +184,21 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 </button>
             </div>
 
-            {/* Usage Indicator - Moved to top as quick status */}
-            <div className="px-3 py-3 border-b border-black/[0.05] dark:border-white/[0.05]">
-                {/* ... (Usage Content Kept Same) ... */}
-                <div className="px-2 text-[12px] text-[#676767] dark:text-[#c5c5c5]">
+            {/* Usage Indicator - collapsible */}
+            <div className="border-b border-black/[0.05] dark:border-white/[0.05]">
+                <button
+                    onClick={() => setStatsCollapsed(v => !v)}
+                    className="w-full flex items-center justify-between px-5 py-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                >
+                    <span>{t('usage_label') || 'Uso'}</span>
+                    <ChevronDown
+                        size={13}
+                        className={`transition-transform duration-200 ${statsCollapsed ? '-rotate-90' : ''}`}
+                    />
+                </button>
+
+                <div className={`overflow-hidden transition-all duration-200 ${statsCollapsed ? 'max-h-0' : 'max-h-96'}`}>
+                <div className="px-5 pb-3 text-[12px] text-[#676767] dark:text-[#c5c5c5]">
                     {user.subscription.minutesLimit === -1 ? (
                         <span className="font-normal">{t('unlimited_label')}</span>
                     ) : (
@@ -293,6 +305,7 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                             )}
                         </div>
                     )}
+                </div>
                 </div>
             </div>
 
