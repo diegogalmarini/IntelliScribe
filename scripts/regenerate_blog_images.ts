@@ -89,11 +89,31 @@ async function generateImageForArticle(
     const imagePath = `/images/blog/${slug}.png`;
     const fullPath = path.join(PUBLIC_BLOG_DIR, `${slug}.png`);
 
-    // 1. DALL-E 3 (primary)
+    // 1. OpenAI: gpt-image-1 → DALL-E 3 fallback
     if (process.env.OPENAI_API_KEY) {
+        const OpenAI = (await import('openai')).default;
+        const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        if (!fs.existsSync(PUBLIC_BLOG_DIR)) fs.mkdirSync(PUBLIC_BLOG_DIR, { recursive: true });
+
+        // gpt-image-1 (primary)
         try {
-            const OpenAI = (await import('openai')).default;
-            const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+            const response = await client.images.generate({
+                model: 'gpt-image-1',
+                prompt,
+                size: '1536x1024',
+                quality: 'high',
+                n: 1,
+            } as any);
+            const b64 = response.data[0].b64_json;
+            if (!b64) throw new Error('No image data');
+            fs.writeFileSync(fullPath, Buffer.from(b64, 'base64'));
+            return imagePath;
+        } catch (e) {
+            console.warn(`  ⚠️ gpt-image-1 failed: ${(e as Error).message}. Trying DALL-E 3.`);
+        }
+
+        // DALL-E 3 fallback
+        try {
             const response = await client.images.generate({
                 model: 'dall-e-3',
                 prompt,
@@ -104,7 +124,6 @@ async function generateImageForArticle(
             });
             const b64 = response.data[0].b64_json;
             if (!b64) throw new Error('No image data');
-            if (!fs.existsSync(PUBLIC_BLOG_DIR)) fs.mkdirSync(PUBLIC_BLOG_DIR, { recursive: true });
             fs.writeFileSync(fullPath, Buffer.from(b64, 'base64'));
             return imagePath;
         } catch (e) {

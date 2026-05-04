@@ -209,10 +209,33 @@ function buildImagePrompt(title: string, excerpt: string, category: string, tags
     return `Photorealistic editorial illustration for a Spanish tech blog article. Category: ${category}. Article title: "${title}". Key themes: ${tagList}. Summary: ${excerpt.slice(0, 300)}. Visual style: cinematic lighting, clean modern composition, no text, no watermarks, no logos. The scene must directly represent the article topic — avoid generic office setups unless the article is specifically about office work.`;
 }
 
-async function generateImageWithDallE3(prompt: string, slug: string): Promise<string> {
+async function generateImageWithOpenAI(prompt: string, slug: string): Promise<string> {
     const OpenAI = (await import("openai")).default;
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+    const imagePath = `/images/blog/${slug}.png`;
+    const fullPath = path.join(process.cwd(), "public", imagePath);
+    if (!fs.existsSync(path.dirname(fullPath))) fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+
+    // Try gpt-image-1 first (best quality, instruction-following)
+    try {
+        const response = await client.images.generate({
+            model: "gpt-image-1",
+            prompt,
+            size: "1536x1024",
+            quality: "high",
+            n: 1,
+        } as any);
+        const b64 = response.data[0].b64_json;
+        if (!b64) throw new Error("No b64 data");
+        fs.writeFileSync(fullPath, Buffer.from(b64, "base64"));
+        console.log(`✅ gpt-image-1 image saved: ${imagePath}`);
+        return imagePath;
+    } catch (e) {
+        console.warn(`⚠️ gpt-image-1 failed: ${(e as Error).message}. Trying DALL-E 3.`);
+    }
+
+    // DALL-E 3 fallback within OpenAI
     const response = await client.images.generate({
         model: "dall-e-3",
         prompt,
@@ -221,15 +244,10 @@ async function generateImageWithDallE3(prompt: string, slug: string): Promise<st
         response_format: "b64_json",
         n: 1,
     });
-
     const b64 = response.data[0].b64_json;
     if (!b64) throw new Error("No image data in DALL-E 3 response");
-
-    const buffer = Buffer.from(b64, "base64");
-    const imagePath = `/images/blog/${slug}.png`;
-    const fullPath = path.join(process.cwd(), "public", imagePath);
-    if (!fs.existsSync(path.dirname(fullPath))) fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-    fs.writeFileSync(fullPath, buffer);
+    fs.writeFileSync(fullPath, Buffer.from(b64, "base64"));
+    console.log(`✅ DALL-E 3 image saved: ${imagePath}`);
     return imagePath;
 }
 
@@ -255,15 +273,13 @@ async function generateImageWithGemini(prompt: string, slug: string): Promise<st
 async function generateImage(title: string, slug: string, excerpt: string, category: string, tags: string[]): Promise<string> {
     const prompt = buildImagePrompt(title, excerpt, category, tags);
 
-    // 1. DALL-E 3 (primary — best quality)
+    // 1. OpenAI (gpt-image-1 → DALL-E 3 internamente)
     if (process.env.OPENAI_API_KEY) {
         try {
-            console.log(`🎨 Generating image with DALL-E 3 for: ${slug}`);
-            const imagePath = await generateImageWithDallE3(prompt, slug);
-            console.log(`✅ DALL-E 3 image saved: ${imagePath}`);
-            return imagePath;
+            console.log(`🎨 Generating image with OpenAI for: ${slug}`);
+            return await generateImageWithOpenAI(prompt, slug);
         } catch (e) {
-            console.warn(`⚠️ DALL-E 3 failed: ${(e as Error).message}. Trying Gemini fallback.`);
+            console.warn(`⚠️ OpenAI failed: ${(e as Error).message}. Trying Gemini fallback.`);
         }
     }
 
