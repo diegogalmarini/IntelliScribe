@@ -8,7 +8,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { AnalysisModal } from './AnalysisModal';
 import { ExportModal } from './ExportModal';
 import { generateMeetingSummary, transcribeAudio } from '../../../services/geminiService';
-import { getSignedAudioUrl } from '../../../services/storageService';
+import { getSignedAudioUrl, refreshMarkdownImageUrls } from '../../../services/storageService';
 import * as exportUtils from '../../../utils/exportUtils';
 import { supabase } from '../../../lib/supabase';
 import { databaseService } from '../../../services/databaseService';
@@ -123,6 +123,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     const [fullRecording, setFullRecording] = useState<Recording | null>(null);
     const [segments, setSegments] = useState<any[]>(Array.isArray(recording.segments) ? recording.segments : []);
     const [summary, setSummary] = useState<string>(recording.summary || '');
+    const [renderedSummary, setRenderedSummary] = useState<string>(recording.summary || '');
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
     const audioRef = React.useRef<HTMLAudioElement>(null);
@@ -258,6 +259,13 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
             setSummary(recording.summary);
         }
     }, [recording.summary]);
+
+    // Re-sign any Supabase image URLs embedded in the summary so screenshots
+    // remain visible even when viewed hours after the summary was generated.
+    React.useEffect(() => {
+        if (!summary) { setRenderedSummary(''); return; }
+        refreshMarkdownImageUrls(summary).then(setRenderedSummary);
+    }, [summary]);
 
     React.useEffect(() => {
         if (recording.title && !isEditingTitle) {
@@ -1178,7 +1186,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                         ),
                                     }}
                                 >
-                                    {cleanMarkdown(summary)}
+                                    {cleanMarkdown(renderedSummary || summary)}
                                 </ReactMarkdown>
                             </div>
                         </div>

@@ -163,6 +163,28 @@ export const uploadAudio = async (blob: Blob, userId: string): Promise<string | 
     return fileName;
 };
 
+/**
+ * Scans a markdown string for embedded Supabase storage image URLs and re-signs
+ * any that are expired or about to expire. Safe to call on any text — returns
+ * the original string unchanged if no Supabase image URLs are found.
+ */
+export const refreshMarkdownImageUrls = async (markdown: string): Promise<string> => {
+    if (!markdown) return markdown;
+
+    const imageRegex = /!\[([^\]]*)\]\((https:\/\/[^)]*supabase[^)]*recordings[^)]*)\)/g;
+    const matches = [...markdown.matchAll(imageRegex)];
+    if (matches.length === 0) return markdown;
+
+    let refreshed = markdown;
+    await Promise.all(matches.map(async ([, , url]) => {
+        const fresh = await getSignedAudioUrl(url);
+        if (fresh && fresh !== url) {
+            refreshed = refreshed.replace(url, fresh);
+        }
+    }));
+    return refreshed;
+};
+
 export const uploadAvatar = async (file: File, userId: string): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`;
