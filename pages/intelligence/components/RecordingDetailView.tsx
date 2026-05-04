@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Recording, UserProfile, NoteItem, MediaItem } from '../../../types';
 import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { AnalysisModal } from './AnalysisModal';
@@ -1157,6 +1158,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
                             <div className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[#0d0d0d] dark:text-[#ececec] leading-relaxed">
                                 <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
                                     components={{
                                         h1: ({ ...props }) => <h1 className="text-[16px] font-bold mb-3 mt-4" {...props} />,
                                         h2: ({ ...props }) => <h2 className="text-[15px] font-semibold mb-2 mt-3" {...props} />,
@@ -1166,6 +1168,14 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                         ol: ({ ...props }) => <ol className="list-decimal pl-5 mb-2" {...props} />,
                                         li: ({ ...props }) => <li className="mb-1" {...props} />,
                                         strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
+                                        img: ({ src, alt }) => (
+                                            <img
+                                                src={src}
+                                                alt={alt || ''}
+                                                className="max-w-full h-auto rounded-lg my-3 shadow-sm border border-slate-100 dark:border-white/10"
+                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                            />
+                                        ),
                                     }}
                                 >
                                     {cleanMarkdown(summary)}

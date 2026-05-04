@@ -1475,7 +1475,7 @@ export const translations = {
 
     // Editor
     back: "Volver",
-    summarize: "Resumir",
+    summarize: "Resumen",
     thinking: "Analizando...",
     export: "Exportar",
     askDiktalo: "Preguntar a Diktalo",
