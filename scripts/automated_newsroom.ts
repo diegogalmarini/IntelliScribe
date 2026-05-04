@@ -204,7 +204,7 @@ async function generateAuthoritativeContent(topic: string) {
     throw lastError;
 }
 
-async function generateImage(title: string, slug: string): Promise<string> {
+async function generateImage(title: string, slug: string, excerpt: string, category: string, tags: string[]): Promise<string> {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         console.warn("⚠️ GEMINI_API_KEY missing. Using fallback.");
@@ -216,10 +216,10 @@ async function generateImage(title: string, slug: string): Promise<string> {
 
         const { GoogleGenerativeAI } = await import("@google/generative-ai");
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Using Nano Banana Pro alias: gemini-3-pro-image-preview
-        const model = genAI.getGenerativeModel({ model: "gemini-3-pro-image-preview" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-image-preview" });
 
-        const prompt = `Realistic high-quality technical office environment with subtle futuristic UI elements, focused on a professional looking at a voice waveform on a clean, premium desktop setup. Depth of field, volumetric lighting, photorealistic. Topic: ${title}`;
+        const tagList = (tags || []).slice(0, 4).join(', ');
+        const prompt = `Photorealistic editorial illustration for a tech article. Category: ${category}. Topic: "${title}". Key themes: ${tagList}. Context: ${excerpt}. Style: cinematic lighting, clean modern composition, no text, no logos. The image must visually represent the specific topic — avoid generic office setups unless directly relevant.`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -303,7 +303,7 @@ async function runNewsroom() {
         const data = await generateAuthoritativeContent(selectedTopic);
 
         // Generate Image
-        data.blog.image = await generateImage(data.blog.title, data.blog.slug);
+        data.blog.image = await generateImage(data.blog.title, data.blog.slug, data.blog.excerpt, data.blog.category, data.blog.tags);
 
         // Inject to Blog
         const blogData = fs.readFileSync(BLOG_DATA_PATH, 'utf-8');
