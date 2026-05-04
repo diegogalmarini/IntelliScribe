@@ -418,7 +418,6 @@ async function captureAndUploadScreenshot() {
         const newScreenshot = {
             path: path,
             timestamp: timestamp,
-            url: `${supabaseUrl}/storage/v1/object/public/recordings/${path}`
         };
 
         await saveState({
