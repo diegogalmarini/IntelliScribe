@@ -188,9 +188,8 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
             <div className="border-b border-black/[0.05] dark:border-white/[0.05]">
                 <button
                     onClick={() => setStatsCollapsed(v => !v)}
-                    className="w-full flex items-center justify-between px-5 py-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                    className="w-full flex items-center justify-end px-4 py-1.5 text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-400 transition-colors"
                 >
-                    <span>{t('usage_label') || 'Uso'}</span>
                     <ChevronDown
                         size={13}
                         className={`transition-transform duration-200 ${statsCollapsed ? '-rotate-90' : ''}`}
