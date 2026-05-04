@@ -38,6 +38,22 @@
 | `minutes_used` y `storage_used` en 0 en admin | RLS bloqueaba `update` desde cliente | RPCs `increment_user_usage` / `increment_user_storage` con `security definer` |
 | Error `MPEGMode` en Safari/iOS | Referencia rota en `audioConcat.ts` | Polyfill defensivo para `lamejs` |
 | Acciones de carpetas no persistían en desktop | Prop drilling roto entre `App.tsx` e `IntelligenceDashboard` | Refactorización con `FolderModal.tsx` |
+| Transcripción no aparecía tras upload sin refresh | `transcribeAudio()` devuelve `{segments, suggestedSpeakers}` pero el upload lo trataba como array (`.length` en objeto = `undefined`) — condition siempre `false`. `handleGenerateTranscript` actualizaba `recordings` pero `activeRecording` apuntaba a `tempRecording`. | Destructuring correcto + `setTempRecording` en ambos paths. |
+
+---
+
+## Registro 2026-05-04 — Fix transcripción no visible sin refresh
+
+**Qué se hizo:**
+- Fix en `IntelligenceDashboard.tsx:262`: el upload flow asignaba el return de `transcribeAudio()` (un objeto) a `segments` y lo comprobaba con `.length` — siempre `false`. Corregido con destructuring `{ segments: rawSegments }`.
+- Fix en `handleGenerateTranscript`: añadido `setTempRecording()` para sincronizar la vista activa, que apuntaba a `tempRecording` aunque `onUpdateRecording` actualizara el array `recordings`.
+- Ambos paths ahora también persisten `status: 'Completed'`.
+
+**Por qué:**
+El bug estaba desde la introducción de `transcribeAudio()` con la firma `Promise<{segments, suggestedSpeakers}>`. El upload flow nunca se actualizó para destructurar. `handleGenerateTranscript` actualizaba el estado global pero no el local (`tempRecording`), dejando la vista obsoleta hasta refresh manual.
+
+**Pendiente / siguiente:**
+- Verificar en producción que audios subidos transcriben y aparecen sin refresh.
 
 ---
 
