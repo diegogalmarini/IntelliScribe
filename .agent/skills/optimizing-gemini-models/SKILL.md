@@ -15,30 +15,25 @@ This skill serves as the single source of truth for AI model selection in the Sa
 
 Google AI offers two main active generations for production and previews:
 
-### Gemini 3 Series
-*   **Gemini 3.1 Pro** (`gemini-3.1-pro-preview` / `gemini-3-pro`): Advanced intelligence, complex problem-solving skills, and powerful agentic capabilities.
-*   **Gemini 3 Flash** (`gemini-3-flash-preview` / `gemini-3-flash`): Frontier-class performance rivaling larger models at a fraction of the cost.
-*   **Nano Banana Pro** (`gemini-3-pro-image-preview`): State-of-the-art image generation and editing models for highly contextual native image creation.
-
-### Gemini 2.5 Series
-*   **Gemini 2.5 Pro** (`gemini-2.5-pro`): Most advanced stable model for complex tasks, featuring deep reasoning and coding capabilities.
-*   **Gemini 2.5 Flash** (`gemini-2.5-flash`): Best price-performance model for low-latency, high-volume tasks that require reasoning.
-*   **Gemini 2.5 Flash-Lite** (`gemini-2.5-flash-lite`): Ultra-fast and cost-effective model for simpler tasks.
-*   **Nano Banana** (`gemini-2.5-flash-image`): State-of-the-art native image generation and editing.
+### Gemini 3.1 Series (Frontier)
+*   **Gemini 3.1 Pro** (`gemini-3.1-pro-preview`): Advanced intelligence, deep reasoning, and complex agentic workflows.
+*   **Gemini 3.1 Flash** (`gemini-3.1-flash-preview`): Frontier-class performance with high efficiency.
+*   **Gemini 3.1 Flash-Lite** (`gemini-3.1-flash-lite-preview`): Ultra-fast, cost-effective model for high-frequency, lower-complexity tasks.
 
 ### Specialized Task Models
-*   **Embeddings**: `gemini-embedding-001` (High-dimensional vector representations for advanced semantic search).
+*   **Embeddings**: `gemini-embedding-001` (Mandatory).
+*   **Images**: `gemini-3.1-flash-image-preview` (Nano Banana Pro).
 
 ## Model Selection Standards mapping
 
 | Use Case | Recommended Model | Reason |
 | :--- | :--- | :--- |
-| **Transcription** | `gemini-2.5-flash` OR `gemini-3-flash` | Optimized for speed, cost, and extreme context windows. |
-| **Chat & Reasoning** | `gemini-2.5-pro` OR `gemini-3-pro` | Best-in-class reasoning for complex instruction following and agentic workflows. |
-| **Summarization** | `gemini-2.5-flash` | Balanced performance for processing large transcripts. |
-| **Support Bot** | `gemini-2.5-flash` | Low latency for real-time user interaction. |
-| **Embeddings** | `gemini-embedding-001` | **MANDATORY**. `text-embedding-004` is fully deprecated. |
-| **Image Generation** | `gemini-2.5-flash-image` | Nano Banana is the standard for fast, creative native workflows. |
+| **Transcription** | `gemini-3.1-flash-preview` | Optimized for extreme context and speed. |
+| **Chat & Reasoning** | `gemini-3.1-pro-preview` | Best reasoning and instruction following. |
+| **Summarization** | `gemini-3.1-flash-lite-preview` | Fast processing of large transcripts at minimal cost. |
+| **Support Bot** | `gemini-3.1-flash-lite-preview` | Ultra-low latency for real-time chat. |
+| **Embeddings** | `gemini-embedding-001` | **MANDATORY**. |
+| **Image Generation** | `gemini-3.1-flash-image-preview` | Nano Banana Pro for state-of-the-art vision. |
 
 ## Deprecation Policy & Known Deprecations
 

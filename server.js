@@ -157,7 +157,7 @@ const server = http.createServer(async (req, res) => {
                     }
 
                     const response = await genAI.models.generateContent({
-                        model: 'gemini-2.0-flash-exp',
+                        model: 'gemini-3.1-flash-lite-preview',
                         contents: prompt,
                         config: { temperature: 0.3 }
                     });
@@ -174,7 +174,7 @@ const server = http.createServer(async (req, res) => {
                         : `You are Diktalo. Answer based ONLY on this context:\n${finalContext}`;
 
                     const chat = genAI.chats.create({
-                        model: 'gemini-2.0-flash-exp',
+                        model: 'gemini-3.1-flash-lite-preview',
                         config: { systemInstruction },
                         history: history.map((h) => ({ role: h.role === 'user' ? 'user' : 'model', parts: [{ text: h.text || h.content }] }))
                     });
@@ -197,7 +197,7 @@ const server = http.createServer(async (req, res) => {
                     if (!finalBase64) throw new Error('No audio data or URL provided');
 
                     const response = await genAI.models.generateContent({
-                        model: 'gemini-2.0-flash-exp',
+                        model: 'gemini-3.1-flash-preview',
                         contents: {
                             parts: [
                                 { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
@@ -216,7 +216,7 @@ const server = http.createServer(async (req, res) => {
                     const systemInstruction = `Eres Nati Pol, experta en Diktalo. ${coreTruths}. REGLA DE ORO: CERO NEGRITAS.`;
 
                     const chat = genAI.chats.create({
-                        model: 'gemini-2.0-flash-exp',
+                        model: 'gemini-3.1-flash-lite-preview',
                         config: { systemInstruction, temperature: 0.9 },
                         history: history.map((h) => ({
                             role: h.role === 'user' ? 'user' : 'model',

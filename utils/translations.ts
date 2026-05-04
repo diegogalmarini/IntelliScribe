@@ -1936,11 +1936,18 @@ export const translations = {
     // Hero Section (NEW)
     hero_main_title: "Tu Segundo Cerebro Corporativo",
     hero_subtitle: "Graba en el móvil, decide en la web. Diktalo unifica llamadas, grabaciones y tareas en un solo sistema operativo de inteligencia.",
+    hero_automate_title: "Automatiza tu éxito",
+    hero_automate_subtitle: "en 4 simples pasos.",
     hero_cta_start: "Empezar gratis",
     hero_cta_demo: "Ver demo",
     hero_badge_compliance: "GDPR Compliant · Encriptación AES-256",
     hero_badge_mobile: "Funciona en cualquier móvil, sin instalar nada",
     hero_badge_desktop: "Web Desktop",
+    hero_capture: "Captura",
+    step1_capture: "Captura Omnicanal",
+    step2_ai: "Inteligencia Artificial",
+    step3_sync: "Sync Automático",
+    step4_memory: "Memoria Eterna",
 
     // Landing Page (NEW)
     landing_blog_tag: "Blog",

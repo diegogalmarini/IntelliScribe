@@ -12,14 +12,17 @@ initSentry();
 const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
     modelPriorities: [
-        'gemini-2.5-flash',
-        'gemini-2.5-pro'
+        'gemini-3.1-pro-preview',
+        'gemini-3.1-flash-preview',
+        'gemini-3.1-flash-lite-preview',
+        'gemini-2.5-pro',
+        'gemini-2.5-flash'
     ],
     actions: {
-        summary: { preferredModel: 'gemini-2.5-flash', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-2.5-pro', temperature: 0.8 },
-        support: { preferredModel: 'gemini-2.5-flash', temperature: 0.9 },
-        transcription: { preferredModel: 'gemini-2.5-flash', temperature: 0.1 },
+        summary: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.7 },
+        chat: { preferredModel: 'gemini-3.1-pro-preview', temperature: 0.8 },
+        support: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.9 },
+        transcription: { preferredModel: 'gemini-3.1-flash-preview', temperature: 0.1 },
         embed: { preferredModel: 'gemini-embedding-001', temperature: 0, outputDimensionality: 768 }
     }
 };
@@ -379,13 +382,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         model: GEMINI_CONFIG.actions.embed.preferredModel
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
 
-                    // For text-embedding-004, we must use embedContent with correct structure
+                    // Standard embedding structure for gemini-embedding-001
                     return await model.embedContent({
                         content: { role: 'user', parts: [{ text }] },
                         outputDimensionality: (GEMINI_CONFIG.actions.embed as any).outputDimensionality
                     });
                 } catch (err: any) {
-                    console.warn(`[AI_API] Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to legacy embedding-001. Error: ${err.message}`);
+                    console.warn(`[AI_API] Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to embedding-001 legacy ID. Error: ${err.message}`);
                     const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
                     return await fallbackModel.embedContent(text);
                 }
@@ -419,7 +422,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     });
                     embedding = embedResult.embedding.values;
                 } catch (err: any) {
-                    console.warn(`[AI_API] RAG Sync Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to legacy embedding-001. Error: ${err.message}`);
+                    console.warn(`[AI_API] RAG Sync Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to embedding-001 legacy ID. Error: ${err.message}`);
                     const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
                     const embedResult = await fallbackModel.embedContent(chunk.text);
                     embedding = embedResult.embedding.values;

@@ -15,7 +15,7 @@ export async function translateWithGemini(
     targetLang: 'en' | 'es'
 ): Promise<string> {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
 
         const prompt = targetLang === 'en'
             ? `Translate this Spanish text to professional English for a SaaS product. Maintain the same tone and technical terms. Only return the translation, nothing else:\n\n${text}`

@@ -25,7 +25,7 @@ export const Features: React.FC = () => {
             number: '02',
             title: t('step2_ai'),
             fullTitle: t('step2_ai'),
-            description: t('feat1Desc'), // Using feat1Desc/feat2Desc/feat3Desc as approximations or new keys if needed. Using feat1Desc as placeholder if specific step descriptions aren't exact matches in prev file?
+            description: t('feat2Desc'), // Using feat1Desc/feat2Desc/feat3Desc as approximations or new keys if needed. Using feat1Desc as placeholder if specific step descriptions aren't exact matches in prev file?
             // Wait, looking at translations.ts:
             // step1Desc: "Use **Meeting Mode**..."
             // step2Desc: "Our AI converts..."
