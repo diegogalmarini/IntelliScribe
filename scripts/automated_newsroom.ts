@@ -204,6 +204,45 @@ async function generateAuthoritativeContent(topic: string) {
     throw lastError;
 }
 
+async function fetchImageFromPexels(slug: string, category: string, tags: string[]): Promise<string | null> {
+    const apiKey = process.env.PEXELS_API_KEY;
+    if (!apiKey) return null;
+
+    const query = [category, ...tags.slice(0, 2)].filter(Boolean).join(' ');
+
+    try {
+        const res = await fetch(
+            `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape`,
+            { headers: { Authorization: apiKey } }
+        );
+        if (!res.ok) throw new Error(`Pexels ${res.status}`);
+
+        const data = await res.json();
+        if (!data.photos?.length) return null;
+
+        // Deterministic pick so the same slug always gets the same photo
+        let hash = 0;
+        for (const c of slug) hash = ((hash << 5) - hash) + c.charCodeAt(0);
+        const photo = data.photos[Math.abs(hash) % data.photos.length];
+
+        const imageUrl = photo.src.large2x || photo.src.large;
+        const imgRes = await fetch(imageUrl);
+        if (!imgRes.ok) throw new Error('Download failed');
+
+        const buffer = Buffer.from(await imgRes.arrayBuffer());
+        const imagePath = `/images/blog/${slug}.jpg`;
+        const fullPath = path.join(process.cwd(), 'public', imagePath);
+        if (!fs.existsSync(path.dirname(fullPath))) fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+        fs.writeFileSync(fullPath, buffer);
+
+        console.log(`✅ Pexels image saved: ${imagePath} (${photo.photographer})`);
+        return imagePath;
+    } catch (e) {
+        console.warn(`⚠️ Pexels failed: ${(e as Error).message}`);
+        return null;
+    }
+}
+
 function buildImagePrompt(title: string, excerpt: string, category: string, tags: string[]): string {
     const tagList = (tags || []).slice(0, 4).join(', ');
     return `Photorealistic editorial illustration for a Spanish tech blog article. Category: ${category}. Article title: "${title}". Key themes: ${tagList}. Summary: ${excerpt.slice(0, 300)}. Visual style: cinematic lighting, clean modern composition, no text, no watermarks, no logos. The scene must directly represent the article topic — avoid generic office setups unless the article is specifically about office work.`;
@@ -273,7 +312,18 @@ async function generateImageWithGemini(prompt: string, slug: string): Promise<st
 async function generateImage(title: string, slug: string, excerpt: string, category: string, tags: string[]): Promise<string> {
     const prompt = buildImagePrompt(title, excerpt, category, tags);
 
-    // 1. OpenAI (gpt-image-1 → DALL-E 3 internamente)
+    // 1. Pexels (realistic photo, free, no per-image cost)
+    if (process.env.PEXELS_API_KEY) {
+        try {
+            console.log(`📷 Fetching realistic photo from Pexels for: ${slug}`);
+            const pexelsImage = await fetchImageFromPexels(slug, category, tags);
+            if (pexelsImage) return pexelsImage;
+        } catch (e) {
+            console.warn(`⚠️ Pexels error: ${(e as Error).message}. Falling back to AI generation.`);
+        }
+    }
+
+    // 2. OpenAI (gpt-image-1 → DALL-E 3 internamente)
     if (process.env.OPENAI_API_KEY) {
         try {
             console.log(`🎨 Generating image with OpenAI for: ${slug}`);
