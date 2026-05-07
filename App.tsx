@@ -4,11 +4,7 @@ import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { ToastProvider } from './components/Toast';
 
-import IntelligenceDashboard from './pages/intelligence/IntelligenceDashboard';
-import { LiveRecording } from './pages/LiveRecording';
-import { TranscriptEditor } from './pages/TranscriptEditor';
-import { Integrations } from './pages/Integrations';
-import { Settings } from './pages/Settings';
+const IntelligenceDashboard = lazy(() => import('./pages/intelligence/IntelligenceDashboard'));
 
 import { Login } from './pages/Login';
 import { Manual } from './pages/Manual';
@@ -943,6 +939,7 @@ const AppContent: React.FC = () => {
                 )}
 
                 <div id="tour-welcome" className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+                    <Suspense fallback={<div className="flex-1 flex items-center justify-center h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                     {(currentRoute === AppRoute.DASHBOARD || currentRoute === AppRoute.INTELLIGENCE || currentRoute === AppRoute.SETTINGS || currentRoute === AppRoute.INTEGRATIONS || currentRoute === AppRoute.SUBSCRIPTION) && (
                         <IntelligenceDashboard
                             user={user}
@@ -976,6 +973,7 @@ const AppContent: React.FC = () => {
                             }}
                         />
                     )}
+                    </Suspense>
 
                     {currentRoute === AppRoute.MANUAL && <ScrollablePage><Manual /></ScrollablePage>}
                     {currentRoute === AppRoute.AFFILIATES && <ScrollablePage><Affiliates user={user} onUpdateUser={handleUpdateUser} /></ScrollablePage>}

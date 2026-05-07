@@ -190,6 +190,9 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
                                 <img
                                     src={post.image}
                                     alt={post.imageAlt}
+                                    loading="lazy"
+                                    width={600}
+                                    height={224}
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                 />
                                 <div className="absolute top-4 left-4">
@@ -290,7 +293,7 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
                 </motion.div>
 
                 <div className="rounded-3xl overflow-hidden mb-16 shadow-2xl relative group">
-                    <img src={post.image} alt={post.imageAlt} className="w-full h-auto transform group-hover:scale-105 transition-transform duration-1000" />
+                    <img src={post.image} alt={post.imageAlt} width={1200} height={630} fetchPriority="high" loading="eager" className="w-full h-auto transform group-hover:scale-105 transition-transform duration-1000" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                 </div>
 

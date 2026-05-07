@@ -13,73 +13,69 @@ const STATIC_ROUTES = [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
     { path: '/comparar-planes', priority: '0.9', changefreq: 'weekly' },
     { path: '/blog', priority: '0.9', changefreq: 'daily' },
-    { path: '/login', priority: '0.8', changefreq: 'monthly' },
-    { path: '/contact', priority: '0.7', changefreq: 'monthly' },
     { path: '/about', priority: '0.7', changefreq: 'monthly' },
+    { path: '/contact', priority: '0.7', changefreq: 'monthly' },
+    { path: '/roadmap', priority: '0.7', changefreq: 'monthly' },
+    { path: '/trust', priority: '0.6', changefreq: 'monthly' },
     { path: '/privacy', priority: '0.5', changefreq: 'yearly' },
     { path: '/terms', priority: '0.5', changefreq: 'yearly' },
-    { path: '/trust', priority: '0.6', changefreq: 'monthly' },
-    { path: '/roadmap', priority: '0.7', changefreq: 'monthly' }
 ];
 
 function generateSitemap() {
-    console.log('🗺️  Starting Sitemap Generation...');
+    console.log('Generating sitemap...');
 
-    // 1. Static Routes XML
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-`;
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
     STATIC_ROUTES.forEach(route => {
-        xml += `  <url>
-    <loc>${BASE_URL}${route.path}</loc>
-    <changefreq>${route.changefreq}</changefreq>
-    <priority>${route.priority}</priority>
-  </url>
-`;
+        xml += `  <url>\n    <loc>${BASE_URL}${route.path}</loc>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
     });
 
-    // 2. Dynamic Blog Routes
     try {
         const blogData = fs.readFileSync(BLOG_DATA_PATH, 'utf8');
 
-        // Simple regex parsing to extract slug and date
-        // Matches objects roughly: { ... slug: "abc", ... date: "2024-01-01" ... }
-        // We split by object start "{" to handle multiple items
-        const rawPosts = blogData.split(/{\s*id:\s*"/).slice(1); // Skip prelude
+        // Extract slug+date pairs by scanning line-by-line.
+        // Handles both unquoted keys (id: "...") and quoted keys ("id": "...").
+        const lines = blogData.split('\n');
+        const posts = [];
+        let currentSlug = null;
+        let currentDate = null;
 
-        console.log(`📝 Found ${rawPosts.length} potential blog posts.`);
+        for (const line of lines) {
+            const slugMatch = line.match(/"?slug"?:\s*"([^"]+)"/);
+            const dateMatch = line.match(/"?date"?:\s*"(\d{4}-\d{2}-\d{2})"/);
 
-        let count = 0;
-        rawPosts.forEach(chunk => {
-            const slugMatch = chunk.match(/slug:\s*"([^"]+)"/);
-            const dateMatch = chunk.match(/date:\s*"([^"]+)"/);
+            if (slugMatch) currentSlug = slugMatch[1];
+            if (dateMatch) currentDate = dateMatch[1];
 
-            if (slugMatch && dateMatch) {
-                const slug = slugMatch[1];
-                const date = dateMatch[1];
-
-                xml += `  <url>
-    <loc>${BASE_URL}/blog/${slug}</loc>
-    <lastmod>${date}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-`;
-                count++;
+            if (currentSlug && currentDate) {
+                posts.push({ slug: currentSlug, date: currentDate });
+                currentSlug = null;
+                currentDate = null;
             }
+        }
+
+        // Deduplicate by slug (keep first occurrence)
+        const seen = new Set();
+        const unique = posts.filter(p => {
+            if (seen.has(p.slug)) return false;
+            seen.add(p.slug);
+            return true;
         });
 
-        console.log(`✅ Added ${count} blog posts to sitemap.`);
+        console.log(`Found ${unique.length} blog posts.`);
+
+        unique.forEach(({ slug, date }) => {
+            xml += `  <url>\n    <loc>${BASE_URL}/blog/${slug}</loc>\n    <lastmod>${date}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+        });
 
     } catch (err) {
-        console.error('❌ Error reading blog data:', err);
+        console.error('Error reading blog data:', err);
+        process.exit(1);
     }
 
     xml += `</urlset>`;
-
     fs.writeFileSync(OUTPUT_PATH, xml);
-    console.log(`✨ Sitemap generated successfully at: ${OUTPUT_PATH}`);
+    console.log(`Sitemap written to ${OUTPUT_PATH}`);
 }
 
 generateSitemap();

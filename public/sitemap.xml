@@ -16,9 +16,9 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.diktalo.com/login</loc>
+    <loc>https://www.diktalo.com/about</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.diktalo.com/contact</loc>
@@ -26,9 +26,14 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.diktalo.com/about</loc>
+    <loc>https://www.diktalo.com/roadmap</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/trust</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.diktalo.com/privacy</loc>
@@ -41,14 +46,214 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.diktalo.com/trust</loc>
+    <loc>https://www.diktalo.com/blog/seguridad-ai-voz-hibrida-on-device</loc>
+    <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.diktalo.com/roadmap</loc>
+    <loc>https://www.diktalo.com/blog/ia-cognitiva-audicion-espacial-avances</loc>
+    <lastmod>2026-05-04</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/arquitecturas-hibridas-ia-voz-seguridad-on-device</loc>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/arquitecturas-hibridas-voz-ia-seguridad-on-device</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/ia-cognitiva-audicion-espacial-diktalo-desai</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/seguridad-ia-voz-hibrida-on-device</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/ia-cognitiva-audicion-espacial-avances-percepcion-3d</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/el-prisma-vocal-impacto-transformador-modelos-generativos-multimodales-identidad-voz</loc>
+    <lastmod>2026-04-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-deepfake-voz-2026-prevencion-diktalo</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/prevencion-fraude-voz-deepfake-ia-2026</loc>
+    <lastmod>2026-04-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/impacto-modelos-generativos-multimodales-identidad-vocal</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/cognicion-ai-audicion-espacial-avances-diktalo</loc>
+    <lastmod>2026-04-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/revolucion-cognitiva-sonido-ia-audicion-espacial</loc>
+    <lastmod>2026-04-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/prevencion-fraude-deepfake-voz-2026-diktalo</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/modelos-generativos-multimodales-impacto-identidad-vocal</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/desentranando-identidad-vocal-modelos-generativos-multimodales</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/identidad-vocal-modelos-generativos-multimodales</loc>
+    <lastmod>2026-03-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/huella-vocal-era-multimodal-desafios-oportunidades</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-deepfake-voz-ia-2026-prevencion</loc>
+    <lastmod>2026-03-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/seguridad-on-device-voz-hibrida-ia</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/revolucion-audicion-espacial-ia-cognitiva-diktalo</loc>
+    <lastmod>2026-03-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/huella-vocal-era-multimodal-desafios-identidad-digital</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fortificando-voz-seguridad-arquitecturas-hibridas-ia-on-device</loc>
+    <lastmod>2026-03-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-deepfake-voz-2026-prevencion</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-voz-deepfake-2026-prevencion-diktalo</loc>
+    <lastmod>2026-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/avances-ia-cognitiva-audicion-espacial-diktalo</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/seguridad-on-device-ia-voz-hibrida</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-voz-ia-deepfake-prevencion-2026-diktalo</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/modelos-generativos-multimodales-identidad-vocal-sintetica</loc>
+    <lastmod>2026-02-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraudes-voz-deepfake-ia-2026-defensa-proactiva</loc>
+    <lastmod>2026-02-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/huella-vocal-ia-multimodal-desafios-horizontes</loc>
+    <lastmod>2026-02-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-deepfake-voz-ia-prevencion-2026</loc>
+    <lastmod>2026-02-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fortificando-soberania-voz-seguridad-arquitecturas-hibridas-ia-dispositivos</loc>
+    <lastmod>2026-02-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/fraude-deepfake-audio-prevencion-2026</loc>
+    <lastmod>2026-02-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.diktalo.com/blog/gemini-2-5-google-inteligencia-voz-diktalo</loc>
+    <lastmod>2026-02-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.diktalo.com/blog/packs-minutos-transcribe-sin-limites</loc>

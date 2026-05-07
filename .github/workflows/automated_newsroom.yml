@@ -34,13 +34,14 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: npx tsx scripts/automated_newsroom.ts
 
+      - name: Regenerate Sitemap
+        run: node scripts/generate-sitemap.js
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "Diktalo Bot"
           git config --global user.email "bot@diktalo.com"
-          git add utils/blogData.ts public/images/blog/
+          git add utils/blogData.ts public/images/blog/ public/sitemap.xml
           git commit -m "chore(blog): auto-generate article and images via newsroom" || echo "No changes to commit"
-          # Discard any other changes (e.g. package-lock.json or temp files) that block rebase
-          git reset --hard
           git pull --rebase origin main
           git push origin main
