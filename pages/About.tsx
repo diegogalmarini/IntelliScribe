@@ -30,17 +30,25 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
         },
         {
             name: "Anya Desai",
-            role: "ARQUITECTA DE SISTEMAS ESTRATÉGICOS",
-            bio: "Ingeniera de software de alto impacto con sede en San Francisco. Especialista en sistemas globales de alta fidelidad y optimización de la experiencia del usuario. Anya es la arquitecta detrás de la fluidez de Diktalo, asegurando que cada interacción se procese con precisión inmediata. En su tiempo libre, es una apasionada de la robótica y el senderismo por los parques nacionales de California.",
+            role: language === 'es' ? "ARQUITECTA DE SISTEMAS ESTRATÉGICOS" : "STRATEGIC SYSTEMS ARCHITECT",
+            bio: language === 'es'
+                ? "Ingeniera de software de alto impacto con sede en San Francisco. Especialista en sistemas globales de alta fidelidad y optimización de la experiencia del usuario. Anya es la arquitecta detrás de la fluidez de Diktalo, asegurando que cada interacción se procese con precisión inmediata. En su tiempo libre, es una apasionada de la robótica y el senderismo por los parques nacionales de California."
+                : "High-impact software engineer based in San Francisco. Specialist in high-fidelity global systems and user experience optimization. Anya is the architect behind Diktalo's fluency, ensuring every interaction is processed with immediate precision. In her spare time, she is passionate about robotics and hiking California's national parks.",
             image: "/images/avatars/anya-desai.webp",
-            skills: ["Sistemas Globales", "Experiencia de Usuario", "Dinámica de Voz"]
+            skills: language === 'es'
+                ? ["Sistemas Globales", "Experiencia de Usuario", "Dinámica de Voz"]
+                : ["Global Systems", "User Experience", "Voice Dynamics"]
         },
         {
             name: "Rohan Patel",
-            role: "LÍDER DE ESTRATEGIA TÉCNICA",
-            bio: "Experto en integridad de información y sistemas de alta disponibilidad radicado en Silicon Valley. Con más de una década gestionando entornos críticos para organizaciones de crecimiento explosivo, Rohan garantiza que la base de Diktalo sea sólida y respetuosa con la privacidad. Especialista en seguridad de grado bancario y soberanía de datos. Fuera de su labor profesional, Rohan es un entusiasta del ajedrez estratégico y la música ambiental.",
+            role: language === 'es' ? "LÍDER DE ESTRATEGIA TÉCNICA" : "TECHNICAL STRATEGY LEAD",
+            bio: language === 'es'
+                ? "Experto en integridad de información y sistemas de alta disponibilidad radicado en Silicon Valley. Con más de una década gestionando entornos críticos para organizaciones de crecimiento explosivo, Rohan garantiza que la base de Diktalo sea sólida y respetuosa con la privacidad. Especialista en seguridad de grado bancario y soberanía de datos. Fuera de su labor profesional, Rohan es un entusiasta del ajedrez estratégico y la música ambiental."
+                : "Information integrity and high-availability systems expert based in Silicon Valley. With over a decade managing critical environments for explosive-growth organizations, Rohan ensures Diktalo's foundation is solid and privacy-respecting. Specialist in banking-grade security and data sovereignty. Outside of work, Rohan is an avid chess player and ambient music enthusiast.",
             image: "/images/avatars/rohan-patel.webp",
-            skills: ["Topología Segura", "Soberanía de Datos", "Alta Disponibilidad"]
+            skills: language === 'es'
+                ? ["Topología Segura", "Soberanía de Datos", "Alta Disponibilidad"]
+                : ["Secure Topology", "Data Sovereignty", "High Availability"]
         }
     ];
 
@@ -204,7 +212,7 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
                 <section className="max-w-6xl mx-auto px-6 mb-32">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 italic">
-                            Arquitectos de tu Memoria Digital<span className="text-primary truncate">.</span>
+                            {t('about_team_title')}<span className="text-primary truncate">.</span>
                         </h2>
                         <div className="h-[2px] w-24 bg-primary mx-auto opacity-20"></div>
                     </div>

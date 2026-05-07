@@ -606,28 +606,15 @@ export const databaseService = {
      * Ensures value never goes below 0
      */
     async decrementUsage(userId: string, seconds: number): Promise<boolean> {
-        // Round up to the nearest minute (same rounding as increment)
         const minutes = Math.max(1, Math.ceil(seconds / 60));
 
-        // 1. Get current usage
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('minutes_used')
-            .eq('id', userId)
-            .single();
-
-        if (!profile) return false;
-
-        // 2. Decrement usage (never below 0)
-        const newUsage = Math.max(0, (profile.minutes_used || 0) - minutes);
-
-        const { error } = await supabase
-            .from('profiles')
-            .update({ minutes_used: newUsage })
-            .eq('id', userId);
+        const { error } = await supabase.rpc('decrement_user_usage', {
+            p_user_id: userId,
+            p_minutes: minutes
+        });
 
         if (error) {
-            logger.error('Error decrementing usage', { userId, minutes, error: error.message });
+            logger.error('Error decrementing usage via RPC', { userId, minutes, error: error.message });
             return false;
         }
 
@@ -658,24 +645,13 @@ export const databaseService = {
      * Frees up storage space for new uploads
      */
     async decrementStorage(userId: string, fileSize: number): Promise<boolean> {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('storage_used')
-            .eq('id', userId)
-            .single();
-
-        if (!profile) return false;
-
-        // Never go below 0
-        const newStorage = Math.max(0, (profile.storage_used || 0) - fileSize);
-
-        const { error } = await supabase
-            .from('profiles')
-            .update({ storage_used: newStorage })
-            .eq('id', userId);
+        const { error } = await supabase.rpc('decrement_user_storage', {
+            p_user_id: userId,
+            p_size_bytes: fileSize
+        });
 
         if (error) {
-            console.error('Error decrementing storage:', error);
+            console.error('Error decrementing storage via RPC:', error);
             return false;
         }
 

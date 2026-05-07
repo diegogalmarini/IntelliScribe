@@ -1,0 +1,23 @@
+name: Onboarding Email Sequence
+
+on:
+  schedule:
+    # Runs daily at 09:00 UTC (11:00 Madrid / 06:00 CDMX)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows manual trigger for testing
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger onboarding-emails Edge Function
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "x-onboarding-secret: ${{ secrets.ONBOARDING_EMAILS_SECRET }}" \
+            "https://qnvzofpdrfzchsegooic.supabase.co/functions/v1/onboarding-emails")
+          echo "Response status: $response"
+          if [ "$response" != "200" ]; then
+            echo "Edge Function returned non-200 status: $response"
+            exit 1
+          fi

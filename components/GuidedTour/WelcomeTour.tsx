@@ -30,8 +30,8 @@ const STEPS: Step[] = [
         targetId: 'dialer-button',
         title: { en: 'Capture Everything', es: 'Captura Todo' },
         description: {
-            en: "Record meetings or take voice notes here. We'll handle the rest.",
-            es: "Graba reuniones o toma notas de voz aquí. Nosotros nos encargamos del resto."
+            en: "Record in-person meetings, phone calls, or install the Chrome Extension to capture Google Meet, Zoom and Teams — without any bot joining the call.",
+            es: "Graba reuniones presenciales, llamadas telefónicas, o instala la extensión de Chrome para capturar Google Meet, Zoom y Teams — sin que ningún bot entre a la sala."
         },
         position: 'top'
     },
