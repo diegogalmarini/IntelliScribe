@@ -40,22 +40,67 @@ const AUTHORS = [
     { name: "Rohan Patel", role: "Infrastructure Lead", image: "/images/avatars/rohan-patel.webp", categories: ["Seguridad", "Legal", "Cloud"] }
 ];
 
-async function fetchDiscoveryTopics(): Promise<string[]> {
-    console.log("🔍 Brainstorming trending topics for Voice AI & Security...");
-    // In a real environment, this could call Gemini to get trending search terms
-    // or use a real News API. Following user request for real-world scenarios.
-    return [
-        "Hybrid Voice AI Architectures on-device security",
-        "AI voice deepfake fraud surge 2026 prevention",
-        "Multimodal generative models impact on voice identity",
-        "Cognition AI and spatial hearing breakthroughs"
-    ];
+interface KeywordRow {
+    keyword: string;
+    seedKeyword: string;
+    slug: string;
+    topic: string;
+    pageType: string;
+    tags: string[];
+    volume: number;
+    difficulty: number;
 }
 
-async function getNewsContext(topic: string) {
-    // This bridges the gap between searching and generating.
-    // For this implementation, we allow the script to generate based on the "hot topic".
-    return topic;
+function parseKeywordsCSV(): KeywordRow[] {
+    const csvPath = path.join(process.cwd(), 'keywords.csv');
+    if (!fs.existsSync(csvPath)) return [];
+
+    const lines = fs.readFileSync(csvPath, 'utf-8').split('\n').filter(l => l.trim());
+    if (lines.length < 2) return [];
+
+    return lines.slice(1).map(line => {
+        const cols = line.split(',');
+        const slug = (cols[3] || '').replace(/^\/blog\//, '').replace(/^\//, '').trim();
+        return {
+            keyword: (cols[1] || '').trim(),
+            seedKeyword: (cols[2] || '').trim(),
+            slug,
+            topic: (cols[4] || '').trim(),
+            pageType: (cols[5] || 'Informational').trim(),
+            tags: (cols[6] || '').split(' ').filter(Boolean),
+            volume: parseInt(cols[7] || '0', 10),
+            difficulty: parseInt(cols[8] || '50', 10),
+        };
+    }).filter(row => row.keyword && row.slug);
+}
+
+function getPublishedSlugs(): Set<string> {
+    const blogData = fs.readFileSync(BLOG_DATA_PATH, 'utf-8');
+    const slugs = new Set<string>();
+    const matches = blogData.matchAll(/"slug":\s*"([^"]+)"/g);
+    for (const m of matches) slugs.add(m[1]);
+    return slugs;
+}
+
+function selectNextKeyword(): KeywordRow | null {
+    const rows = parseKeywordsCSV();
+    if (!rows.length) return null;
+
+    const published = getPublishedSlugs();
+
+    // Prioritise: unpublished → lower difficulty → higher volume
+    const candidates = rows
+        .filter(r => !published.has(r.slug))
+        .sort((a, b) => a.difficulty - b.difficulty || b.volume - a.volume);
+
+    if (!candidates.length) {
+        console.log("⚠️ All keywords in CSV already have articles. Add more keywords to keywords.csv.");
+        return null;
+    }
+
+    const selected = candidates[0];
+    console.log(`🎯 Selected keyword: "${selected.keyword}" (KD ${selected.difficulty}, Vol ${selected.volume})`);
+    return selected;
 }
 
 async function cleanAndParseJSON(jsonStr: string): Promise<any> {
@@ -92,59 +137,65 @@ async function cleanAndParseJSON(jsonStr: string): Promise<any> {
     }
 }
 
-async function generateAuthoritativeContent(topic: string) {
+async function generateAuthoritativeContent(kw: KeywordRow) {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY missing");
 
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    // Use a model that is consistent. 
-    // Gemini 2.5 is requested in user skills, using flash for speed/cost or pro for quality.
-    // Script used gemini-2.5-flash.
     const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
         generationConfig: { responseMimeType: "application/json" }
     });
 
     const prompt = `
-    ACT AS: Senior Tech Content Engineer & Social Growth Specialist.
+    ACT AS: Senior Tech Content Engineer & SEO Specialist for Diktalo.com.
     STANDARD: DIKTALO-CONTENT-MASTER-V5.
-    
-    TOPIC FOR TODAY: "${topic}"
 
-    GOAL: Create a "Flagship" blog post for Diktalo.com (min 2000 characters) and a high-impact LinkedIn "Alpha Copy".
-    
-    GUIDELINES:
-    1. CONTENT LENGTH: 2000-3000 characters. Deep technical insight.
-    2. AUTHOR: Choose the most relevant: Anya Desai (Security/AI), Leo Costa (Strategy), Nati Pol (Product).
-    3. LANGUAGE: Spanish (ES).
-    4. STRUCTURE: Use Markdown for the article content.
-    5. TONE: Senior Expert Architect.
-    6. ARTICLE FORMAT: **Pure Markdown only**. NO Emojis. NO Hashtags in the article body.
+    TARGET KEYWORD: "${kw.keyword}"
+    ARTICLE TOPIC: "${kw.topic}"
+    CONTENT TYPE: ${kw.pageType}
+    SUGGESTED SLUG: "${kw.slug}"
+    TAGS CONTEXT: ${kw.tags.join(', ')}
 
-    LINKEDIN POST FORMAT (Strict):
-    - Hook: Engaging headline with emoji.
-    - Context: Brief problem statement (1-2 sentences).
-    - Solution: 3-4 bullet points using "👉" emoji.
-    - Call to Action: "Lee el artículo completo de [Author] en Diktalo.com..." with [URL] placeholder.
-    - Hashtags: 8-10 relevant hashtags including #Diktalo #[Author]Name.
+    ABOUT DIKTALO: Diktalo is an AI meeting assistant for Spanish-speaking professionals.
+    It captures audio from Google Meet, Zoom, Teams (via Chrome Extension, no visible bot),
+    phone calls (Twilio), or uploaded files. It transcribes with speaker identification,
+    generates structured summaries, and allows semantic chat over any recording or entire
+    recording history. Key differentiators: no hardware needed, no bot in the room,
+    native Spanish/English, phone call recording, 3-level semantic chat.
 
-    **CRITICAL**: You MUST return a VALID JSON object. 
-    - Escape all double quotes inside string values with backslash.
-    - Do NOT use unescaped backslashes in text.
-    - Do NOT add comments inside the JSON.
-    
+    GOAL: Create a "Flagship" blog post for Diktalo.com (min 2500 characters) and a LinkedIn post.
+
+    CONTENT RULES:
+    1. The H1 title MUST naturally contain or closely match the target keyword.
+    2. The target keyword must appear in the first paragraph and in at least one H2.
+    3. Length: 2500-3500 characters. Structured, deep, practical content.
+    4. Language: Spanish (ES). No AI-tell phrases (no "en el panorama actual", no "revolucionar", no "sin duda").
+    5. Structure: H2/H3 hierarchy, include a FAQ section at the end (3-5 questions).
+    6. Mention Diktalo naturally once or twice as an example solution — not as a sales pitch.
+    7. Pure Markdown only. No emojis in article body. No hashtags in article body.
+    8. aeoAnswer: a concise 2-sentence direct answer to the search query (for featured snippets).
+
+    LINKEDIN POST FORMAT:
+    - Hook: first line stops the scroll (pain point or counter-intuitive fact), no "En el mundo actual".
+    - Body: 3-4 bullet points with 👉.
+    - CTA: "Lee el artículo completo en Diktalo.com: [URL]"
+    - Hashtags: 6-8 relevant ones including #Diktalo.
+
+    **CRITICAL**: Return ONLY a VALID JSON object. Escape all internal double quotes.
+
     JSON SCHEMA:
     {
       "article": {
         "title": "string",
-        "slug": "string",
-        "excerpt": "string",
-        "content": "string (The full article markdown - NO social formatting)",
-        "aeoAnswer": "string",
+        "slug": "string (use suggested slug or close variant)",
+        "excerpt": "string (150-160 chars, includes target keyword)",
+        "content": "string (full markdown article)",
+        "aeoAnswer": "string (2 sentences, direct answer)",
         "category": "string",
         "tags": ["string"]
       },
-      "linkedin": "string (The LinkedIn post with emojis and hashtags)"
+      "linkedin": "string"
     }
     `;
 
@@ -153,7 +204,7 @@ async function generateAuthoritativeContent(topic: string) {
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
-            console.log(`🧠 TRACE: Generation Attempt ${attempt}/${MAX_RETRIES} for topic: ${topic}`);
+            console.log(`🧠 TRACE: Generation Attempt ${attempt}/${MAX_RETRIES} for keyword: "${kw.keyword}"`);
 
             const result = await model.generateContent(prompt);
             const response = await result.response;
@@ -369,11 +420,13 @@ async function runNewsroom() {
     console.log("🚀 Starting Diktalo Intelligence Newsroom...");
 
     try {
-        const topics = await fetchDiscoveryTopics();
-        // Picking the highest impact topic
-        const selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+        const kw = selectNextKeyword();
+        if (!kw) {
+            console.log("✅ No pending keywords. Add more rows to keywords.csv to continue.");
+            return;
+        }
 
-        const data = await generateAuthoritativeContent(selectedTopic);
+        const data = await generateAuthoritativeContent(kw);
 
         // Generate Image
         data.blog.image = await generateImage(data.blog.title, data.blog.slug, data.blog.excerpt, data.blog.category, data.blog.tags);
