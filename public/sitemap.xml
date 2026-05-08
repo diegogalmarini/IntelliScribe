@@ -46,6 +46,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://www.diktalo.com/blog/planes</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.diktalo.com/blog/seguridad-ai-voz-hibrida-on-device</loc>
     <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
