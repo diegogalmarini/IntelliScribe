@@ -219,6 +219,9 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
             if (!data.article || !data.article.title || !data.article.content) {
                 throw new Error("JSON missing 'article' or core fields.");
             }
+            if (!data.article.tags?.length || !data.article.aeoAnswer) {
+                throw new Error(`JSON missing required fields: tags=${JSON.stringify(data.article.tags)}, aeoAnswer=${data.article.aeoAnswer?.slice(0,30)}`);
+            }
 
             // Fallback for LinkedIn text if missing
             if (!data.linkedin) {
@@ -238,7 +241,11 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
                     authorImage: author.image,
                     image: "", // To be filled
                     imageAlt: `Análisis estratégico sobre ${data.article.title} - Diktalo Tech`,
-                    ...data.article
+                    ...data.article,
+                    // Safety net: ensure required fields are never undefined
+                    category,
+                    tags: data.article.tags?.length ? data.article.tags : kw.tags.length ? kw.tags : ["diktalo", "ia"],
+                    aeoAnswer: data.article.aeoAnswer || data.article.excerpt || "",
                 },
                 linkedin: data.linkedin
             };
