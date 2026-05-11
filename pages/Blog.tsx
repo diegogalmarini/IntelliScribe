@@ -338,7 +338,7 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
                 </div>
 
                 <div className="mt-16 pt-8 border-t border-slate-200 dark:border-white/10 flex flex-wrap gap-3">
-                    {post.tags.map(tag => (
+                    {(post.tags ?? []).map(tag => (
                         <span key={tag} className="bg-slate-100 dark:bg-white/5 px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500 uppercase tracking-wider hover:bg-primary/10 hover:text-primary transition-all cursor-default">
                             #{tag}
                         </span>
