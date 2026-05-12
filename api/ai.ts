@@ -57,7 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
          */
         const withRetry = async <T>(
             fn: () => Promise<T>,
-            maxRetries: number = 3,
+            maxRetries: number = 2,
             actionName: string = 'operation'
         ): Promise<T> => {
             for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -71,8 +71,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         throw error;
                     }
 
-                    const delayMs = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
-                    console.warn(`[AI_API] ${actionName} attempt ${attempt + 1} failed: ${error.message}. Retrying in ${delayMs}ms...`);
+                    // Only retry rate-limit errors with backoff; fail fast on other errors
+                    const isRateLimit = error.status === 429 || /quota|rate.?limit/i.test(error.message || '');
+                    if (!isRateLimit) throw error;
+
+                    const delayMs = Math.pow(2, attempt) * 500; // 500ms, 1s
+                    console.warn(`[AI_API] ${actionName} attempt ${attempt + 1} rate-limited. Retrying in ${delayMs}ms...`);
                     await new Promise(resolve => setTimeout(resolve, delayMs));
                 }
             }

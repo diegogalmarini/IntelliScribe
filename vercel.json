@@ -6,7 +6,7 @@
     ],
     "functions": {
         "api/ai.ts": {
-            "maxDuration": 60,
+            "maxDuration": 300,
             "memory": 1024
         }
     }
