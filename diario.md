@@ -157,6 +157,26 @@ El proyecto tenía skills bien documentados (`.agent/skills/`) pero sin capa de 
 
 ---
 
+## Registro 2026-05-12 — Instalación de skill find-skills (ecosistema open agent skills)
+
+**Qué se hizo:**
+- Instalado `find-skills` vía `npx skills add https://github.com/vercel-labs/skills --skill find-skills`.
+- El skill queda en `.agents/skills/find-skills/SKILL.md` con symlink a Claude Code.
+- Generado `skills-lock.json` en raíz (lockfile del ecosistema, similar a `package-lock.json`).
+
+**Por qué:**
+`find-skills` actúa como un "package manager discovery tool" para el ecosistema de agent skills (skills.sh). Permite buscar e instalar skills de terceros directamente desde el agente, sin tener que conocer la URL de cada repo. Flujo: usuario describe lo que necesita → agente corre `npx skills find [query]` → evalúa reputación (installs, fuente, stars) → instala con `npx skills add`. Útil para extender capacidades del agente sin tener que crear todo desde cero.
+
+**Cómo usar esta skill:**
+- Cuando el usuario pregunte "¿hay un skill para X?" o "¿cómo hago X?", invocar `/find-skills` o correr `npx skills find [query]`.
+- Verificar siempre: installs > 1K, fuente oficial (`vercel-labs`, `anthropics`), stars en GitHub.
+- Instalar con: `npx skills add <owner/repo@skill> -g -y` (flag `-y` para no-interactivo).
+
+**Pendiente / siguiente:**
+- Ninguno. Skill activo y disponible.
+
+---
+
 *Próximas entradas deben seguir el formato:*
 ```
 ## Registro YYYY-MM-DD — [título breve]
