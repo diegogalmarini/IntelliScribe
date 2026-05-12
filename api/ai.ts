@@ -83,6 +83,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             throw new Error(`${actionName} failed after all retries`);
         };
 
+        // Per-model timeout: if Gemini hangs without error, abort and try next model
+        const PER_MODEL_TIMEOUT_MS: Record<string, number> = {
+            transcription: 45_000,
+            summary: 25_000,
+            chat: 25_000,
+            support: 20_000,
+            embed: 10_000,
+            'sync-rag': 10_000,
+        };
+
+        const withModelTimeout = <T>(promise: Promise<T>, actionType: string, modelName: string): Promise<T> =>
+            Promise.race([
+                promise,
+                new Promise<T>((_, reject) =>
+                    setTimeout(() => reject(new Error(`Model timeout (${PER_MODEL_TIMEOUT_MS[actionType] ?? 25_000}ms): ${modelName}`)),
+                        PER_MODEL_TIMEOUT_MS[actionType] ?? 25_000)
+                )
+            ]);
+
         /**
          * Helper to execute an AI task with automatic fallback.
          * The task itself is retried with different models.
@@ -101,14 +120,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         generationConfig: { temperature: (config as any).temperature }
                     }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
 
-                    // Wrap the actual task execution with retry logic
                     return await withRetry(
-                        () => task(model, config),
-                        3,
+                        () => withModelTimeout(task(model, config), actionType, modelName),
+                        2,
                         `${actionType} with ${modelName}`
                     );
                 } catch (err: any) {
-                    console.warn(`[AI_API] Model ${modelName} failed after retries: ${err.message}. Trying next model...`);
+                    console.warn(`[AI_API] Model ${modelName} failed: ${err.message}. Trying next model...`);
                     lastError = err;
                 }
             }
