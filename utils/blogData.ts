@@ -2,6 +2,27 @@
 
 export const blogPosts: BlogPost[] = [
   {
+  "id": "1780657347438",
+  "date": "2026-06-05",
+  "author": "Leo Costa",
+  "authorRole": "Strategic Architecture",
+  "authorImage": "/images/avatars/leo-costa.webp",
+  "image": "/images/blog/transcribir-reuniones-ux-research.jpg",
+  "imageAlt": "Análisis estratégico sobre Cómo Transcribir y Analizar Reuniones de UX Research con Inteligencia Artificial - Diktalo Tech",
+  "title": "Cómo Transcribir y Analizar Reuniones de UX Research con Inteligencia Artificial",
+  "slug": "transcribir-reuniones-ux-research",
+  "excerpt": "Las sesiones de UX Research requieren una transcripción precisa para obtener insights. Aprende cómo transcribir reuniones UX research con IA para optimizar tu tiempo, asegurar la fidelidad de los datos y profundizar en el análisis cualitativo, transformando el habla en información estructurada.",
+  "content": "# Cómo Transcribir y Analizar Reuniones de UX Research con Inteligencia Artificial\n\nLas sesiones de UX Research son vitales para diseñar productos centrados en el usuario. Sin embargo, extraer valor de horas de grabaciones es un desafío. Saber **transcribir reuniones UX research** eficientemente no solo optimiza el flujo de trabajo, sino que libera a los investigadores para el análisis profundo. La transcripción es el primer paso para convertir el lenguaje hablado en datos estructurados y analizables.\n\n## La Transcripción Precisa en UX Research\n\nCada palabra de un usuario es un dato. La transcripción convierte estas interacciones en texto, permitiendo un análisis sistemático y facilitando la identificación de patrones.\n\n### Retos de la Transcripción Manual\n\nLa transcripción manual es laboriosa, costosa y propensa a errores. Consume tiempo valioso que un investigador podría dedicar a la síntesis y el diseño, y puede comprometer la fidelidad de los datos, extendiendo los plazos del proyecto.\n\n### Ventajas de la Transcripción con IA\n\nLa IA ha transformado este proceso, transcribiendo audio con velocidad y precisión superiores, incluso con múltiples oradores y en varios idiomas. Esto acelera la obtención de datos y democratiza el acceso a la investigación cualitativa.\n\n## Proceso de Transcripción y Herramientas con IA\n\nPara una transcripción eficaz, la elección de la herramienta y el proceso son clave.\n\n### Seleccionando la Herramienta Adecuada\n\nConsidere: **Precisión** (identificación de oradores, acentos, terminología UX), **Integraciones** (con Google Meet, Zoom, Teams y sistemas de almacenamiento), **Capacidades de búsqueda** y **Seguridad/Privacidad**. Soluciones como Diktalo, optimizadas para el español, ofrecen precisión superior y comprensión contextual, sin bots visibles.\n\n### Pasos Clave\n\n1.  **Grabar y Consentir:** Audio de alta calidad, siempre con permiso explícito.\n2.  **Cargar y Transcribir:** Suba el audio o use integraciones. La IA procesará, identificará oradores.\n3.  **Revisar y Exportar:** Una revisión rápida corrige imprecisiones. Exporte en formatos útiles.\n\n## Más Allá: Análisis de Insights con IA Avanzada\n\nLa transcripción es el inicio. El valor emerge del análisis riguroso de los datos cualitativos.\n\n### Análisis Temático y Semántico\n\nLas herramientas de IA identifican temas recurrentes, patrones de lenguaje y sentimientos. El procesamiento del lenguaje natural (PLN) permite codificar automáticamente grandes volúmenes de texto. Plataformas como Diktalo permiten incluso \"chatear\" con las grabaciones, haciendo preguntas sobre puntos de dolor y obteniendo respuestas directas con citas, acelerando la extracción de insights y la validación de hipótesis.\n\n## Mejores Prácticas para la Investigación UX\n\n*   **Consenso informado:** Siempre.\n*   **Audio de calidad:** Fundamental para resultados precisos.\n*   **Anonimización:** Proteja la privacidad.\n*   **Integración:** Incorpore la IA en su flujo de trabajo.\n*   **Validación:** Use insights, pero valide con datos adicionales.\n\n## Preguntas Frecuentes (FAQ)\n\n### ¿La transcripción con IA es suficientemente precisa para el UX research?\nSí, con los avances actuales, es muy precisa, especialmente con audio de calidad y soluciones nativas como Diktalo para el español. Una revisión ligera es siempre recomendable.\n\n### ¿Cuánto tiempo ahorra la IA en transcripciones de UX?\nUna hora de audio se transcribe en minutos, lo que es una fracción del tiempo que tomaría manualmente (5-10 horas por hora de audio).\n\n### ¿Qué diferencia a Diktalo para UX Research en español?\nDiktalo está optimizado para el español, ofreciendo mayor precisión en acentos y dialectos. Su identificación de oradores y chat semántico de tres niveles facilitan la obtención de insights más precisos y contextuales para investigadores hispanohablantes.",
+  "aeoAnswer": "Para transcribir reuniones de UX Research, utiliza plataformas de IA que conviertan el audio en texto, identificando oradores y permitiendo la búsqueda semántica. Estas herramientas automatizan el proceso y facilitan el análisis de grandes volúmenes de datos cualitativos.",
+  "category": "Informational",
+  "tags": [
+    "ux",
+    "research",
+    "ia",
+    "insights"
+  ]
+},
+  {
   "id": "1780486362553",
   "date": "2026-06-03",
   "author": "Leo Costa",
