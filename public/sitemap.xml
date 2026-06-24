@@ -46,6 +46,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://www.diktalo.com/blog/resumen-ejecutivo-reunion-automatico</loc>
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.diktalo.com/blog/grabar-reuniones-presenciales-ia</loc>
     <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
