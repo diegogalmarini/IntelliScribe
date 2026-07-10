@@ -46,6 +46,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://www.diktalo.com/blog/fireflies-alternativa-espanol</loc>
+    <lastmod>2026-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.diktalo.com/blog/zapier-integraciones-grabacion-reuniones</loc>
     <lastmod>2026-07-08</lastmod>
     <changefreq>monthly</changefreq>
