@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { enforceRateLimit, RATE_RULES } from './_utils/rate-limit.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Use service role for internal DB ops
@@ -21,6 +22,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    // Publico por diseno: protege la reputacion del dominio en Resend y evita
+    // que se use la tabla de suscripciones como buzon de spam.
+    if (!await enforceRateLimit(req, res, 'newsletter', { ip: true }, RATE_RULES.newsletter)) return;
 
     const { email, legalAccepted, metadata = {} } = req.body || {};
 

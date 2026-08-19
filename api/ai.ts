@@ -5,6 +5,7 @@ import { initSentry, Sentry } from "./_utils/sentry.js";
 import { requireAuth } from "./_utils/auth.js";
 import { GEMINI_CONFIG, EMBEDDING_DIMENSIONS, createRunner } from "./_utils/gemini.js";
 import { resolveTemplatePrompt } from "../constants/aiPrompts.js";
+import { enforceRateLimit, RATE_RULES } from "./_utils/rate-limit.js";
 
 // Initialize Sentry
 initSentry();
@@ -29,8 +30,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await requireAuth(req, res, 'ai');
     if (!user) return;
 
-    const { action, payload, language = 'en' } = req.body;
+    const { action, payload, language = 'en' } = req.body || {};
     console.log(`[AI_API] Petición de ${user.id}. Acción: ${action}`);
+
+    // La transcripción es la acción que cuesta dinero por petición, así que ahí
+    // se falla en cerrado. El resto lleva un límite más holgado y fail-open.
+    const rateOk = action === 'transcribe'
+        ? await enforceRateLimit(req, res, 'ai:transcribe', { userId: user.id }, RATE_RULES.transcribe, { failClosed: true })
+        : await enforceRateLimit(req, res, 'ai', { userId: user.id }, RATE_RULES.ai);
+    if (!rateOk) return;
 
     let env;
     try {

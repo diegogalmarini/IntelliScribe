@@ -28,6 +28,7 @@ import path from 'path';
 import { validateEnv } from './_utils/env-validator.js';
 import { initSentry, Sentry } from './_utils/sentry.js';
 import { createRunner } from './_utils/gemini.js';
+import { enforceRateLimit, RATE_RULES } from './_utils/rate-limit.js';
 import { PERSONALITIES } from '../utils/supportPersonalities.js';
 import { buildSupportSystemPrompt } from '../constants/supportPrompt.js';
 
@@ -162,6 +163,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (e: any) {
         return res.status(500).json({ error: e.message });
     }
+
+    // Endpoint anonimo que consume cuota de Gemini: la identidad es la IP.
+    // Fail-open: una caida del contador no debe tumbar el bot de la landing.
+    if (!await enforceRateLimit(req, res, 'support', { ip: true }, RATE_RULES.supportAnon)) return;
 
     const { message, history, context, agentId, language = 'es' } = req.body || {};
 

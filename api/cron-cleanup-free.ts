@@ -142,9 +142,22 @@ export default async function handler(req: any, res: any) {
             }
         }
 
+        // Se aprovecha el cron diario para purgar las ventanas viejas del contador
+        // de rate limiting, en lugar de programar un cron aparte para eso.
+        let purgedRateLimits = 0;
+        if (!dryRun) {
+            try {
+                const { data } = await supabase.rpc('purge_rate_limit_counters');
+                purgedRateLimits = typeof data === 'number' ? data : 0;
+            } catch (err: any) {
+                console.warn('[Cron-Cleanup] No se pudo purgar el contador de rate limit:', err?.message);
+            }
+        }
+
         const response = {
             status: 'success',
             deletedCount,
+            purgedRateLimits,
             errorCount,
             freeUsersChecked: freeUsers?.length || 0,
             cutoffDate: cutoffISO,

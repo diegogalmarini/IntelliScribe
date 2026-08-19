@@ -18,6 +18,7 @@ import { Resend } from 'resend';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { validateEnv } from './_utils/env-validator.js';
 import { initSentry, Sentry } from './_utils/sentry.js';
+import { enforceRateLimit, RATE_RULES } from './_utils/rate-limit.js';
 
 initSentry();
 
@@ -112,6 +113,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (name.length > LIMITS.name || subject.length > LIMITS.subject || message.length > LIMITS.message) {
         return res.status(400).json({ error: 'Alguno de los campos excede la longitud permitida' });
     }
+
+    // Se limita despues de validar: asi un bot no gasta cuota del contador con
+    // peticiones malformadas, y el honeypot corta antes de llegar aqui.
+    if (!await enforceRateLimit(req, res, 'contact', { ip: true }, RATE_RULES.contact)) return;
+    if (!await enforceRateLimit(req, res, 'contact-email', { extra: email }, RATE_RULES.contact)) return;
 
     try {
         const resend = new Resend(env.RESEND_API_KEY);
