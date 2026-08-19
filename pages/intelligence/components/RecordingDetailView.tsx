@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiFetch } from '../../../lib/apiClient';
 import { Recording, UserProfile, NoteItem, MediaItem } from '../../../types';
 import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -155,13 +156,8 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
         setIsZapierSyncing(true);
         try {
-            const response = await fetch('/api/zapier-sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    recordingId: recording.id,
-                    userId: user.id
-                })
+            const response = await apiFetch('/api/zapier-sync', {
+                body: { recordingId: recording.id }
             });
 
             if (response.ok) {

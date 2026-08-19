@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiFetch } from '../lib/apiClient';
 import { IntegrationState, UserProfile } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -39,14 +40,11 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
 
         setTestStatus('loading');
         try {
-            const response = await fetch('/api/zapier-sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: user.id,
+            const response = await apiFetch('/api/zapier-sync', {
+                body: {
                     isTest: true,
-                    webhookUrl: webhookUrl // Send temporary URL for testing
-                })
+                    webhookUrl: webhookUrl // URL temporal, solo admitida en la prueba
+                }
             });
 
             if (response.ok) {

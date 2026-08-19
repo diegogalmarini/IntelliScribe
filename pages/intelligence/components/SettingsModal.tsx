@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../../lib/apiClient';
 import {
     X, User, Shield, Bell, Puzzle, Settings as SettingsIcon,
     Database, HelpCircle, LogOut, ChevronRight, ExternalLink,
@@ -314,14 +315,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         setTestStatus('loading');
         try {
-            const response = await fetch('/api/zapier-sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: user.id,
+            const response = await apiFetch('/api/zapier-sync', {
+                body: {
                     isTest: true,
                     webhookUrl: zapierWebhookUrl
-                })
+                }
             });
 
             if (response.ok) {

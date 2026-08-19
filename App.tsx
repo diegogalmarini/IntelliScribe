@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { apiFetch } from './lib/apiClient';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
@@ -565,11 +566,7 @@ const AppContent: React.FC = () => {
         // ZAPIER AUTO-SYNC: Trigger if summary is updated and auto-sync is enabled
         if (updates.summary && user.auto_sync_enabled && user.zapier_webhook_url) {
             console.log(`[Zapier] Triggering auto-sync for recording ${id}...`);
-            fetch('/api/zapier-sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ recordingId: id, userId: user.id })
-            })
+            apiFetch('/api/zapier-sync', { body: { recordingId: id } })
                 .then(res => res.ok ? console.log('[Zapier] Auto-sync success') : res.json().then(e => console.error('[Zapier] Auto-sync failed:', e)))
                 .catch(err => console.error('[Zapier] Auto-sync error:', err));
         }
