@@ -113,15 +113,19 @@ export const supportChat = async (
   userMessage: string,
   history: { role: 'user' | 'bot', content: string }[],
   language: string = 'es',
-  systemInstruction?: string
+  agentId?: string,
+  context?: Record<string, any>
 ): Promise<string> => {
   try {
     // Endpoint propio y publico: el bot se renderiza en la landing y en las
-    // paginas legales, donde no hay sesion. `systemInstruction` pasa a ser
-    // `context`: el servidor lo anexa como datos, no como instrucciones.
+    // paginas legales, donde no hay sesion.
+    //
+    // El cliente NO manda prompt. Manda `agentId` (que el servidor valida contra
+    // la lista de personalidades) y `context` con datos estructurados. La persona,
+    // el protocolo [[ACTION:...]] y las reglas los compone el servidor.
     const response = await apiFetch('/api/support-chat', {
       anonymous: true,
-      body: { message: userMessage, history, context: systemInstruction, language }
+      body: { message: userMessage, history, agentId, context, language }
     });
     const json = await response.json();
     if (!response.ok) throw new Error(json.error || 'Support service error');
