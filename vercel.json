@@ -8,6 +8,10 @@
         "api/ai.ts": {
             "maxDuration": 300,
             "memory": 1024
+        },
+        "api/support-chat.ts": {
+            "maxDuration": 30,
+            "memory": 512
         }
     }
 }

@@ -1,43 +1,36 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import fs from 'fs';
-import path from 'path';
 import { validateEnv } from "./_utils/env-validator.js";
 import { initSentry, Sentry } from "./_utils/sentry.js";
+import { requireAuth } from "./_utils/auth.js";
+import { GEMINI_CONFIG, EMBEDDING_DIMENSIONS, createRunner } from "./_utils/gemini.js";
+import { resolveTemplatePrompt } from "../constants/aiPrompts.js";
 
 // Initialize Sentry
 initSentry();
 
-// Consolidated Configuration to ensure serverless reliability
-const GEMINI_CONFIG = {
-    apiVersion: 'v1beta',
-    modelPriorities: [
-        'gemini-3.1-pro-preview',
-        'gemini-3.1-flash-preview',
-        'gemini-3.1-flash-lite-preview',
-        'gemini-2.5-pro',
-        'gemini-2.5-flash'
-    ],
-    actions: {
-        summary: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-3.1-pro-preview', temperature: 0.8 },
-        support: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.9 },
-        transcription: { preferredModel: 'gemini-3.1-flash-preview', temperature: 0.1 },
-        embed: { preferredModel: 'gemini-embedding-001', temperature: 0, outputDimensionality: 768 }
-    }
-};
+const ALLOWED_ORIGINS = new Set([
+    'https://www.diktalo.com',
+    'https://diktalo.com'
+]);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS configuration
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = req.headers.origin as string | undefined;
+    res.setHeader('Access-Control-Allow-Origin',
+        origin && ALLOWED_ORIGINS.has(origin) ? origin : 'https://www.diktalo.com');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+    // Todas las acciones de este endpoint exigen sesión. El chatbot de soporte,
+    // que es la única que debe seguir siendo pública, vive en api/support-chat.ts.
+    const user = await requireAuth(req, res, 'ai');
+    if (!user) return;
+
     const { action, payload, language = 'en' } = req.body;
-    console.log(`[AI_API] Request received. Action: ${action}`);
+    console.log(`[AI_API] Petición de ${user.id}. Acción: ${action}`);
 
     let env;
     try {
@@ -51,108 +44,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-        /**
-         * Exponential backoff retry utility (ChatGPT Analysis Recommendation)
-         * Retries a function up to maxRetries times with exponential delay
-         */
-        const withRetry = async <T>(
-            fn: () => Promise<T>,
-            maxRetries: number = 2,
-            actionName: string = 'operation'
-        ): Promise<T> => {
-            for (let attempt = 0; attempt < maxRetries; attempt++) {
-                try {
-                    return await fn();
-                } catch (error: any) {
-                    const isLastAttempt = attempt === maxRetries - 1;
-
-                    if (isLastAttempt) {
-                        console.error(`[AI_API] ${actionName} failed after ${maxRetries} attempts:`, error.message);
-                        throw error;
-                    }
-
-                    // Only retry rate-limit errors with backoff; fail fast on other errors
-                    const isRateLimit = error.status === 429 || /quota|rate.?limit/i.test(error.message || '');
-                    if (!isRateLimit) throw error;
-
-                    const delayMs = Math.pow(2, attempt) * 500; // 500ms, 1s
-                    console.warn(`[AI_API] ${actionName} attempt ${attempt + 1} rate-limited. Retrying in ${delayMs}ms...`);
-                    await new Promise(resolve => setTimeout(resolve, delayMs));
-                }
-            }
-            throw new Error(`${actionName} failed after all retries`);
-        };
-
-        // Per-model timeout: if Gemini hangs without error, abort and try next model
-        const PER_MODEL_TIMEOUT_MS: Record<string, number> = {
-            transcription: 45_000,
-            summary: 25_000,
-            chat: 25_000,
-            support: 20_000,
-            embed: 10_000,
-            'sync-rag': 10_000,
-        };
-
-        const withModelTimeout = <T>(promise: Promise<T>, actionType: string, modelName: string): Promise<T> =>
-            Promise.race([
-                promise,
-                new Promise<T>((_, reject) =>
-                    setTimeout(() => reject(new Error(`Model timeout (${PER_MODEL_TIMEOUT_MS[actionType] ?? 25_000}ms): ${modelName}`)),
-                        PER_MODEL_TIMEOUT_MS[actionType] ?? 25_000)
-                )
-            ]);
-
-        /**
-         * Helper to execute an AI task with automatic fallback.
-         * The task itself is retried with different models.
-         */
-        const runWithFallback = async (actionType: keyof typeof GEMINI_CONFIG.actions, systemInstruction: string | undefined, task: (model: any, config: any) => Promise<any>) => {
-            const config = GEMINI_CONFIG.actions[actionType];
-            const modelsToTry = [config.preferredModel, ...GEMINI_CONFIG.modelPriorities.filter(m => m !== config.preferredModel)];
-
-            let lastError = null;
-            for (const modelName of modelsToTry) {
-                try {
-                    console.log(`[AI_API] Trying ${modelName} for ${actionType}`);
-                    const model = genAI.getGenerativeModel({
-                        model: modelName,
-                        systemInstruction,
-                        generationConfig: { temperature: (config as any).temperature }
-                    }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
-
-                    return await withRetry(
-                        () => withModelTimeout(task(model, config), actionType, modelName),
-                        2,
-                        `${actionType} with ${modelName}`
-                    );
-                } catch (err: any) {
-                    console.warn(`[AI_API] Model ${modelName} failed: ${err.message}. Trying next model...`);
-                    lastError = err;
-                }
-            }
-            throw lastError || new Error(`All models failed for: ${actionType}`);
-        };
+        const runWithFallback = createRunner(genAI);
 
         let result;
 
         // --- Action 1: Meeting Summary ---
         if (action === 'summary') {
-            const { transcript, template: templateId = 'general', systemPrompt: systemPromptOverride, attachments } = payload;
+            const { transcript, template: templateId = 'general', attachments } = payload;
 
-            const fallbackTemplates: Record<string, { es: string, en: string }> = {
-                'general': {
-                    es: 'Eres un asistente experto en resumir reuniones. Proporciona un resumen detallado y estructurado de la siguiente transcripción. Responde SIEMPRE en ESPAÑOL.',
-                    en: 'You are an expert meeting assistant. Provide a detailed and structured summary of the following transcript. Always respond in ENGLISH.'
-                }
-            };
-
-            let systemPrompt = '';
-            if (systemPromptOverride) {
-                systemPrompt = systemPromptOverride;
-            } else {
-                const selected = fallbackTemplates[templateId] || fallbackTemplates['general'];
-                systemPrompt = language === 'es' ? selected.es : selected.en;
-            }
+            // El prompt se resuelve en servidor desde el identificador de plantilla.
+            // constants/aiPrompts.ts es el modulo compartido con la UI.
+            const systemPrompt = resolveTemplatePrompt(templateId, language);
 
             let visualContext = '';
             if (attachments && Array.isArray(attachments) && attachments.length > 0) {
@@ -183,7 +85,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
                 try {
                     const model = genAI.getGenerativeModel({ model: GEMINI_CONFIG.actions.embed.preferredModel }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
-                    const embedResult = await model.embedContent(message);
+                    // outputDimensionality es obligatorio: sin él el vector sale de 3072
+                    // dimensiones y la RPC, que espera VECTOR(768), rechaza la consulta.
+                    // El catch de abajo se lo tragaba y el chat caía al transcript completo,
+                    // así que la búsqueda semántica nunca llegó a funcionar.
+                    const embedResult = await model.embedContent({
+                        content: { role: 'user', parts: [{ text: message }] },
+                        outputDimensionality: EMBEDDING_DIMENSIONS
+                    } as any);
                     const queryEmbedding = embedResult.embedding.values;
 
                     const searchResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/match_recording_chunks`, {
@@ -197,7 +106,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             query_embedding: queryEmbedding,
                             match_threshold: 0.3,
                             match_count: 15,
-                            filter_recording_ids: recordingIds
+                            filter_recording_ids: recordingIds,
+                            // Se llama con service role, así que la RLS no aplica: sin este
+                            // filtro bastaba conocer un UUID de grabación ajena para leer
+                            // sus fragmentos.
+                            filter_user_id: user.id
                         })
                     });
 
@@ -249,31 +162,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             let finalBase64 = audioBase64;
 
             if (!finalBase64 && audioUrl) {
-                console.log(`[AI_API] Fetching audio from URL: ${audioUrl}`);
-                if (audioUrl.includes('supabase.co/storage/v1/object/')) {
-                    const pathParts = audioUrl.split('/recordings/');
-                    if (pathParts.length > 1) {
-                        const filePath = decodeURIComponent(pathParts[1]).split('?')[0];
-                        const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${filePath}`;
-                        const storageResponse = await fetch(storageUrl, {
-                            headers: {
-                                'Authorization': `Bearer ${supabaseServiceKey}`,
-                                'apikey': supabaseServiceKey
-                            }
-                        });
-                        if (!storageResponse.ok) {
-                            throw new Error(`Supabase Storage Error: ${storageResponse.status} ${storageResponse.statusText}`);
-                        }
-                        const buffer = await storageResponse.arrayBuffer();
-                        finalBase64 = Buffer.from(buffer).toString('base64');
+                // Solo se descarga del bucket propio y con service role. Antes, si la
+                // URL no era de Supabase se hacía fetch() contra ella tal cual, lo que
+                // convertía el endpoint en un proxy de peticiones salientes; y aunque
+                // fuera de Supabase, no se comprobaba de quién era el fichero.
+                if (!audioUrl.includes('supabase.co/storage/v1/object/')) {
+                    throw new Error('audioUrl no apunta al almacenamiento de Diktalo');
+                }
+
+                const pathParts = audioUrl.split('/recordings/');
+                if (pathParts.length < 2) {
+                    throw new Error('audioUrl no corresponde al bucket de grabaciones');
+                }
+
+                const filePath = decodeURIComponent(pathParts[1]).split('?')[0];
+
+                // Las rutas del bucket son `${userId}/fichero`. Cualquier otra cosa
+                // —incluido un ../— es un intento de leer material ajeno.
+                if (!filePath.startsWith(`${user.id}/`) || filePath.includes('..')) {
+                    console.warn(`[AI_API] Ruta rechazada para ${user.id}: ${filePath}`);
+                    throw new Error('No autorizado para acceder a ese audio');
+                }
+
+                const storageUrl = `${supabaseUrl}/storage/v1/object/recordings/${filePath}`;
+                const storageResponse = await fetch(storageUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${supabaseServiceKey}`,
+                        'apikey': supabaseServiceKey
                     }
+                });
+                if (!storageResponse.ok) {
+                    throw new Error(`Supabase Storage Error: ${storageResponse.status} ${storageResponse.statusText}`);
                 }
-                if (!finalBase64) {
-                    const response = await fetch(audioUrl);
-                    if (!response.ok) throw new Error(`Failed to fetch audio from storage: ${response.statusText}`);
-                    const buffer = await response.arrayBuffer();
-                    finalBase64 = Buffer.from(buffer).toString('base64');
-                }
+                const buffer = await storageResponse.arrayBuffer();
+                finalBase64 = Buffer.from(buffer).toString('base64');
             }
 
             if (!finalBase64) throw new Error('No audio data or URL provided');
@@ -343,87 +265,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }
 
-        // --- Action 4: Support Chatbot (Nati Pol) ---
-        else if (action === 'support') {
-            const { message, history, systemInstruction: systemInstructionOverride } = payload;
-            const now = new Date();
-            const currentDate = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            const currentTime = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-            const coreTruths = `FECHA Y HORA ACTUAL:\n- Hoy es: ${currentDate}\n- Hora actual: ${currentTime}\n\nDiktalo FEATURES:\n1. Grabadora Web\n2. Extensión de Chrome\n3. Subida de Archivos\n4. DIALER INTEGRADO (Plan Business + Call)\n\nPRECIOS:\n- Plan Free: 24 min/mes gratis\n- Plan Pro: 12€/mes\n- Plan Business: 19€/mes\n- Plan Business + Call: 39€/mes\n\nCONTACTO: contacto@diktalo.com`;
-
-            let knowledgeBase = coreTruths;
-            try {
-                const kbPath = path.join(process.cwd(), 'public/docs/chatbot-training/knowledge-base.json');
-                if (fs.existsSync(kbPath)) {
-                    const kbContent = fs.readFileSync(kbPath, 'utf-8');
-                    const kbData = JSON.parse(kbContent);
-                    const intents = kbData.intents.map((intent: any) => `TEMA: ${intent.category}\nRESPUESTA: ${intent.response_template}`).join('\n\n');
-                    knowledgeBase = `${coreTruths}\n\nKNOWLEDGE BASE ADICIONAL:\n${intents}`;
-                }
-            } catch (err) { }
-
-            let systemInstruction = '';
-            if (systemInstructionOverride) {
-                systemInstruction = `${systemInstructionOverride}\n\n[SYSTEM DATA CONTEXT]\n${knowledgeBase}`;
-            } else {
-                systemInstruction = language === 'es'
-                    ? `REGLAS DE ORO: 1. Dialer móvil. 2. CERO NEGRITAS (**). 3. Habla como alguien de 22 años. 4. Estilo Nati Pol de Copenhague.\n\n${knowledgeBase}`
-                    : `Act as Nati Pol, 22, from Copenhagen. No bolding. No bot-talk.\n\n${knowledgeBase}`;
-            }
-
-            // GEMINI SECURITY: History MUST start with user and MUST alternate roles.
-            const validHistory = [];
-            let lastRole = null;
-            for (const h of (history || [])) {
-                const currentRole = h.role === 'user' ? 'user' : 'model';
-                if (validHistory.length === 0 && currentRole !== 'user') continue;
-                if (currentRole === lastRole) continue;
-                validHistory.push({ role: currentRole as 'user' | 'model', parts: [{ text: h.content || h.text || '' }] });
-                lastRole = currentRole;
-            }
-
-            result = await runWithFallback('support', systemInstruction, async (model) => {
-                const chat = model.startChat({
-                    history: validHistory
-                });
-                const response = await chat.sendMessage(message);
-                return response.response.text();
-            });
-        }
-
         // --- Action 5: Text Embeddings ---
         else if (action === 'embed') {
             const { text } = payload;
             if (!text) throw new Error('No text provided for embedding');
 
             console.log(`[AI_API] Generating embedding for text (${text.length} chars)`);
-            const embedWithFallback = async (text: string) => {
-                try {
-                    const model = genAI.getGenerativeModel({
-                        model: GEMINI_CONFIG.actions.embed.preferredModel
-                    }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
+            // Sin fallback: `embedding-001` es de la familia 1.0, prohibida, y además
+            // genera vectores de otro espacio que corromperían el índice al mezclarse
+            // con los ya almacenados. Si el modelo correcto falla, se falla.
+            const embedModel = genAI.getGenerativeModel({
+                model: GEMINI_CONFIG.actions.embed.preferredModel
+            }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
 
-                    // Standard embedding structure for gemini-embedding-001
-                    return await model.embedContent({
-                        content: { role: 'user', parts: [{ text }] },
-                        outputDimensionality: (GEMINI_CONFIG.actions.embed as any).outputDimensionality
-                    });
-                } catch (err: any) {
-                    console.warn(`[AI_API] Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to embedding-001 legacy ID. Error: ${err.message}`);
-                    const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
-                    return await fallbackModel.embedContent(text);
-                }
-            };
-
-            const embedResult = await embedWithFallback(text);
+            const embedResult = await embedModel.embedContent({
+                content: { role: 'user', parts: [{ text }] },
+                outputDimensionality: EMBEDDING_DIMENSIONS
+            } as any);
             result = embedResult.embedding.values;
         }
 
         // --- Action 6: Sync RAG (Chunking + Embedding) ---
         else if (action === 'sync-rag') {
-            const { recordingId, transcript, userId } = payload;
-            if (!recordingId || !transcript || !userId) throw new Error('Missing recordingId, transcript or userId');
+            const { recordingId, transcript } = payload;
+            if (!recordingId || !transcript) throw new Error('Missing recordingId or transcript');
+
+            // El userId sale del token: antes venía en el payload y permitía insertar
+            // fragmentos a nombre de cualquier cuenta.
+            const userId = user.id;
+
+            const ownerCheck = await fetch(
+                `${supabaseUrl}/rest/v1/recordings?id=eq.${encodeURIComponent(recordingId)}&user_id=eq.${userId}&select=id`,
+                { headers: { 'Authorization': `Bearer ${supabaseServiceKey}`, 'apikey': supabaseServiceKey } }
+            );
+            const owned = ownerCheck.ok ? await ownerCheck.json() : [];
+            if (!Array.isArray(owned) || owned.length === 0) {
+                console.warn(`[AI_API] sync-rag rechazado: ${userId} no es dueño de ${recordingId}`);
+                throw new Error('No autorizado para indexar esa grabación');
+            }
 
             const { chunkText } = await import('./_utils/chunker');
             const chunks = chunkText(transcript, 1000); // chunk size ~1000 chars
@@ -436,19 +315,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             const results = [];
             for (const chunk of chunks) {
-                let embedding = [];
-                try {
-                    const embedResult = await model.embedContent({
-                        content: { role: 'user', parts: [{ text: chunk.text }] },
-                        outputDimensionality: (GEMINI_CONFIG.actions.embed as any).outputDimensionality
-                    });
-                    embedding = embedResult.embedding.values;
-                } catch (err: any) {
-                    console.warn(`[AI_API] RAG Sync Embedding failed with ${GEMINI_CONFIG.actions.embed.preferredModel}. Falling back to embedding-001 legacy ID. Error: ${err.message}`);
-                    const fallbackModel = genAI.getGenerativeModel({ model: 'embedding-001' }, { apiVersion: GEMINI_CONFIG.apiVersion as any });
-                    const embedResult = await fallbackModel.embedContent(chunk.text);
-                    embedding = embedResult.embedding.values;
-                }
+                // Sin fallback a modelos muertos: un vector de otro espacio en la misma
+                // tabla rompe la búsqueda semántica en silencio.
+                const embedResult = await model.embedContent({
+                    content: { role: 'user', parts: [{ text: chunk.text }] },
+                    outputDimensionality: EMBEDDING_DIMENSIONS
+                } as any);
+                const embedding = embedResult.embedding.values;
 
                 const dbResponse = await fetch(`${supabaseUrl}/rest/v1/recording_chunks`, {
                     method: 'POST',

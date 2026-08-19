@@ -1,3 +1,4 @@
+import { apiFetch } from '../lib/apiClient';
 
 import { supabase } from '../lib/supabase';
 import { Recording, Folder, NoteItem, MediaItem } from '../types';
@@ -827,20 +828,13 @@ export const databaseService = {
      */
     async syncRAG(recordingId: string, transcript: string): Promise<boolean> {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return false;
-
-            const response = await fetch('/api/ai', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            // El userId lo deriva el servidor del token y comprueba que la
+            // grabacion es del usuario antes de indexarla.
+            const response = await apiFetch('/api/ai', {
+                body: {
                     action: 'sync-rag',
-                    payload: {
-                        recordingId,
-                        transcript,
-                        userId: user.id
-                    }
-                }),
+                    payload: { recordingId, transcript }
+                }
             });
 
             if (!response.ok) {
