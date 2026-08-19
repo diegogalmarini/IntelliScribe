@@ -1,4 +1,5 @@
 import { Device, Call } from '@twilio/voice-sdk';
+import { apiFetch } from '../lib/apiClient';
 
 // Twilio Error Code Mapper - Convierte códigos técnicos a mensajes amigables
 function getTwilioErrorMessage(error: any): string {
@@ -64,11 +65,8 @@ export class CallService {
     async prepareToken(userId: string): Promise<boolean> {
         try {
             console.log('🔄 Loading Twilio Token...');
-            const response = await fetch('/api/twilio-token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId })
-            });
+            // El servidor deriva la identidad del JWT: ya no se manda userId.
+            const response = await apiFetch('/api/twilio-token', { body: {} });
 
             if (!response.ok) {
                 const errorData = await response.json();
