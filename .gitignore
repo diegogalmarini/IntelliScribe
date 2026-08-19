@@ -36,3 +36,7 @@ supabase/.temp/
 temp_*.txt
 *.pem
 *.key
+
+# Contexto de negocio interno: cifras de usuarios, MRR y notas de
+# posicionamiento. El repositorio es publico.
+.agent/product-marketing-context.md

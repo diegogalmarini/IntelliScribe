@@ -44,7 +44,9 @@ function buildCoreTruths(): string {
 
 function loadKnowledgeBase(coreTruths: string): string {
     try {
-        const kbPath = path.join(process.cwd(), 'public/docs/chatbot-training/knowledge-base.json');
+        // Fuera de public/: antes vivía en el directorio que se sirve estáticamente,
+        // lo que ataba la limpieza de documentación interna al funcionamiento del bot.
+        const kbPath = path.join(process.cwd(), 'api/_data/knowledge-base.json');
         if (fs.existsSync(kbPath)) {
             const kbData = JSON.parse(fs.readFileSync(kbPath, 'utf-8'));
             const intents = kbData.intents
