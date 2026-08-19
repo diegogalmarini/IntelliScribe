@@ -99,7 +99,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.length > 0) {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        console.error(`[VOICE] Perfil no encontrado para ${userId}. Se bloquea la llamada.`);
+                        twiml.say({ language: 'es-ES' }, 'No hemos podido verificar tu cuenta. Intentalo de nuevo mas tarde.');
+                        res.setHeader('Content-Type', 'text/xml');
+                        return res.status(200).send(twiml.toString());
+                    }
+                    {
                         const profile = data[0];
 
                         // 🔴 SECURITY: Block call if plan doesn't allow VoIP
@@ -137,11 +143,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         }
                     }
                 } else {
-                    console.error('[VOICE] Failed to query Supabase:', response.statusText);
+                    // Fallo en cerrado: sin perfil no hay comprobacion de plan ni de
+                    // creditos, y esto cuesta dinero real en Twilio. PostgREST
+                    // devuelve 400 si alguna columna del select no existe, asi que
+                    // este camino es alcanzable de verdad.
+                    const detail = await response.text().catch(() => '');
+                    console.error(`[VOICE] No se pudo consultar el perfil (${response.status}): ${detail.slice(0, 200)}. Se bloquea la llamada.`);
+                    twiml.say({ language: 'es-ES' }, 'No hemos podido verificar tu cuenta. Intentalo de nuevo mas tarde.');
+                    res.setHeader('Content-Type', 'text/xml');
+                    return res.status(200).send(twiml.toString());
                 }
+            } else {
+                console.error('[VOICE] Configuracion de Supabase ausente. Se bloquea la llamada.');
+                twiml.say({ language: 'es-ES' }, 'Error de configuracion del servicio.');
+                res.setHeader('Content-Type', 'text/xml');
+                return res.status(200).send(twiml.toString());
             }
         } catch (error) {
-            console.error('[VOICE] Error querying profile for call:', error);
+            console.error('[VOICE] Error consultando el perfil:', error);
+            twiml.say({ language: 'es-ES' }, 'No hemos podido verificar tu cuenta. Intentalo de nuevo mas tarde.');
+            res.setHeader('Content-Type', 'text/xml');
+            return res.status(200).send(twiml.toString());
         }
     } else {
         console.warn('[VOICE] ⚠️ No valid userId provided. Blocking call.');
