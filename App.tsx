@@ -162,16 +162,23 @@ const AppContent: React.FC = () => {
     }, [location.pathname, currentRoute]);
 
     // Sync User Properties to GA4
+    //
+    // Se leen del PERFIL (`user`), no del usuario de Supabase Auth
+    // (`supabaseUser`). Ese objeto solo tiene id, email y user_metadata: no
+    // tiene language, transcriptionLanguage, role ni subscription, asi que
+    // todas esas propiedades llegaban siempre como undefined y Analytics
+    // registraba los valores por defecto para todo el mundo. El idioma, el rol
+    // y el plan viven en la tabla profiles.
     useEffect(() => {
-        if (supabaseUser && supabaseUser.id) {
+        if (supabaseUser?.id) {
             Analytics.setUserProperties({
-                interface_language: supabaseUser.language || 'es',
-                transcription_language: supabaseUser.transcriptionLanguage || 'es',
-                user_role: supabaseUser.role || 'Member',
-                plan_id: supabaseUser.subscription?.planId || 'free'
+                interface_language: user.language || 'es',
+                transcription_language: user.transcriptionLanguage || 'es',
+                user_role: user.role || 'Member',
+                plan_id: user.subscription?.planId || 'free'
             });
         }
-    }, [supabaseUser?.id, supabaseUser?.language, supabaseUser?.transcriptionLanguage, supabaseUser?.role, supabaseUser?.subscription?.planId]);
+    }, [supabaseUser?.id, user.language, user.transcriptionLanguage, user.role, user.subscription?.planId]);
 
     // Sync state with URL changes (for browser back/forward and Links)
     useEffect(() => {
