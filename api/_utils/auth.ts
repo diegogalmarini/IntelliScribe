@@ -144,14 +144,14 @@ export async function authenticateRequest(req: VercelRequest): Promise<AuthResul
 }
 
 /**
- * Exige usuario autenticado. Si falla, escribe la respuesta y devuelve null.
+ * Exige usuario autenticado. Si falla, YA ha escrito la respuesta 401.
  *
- *   const user = await requireAuth(req, res);
+ *   const user = await requireAuth(req, res, 'send-email');
  *   if (!user) return;
  *
- * Durante la ventana de compatibilidad (AUTH_ENFORCE != 'true') una petición
- * sin token se deja pasar con un usuario anónimo marcado, y se registra.
- * `endpoint` solo se usa para poder contar en Sentry quién falta por migrar.
+ * Estricta siempre: un null implica respuesta escrita, así que el patrón de
+ * arriba nunca deja la petición colgada. Los endpoints que necesitan tolerar
+ * clientes antiguos usan `authenticateWithWindow`, que lo hace explícito.
  */
 export async function requireAuth(
     req: VercelRequest,
@@ -162,21 +162,42 @@ export async function requireAuth(
 
     if (result.ok) return result.user!;
 
-    if (!ENFORCE) {
-        console.warn(`[AUTH] ${endpoint}: petición sin token válida durante la ventana de compatibilidad (${result.error})`);
-        Sentry.captureMessage(`[AUTH-WINDOW] Petición sin token en ${endpoint}`, 'warning');
-        return null;
-    }
-
+    console.warn(`[AUTH] ${endpoint}: rechazado (${result.error})`);
     res.status(result.status!).json({ error: result.error });
     return null;
 }
 
 /**
- * Distingue "no autenticado pero tolerado por la ventana" de "rechazado".
- * Un handler necesita saberlo para decidir si continuar en modo degradado.
- * Devuelve true si la respuesta ya está escrita y el handler debe hacer return.
+ * Variante tolerante para la ventana de compatibilidad.
+ *
+ * Devuelve `{ user }` si el token es válido. Si no lo es:
+ *  - con AUTH_ENFORCE=true escribe el 401 y devuelve `{ rejected: true }`;
+ *  - sin él, devuelve `{ user: null }` y registra el caso en Sentry para poder
+ *    contar cuántos clientes quedan sin migrar.
+ *
+ * Solo tiene sentido donde el endpoint puede seguir funcionando sin identidad.
+ * Si no puede, usar `requireAuth`.
  */
+export async function authenticateWithWindow(
+    req: VercelRequest,
+    res: VercelResponse,
+    endpoint: string
+): Promise<{ user: AuthedUser | null; rejected: boolean }> {
+    const result = await authenticateRequest(req);
+
+    if (result.ok) return { user: result.user!, rejected: false };
+
+    if (ENFORCE) {
+        res.status(result.status!).json({ error: result.error });
+        return { user: null, rejected: true };
+    }
+
+    console.warn(`[AUTH] ${endpoint}: petición sin token admitida por la ventana de compatibilidad (${result.error})`);
+    Sentry.captureMessage(`[AUTH-WINDOW] Petición sin token en ${endpoint}`, 'warning');
+    return { user: null, rejected: false };
+}
+
+/** true mientras AUTH_ENFORCE no esté activo. Para logs y diagnóstico. */
 export function authWindowOpen(): boolean {
     return !ENFORCE;
 }
