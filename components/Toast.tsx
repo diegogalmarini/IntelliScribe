@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 
-type ToastType = 'success' | 'error' | 'info';
+// 'warning' se usaba ya desde RecordingDetailView sin estar en el tipo: esos
+// avisos salian sin icono y con el estilo de 'info', restandoles importancia.
+type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface Toast {
     id: string;
@@ -54,11 +56,13 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                             className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border min-w-[300px] max-w-md ${toast.type === 'success' ? 'bg-white dark:bg-[#1a1c1e] text-green-700 dark:text-green-400 border-green-100 dark:border-green-500/20' :
                                     toast.type === 'error' ? 'bg-white dark:bg-[#1a1c1e] text-red-700 dark:text-red-400 border-red-100 dark:border-red-500/20' :
-                                        'bg-white dark:bg-[#1a1c1e] text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20'
+                                        toast.type === 'warning' ? 'bg-white dark:bg-[#1a1c1e] text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20' :
+                                            'bg-white dark:bg-[#1a1c1e] text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-500/20'
                                 }`}
                         >
                             {toast.type === 'success' && <CheckCircle size={18} />}
                             {toast.type === 'error' && <AlertCircle size={18} />}
+                            {toast.type === 'warning' && <AlertTriangle size={18} />}
                             {toast.type === 'info' && <Info size={18} />}
 
                             <span className="text-sm font-medium flex-1">{toast.message}</span>
