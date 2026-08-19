@@ -8,9 +8,16 @@
 -- tablas y RPC en uso en el código que no existen en ningún archivo del repo.
 -- Sin este inventario no se puede escribir ninguna migración con seguridad.
 --
--- Cómo usarlo: pegar bloque a bloque en el SQL Editor de Supabase
--- (proyecto qnvzofpdrfzchsegooic) y guardar cada resultado. Todo es de solo
--- lectura: no modifica nada.
+-- Cómo usarlo: pegar bloque a bloque en el SQL Editor de Supabase y guardar
+-- cada resultado. Todo es de solo lectura: no modifica nada.
+--
+-- ⚠️ PROYECTO CORRECTO: `qnvzofpdrfzchsegooic`.
+-- Es el que tiene incrustado el frontend de producción (comprobado extrayendo
+-- la URL del bundle publicado en www.diktalo.com). Existe al menos otro
+-- proyecto de Diktalo, `gebxynfoxndqeooamidy`, con un esquema parecido pero que
+-- NO es el que usa producción. Antes de ejecutar nada, comprobar que la URL del
+-- dashboard contiene `qnvzofpdrfzchsegooic`, o el inventario describirá una
+-- base de datos que no es la viva.
 
 -- ---------------------------------------------------------------------------
 -- Q0 — ¿LA ESCALADA DE PRIVILEGIOS YA HA OCURRIDO?  (ejecutar esta primero)
@@ -18,14 +25,43 @@
 -- La policy de UPDATE sobre `profiles` no restringe columnas, así que cualquier
 -- usuario autenticado ha podido asignarse rol de admin o cuota ilimitada.
 -- Si esto devuelve filas inesperadas, hay incidente antes que refactor.
-select id, email, role, plan_id, subscription_status,
-       minutes_limit, minutes_used, extra_minutes, created_at
-  from public.profiles
- where role is distinct from 'Member'
-    or minutes_limit > 1000
-    or coalesce(extra_minutes, 0) > 0
-    or coalesce(voice_credits, 0) > 0
- order by created_at desc;
+--
+-- Q0a — Columnas reales de `profiles`. Ejecutar SIEMPRE esta primero: el código
+-- usa campos (extra_minutes, voice_credits, call_limit...) que no están en el
+-- esquema versionado, y no todos existen en la base de datos real.
+select column_name, data_type, is_nullable, column_default
+  from information_schema.columns
+ where table_schema = 'public'
+   and table_name = 'profiles'
+ order by ordinal_position;
+
+-- Q0b — Perfiles con rol elevado.
+-- Se accede a los campos vía to_jsonb para no asumir que existan: `->>` sobre
+-- una clave ausente devuelve NULL en vez de fallar con 42703. Así la consulta
+-- funciona sea cual sea el esquema real.
+select p.id,
+       to_jsonb(p) ->> 'email'  as email,
+       to_jsonb(p) ->> 'role'   as rol,
+       to_jsonb(p) ->> 'plan_id' as plan_id,
+       to_jsonb(p) as fila_completa
+  from public.profiles p
+ where coalesce(to_jsonb(p) ->> 'role', '') not in ('', 'Member', 'member', 'user', 'User');
+
+-- Q0c — Cuotas anómalas. El filtro se hace sobre el texto convertido a número
+-- solo cuando el valor parece numérico, de nuevo para tolerar campos ausentes.
+select p.id,
+       to_jsonb(p) ->> 'email'          as email,
+       to_jsonb(p) ->> 'plan_id'        as plan_id,
+       to_jsonb(p) ->> 'minutes_limit'  as minutes_limit,
+       to_jsonb(p) ->> 'extra_minutes'  as extra_minutes,
+       to_jsonb(p) ->> 'voice_credits'  as voice_credits
+  from public.profiles p
+ where (to_jsonb(p) ->> 'minutes_limit') ~ '^[0-9]+$'
+        and (to_jsonb(p) ->> 'minutes_limit')::bigint > 1000
+    or (to_jsonb(p) ->> 'extra_minutes') ~ '^[0-9]+$'
+        and (to_jsonb(p) ->> 'extra_minutes')::bigint > 0
+    or (to_jsonb(p) ->> 'voice_credits') ~ '^[0-9]+$'
+        and (to_jsonb(p) ->> 'voice_credits')::bigint > 0;
 
 
 -- ---------------------------------------------------------------------------
@@ -183,13 +219,26 @@ select version, name
 -- ---------------------------------------------------------------------------
 -- Q12 — Dimensiones reales de los embeddings almacenados
 -- ---------------------------------------------------------------------------
--- api/ai.ts indexa a 768 dims pero genera el embedding de consulta sin
+-- api/ai.ts indexa a 768 dims pero generaba el embedding de consulta sin
 -- outputDimensionality (3072). Si aquí aparece más de un valor, hay vectores
 -- de espacios distintos mezclados y el índice RAG está corrupto.
-select vector_dims(embedding) as dims, count(*) as filas
-  from public.recording_chunks
- group by 1
- order by 1;
+--
+-- Envuelto en un bloque porque la tabla puede no existir: en ese caso avisa en
+-- lugar de abortar el resto del inventario.
+do $$
+declare r record;
+begin
+    if not exists (select 1 from information_schema.tables
+                    where table_schema='public' and table_name='recording_chunks') then
+        raise notice 'La tabla recording_chunks NO existe: el pipeline RAG no está desplegado en esta base de datos.';
+        return;
+    end if;
+    for r in select vector_dims(embedding) as dims, count(*) as filas
+               from public.recording_chunks group by 1 order by 1
+    loop
+        raise notice 'embeddings de % dimensiones: % filas', r.dims, r.filas;
+    end loop;
+end $$;
 
 
 -- ---------------------------------------------------------------------------
