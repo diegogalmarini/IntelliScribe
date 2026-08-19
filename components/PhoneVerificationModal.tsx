@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../lib/apiClient';
 
 interface PhoneVerificationModalProps {
     userId: string;
@@ -21,15 +22,13 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
         setErrorMsg('');
 
         try {
-            const res = await fetch('/api/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await apiFetch('/api/verify', {
                 // Aseguramos que el número tenga formato correcto si el usuario olvidó el +
-                body: JSON.stringify({
+                body: {
                     action: 'send',
                     phoneNumber: phone.startsWith('+') ? phone : '+' + phone,
                     channel: 'sms'
-                })
+                }
             });
 
             const text = await res.text();
@@ -67,15 +66,13 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
         setErrorMsg('');
 
         try {
-            const res = await fetch('/api/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            // El userId lo deriva el servidor del token; ya no se envía.
+            const res = await apiFetch('/api/verify', {
+                body: {
                     action: 'check',
                     phoneNumber: phone.startsWith('+') ? phone : '+' + phone,
-                    code,
-                    userId
-                })
+                    code
+                }
             });
 
             const data = await res.json();
@@ -103,14 +100,11 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
         setErrorMsg('');
 
         try {
-            const res = await fetch('/api/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            const res = await apiFetch('/api/verify', {
+                body: {
                     action: 'verify-caller-id',
-                    phoneNumber: phone.startsWith('+') ? phone : '+' + phone,
-                    userId
-                })
+                    phoneNumber: phone.startsWith('+') ? phone : '+' + phone
+                }
             });
 
             const data = await res.json();

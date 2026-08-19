@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
 import { validateEnv } from "./_utils/env-validator.js";
 import { initSentry, Sentry } from "./_utils/sentry.js";
+import { requireAuth } from "./_utils/auth.js";
 
 // Initialize Sentry
 initSentry();
@@ -9,21 +10,20 @@ initSentry();
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Wrap everything in try-catch to ensure we ALWAYS return valid JSON
     try {
-        // CORS (Fixed for Safari: Origin must match if Credentials are true)
-        const allowedOrigin = req.headers.origin || '*';
-        res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-        res.setHeader(
-            'Access-Control-Allow-Headers',
-            'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-        );
+        res.setHeader('Access-Control-Allow-Origin', 'https://www.diktalo.com');
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
         if (req.method === 'OPTIONS') return res.status(200).end();
         if (req.method !== 'POST') {
             console.log('❌ Method not allowed:', req.method);
             return res.status(405).json({ error: 'Method not allowed' });
         }
+
+        // El userId llegaba en el body sin verificar, asi que se podia escribir
+        // `phone` y `phone_verified` en el perfil de cualquier cuenta.
+        const authedUser = await requireAuth(req, res, 'verify');
+        if (!authedUser) return;
 
         console.log("🔍 [VERIFY] Request received", {
             method: req.method,
@@ -35,7 +35,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         // Validate request body
-        const { action, phoneNumber, code, userId, channel } = req.body || {};
+        const { action, phoneNumber, code, channel } = req.body || {};
+        const userId = authedUser.id;
 
         if (!action) {
             console.error('❌ Missing action parameter');

@@ -16,7 +16,11 @@ export default async function handler(req: any, res: any) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    console.log('[Cron-Cleanup] Starting free tier cleanup...');
+    // Prueba en seco: recorre y cuenta sin borrar nada. Es como se verifica que
+    // las rutas de audio_url estan normalizadas antes del primer disparo real.
+    const dryRun = req.query?.dryRun === '1' || req.query?.dryRun === 'true';
+
+    console.log(`[Cron-Cleanup] Starting free tier cleanup...${dryRun ? ' (DRY RUN)' : ''}`);
 
     try {
         const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -77,13 +81,38 @@ export default async function handler(req: any, res: any) {
                 for (const recording of oldRecordings) {
                     try {
                         if (recording.audio_url) {
-                            // Delete from Supabase Storage
-                            const { error: deleteError } = await supabase.storage
+                            // Normalizacion defensiva: hay filas historicas con URL
+                            // absoluta (/storage/v1/object/public/recordings/...) porque
+                            // recording-callback las escribia asi. storage.remove() con
+                            // una URL completa no coincide con ninguna clave, no falla, y
+                            // el codigo ponia audio_url a null igualmente: el fichero se
+                            // quedaba ocupando espacio y el usuario perdia el acceso.
+                            const marker = '/recordings/';
+                            const idx = recording.audio_url.indexOf(marker);
+                            const storagePath = idx >= 0
+                                ? decodeURIComponent(recording.audio_url.slice(idx + marker.length).split('?')[0])
+                                : recording.audio_url;
+
+                            if (dryRun) {
+                                console.log(`[Cron-Cleanup] (dry run) borraria "${storagePath}" del recording ${recording.id}`);
+                                deletedCount++;
+                                continue;
+                            }
+
+                            const { data: removed, error: deleteError } = await supabase.storage
                                 .from('recordings')
-                                .remove([recording.audio_url]);
+                                .remove([storagePath]);
 
                             if (deleteError) {
-                                console.error(`[Cron-Cleanup] Failed to delete audio: ${recording.audio_url}`, deleteError);
+                                console.error(`[Cron-Cleanup] Failed to delete audio: ${storagePath}`, deleteError);
+                                errorCount++;
+                                continue;
+                            }
+
+                            // storage.remove() devuelve [] si la clave no existia. Sin esta
+                            // comprobacion se perderia la referencia a un fichero que sigue ahi.
+                            if (!Array.isArray(removed) || removed.length === 0) {
+                                console.warn(`[Cron-Cleanup] No se borro nada para "${storagePath}" (recording ${recording.id}). Se conserva audio_url.`);
                                 errorCount++;
                                 continue;
                             }

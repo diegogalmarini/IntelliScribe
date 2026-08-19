@@ -1,10 +1,11 @@
 import twilio from 'twilio';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { authenticateRequest } from './_utils/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Permitir CORS para evitar bloqueos en móviles
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.diktalo.com');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         res.status(200).end();
@@ -15,10 +16,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { userId } = req.body;
-    if (!userId) {
-        return res.status(400).json({ error: 'Missing userId' });
+    // Este endpoint emite un AccessToken de Twilio Voice: quien lo obtiene puede
+    // hacer llamadas facturadas a la cuenta. Se exige token desde el primer
+    // despliegue, sin ventana de compatibilidad: el Dialer es exclusivo de
+    // Business Plus, así que el alcance de una ruptura es mínimo comparado con
+    // dejar abierto un canal de gasto. Antes, el `userId` llegaba en el body y
+    // bastaba conocer el UUID de una cuenta Business Plus para suplantarla.
+    const auth = await authenticateRequest(req);
+    if (!auth.ok) {
+        return res.status(auth.status!).json({ error: auth.error });
     }
+    const userId = auth.user!.id;
 
     // 🔴 AUDITORÍA DE SEGURIDAD: Validar en el Servidor que el usuario tenga el plan correcto
     // No podemos confiar en el estado del cliente (AppRoute.PLANS solo filtra visualmente)

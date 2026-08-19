@@ -1,3 +1,4 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { validateTwilioRequest } from '../utils/twilioSecurity.js';
 
 /**

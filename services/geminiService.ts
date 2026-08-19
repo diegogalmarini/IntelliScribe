@@ -1,13 +1,11 @@
 import { TranscriptSegment } from "../types";
-import { AI_TEMPLATES } from "../constants/templates";
+import { apiFetch } from "../lib/apiClient";
 
 // Helper to call our secure backend
 const callAIEndpoint = async (action: string, payload: any, language: string) => {
   try {
-    const response = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, payload, language }),
+    const response = await apiFetch('/api/ai', {
+      body: { action, payload, language },
     });
 
     // Check if the response is actually JSON
@@ -48,14 +46,11 @@ const callAIEndpoint = async (action: string, payload: any, language: string) =>
 
 export const generateMeetingSummary = async (transcript: string, language: string = 'en', templateId: string = 'general', attachments?: any[]): Promise<string> => {
   try {
-    const templateObj = AI_TEMPLATES.find(t => t.id === templateId) || AI_TEMPLATES[0];
-    // Select the correct language prompt from the template
-    const systemPrompt = templateObj.systemPrompt[language as 'es' | 'en'] || templateObj.systemPrompt.en;
-
+    // El prompt lo resuelve el servidor desde el templateId: mandarlo desde el
+    // cliente permitia sustituir las instrucciones del modelo por completo.
     const result = await callAIEndpoint('summary', {
       transcript,
       template: templateId,
-      systemPrompt, // Pass the specialized prompt
       attachments
     }, language);
     if (!result) throw new Error("No output from AI");
@@ -121,12 +116,16 @@ export const supportChat = async (
   systemInstruction?: string
 ): Promise<string> => {
   try {
-    const result = await callAIEndpoint('support', {
-      message: userMessage,
-      history,
-      systemInstruction,
-      knowledgeBasePath: '/docs/chatbot-training/knowledge-base.json'
-    }, language);
+    // Endpoint propio y publico: el bot se renderiza en la landing y en las
+    // paginas legales, donde no hay sesion. `systemInstruction` pasa a ser
+    // `context`: el servidor lo anexa como datos, no como instrucciones.
+    const response = await apiFetch('/api/support-chat', {
+      anonymous: true,
+      body: { message: userMessage, history, context: systemInstruction, language }
+    });
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || 'Support service error');
+    const result = json.result;
     if (!result) throw new Error("No output from AI");
     return result;
   } catch (error: any) {

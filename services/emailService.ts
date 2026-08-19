@@ -1,21 +1,23 @@
 import { Recording, UserProfile } from '../types';
+import { apiFetch } from '../lib/apiClient';
 
 interface SendEmailParams {
-    to: string;
     subject: string;
     html: string;
-    channel?: 'system' | 'support' | 'legal' | 'security';
-    replyTo?: string;
 }
 
-export const sendEmail = async ({ to, subject, html, channel = 'system', replyTo }: SendEmailParams) => {
+/**
+ * Envía una notificación transaccional al usuario autenticado.
+ *
+ * El destinatario ya no es un parámetro: lo deriva el servidor del JWT. Antes
+ * el endpoint aceptaba `to` y `html` arbitrarios sin autenticación, lo que
+ * convertía /api/send-email en un relay abierto con los dominios de Diktalo.
+ * Para el formulario público de contacto, ver api/contact.ts.
+ */
+export const sendEmail = async ({ subject, html }: SendEmailParams) => {
     try {
-        const response = await fetch('/api/send-email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ to, subject, html, channel, replyTo }),
+        const response = await apiFetch('/api/send-email', {
+            body: { subject, html },
         });
 
         if (!response.ok) {
@@ -87,9 +89,7 @@ export const notifyNewRecording = async (user: UserProfile, recording: Recording
     `;
 
     return sendEmail({
-        to: user.email,
         subject: `🎥 Nueva grabación: ${recording.title}`,
-        html,
-        channel: 'system'
+        html
     });
 };

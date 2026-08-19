@@ -16,7 +16,10 @@ export const Contact: React.FC = () => {
         email: '',
         topic: 'support',
         subject: '',
-        message: ''
+        message: '',
+        // Honeypot: invisible para personas, lo rellenan los bots. El servidor
+        // descarta el envío si viene con contenido.
+        website: ''
     });
 
     const topics = [
@@ -39,39 +42,22 @@ export const Contact: React.FC = () => {
                 email: formData.email
             });
 
-            // Construct the HTML email content
-            const htmlContent = `
-                <div style="font-family: sans-serif; color: #333; max-width: 600px; line-height: 1.6;">
-                    <h2 style="color: #2563eb;">New Contact Form Submission</h2>
-                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <p><strong>Topic:</strong> ${formData.topic.toUpperCase()}</p>
-                        <p><strong>Name:</strong> ${formData.name}</p>
-                        <p><strong>Email:</strong> ${formData.email}</p>
-                        <p><strong>Subject:</strong> ${formData.subject}</p>
-                    </div>
-                    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-                    <h3>Message:</h3>
-                    <div style="white-space: pre-wrap; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        ${formData.message}
-                    </div>
-                    <p style="font-size: 12px; color: #64748b; margin-top: 30px;">
-                        Sent via Diktalo Contact Form. IP Diagnostics logged.
-                    </p>
-                </div>
-            `;
-
-            const response = await fetch('/api/send-email', {
+            // El HTML lo compone y escapa el servidor (api/contact.ts): el cliente
+            // solo manda campos. Antes se interpolaba el formulario sin escapar y se
+            // elegía el destinatario desde aquí.
+            const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    to: 'support@diktalo.com',
-                    subject: `[Contact Form] ${formData.topic.toUpperCase()}: ${formData.subject}`,
-                    html: htmlContent,
-                    channel: 'support',
-                    replyTo: formData.email
+                    name: formData.name,
+                    email: formData.email,
+                    subject: formData.subject,
+                    message: formData.message,
+                    topic: formData.topic,
+                    website: formData.website
                 })
             });
 
@@ -95,7 +81,7 @@ export const Contact: React.FC = () => {
 
             console.log('✅ [Contact] Success:', data);
             setIsSuccess(true);
-            setFormData({ name: '', email: '', topic: 'support', subject: '', message: '' });
+            setFormData({ name: '', email: '', topic: 'support', subject: '', message: '', website: '' });
 
         } catch (err: any) {
             console.error('🔥 [Contact] CRITICAL ERROR:', {
@@ -196,6 +182,18 @@ export const Contact: React.FC = () => {
                                         onSubmit={handleSubmit}
                                         className="space-y-6"
                                     >
+                                        {/* Honeypot anti-bot: fuera del flujo visual y del orden de tabulación. */}
+                                        <input
+                                            type="text"
+                                            name="website"
+                                            value={formData.website}
+                                            onChange={handleChange}
+                                            tabIndex={-1}
+                                            autoComplete="off"
+                                            aria-hidden="true"
+                                            className="absolute w-px h-px -left-[9999px] opacity-0"
+                                        />
+
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">

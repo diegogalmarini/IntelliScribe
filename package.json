@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-sitemap.js && vite build",
+    "typecheck": "tsc --noEmit",
+    "typecheck:api": "tsc -p tsconfig.api.json --noEmit",
+    "build": "npm run typecheck:api && node scripts/generate-sitemap.js && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,7 +16,6 @@
     "@sentry/node": "^10.38.0",
     "@sentry/profiling-node": "^10.38.0",
     "@sentry/react": "^10.32.1",
-    "@sentry/vite-plugin": "^4.6.1",
     "@supabase/supabase-js": "^2.87.3",
     "@twilio/voice-sdk": "^2.17.0",
     "@types/jspdf": "^1.3.3",
@@ -39,6 +40,7 @@
     "vite-plugin-pwa": "^1.2.0"
   },
   "devDependencies": {
+    "@sentry/vite-plugin": "^4.6.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
     "@types/file-saver": "^2.0.7",

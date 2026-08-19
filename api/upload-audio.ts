@@ -104,8 +104,12 @@ export default async function handler(req, res) {
 
             console.log('[upload-audio] Registered path:', filePath);
 
-            if (!filePath.startsWith(`${userId}/`)) {
-                console.warn('[upload-audio] Potential path spoofing warning:', filePath, 'User:', userId);
+            // Rechazo duro: antes esto solo dejaba un warning en los logs y seguía
+            // adelante, así que se podía registrar una grabación apuntando a un
+            // fichero de otra carpeta del bucket.
+            if (!filePath.startsWith(`${userId}/`) || filePath.includes('..')) {
+                console.warn('[upload-audio] Ruta rechazada:', filePath, 'Usuario:', userId);
+                return res.status(400).json({ error: 'Invalid file path for this user' });
             }
 
         } else {

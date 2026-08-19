@@ -1,0 +1,15 @@
+{
+  // Gate de tipos bloqueante, de ámbito reducido.
+  //
+  // El tsconfig raíz no tiene `include` ni `exclude`, así que compila todo el
+  // árbol —incluidas chrome-extension/ (que tiene su propio tsconfig) y
+  // supabase/functions/ (Deno)— y acumula errores que impiden meter `tsc` en el
+  // build. Este perfil cubre solo lo que se despliega como backend más los tipos
+  // que comparte con el frontend, que es donde un error de tipos se traduce en un
+  // 500 en producción (ver api/voice.ts, que lleva roto desde que se escribió).
+  //
+  // Cuando el ámbito completo llegue a cero errores, `build` pasa a usar `tsc`
+  // a secas y este archivo desaparece.
+  "extends": "./tsconfig.json",
+  "include": ["api/**/*.ts", "utils/**/*.ts", "types.ts"]
+}

@@ -47,6 +47,7 @@ import {
     LogOut,
     Eye
 } from 'lucide-react';
+import { AI_TEMPLATE_PROMPTS } from './aiPrompts';
 
 export interface AITemplate {
     id: string;
@@ -90,10 +91,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Estructura Adaptativa', 'Insights Clave', 'Resumen General'],
             en: ['Adaptive Structure', 'Key Insights', 'General Summary']
         },
-        systemPrompt: {
-            es: `Eres una IA adaptativa inteligente. Selecciona automáticamente la mejor estructura para este contenido (reunión, clase, entrevista). Genera un resumen que se adapte perfectamente al escenario detectado.`,
-            en: `You are an intelligent adaptive AI. Automatically select the best structure for this content. Generate a summary that perfectly adapts to the detected scenario.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['adaptive']
     },
     {
         id: 'reasoning',
@@ -112,10 +110,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Flujo Lógico', 'Deducciones IA', 'Conclusiones'],
             en: ['Logical Flow', 'AI Deductions', 'Conclusions']
         },
-        systemPrompt: {
-            es: `Eres una IA de inferencia lógica. Deduce y genera la estructura más adecuada ajustando el análisis en tiempo real para equilibrar eficiencia y precisión.`,
-            en: `You are a logical inference AI. Deduce and generate the most suitable structure by adjusting the analysis in real-time.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['reasoning']
     },
     {
         id: 'detailed',
@@ -134,10 +129,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Sumario de Conversación', 'Tareas y Acciones', 'Seguimientos', 'Datos Extraídos'],
             en: ['Conversation Summary', 'Tasks and Actions', 'Follow-ups', 'Extracted Data']
         },
-        systemPrompt: {
-            es: `Objetivo: Resumen altamente detallado. Extrae Tareas [URGENT], Seguimientos [FOLLOW-UP] y Datos Clave (Nombres, Fechas, etc.).`,
-            en: `Goal: Highly detailed summary. Extract Tasks [URGENT], Follow-ups [FOLLOW-UP], and Key Details (Names, Dates, etc.).`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['detailed']
     },
     {
         id: 'verbatim',
@@ -156,10 +148,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Corrección Gramatical', 'Formato de Diálogo', 'Sin Resumen'],
             en: ['Grammar Correction', 'Dialogue Formatting', 'No Summary']
         },
-        systemPrompt: {
-            es: `Tu única tarea es corregir y formatear la transcripción literal. NO resumas. Mantén el orden cronológico exacto e identifica hablantes.`,
-            en: `YOUR ONLY TASK IS TO CORRECT AND FORMAT THE VERBATIM TRANSCRIPT. Do not summarize. Maintain chronological order.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['verbatim']
     },
     {
         id: 'brief',
@@ -178,10 +167,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Idea Central', 'Top 3 Insights', 'Acción Inmediata'],
             en: ['Main Idea', 'Top 3 Insights', 'Immediate Action']
         },
-        systemPrompt: {
-            es: `Genera un resumen ultra-conciso. Enfócate solo en lo esencial (máximo 3 bullets).`,
-            en: `Generate an ultra-concise summary. Focus only on the essentials (max 3 bullets).`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['brief']
     },
     {
         id: 'mind_map_structure',
@@ -200,10 +186,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Concepto Central', 'Ramas Principales', 'Sub-nodos de Detalle'],
             en: ['Central Concept', 'Main Branches', 'Detail Sub-nodes']
         },
-        systemPrompt: {
-            es: `Organiza la información en una jerarquía de niveles para facilitar la creación de un mapa mental.`,
-            en: `Organize the information in a level hierarchy to facilitate the creation of a mind map.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['mind_map_structure']
     },
 
     // --- BUSINESS / MEETINGS ---
@@ -224,10 +207,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Tópicos Discutidos', 'Acuerdos Alcanzados', 'Pasos a Seguir'],
             en: ['Topics Discussed', 'Agreements Reached', 'Next Steps']
         },
-        systemPrompt: {
-            es: `Eres un redactor de discusiones de equipo. Estructura claramente por temas, conclusiones y next steps.`,
-            en: `You are a team discussion writer. Structure clearly by topics, conclusions, and next steps.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['discussion_meeting']
     },
     {
         id: 'meeting_note',
@@ -246,10 +226,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Información de Reunión', 'Notas Detalladas', 'Planificación Futura'],
             en: ['Meeting Information', 'Detailed Notes', 'Future Planning']
         },
-        systemPrompt: {
-            es: `Genera una Minuta de Reunión estructurada (Meeting Info, Notes, Arrangements).`,
-            en: `Generate a structured Meeting Minute (Meeting Info, Notes, Arrangements).`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['meeting_note']
     },
     {
         id: 'sales_bant',
@@ -268,10 +245,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Budget', 'Authority', 'Need', 'Timing', 'Próximos Pasos'],
             en: ['Budget', 'Authority', 'Need', 'Timing', 'Next Steps']
         },
-        systemPrompt: {
-            es: `Eres un consultor de ventas. Analiza usando BANT y sugiere pasos para cerrar.`,
-            en: `You are a sales consultant. Analyze using BANT and suggest closing steps.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['sales_bant']
     },
     {
         id: 'project_kickoff',
@@ -290,10 +264,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Visión del Proyecto', 'Stakeholders', 'Hitos y Timeline'],
             en: ['Project Vision', 'Stakeholders', 'Milestones and Timeline']
         },
-        systemPrompt: {
-            es: `Extrae la visión del proyecto, roles clave y el calendario de entregables.`,
-            en: `Extract project vision, key roles, and deliverables schedule.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['project_kickoff']
     },
     {
         id: 'board_meeting',
@@ -312,10 +283,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Orden del Día', 'Resoluciones', 'Acciones Formales'],
             en: ['Agenda', 'Resolutions', 'Formal Actions']
         },
-        systemPrompt: {
-            es: `Genera un resumen formal para junta directiva, destacando resoluciones aprobadas.`,
-            en: `Generate a formal board summary, highlighting approved resolutions.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['board_meeting']
     },
     {
         id: 'scrum_daily',
@@ -334,10 +302,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Progreso Ayer', 'Objetivos Hoy', 'Bloqueadores'],
             en: ['Yesterday Progress', 'Today Objectives', 'Blockers']
         },
-        systemPrompt: {
-            es: `Extrae el estado de cada tarea y los impedimentos mencionados en la reunión.`,
-            en: `Extract the status of each task and the impediments mentioned in the meeting.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['scrum_daily']
     },
 
     // --- MEDICAL / HEALTH ---
@@ -358,10 +323,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Subjective (S)', 'Objective (O)', 'Assessment (A)', 'Plan (P)'],
             en: ['Subjective (S)', 'Objective (O)', 'Assessment (A)', 'Plan (P)']
         },
-        systemPrompt: {
-            es: `Genera una nota médica SOAP profesional y precisa a partir de la transcripción clínica.`,
-            en: `Generate a professional and precise medical SOAP note from the clinical transcript.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['medical_soap']
     },
     {
         id: 'patient_consultation',
@@ -380,10 +342,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Motivo de Consulta', 'Diagnóstico Simple', 'Plan de Tratamiento'],
             en: ['Reason for Visit', 'Simple Diagnosis', 'Treatment Plan']
         },
-        systemPrompt: {
-            es: `Traduce la consulta a un lenguaje sencillo para el paciente, destacando medicación y siguientes pasos.`,
-            en: `Translate the consultation into simple language for the patient, highlighting medication and next steps.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['patient_consultation']
     },
     {
         id: 'clinical_results',
@@ -402,10 +361,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Valores Laboratorio', 'Hallazgos Clave', 'Tendencias'],
             en: ['Laboratory Values', 'Key Findings', 'Trends']
         },
-        systemPrompt: {
-            es: `Identifica y lista valores fuera de rango y conclusiones de exámenes médicos citados.`,
-            en: `Identify and list out-of-range values and conclusions from cited medical exams.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['clinical_results']
     },
     {
         id: 'discharge_summary',
@@ -424,10 +380,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Resumen de Estadía', 'Diagnósticos de Alta', 'Plan de Medicación'],
             en: ['Stay Summary', 'Discharge Diagnoses', 'Medication Plan']
         },
-        systemPrompt: {
-            es: `Crea un resumen de alta detallado basado en la discusión del equipo médico.`,
-            en: `Create a detailed discharge summary based on the medical team's discussion.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['discharge_summary']
     },
     {
         id: 'clinical_trial_note',
@@ -446,10 +399,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Protocolo Aplicado', 'Observaciones Sujeto', 'Eventos Adversos'],
             en: ['Protocol Applied', 'Subject Observations', 'Adverse Events']
         },
-        systemPrompt: {
-            es: `Enfócate en el cumplimiento del protocolo y la recolección de métricas de investigación.`,
-            en: `Focus on protocol compliance and research metric collection.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['clinical_trial_note']
     },
     {
         id: 'radiology_report_draft',
@@ -468,10 +418,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Hallazgos por Órgano', 'Impresión Diagnóstica', 'Recomendaciones'],
             en: ['Findings by Organ', 'Diagnostic Impression', 'Recommendations']
         },
-        systemPrompt: {
-            es: `Sintetiza los hallazgos visuales descritos por el especialista en el informe.`,
-            en: `Synthesize the visual findings described by the specialist in the report.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['radiology_report_draft']
     },
 
     // --- EDUCATION ---
@@ -492,10 +439,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Secciones Lógicas', 'Explicación de Conceptos', 'Ejemplos y Analogías', 'Esquema Riassuntivo'],
             en: ['Logical Sections', 'Concept Explanation', 'Examples and Analogies', 'Summary Outline']
         },
-        systemPrompt: {
-            es: `Transforma la lección en un capítulo de manual universitario profundo. Organiza en secciones con títulos.`,
-            en: `Transform the lecture into an in-depth university textbook chapter. Organize into sections with titles.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['university_lecture']
     },
     {
         id: 'class_note',
@@ -514,10 +458,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Class Info', 'Keywords', 'Key Learnings', 'Explanations', 'Assignments'],
             en: ['Class Info', 'Keywords', 'Key Learnings', 'Explanations', 'Assignments']
         },
-        systemPrompt: {
-            es: `Genera notas de clase estructuradas con foco en conceptos clave y tareas asignadas.`,
-            en: `Generate structured class notes focusing on key concepts and assigned tasks.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['class_note']
     },
     {
         id: 'study_guide',
@@ -536,10 +477,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Conceptos Fundamentales', 'Cuestionario Q&A', 'Puntos a Memorizar'],
             en: ['Fundamental Concepts', 'Q&A Questionnaire', 'Points to Memorize']
         },
-        systemPrompt: {
-            es: `Crea una guía de estudio formativa con preguntas de autoevaluación basadas en el contenido.`,
-            en: `Create a formative study guide with self-assessment questions based on the content.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['study_guide']
     },
     {
         id: 'thesis_brainstorm',
@@ -558,10 +496,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Hipótesis Planteadas', 'Enfoque Metodológico', 'Fuentes Citadas'],
             en: ['Proposed Hypotheses', 'Methodological Focus', 'Cited Sources']
         },
-        systemPrompt: {
-            es: `Estructura las ideas sueltas de la sesión en un borrador de propuesta de investigación.`,
-            en: `Structure loose ideas from the session into a draft research proposal.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['thesis_brainstorm']
     },
     {
         id: 'language_lesson',
@@ -580,10 +515,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Vocabulario del Día', 'Puntos Gramaticales', 'Frases Útiles'],
             en: ['Vocabulary of the Day', 'Grammar Points', 'Useful Phrases']
         },
-        systemPrompt: {
-            es: `Identifica términos clave en el idioma estudiado y explica su uso según la clase.`,
-            en: `Identify key terms in the studied language and explain their use according to the class.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['language_lesson']
     },
     {
         id: 'workshop_summary',
@@ -602,10 +534,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Objetivo Práctico', 'Workflow Paso a Paso', 'Conclusiones del Taller'],
             en: ['Practical Objective', 'Step-by-Step Workflow', 'Workshop Conclusions']
         },
-        systemPrompt: {
-            es: `Resume las actividades prácticas realizadas, enfatizando el "cómo se hizo".`,
-            en: `Summarize the practical activities performed, emphasizing the "how-to".`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['workshop_summary']
     },
 
     // --- LEGAL ---
@@ -626,10 +555,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Relato de Hechos', 'Fundamentos Legales', 'Estrategia/Siguientes Pasos'],
             en: ['Statement of Facts', 'Legal Grounds', 'Strategy/Next Steps']
         },
-        systemPrompt: {
-            es: `Extrae los hechos relevantes y las implicaciones legales discutidas. Tono formal y analítico.`,
-            en: `Extract relevant facts and discussed legal implications. Formal and analytical tone.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['legal_consultation']
     },
     {
         id: 'contract_review',
@@ -648,10 +574,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Cláusulas Principales', 'Riesgos Detectados', 'Propuestas de Cambio'],
             en: ['Main Clauses', 'Detected Risks', 'Change Proposals']
         },
-        systemPrompt: {
-            es: `Analiza la discusión sobre el contrato. Lista los puntos de conflicto y lo que requiere revisión.`,
-            en: `Analyze the contract discussion. List conflict points and what requires review.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['contract_review']
     },
     {
         id: 'deposition_summary',
@@ -670,10 +593,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Testimonio Clave', 'Hechos Admitidos', 'Inconsistencias'],
             en: ['Key Testimony', 'Admitted Facts', 'Inconsistencies']
         },
-        systemPrompt: {
-            es: `Resume la declaración enfocándote en los puntos que afectan la teoría del caso.`,
-            en: `Summarize the deposition focusing on points that affect the case theory.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['deposition_summary']
     },
     {
         id: 'compliance_audit',
@@ -692,10 +612,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Normativa Referenciada', 'Estado de Cumplimiento', 'Acciones Correctivas'],
             en: ['Referenced Regulation', 'Compliance Status', 'Corrective Actions']
         },
-        systemPrompt: {
-            es: `Identifica brechas de cumplimiento basándote en los estándares citados en la sesión.`,
-            en: `Identify compliance gaps based on standards cited in the session.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['compliance_audit']
     },
     {
         id: 'court_hearing',
@@ -714,10 +631,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Argumentos de Partes', 'Resolución Judicial', 'Calendario Procesal'],
             en: ['Parties Arguments', 'Judicial Resolution', 'Procedural Calendar']
         },
-        systemPrompt: {
-            es: `Resume la audiencia destacando lo que el juez resolvió y cuándo vence el próximo plazo.`,
-            en: `Summarize the hearing highlighting what the judge ruled and when the next deadline is.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['court_hearing']
     },
     {
         id: 'legal_research_brainstorm',
@@ -736,10 +650,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Temas de Investigación', 'Precedentes Citados', 'Búsquedas Pendientes'],
             en: ['Research Topics', 'Cited Precedents', 'Pending Searches']
         },
-        systemPrompt: {
-            es: `Estructura los puntos que requieren mayor investigación legal basándote en la consulta inicial.`,
-            en: `Structure the points that require further legal research based on the initial consultation.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['legal_research_brainstorm']
     },
 
     // --- HR & RECRUITING ---
@@ -760,10 +671,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Perfil del Candidato', 'Hard/Soft Skills', 'Fit Cultural', 'Recomendación'],
             en: ['Candidate Profile', 'Hard/Soft Skills', 'Cultural Fit', 'Recommendation']
         },
-        systemPrompt: {
-            es: `Sintetiza la entrevista. Evalúa fortalezas, debilidades y si el candidato encaja en la posición.`,
-            en: `Synthesize the interview. Evaluate strengths, weaknesses, and if the candidate fits the position.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['candidate_interview']
     },
     {
         id: 'performance_review',
@@ -782,10 +690,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Logros del Periodo', 'Feedback de Mejora', 'Objetivos Próximo Año'],
             en: ['Period Achievements', 'Improvement Feedback', 'Next Year Objectives']
         },
-        systemPrompt: {
-            es: `Captura el feedback constructivo y los nuevos compromisos acordados durante la evaluación.`,
-            en: `Capture constructive feedback and new commitments agreed upon during the evaluation.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['performance_review']
     },
     {
         id: 'onboarding_session',
@@ -804,10 +709,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Cultura Empresa', 'Setup de Herramientas', 'Checklist Semana 1'],
             en: ['Company Culture', 'Tools Setup', 'Week 1 Checklist']
         },
-        systemPrompt: {
-            es: `Crea una guía de bienvenida personalizada basada en la conversación de inducción.`,
-            en: `Create a personalized welcome guide based on the induction conversation.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['onboarding_session']
     },
     {
         id: 'exit_interview',
@@ -826,10 +728,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Motivos de Salida', 'Feedback Empresa', 'Áreas de Mejora HR'],
             en: ['Reasons for Leaving', 'Company Feedback', 'HR Improvement Areas']
         },
-        systemPrompt: {
-            es: `Extrae de forma neutral las razones de la renuncia y sugerencias para mejorar el clima laboral.`,
-            en: `Extract neutrally the reasons for resignation and suggestions to improve the work environment.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['exit_interview']
     },
     {
         id: 'training_feedback',
@@ -848,10 +747,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Utilidad Contenido', 'Desempeño Instructor', 'Conceptos Aprendidos'],
             en: ['Content Usefulness', 'Instructor Performance', 'Learned Concepts']
         },
-        systemPrompt: {
-            es: `Resume qué fue lo más valioso del entrenamiento y qué podría mejorarse.`,
-            en: `Summarize what was most valuable of the training and what could be improved.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['training_feedback']
     },
     {
         id: 'conflict_resolution',
@@ -870,10 +766,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Versiones de Partes', 'Puntos de Acuerdo', 'Plan de Convivencia'],
             en: ['Parties Versions', 'Agreement Points', 'Coexistence Plan']
         },
-        systemPrompt: {
-            es: `Resume de forma imparcial el conflicto y los pasos acordados para su resolución.`,
-            en: `Summarize impartially the conflict and agreed steps for its resolution.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['conflict_resolution']
     },
 
     // --- PRODUCT & UX ---
@@ -894,10 +787,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Tasks Realizadas', 'Problemas Detectados', 'Insights de Usuario'],
             en: ['Tasks Performed', 'Detected Problems', 'User Insights']
         },
-        systemPrompt: {
-            es: `Analiza la sesión de testing. ¿Qué le costó al usuario? ¿Qué le gustó? Extrae insights claros.`,
-            en: `Analyze the testing session. What was difficult for the user? What did they like? Extract clear insights.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['ux_user_testing']
     },
     {
         id: 'product_roadmap',
@@ -916,10 +806,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Visión Producto', 'Features Priorizadas', 'Timeline Sugerido'],
             en: ['Product Vision', 'Prioritized Features', 'Suggested Timeline']
         },
-        systemPrompt: {
-            es: `Organiza la discusión en un plan de lanzamientos basado en las prioridades acordadas.`,
-            en: `Organize the discussion into a release plan based on agreed priorities.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['product_roadmap']
     },
     {
         id: 'feature_discovery',
@@ -938,10 +825,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Problema a Resolver', 'User Persona', 'Definición de Solución'],
             en: ['Problem to Solve', 'User Persona', 'Solution Definition']
         },
-        systemPrompt: {
-            es: `Resume los requerimientos del producto. Enfócate en el valor para el usuario y limitantes.`,
-            en: `Summarize product requirements. Focus on user value and constraints.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['feature_discovery']
     },
     {
         id: 'design_critique',
@@ -960,10 +844,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Pantallas Revisadas', 'Puntos a Mejorar', 'Acuerdos Visuales'],
             en: ['Reviewed Screens', 'Points to Improve', 'Visual Agreements']
         },
-        systemPrompt: {
-            es: `Lista los cambios de diseño acordados. Sé específico con el feedback sobre UI/UX.`,
-            en: `List agreed design changes. Be specific with UI/UX feedback.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['design_critique']
     },
     {
         id: 'agile_retrospective',
@@ -982,10 +863,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Salio Bien', 'A Mejorar', 'Action Items para Sprint'],
             en: ['Went Well', 'To Improve', 'Action Items for Sprint']
         },
-        systemPrompt: {
-            es: `Resume la retro. Clasifica en positivo, negativo y compromisos de mejora.`,
-            en: `Summarize the retro. Classify into positive, negative, and improvement commitments.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['agile_retrospective']
     },
     {
         id: 'qa_bug_report',
@@ -1004,10 +882,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Errores Críticos', 'Bugs Menores', 'Pasos para Reproducir'],
             en: ['Critical Errors', 'Minor Bugs', 'Steps to Reproduce']
         },
-        systemPrompt: {
-            es: `Extrae todos los fallos reportados durante la sesión de QA con su contexto.`,
-            en: `Extract all reported failures during the QA session with their context.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['qa_bug_report']
     },
 
     // --- PERIODISMO ---
@@ -1028,10 +903,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Citas Clave', 'Contexto de la Noticia', 'Titulares Sugeridos'],
             en: ['Key Quotes', 'News Context', 'Suggested Headlines']
         },
-        systemPrompt: {
-            es: `Identifica las declaraciones más impactantes. Proporciona contexto para una nota de prensa.`,
-            en: `Identify the most impactful statements. Provide context for a press release.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['journalist_interview']
     },
     {
         id: 'press_conference_news',
@@ -1050,10 +922,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Anuncio Oficial', 'Respuestas Críticas', 'Ambiente / Reacción'],
             en: ['Official Announcement', 'Critical Answers', 'Atmosphere / Reaction']
         },
-        systemPrompt: {
-            es: `Resume los puntos informativos clave. Separa el anuncio oficial de las aclaraciones posteriores.`,
-            en: `Summarize key information points. Separate official announcement from subsequent clarifications.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['press_conference_news']
     },
     {
         id: 'investigative_journalism',
@@ -1072,10 +941,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Hecho Central', 'Dato Revelador', 'Fuentes a Contrastar', 'Líneas de Investigación'],
             en: ['Central Fact', 'Revealing Data', 'Sources to Contrast', 'Research Lines']
         },
-        systemPrompt: {
-            es: `Eres un periodista de investigación. Busca el "hook" de la historia y los datos que necesitan verificación.`,
-            en: `You are an investigative journalist. Look for the "hook" of the story and data that needs verification.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['investigative_journalism']
     },
     {
         id: 'profile_piece',
@@ -1094,10 +960,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Personalidad', 'Hitos de Vida', 'Mejores Citas Literal', 'Ambiente'],
             en: ['Personality', 'Life Milestones', 'Best Literal Quotes', 'Atmosphere']
         },
-        systemPrompt: {
-            es: `Extrae lo más humano de la entrevista. Citas literales potentes y anécdotas que definan al personaje.`,
-            en: `Extract the most human part of the interview. Powerful literal quotes and anecdotes that define the character.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['profile_piece']
     },
 
     // --- RESEARCH ---
@@ -1118,10 +981,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Metodología Aplicada', 'Hallazgos de Datos', 'Discusión / Conclusión'],
             en: ['Applied Methodology', 'Data Findings', 'Discussion / Conclusion']
         },
-        systemPrompt: {
-            es: `Lleva la conversación a un formato de paper académico. Enfócate en rigor y evidencia.`,
-            en: `Take the conversation into an academic paper format. Focus on rigor and evidence.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['research_findings']
     },
     {
         id: 'peer_review_notes',
@@ -1140,10 +1000,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Críticas Metodológicas', 'Sugerencias de Datos', 'Corrección de Tesis'],
             en: ['Methodological Criticisms', 'Data Suggestions', 'Thesis Correction']
         },
-        systemPrompt: {
-            es: `Lista los puntos de mejora solicitados para que el trabajo sea aceptado.`,
-            en: `List requested points of improvement for the work to be accepted.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['peer_review_notes']
     },
     {
         id: 'methodology_design',
@@ -1162,10 +1019,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Enfoque (Cuan/Cual)', 'Población y Muestra', 'Instrumentos', 'Manejo de Sesgos'],
             en: ['Focus (Quan/Qual)', 'Population and Sample', 'Instruments', 'Bias Management']
         },
-        systemPrompt: {
-            es: `Estructura la metodología de investigación discutida. Asegura que el proceso sea reproducible y sólido.`,
-            en: `Structure the discussed research methodology. Ensure the process is reproducible and solid.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['methodology_design']
     },
 
     // --- CONSULTING ---
@@ -1186,10 +1040,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Situación Actual', 'Análisis de Brechas', 'Prioridades de Intervención'],
             en: ['Current Situation', 'Gap Analysis', 'Intervention Priorities']
         },
-        systemPrompt: {
-            es: `Como consultor experto, resume los desafíos detectados y propón una ruta de mejora estratégica.`,
-            en: `As an expert consultant, summarize detected challenges and propose a strategic improvement route.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['consulting_diagnostic']
     },
     {
         id: 'strategy_workshop',
@@ -1208,10 +1059,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Análisis de Entorno', 'Objetivos Core', 'Métricas de Éxito'],
             en: ['Environment Analysis', 'Core Objectives', 'Success Metrics']
         },
-        systemPrompt: {
-            es: `Estructura los acuerdos de nivel C. Diferencia entre visión, tácticas y responsables.`,
-            en: `Structure C-level agreements. Differentiate between vision, tactics, and responsible parties.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['strategy_workshop']
     },
 
     // --- PERSONAL ---
@@ -1232,10 +1080,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Sentimiento del Día', 'Hechos Relevantes', 'Reflexión Profunda'],
             en: ['Feeling of the Day', 'Relevant Facts', 'Deep Reflection']
         },
-        systemPrompt: {
-            es: `Estructura los pensamientos del usuario como un diario. Sé empático y destaca momentos de gratitud o aprendizaje.`,
-            en: `Structure the user's thoughts as a journal. Be empathetic and highlight moments of gratitude or learning.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['journaling']
     },
     {
         id: 'language_practice',
@@ -1254,10 +1099,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Feedback de Fluidez', 'Correcciones Gramaticales', 'Nuevas Palabras'],
             en: ['Fluency Feedback', 'Grammar Corrections', 'New Words']
         },
-        systemPrompt: {
-            es: `Analiza la práctica del idioma. Corrige errores y sugiere formas más naturales de expresarse.`,
-            en: `Analyze the language practice. Correct errors and suggest more natural ways of expressing oneself.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['language_practice']
     },
 
     // --- SPEECH & PRESENTATIONS ---
@@ -1278,10 +1120,7 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Análisis de Retórica', 'Uso de Muletillas', 'Puntos a Enfatizar'],
             en: ['Rhetoric Analysis', 'Filler Use', 'Points to Emphasize']
         },
-        systemPrompt: {
-            es: `Analiza el discurso. Identifica dónde se pierde el ritmo y cómo mejorar el impacto del mensaje.`,
-            en: `Analyze the speech. Identify where the rhythm is lost and how to improve the message impact.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['speech_feedback']
     },
 
     // --- SALES / CALLS ---
@@ -1302,9 +1141,6 @@ export const AI_TEMPLATES: AITemplate[] = [
             es: ['Pain Points Cliente', 'Objeciones Planteadas', 'Compromisos de Seguimiento', 'Sentiment Analysis'],
             en: ['Client Pain Points', 'Raised Objections', 'Follow-up Commitments', 'Sentiment Analysis']
         },
-        systemPrompt: {
-            es: `Resume la llamada comercial. Identifica el presupuesto, la autoridad del interlocutor y los bloqueadores.`,
-            en: `Summarize the business call. Identify budget, authority of the interlocutor, and blockers.`
-        }
+        systemPrompt: AI_TEMPLATE_PROMPTS['sales_call_summary']
     }
 ];

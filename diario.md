@@ -1,17 +1,94 @@
 # Diario de Desarrollo — Diktalo
 
 > Bitácora técnica viva del proyecto. Cada decisión, cada feature, cada bug resuelto.
-> Actualizado: 4 mayo 2026
+> Actualizado: 19 agosto 2026
 >
 > ⚠️ **Advertencia:** Este documento es contexto vivo, no spec de implementación. Validar siempre contra:
 > 1. El código real en `/api/`, `/services/`, `/pages/`
 > 2. `.agent/skills/` para estándares de IA y proceso
 > 3. `AGENTS.md` para reglas invariables del proyecto
 >
-> 📌 **Estado actual resumido (2026-05-04):**
-> Último hito documentado: 4 mayo 2026 (gap retroactivo completado + setup metodología multi-agente).
+> 📌 **Estado actual resumido (2026-08-19):**
+> Último hito documentado: 19 agosto 2026 (auditoría completa + saneamiento de seguridad en curso).
 > En curso: ver entrada más reciente.
 > Brújula de metodología: `AGENTS.md` + `CLAUDE.md`. Historial por fases: `docs/DEVELOPMENT_LOG.md`.
+
+---
+
+## Registro 2026-08-19 — Auditoría completa y saneamiento de seguridad
+
+**Qué se hizo:**
+
+Auditoría del proyecto y ejecución de la mayor parte del plan de saneamiento en
+la rama `hardening/security-audit-2026-08`.
+
+Hallazgo que reordenó todo lo demás: **el repositorio de GitHub es público** y la
+API key de Resend commiteada en `docs/resend-setup.md:8` es byte a byte la misma
+que está en uso. La rotación pasa a ser el paso cero, antes que cualquier código:
+el canal de fuga es una historia de git pública, no un endpoint.
+
+Endpoints que estaban abiertos y ya exigen identidad:
+- `/api/send-email` era un relay abierto: aceptaba destinatario y HTML
+  arbitrarios y enviaba firmado como diktalo.com. El formulario público sale a
+  `/api/contact`, con destino fijo y HTML compuesto y escapado en servidor.
+- `/api/ai` no tenía autenticación, con CORS abierto y 300 s de cómputo. Además
+  filtraba datos entre cuentas: el `chat` pasaba a `match_recording_chunks` unos
+  `recordingIds` del cliente usando service role, así que la RLS no aplicaba.
+- `/api/twilio-token` emitía tokens de voz confiando en un `userId` del body.
+- `/api/admin-stats`, `/api/verify` y `/api/zapier-sync`, en la misma línea.
+- La Edge Function `delete-old-recordings` borraba grabaciones sin autorización.
+- `utils/twilioSecurity.ts` se saltaba la validación de firma si el header
+  `Host` contenía "localhost", y ese header lo pone quien llama.
+
+Fallos funcionales encontrados por el camino, todos rotos desde su origen:
+- `/api/voice` no importaba `twilio` ni `getTierForNumber`: lanzaba
+  ReferenceError al cargar y **ninguna llamada saliente ha funcionado nunca**.
+  Va acoplado al cierre de `/api/twilio-token`: arreglarlo antes habría
+  convertido un bug en un canal de gasto facturable.
+- El embedding de la consulta del chat se generaba sin `outputDimensionality`,
+  de 3072 dimensiones contra una RPC que espera VECTOR(768). Fallaba siempre y
+  el `catch` lo tragaba: **el RAG nunca ha funcionado en el camino de consulta**.
+- `audio_url` tenía dos formatos incompatibles en la misma columna. Programar el
+  cron de retención sin normalizarlo habría borrado la referencia de las
+  grabaciones telefónicas dejando los ficheros ocupando espacio.
+- La traducción automática del contenido de BD leía `VITE_GEMINI_API_KEY`, que
+  no existe: lleva fallando en silencio desde abril.
+- `lemonsqueezy-webhook` llama a `increment_extra_minutes` con los nombres de
+  parámetro equivocados, así que la RPC atómica de compra de packs no se usa
+  nunca y cae al fallback con condición de carrera. **Pendiente.**
+
+Deuda cerrada: sourcemaps de producción (se publicaban 24 ficheros con el fuente
+completo), 41 vulnerabilidades de npm reducidas a 11, gate de typecheck de
+backend a 0 errores y dentro de `build`, ámbito completo de 194 a 75 errores,
+restos de Stripe, 34 scripts de un solo uso en la raíz, y 27 documentos internos
+que se servían públicamente en diktalo.com —incluidos el esquema de la BD, el
+email del super admin con el SQL para crear administradores y correos de
+usuarios reales—.
+
+**Por qué:**
+
+El patrón de fondo es el mismo en casi todos los hallazgos: el servidor confiaba
+en un `userId` que mandaba el cliente y operaba con la service role key, que
+bypasea RLS. La RLS estaba bien pensada y mal aplicada. La utilidad
+`api/_utils/auth.ts` existe para que esa decisión se tome en un solo sitio.
+
+**Pendiente / siguiente:**
+
+- **Rotar la clave de Resend.** Sigue viva y publicada.
+- Ejecutar `scripts/db-inventory.sql` en el SQL Editor. Bloquea todas las
+  migraciones. La consulta Q0 dice si la escalada a admin ya ha ocurrido.
+- Migraciones de RLS: bloqueo de columnas privilegiadas de `profiles` (hoy
+  cualquier usuario puede hacer `UPDATE profiles SET role='super_admin'`),
+  `search_path` en las funciones SECURITY DEFINER, `filter_user_id` en
+  `match_recording_chunks`, y las RPC que el código llama y no existen en el
+  repo (`reset_monthly_usage`, `decrement_voice_credits`, `is_admin`).
+- Crons en `vercel.json`: no activar el de limpieza hasta migrar las filas
+  históricas de `audio_url` y verificar con `?dryRun=1`.
+- Rate limiting de los endpoints que siguen públicos.
+- jspdf 3.0.4 tiene una CVE crítica y exige subir de major.
+- Cinco artículos del blog afirman certificaciones (SOC 2, HIPAA, ISO 27001) y
+  capacidades técnicas (cifrado extremo a extremo, biometría vocal) que el
+  producto no tiene. Decisión de producto pendiente.
 
 ---
 

@@ -1,30 +1,34 @@
+/**
+ * api/send-email.ts
+ *
+ * Notificaciones transaccionales al PROPIO usuario autenticado.
+ *
+ * Antes este endpoint no tenía autenticación y aceptaba `to`, `subject` y
+ * `html` arbitrarios del body: era un relay abierto que permitía enviar
+ * cualquier correo firmado como diktalo.com. El destinatario ahora sale del
+ * token, nunca del cliente.
+ *
+ * El formulario público de contacto NO usa este endpoint: vive en
+ * api/contact.ts, que es anónimo por diseño y construye el HTML en servidor.
+ */
+
 import { Resend } from 'resend';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { validateEnv } from "./_utils/env-validator";
-import { initSentry, Sentry } from "./_utils/sentry";
+import { validateEnv } from "./_utils/env-validator.js";
+import { initSentry, Sentry } from "./_utils/sentry.js";
+import { requireAuth } from "./_utils/auth.js";
 
 // Initialize Sentry
 initSentry();
 
-type EmailChannel = 'system' | 'support' | 'legal' | 'security';
-
-const SENDERS: Record<EmailChannel, string> = {
-    system: 'Diktalo System <noreply@diktalo.com>',
-    support: 'Diktalo Support <support@diktalo.com>',
-    legal: 'Diktalo Legal <legal@diktalo.com>',
-    security: 'Diktalo Security <security@diktalo.com>',
-};
+// Un único remitente: cada dirección adicional es superficie de suplantación,
+// y los canales `legal` y `security` no tenían ningún llamante en el código.
+const SYSTEM_SENDER = 'Diktalo System <noreply@diktalo.com>';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // 0. CORS - Consistent with verify.ts
-    const allowedOrigin = req.headers.origin || '*';
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.diktalo.com');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -42,31 +46,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(500).json({ error: e.message });
         }
 
-        const resend = new Resend(env.RESEND_API_KEY);
-        const { to, subject, html, channel = 'system', replyTo } = req.body || {};
+        const user = await requireAuth(req, res, 'send-email');
+        if (!user) return;
 
-        console.log('📨 [EMAIL] Incoming request payload:', {
-            to,
+        // El destinatario es siempre el propio usuario del token. Un `to` en el
+        // body se ignora en silencio: es exactamente el vector que se cierra.
+        const recipient = user.email;
+        if (!recipient) {
+            console.warn('[EMAIL] El token no trae email; no hay a quién enviar.');
+            return res.status(400).json({ error: 'No recipient available for this account' });
+        }
+
+        const resend = new Resend(env.RESEND_API_KEY);
+        const { subject, html } = req.body || {};
+
+        console.log('📨 [EMAIL] Envío a usuario autenticado:', {
+            userId: user.id,
             subject,
-            channel,
-            replyTo,
             contentPreview: html ? html.substring(0, 50) + '...' : 'NONE'
         });
 
-        if (!to || !subject || !html) {
+        if (!subject || !html) {
             console.warn('⚠️ [EMAIL] Validation failed: Missing required fields');
             return res.status(400).json({
                 error: 'Missing required fields',
-                received: { to: !!to, subject: !!subject, html: !!html }
+                received: { subject: !!subject, html: !!html }
             });
         }
 
-        const fromAddress = SENDERS[channel as EmailChannel] || SENDERS.system;
-
         const { data, error } = await resend.emails.send({
-            from: fromAddress,
-            to: [to],
-            replyTo: replyTo,
+            from: SYSTEM_SENDER,
+            to: [recipient],
             subject: subject,
             html: html,
         });

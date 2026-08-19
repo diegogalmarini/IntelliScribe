@@ -1,21 +1,22 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import twilio from 'twilio';
+import { requireAdmin } from './_utils/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS configuration
-    const allowedOrigin = req.headers.origin || '*';
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.diktalo.com');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
+
+    // Este endpoint vuelca las tablas `profiles` y `recordings` completas con
+    // service role. No tenia ninguna comprobacion: el unico guard era
+    // components/AdminRoute.tsx, que se esquiva con un curl.
+    const admin = await requireAdmin(req, res, 'admin-stats');
+    if (!admin) return;
 
     try {
         const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;

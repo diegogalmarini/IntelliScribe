@@ -2,14 +2,30 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Origin': 'https://www.diktalo.com',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 }
+
+// Esta función borra filas de `recordings` y objetos de Storage. No tenía
+// ninguna comprobación de autorización: aunque la pasarela de Supabase exija
+// JWT, la anon key es pública y lo satisface, así que cualquiera podía
+// invocarla. Mismo patrón que onboarding-emails.
+const CRON_SECRET = Deno.env.get('CRON_SECRET')
 
 serve(async (req) => {
     // Handle CORS preflight requests
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
+    }
+
+    if (!CRON_SECRET) {
+        console.error('[Auto-Delete] CRON_SECRET no configurado; se rechaza por seguridad.')
+        return new Response('Server misconfigured', { status: 500, headers: corsHeaders })
+    }
+
+    if (req.headers.get('x-cron-secret') !== CRON_SECRET) {
+        console.warn('[Auto-Delete] Intento de invocación sin secreto válido.')
+        return new Response('Unauthorized', { status: 401, headers: corsHeaders })
     }
 
     try {

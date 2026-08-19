@@ -8,6 +8,7 @@ export interface EnvVariables {
     GEMINI_API_KEY: string;
     SUPABASE_URL: string;
     SUPABASE_SERVICE_ROLE_KEY: string;
+    SUPABASE_ANON_KEY: string;
     RESEND_API_KEY: string;
     LEMONSQUEEZY_WEBHOOK_SECRET: string;
     TWILIO_ACCOUNT_SID?: string;
@@ -17,6 +18,10 @@ export interface EnvVariables {
 
 export function validateEnv(services: ('base' | 'ai' | 'resend' | 'twilio' | 'payments')[] = ['base']) {
     const serviceMap: Record<string, string[]> = {
+        // SUPABASE_ANON_KEY NO se exige: si faltara en Vercel, exigirla haría que
+        // todos los endpoints devolvieran 500 a la vez. Se resuelve con alias y,
+        // en último término, con la service role key, que también sirve como
+        // cabecera `apikey` (quien identifica al usuario es el Bearer, no esta).
         base: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'],
         ai: ['GEMINI_API_KEY'],
         resend: ['RESEND_API_KEY'],
@@ -26,8 +31,19 @@ export function validateEnv(services: ('base' | 'ai' | 'resend' | 'twilio' | 'pa
 
     const required = Array.from(new Set(services.flatMap(s => serviceMap[s] || [])));
 
+    // Algunas variables existen en Vercel con el prefijo VITE_ por herencia del
+    // frontend. Se acepta cualquiera de las dos formas para no exigir un renombrado
+    // coordinado en el dashboard.
+    const ALIASES: Record<string, string> = {
+        SUPABASE_URL: 'VITE_SUPABASE_URL',
+        SUPABASE_ANON_KEY: 'VITE_SUPABASE_ANON_KEY'
+    };
+
+    const resolve = (key: string): string | undefined =>
+        process.env[key] || (ALIASES[key] ? process.env[ALIASES[key]] : undefined);
+
     const missing = required.filter(key => {
-        const val = process.env[key];
+        const val = resolve(key);
         return !val || val.length === 0;
     });
 
@@ -39,8 +55,9 @@ export function validateEnv(services: ('base' | 'ai' | 'resend' | 'twilio' | 'pa
 
     return {
         GEMINI_API_KEY: process.env.GEMINI_API_KEY!,
-        SUPABASE_URL: (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL)!,
+        SUPABASE_URL: resolve('SUPABASE_URL')!,
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        SUPABASE_ANON_KEY: (resolve('SUPABASE_ANON_KEY') || process.env.SUPABASE_SERVICE_ROLE_KEY)!,
         RESEND_API_KEY: process.env.RESEND_API_KEY!,
         LEMONSQUEEZY_WEBHOOK_SECRET: process.env.LEMONSQUEEZY_WEBHOOK_SECRET!,
         TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,

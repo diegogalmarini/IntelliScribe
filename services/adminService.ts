@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { apiFetch } from '../lib/apiClient';
 import { AdminStats, AdminUser, PhoneCall, Recording, PlanConfig, AppSetting, MinutePack, CallCreditPack } from '../types';
 import { autoTranslatePlan, autoTranslateSetting } from './aiTranslationService';
 
@@ -101,7 +102,7 @@ export const adminService = {
             // Fetch analytics data from serverless API
             let analyticsData: any = {};
             try {
-                const response = await fetch('/api/admin-stats');
+                const response = await apiFetch('/api/admin-stats', { method: 'GET' });
                 if (response.ok) {
                     const data = await response.json();
                     analyticsData = {
@@ -214,7 +215,7 @@ export const adminService = {
     async getAnalyticsStats(): Promise<any> {
         try {
             // Call the serverless API (works both in local dev and production)
-            const response = await fetch('/api/admin-stats');
+            const response = await apiFetch('/api/admin-stats', { method: 'GET' });
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 console.error('[adminService] API Error:', response.status, errorData);

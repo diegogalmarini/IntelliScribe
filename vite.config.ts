@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -41,6 +42,16 @@ export default defineConfig({
           }
         ]
       }
+    }),
+    // Condicionado a propósito: sin el guard, un token caducado convierte cada
+    // despliegue en un fallo de build. `filesToDeleteAfterUpload` garantiza que
+    // ningún .map llegue al CDN.
+    process.env.SENTRY_AUTH_TOKEN && sentryVitePlugin({
+      org: 'diktalo',
+      project: 'diktalo',
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      telemetry: false,
+      sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] }
     })
   ],
   server: {
@@ -54,13 +65,23 @@ export default defineConfig({
   },
   build: {
     minify: true,
-    sourcemap: true,
+    // Con `true` se publicaban 24 ficheros .map en producción: el código fuente
+    // completo descargable desde diktalo.com.
+    //
+    // 'hidden' genera los mapas sin dejar el comentario //# sourceMappingURL,
+    // pero el fichero sigue subiéndose al CDN, así que solo es aceptable cuando
+    // el plugin de Sentry está activo y los borra tras subirlos. Sin token, no
+    // se generan: es preferible perder la simbolización de stacks a republicar
+    // el fuente. Para recuperarla, configurar SENTRY_AUTH_TOKEN en Vercel.
+    sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
           ui: ['lucide-react'],
-          utils: ['jspdf', 'html2canvas', 'file-saver'],
+          // html2canvas no está en package.json: solo llega como transitiva de
+          // jspdf. Referenciarlo aquí rompe el build el día que se pode.
+          utils: ['jspdf', 'file-saver'],
           supabase: ['@supabase/supabase-js']
         }
       }

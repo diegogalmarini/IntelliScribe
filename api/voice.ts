@@ -1,6 +1,43 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import twilio from 'twilio';
 import { validateTwilioRequest } from '../utils/twilioSecurity.js';
+import { getTierForNumber } from '../utils/voiceRates.js';
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Resuelve a quién se le factura la llamada.
+ *
+ * `From` lo rellena Twilio a partir del identity del AccessToken que emitió
+ * /api/twilio-token, así que no es manipulable por el navegador. El parámetro
+ * `userId` sí lo pone el cliente (services/callService.ts lo manda en
+ * device.connect), de modo que solo se usa como último recurso y se registra
+ * cuando no coincide.
+ */
+function resolveUserId(req: VercelRequest): string | null {
+    const from = (req.body?.From || req.query?.From) as string | undefined;
+    const claimed = (req.query?.userId || req.body?.userId) as string | undefined;
+
+    if (from && from.startsWith('client:')) {
+        const identity = from.slice('client:'.length);
+        if (UUID_RE.test(identity)) {
+            if (claimed && claimed !== identity) {
+                console.warn(`[VOICE] 🛑 El parámetro userId (${claimed}) no coincide con la identidad del token (${identity}). Se usa la del token.`);
+            }
+            return identity;
+        }
+        console.warn(`[VOICE] Identidad de token con formato inesperado: ${identity}`);
+    }
+
+    if (claimed && UUID_RE.test(claimed)) {
+        console.warn('[VOICE] Sin identidad en From; se recurre al userId del parámetro.');
+        return claimed;
+    }
+
+    return null;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 🔒 SECURITY: Validate Twilio Signature
@@ -12,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Obtener datos
     const to = req.body.To || req.query.To;
-    const userId = req.query.userId || req.body.userId;
+    const userId = resolveUserId(req);
 
     // Ohio number as fallback
     const fallbackCallerId = process.env.TWILIO_CALLER_ID;

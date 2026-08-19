@@ -1,35 +1,42 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { apiFetch } from '../lib/apiClient';
 
 /**
- * Servicio de traducción automática usando Gemini AI
- * Para contenido dinámico de base de datos (planes, settings, etc.)
+ * Servicio de traduccion automatica del contenido dinamico de base de datos
+ * (planes, settings, footer legal).
+ *
+ * La llamada a Gemini se hace en servidor. Antes este modulo instanciaba
+ * GoogleGenerativeAI en el navegador con `import.meta.env.VITE_GEMINI_API_KEY`,
+ * variable que no existe en el entorno: como el fallback devuelve el texto
+ * original sin lanzar error, el servicio llevaba fallando en silencio desde
+ * abril y la interfaz en ingles mostraba en espanol todo el contenido de BD.
+ * Definir esa variable habria sido peor: publicaria la clave en el bundle.
+ *
+ * Nota: scripts/translate-initial-content.ts importa este modulo desde Node y
+ * necesita su propio camino (no hay sesion de navegador ni ruta relativa).
  */
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
-
 /**
- * Traduce un texto usando Gemini AI
+ * Traduce un texto usando Gemini a traves del backend.
  */
 export async function translateWithGemini(
     text: string,
     targetLang: 'en' | 'es'
 ): Promise<string> {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
+        const response = await apiFetch('/api/ai', {
+            body: { action: 'translate', payload: { text, targetLang }, language: targetLang }
+        });
 
-        const prompt = targetLang === 'en'
-            ? `Translate this Spanish text to professional English for a SaaS product. Maintain the same tone and technical terms. Only return the translation, nothing else:\n\n${text}`
-            : `Traduce este texto en inglés a español profesional para un producto SaaS. Mantén el mismo tono y términos técnicos. Solo devuelve la traducción:\n\n${text}`;
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || `Translation failed (${response.status})`);
+        }
 
-        const result = await model.generateContent(prompt);
-        const translation = result.response.text().trim();
-
-        console.log(`[AI Translation] ${targetLang.toUpperCase()}:`, { original: text.substring(0, 50), translated: translation.substring(0, 50) });
-
-        return translation;
+        const json = await response.json();
+        return (json.data || '').trim() || text;
     } catch (error) {
         console.error('[AI Translation] Error:', error);
-        // Fallback: retornar el texto original si falla la traducción
+        // Fallback: devolver el texto original si falla la traduccion.
         return text;
     }
 }

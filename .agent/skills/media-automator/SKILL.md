@@ -17,7 +17,7 @@ Este skill permite a Diktalo mantener una presencia activa y automatizada en la 
 
 ## 2. Protocolo de "Diktalo Mirror" (News -> Product)
 Cada noticia debe "reflejarse" en una ventaja competitiva de Diktalo:
-- *Noticia sobre falta de privacidad* → Resaltar **Soberanía de Datos/SOC 2** de Diktalo.
+- *Noticia sobre falta de privacidad* → Resaltar **Soberanía de Datos** de Diktalo: cifrado en tránsito y en reposo, buckets privados con URLs firmadas, y datos alojados en la UE.
 - *Noticia sobre nuevos modelos de IA* → Linkar con la **velocidad de procesamiento** de Diktalo.
 - *Noticia sobre fatiga de Zoom* → Resaltar **resúmenes automáticos y asincronismo**.
 
@@ -53,3 +53,9 @@ Cada noticia debe "reflejarse" en una ventaja competitiva de Diktalo:
 - NUNCA postear información sensible del usuario.
 - NUNCA usar nombres de autores fuera del listado oficial en `diktalo-content-master-v5`.
 - Los links siempre deben apuntar a `diktalo.com` o fuentes de alta autoridad (.gov, .edu, top tech).
+- **NUNCA atribuir a Diktalo certificaciones o cumplimientos que no posee.** En concreto: SOC 2 (de
+  cualquier tipo), HIPAA, ISO 27001 y PCI-DSS **no están certificados** — ver
+  `.agent/product-marketing-context.md`. Se puede escribir *sobre* esos estándares como tema del
+  sector, pero jamás afirmar ni insinuar que Diktalo los cumple o los tiene. Lo que sí se puede
+  afirmar: cifrado en tránsito y en reposo, buckets privados con URLs firmadas de corta duración,
+  datos alojados en la UE y ausencia de entrenamiento de modelos con datos de clientes.
