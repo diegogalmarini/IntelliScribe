@@ -265,6 +265,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }
 
+        // --- Action: Traduccion de contenido dinamico de BD ---
+        // Vive aqui y no en el cliente porque services/aiTranslationService.ts
+        // instanciaba GoogleGenerativeAI en el navegador con VITE_GEMINI_API_KEY.
+        // Esa variable no existe, asi que el servicio lleva fallando en silencio
+        // desde abril; definirla habria publicado la clave en el bundle.
+        else if (action === 'translate') {
+            const { text, targetLang } = payload || {};
+            if (!text || typeof text !== 'string') throw new Error('No text provided for translation');
+            if (targetLang !== 'en' && targetLang !== 'es') throw new Error('targetLang must be "en" or "es"');
+            if (text.length > 20_000) throw new Error('Text too long to translate');
+
+            const prompt = targetLang === 'en'
+                ? `Translate this Spanish text to professional English for a SaaS product. Maintain the same tone and technical terms. Only return the translation, nothing else:
+
+${text}`
+                : `Traduce este texto en ingles a espanol profesional para un producto SaaS. Manten el mismo tono y terminos tecnicos. Solo devuelve la traduccion:
+
+${text}`;
+
+            result = await runWithFallback('summary', undefined, async (model) => {
+                const response = await model.generateContent(prompt);
+                return response.response.text().trim();
+            });
+        }
+
         // --- Action 5: Text Embeddings ---
         else if (action === 'embed') {
             const { text } = payload;
