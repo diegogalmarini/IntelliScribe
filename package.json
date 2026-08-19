@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-sitemap.js && vite build",
+    "typecheck": "tsc --noEmit",
+    "typecheck:api": "tsc -p tsconfig.api.json --noEmit",
+    "build": "npm run typecheck:api && node scripts/generate-sitemap.js && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

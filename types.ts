@@ -304,17 +304,6 @@ export interface PlanConfig {
   updated_at?: string;
 }
 
-export interface CallCreditPack {
-  id: string;
-  name: string;
-  amount_minutes: number;
-  price: number;
-  currency: string;
-  checkout_url: string;
-  order: number;
-  created_at: string;
-}
-
 export interface AppSetting {
   key: string;
   value: string;

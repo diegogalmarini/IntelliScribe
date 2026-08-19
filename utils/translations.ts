@@ -517,7 +517,6 @@ export const translations = {
     renameProject: "Rename Project",
     confirm: "Confirm",
     saving: "Saving...",
-    delete: "Delete",
     cancel: "Cancel",
 
     // Settings New
@@ -657,7 +656,6 @@ export const translations = {
     weeklySummary: "Weekly Summary",
     weeklySummaryDesc: "Receive email digests.",
     saveChanges: "Save Changes",
-    cancel: "Cancel",
     logout: "Log Out",
     changePhoto: "Change Photo",
 
@@ -1693,7 +1691,6 @@ export const translations = {
     renameProject: "Renombrar Proyecto",
     confirm: "Confirmar",
     saving: "Guardando...",
-    delete: "Eliminar",
     cancel: "Cancelar",
 
     // Settings New
@@ -1779,7 +1776,6 @@ export const translations = {
     weeklySummary: "Resumen Semanal",
     weeklySummaryDesc: "Recibe resúmenes por correo.",
     saveChanges: "Guardar Cambios",
-    cancel: "Cancelar",
     logout: "Cerrar Sesión",
     changePhoto: "Cambiar Foto",
 

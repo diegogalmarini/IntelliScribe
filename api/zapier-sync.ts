@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { requireAuth } from './_utils/auth.js';
 import { validateEnv } from "./_utils/env-validator.js";
 import { initSentry, Sentry } from "./_utils/sentry.js";
 
@@ -16,21 +17,21 @@ initSentry();
  * 5. Log activity in integration_logs
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS configuration
-    const allowedOrigin = req.headers.origin || '*';
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.diktalo.com');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { recordingId, userId, isTest = false, webhookUrl: bodyWebhookUrl } = req.body;
+    // El userId venia del body sin verificar y la grabacion se buscaba solo por
+    // id: con un UUID ajeno se exfiltraba su transcripcion a un webhook elegido
+    // por quien llamaba.
+    const authedUser = await requireAuth(req, res, 'zapier-sync');
+    if (!authedUser) return;
 
-    if (!userId) {
-        return res.status(400).json({ error: 'Missing userId' });
-    }
+    const userId = authedUser.id;
+    const { recordingId, isTest = false, webhookUrl: bodyWebhookUrl } = req.body;
 
     try {
         // 1. Validate Env
@@ -70,7 +71,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(403).json({ error: 'Your plan does not support Zapier integration. Please upgrade to Business.' });
         }
 
-        const webhookUrl = bodyWebhookUrl || profile.zapier_webhook_url;
+        // La URL del body solo se acepta en la prueba de conexión, que no envía
+        // datos de grabaciones. Para un envío real siempre manda la configurada en
+        // el perfil: si no, el destino de la transcripción lo elegiría el llamante.
+        const webhookUrl = isTest
+            ? (bodyWebhookUrl || profile.zapier_webhook_url)
+            : profile.zapier_webhook_url;
+
         if (!webhookUrl) {
             return res.status(400).json({ error: 'No Zapier Webhook URL configured.' });
         }
@@ -105,7 +112,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'Missing recordingId for sync.' });
         }
 
-        const recRes = await supabaseRequest(`recordings?id=eq.${recordingId}`);
+        // Filtrado por propietario: sin esto el id bastaba para leer cualquier grabacion.
+        const recRes = await supabaseRequest(
+            `recordings?id=eq.${encodeURIComponent(recordingId)}&user_id=eq.${userId}`
+        );
         const recordings = await recRes.json();
         const recording = recordings[0];
 

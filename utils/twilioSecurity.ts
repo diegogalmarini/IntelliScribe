@@ -10,10 +10,15 @@ import twilio from 'twilio';
  * @returns true if valid, false if invalid (and handles the response)
  */
 export function validateTwilioRequest(req: VercelRequest, res: VercelResponse): boolean {
-    // 1. Skip validation on localhost for development
-    const host = req.headers.host || '';
-    if (host.includes('localhost') || host.includes('127.0.0.1')) {
-        console.log(`[SECURITY] ⚠️ Localhost detected (${host}). Skipping Twilio signature validation.`);
+    // 1. Salto de validación solo en desarrollo.
+    //
+    // Antes la condición era que el header `Host` contuviera "localhost", y ese
+    // header lo controla quien hace la petición: bastaba enviarlo así para
+    // saltarse la comprobación de firma en producción. Ahora depende del entorno
+    // del servidor y además exige un opt-in explícito.
+    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+    if (!isProduction && process.env.TWILIO_SKIP_SIGNATURE === '1') {
+        console.log('[SECURITY] ⚠️ Entorno de desarrollo con TWILIO_SKIP_SIGNATURE=1. Se omite la validación de firma.');
         return true;
     }
 
@@ -35,6 +40,9 @@ export function validateTwilioRequest(req: VercelRequest, res: VercelResponse): 
 
     // 4. Reconstruct URL
     // Vercel/Node puts the protocol in 'x-forwarded-proto' usually, or we default to https
+    // El Host se usa aquí solo para reconstruir la URL que Twilio firmó; si no
+    // coincide, la firma no valida, que es justo lo que se quiere.
+    const host = req.headers.host || '';
     const protocol = (req.headers['x-forwarded-proto'] as string) || 'https';
     const url = `${protocol}://${host}${req.url}`;
 

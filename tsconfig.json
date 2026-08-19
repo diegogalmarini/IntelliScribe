@@ -26,5 +26,17 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  // Sin `exclude`, el include implícito es "**/*" y se compilaban también
+  // chrome-extension/ (que tiene su propio tsconfig con strict) y
+  // supabase/functions/ (Deno: imports por URL y el global Deno), que juntas
+  // aportaban ~102 errores ajenos a la app.
+  "exclude": [
+    "node_modules",
+    "dist",
+    "backups",
+    "chrome-extension",
+    "supabase/functions",
+    ".claude"
+  ]
 }
