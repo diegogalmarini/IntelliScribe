@@ -36,11 +36,30 @@ const resend = resendKey ? new Resend(resendKey) : null;
 
 const PORT = 3001;
 
+/**
+ * Extrae el `sub` del JWT de Supabase que ahora manda lib/apiClient.ts.
+ *
+ * NO verifica la firma: esto es el servidor de desarrollo local. En producción
+ * la identidad la resuelve api/_utils/auth.ts contra /auth/v1/user.
+ */
+function userIdFromBearer(req) {
+    const header = req.headers.authorization || '';
+    if (!header.startsWith('Bearer ')) return null;
+    try {
+        const payload = header.slice(7).split('.')[1];
+        if (!payload) return null;
+        const json = JSON.parse(Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString());
+        return json.sub || null;
+    } catch {
+        return null;
+    }
+}
+
 const server = http.createServer(async (req, res) => {
     // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
@@ -55,7 +74,10 @@ const server = http.createServer(async (req, res) => {
         });
         req.on('end', async () => {
             try {
-                const { userId } = JSON.parse(body);
+                // El cliente ya no manda userId: la identidad sale del JWT, igual
+                // que en api/twilio-token.ts. Aquí se decodifica sin verificar
+                // firma porque es el servidor de desarrollo local, no producción.
+                const userId = userIdFromBearer(req) || JSON.parse(body || '{}').userId;
 
                 const accountSid = process.env.TWILIO_ACCOUNT_SID;
                 const apiKey = process.env.TWILIO_API_KEY_SID;
