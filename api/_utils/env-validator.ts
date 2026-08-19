@@ -18,9 +18,11 @@ export interface EnvVariables {
 
 export function validateEnv(services: ('base' | 'ai' | 'resend' | 'twilio' | 'payments')[] = ['base']) {
     const serviceMap: Record<string, string[]> = {
-        // SUPABASE_ANON_KEY es obligatoria: es la `apikey` correcta para verificar
-        // un token de usuario contra /auth/v1/user (ver api/_utils/auth.ts).
-        base: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY'],
+        // SUPABASE_ANON_KEY NO se exige: si faltara en Vercel, exigirla haría que
+        // todos los endpoints devolvieran 500 a la vez. Se resuelve con alias y,
+        // en último término, con la service role key, que también sirve como
+        // cabecera `apikey` (quien identifica al usuario es el Bearer, no esta).
+        base: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'],
         ai: ['GEMINI_API_KEY'],
         resend: ['RESEND_API_KEY'],
         twilio: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_VERIFY_SERVICE_SID'],
@@ -55,7 +57,7 @@ export function validateEnv(services: ('base' | 'ai' | 'resend' | 'twilio' | 'pa
         GEMINI_API_KEY: process.env.GEMINI_API_KEY!,
         SUPABASE_URL: resolve('SUPABASE_URL')!,
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        SUPABASE_ANON_KEY: resolve('SUPABASE_ANON_KEY')!,
+        SUPABASE_ANON_KEY: (resolve('SUPABASE_ANON_KEY') || process.env.SUPABASE_SERVICE_ROLE_KEY)!,
         RESEND_API_KEY: process.env.RESEND_API_KEY!,
         LEMONSQUEEZY_WEBHOOK_SECRET: process.env.LEMONSQUEEZY_WEBHOOK_SECRET!,
         TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,

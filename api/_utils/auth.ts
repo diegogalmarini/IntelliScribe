@@ -55,9 +55,16 @@ function getSupabaseUrl(): string {
     return (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL)!;
 }
 
-/** La anon key es la correcta para el header `apikey` al verificar un token de usuario. */
+/**
+ * Cabecera `apikey` para hablar con Supabase. Lo preferible es la anon key, pero
+ * si no estuviera publicada en el entorno se recurre a la service role: quien
+ * identifica al usuario es el Bearer, no esta cabecera. Sin este último recurso,
+ * una variable ausente en Vercel dejaría todos los endpoints devolviendo 401.
+ */
 function getAnonKey(): string {
-    return (process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY)!;
+    return (process.env.SUPABASE_ANON_KEY
+        || process.env.VITE_SUPABASE_ANON_KEY
+        || process.env.SUPABASE_SERVICE_ROLE_KEY)!;
 }
 
 /**
