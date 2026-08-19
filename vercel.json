@@ -1,8 +1,16 @@
 {
     "routes": [
-        { "src": "/api/(.*)", "dest": "/api/$1" },
-        { "handle": "filesystem" },
-        { "src": "/(.*)", "dest": "/index.html" }
+        {
+            "src": "/api/(.*)",
+            "dest": "/api/$1"
+        },
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
+        }
     ],
     "functions": {
         "api/ai.ts": {
@@ -14,5 +22,8 @@
             "memory": 512,
             "includeFiles": "api/_data/**"
         }
-    }
+    },
+    "regions": [
+        "arn1"
+    ]
 }
