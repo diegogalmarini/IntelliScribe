@@ -96,15 +96,20 @@ Deno.serve(async (req) => {
                 } else {
                     console.log(`[Webhook] Adding ${minutesToAdd} TRANSCRIPTION minutes to user ${userId}`);
                     // Update user's extra_minutes (using RPC or fallback)
+                    // Los nombres deben coincidir con la firma de la RPC
+                    // (p_user_id, p_amount). Con user_id/amount, PostgREST devolvia
+                    // PGRST202 en CADA compra y se caia al fallback no atomico, que
+                    // es justo la condicion de carrera que la RPC existe para evitar.
                     const { error } = await supabase.rpc('increment_extra_minutes', {
-                        user_id: userId,
-                        amount: minutesToAdd
+                        p_user_id: userId,
+                        p_amount: minutesToAdd
                     });
 
                     if (error) {
-                        const { data: profile } = await supabase.from('profiles').select('extra_minutes').eq('id', userId).single();
-                        const newTotal = (profile?.extra_minutes || 0) + minutesToAdd;
-                        await supabase.from('profiles').update({ extra_minutes: newTotal }).eq('id', userId);
+                        // Sin fallback silencioso: si la acreditacion falla, el usuario
+                        // ha pagado y no ha recibido nada, y eso tiene que verse.
+                        console.error(`[Webhook] No se pudieron acreditar ${minutesToAdd} minutos a ${userId}:`, error.message);
+                        return new Response(`Failed to credit minutes: ${error.message}`, { status: 500 });
                     }
                 }
 
