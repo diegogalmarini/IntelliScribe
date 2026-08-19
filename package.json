@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "typecheck": "tsc --noEmit",
-    "typecheck:api": "tsc -p tsconfig.api.json --noEmit",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "typecheck:api": "node node_modules/typescript/bin/tsc -p tsconfig.api.json --noEmit",
     "build": "npm run typecheck:api && node scripts/generate-sitemap.js && vite build",
     "preview": "vite preview"
   },
