@@ -206,11 +206,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
 
     // Notifications State - Initialize from user prop
+    //
+    // El encadenamiento opcional tiene que cubrir TAMBIEN el segundo nivel. Con
+    // `?.email.newRecording`, el `?.` solo corta si notificationSettings es
+    // null o undefined; si es un objeto sin la clave `email` —por ejemplo `{}`,
+    // que es el valor por defecto de la columna en base de datos— la cadena
+    // continua y `undefined.newRecording` lanza TypeError durante el montaje,
+    // dejando el dashboard entero en blanco.
     const [notifications, setNotifications] = useState({
-        newRecording: user.notificationSettings?.email.newRecording ?? true,
-        weeklyDigest: user.notificationSettings?.email.weeklyDigest ?? true,
-        marketing: user.notificationSettings?.email.marketing ?? false,
-        browserPush: user.notificationSettings?.browser.push ?? true
+        newRecording: user.notificationSettings?.email?.newRecording ?? true,
+        weeklyDigest: user.notificationSettings?.email?.weeklyDigest ?? true,
+        marketing: user.notificationSettings?.email?.marketing ?? false,
+        browserPush: user.notificationSettings?.browser?.push ?? true
     });
 
     // Custom Vocabulary State
