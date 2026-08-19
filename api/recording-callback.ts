@@ -145,7 +145,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             throw new Error(`Storage Upload Failed: ${upErr}`);
         }
 
-        const publicAudioUrl = `${supabaseUrl}/storage/v1/object/public/recordings/${fileName}`;
+        // Se guarda la ruta relativa dentro del bucket, igual que api/upload-audio.ts.
+        // Antes se guardaba una URL absoluta a /object/public/, lo que rompía dos cosas:
+        // el bucket es privado, así que esa URL no reproduce nada, y el cron de
+        // retención hace storage.remove() con este valor —con una URL absoluta no
+        // coincide con ninguna clave, Supabase no devuelve error y el fichero se
+        // queda ocupando espacio mientras el registro pierde la referencia.
+        const storagePath = fileName;
 
         // Step 4: Final Insert with ALL SCHEMA FIELDS
         const formattedDuration = formatDuration(durationSeconds);
@@ -157,7 +163,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             duration: formattedDuration,
             duration_seconds: durationSeconds,
             status: 'Completed',
-            audio_url: publicAudioUrl,
+            audio_url: storagePath,
             participants: 2,
             tags: ['phone-call'],
             metadata: {
