@@ -705,10 +705,13 @@ export const databaseService = {
             const totalSize = dbSize + bucketSize;
 
             // 3. Update profile
-            const { error } = await supabase
-                .from('profiles')
-                .update({ storage_used: totalSize })
-                .eq('id', userId);
+            // Via RPC security definer: `storage_used` es una columna protegida por
+            // el trigger que impide que un usuario se edite plan y cuota desde el
+            // navegador. La RPC lleva la misma guarda de auth.uid().
+            const { error } = await supabase.rpc('set_user_storage', {
+                p_user_id: userId,
+                p_bytes: totalSize
+            });
 
             if (error) throw error;
 
@@ -728,7 +731,8 @@ export const databaseService = {
         if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
         if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName;
         if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
-        if (updates.phoneVerified !== undefined) dbUpdates.phone_verified = updates.phoneVerified;
+        // phone_verified lo establece api/verify.ts con service role tras la
+        // verificacion real. Un usuario no puede declararse verificado a si mismo.
         if (updates.avatarUrl !== undefined) dbUpdates.avatar_url = updates.avatarUrl;
         if (updates.timezone !== undefined) dbUpdates.timezone = updates.timezone;
         if (updates.language !== undefined) dbUpdates.language = updates.language; // Display language persistence
@@ -736,7 +740,8 @@ export const databaseService = {
         if (updates.notificationSettings !== undefined) dbUpdates.notification_settings = updates.notificationSettings;
         if (updates.activeSupportAgentId !== undefined) dbUpdates.active_agent_id = updates.activeSupportAgentId;
         if (updates.hasCompletedTour !== undefined) dbUpdates.has_completed_tour = updates.hasCompletedTour;
-        if (updates.subscription?.planId !== undefined) dbUpdates.plan_id = updates.subscription.planId;
+        // plan_id NO se escribe desde el cliente: lo fija el webhook de Lemon
+        // Squeezy. El trigger lo revertiria de todos modos para un no-admin.
 
         // ZAPIER INTEGRATION
         if (updates.zapier_webhook_url !== undefined) dbUpdates.zapier_webhook_url = updates.zapier_webhook_url;
