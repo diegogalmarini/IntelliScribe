@@ -240,15 +240,6 @@ const AppContent: React.FC = () => {
             color: '#64748b',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
-        },
-        {
-            id: 'FAVORITES',
-            name: 'Favorites',
-            type: 'system',
-            icon: 'star',
-            color: '#eab308',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
         }
     ]);
 
@@ -295,7 +286,14 @@ const AppContent: React.FC = () => {
         enabled: !dashboardState.isRecording && !dashboardState.isUploading
     });
 
-    const [selectedFolderId, setSelectedFolderId] = useState<string | 'ALL'>('ALL');
+    // 'ALL' es el unico centinela de "sin proyecto". Antes convivia con null (lo
+    // que emitia el sidebar) y con '' , y el resaltado comparaba contra uno solo:
+    // en el arranque no habia ninguna fila marcada como activa.
+    const [selectedFolderId, setSelectedFolderId] = useState<string>('ALL');
+
+    const selectFolder = (folderId: string | null) => {
+        setSelectedFolderId(folderId ? folderId : 'ALL');
+    };
 
     const defaultIntegrations: IntegrationState[] = [
         { id: 'gcal', name: 'Google Calendar', connected: true, icon: 'calendar_today', description: 'Sync meetings automatically.', color: 'white' },
@@ -445,15 +443,6 @@ const AppContent: React.FC = () => {
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 },
-                {
-                    id: 'FAVORITES',
-                    name: t('favorites'),
-                    type: 'system',
-                    icon: 'star',
-                    color: '#eab308',
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
                 ...dbFolders
             ]);
 
@@ -526,7 +515,7 @@ const AppContent: React.FC = () => {
 
         const newRecording: Recording = {
             id: '',
-            folderId: (selectedFolderId === 'ALL' || selectedFolderId === 'FAVORITES') ? null : selectedFolderId,
+            folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
             title: customTitle || 'Nueva Grabación',
             description: t('liveCaptureSession') || 'Live Capture',
             date: new Date().toISOString(),
@@ -778,11 +767,6 @@ const AppContent: React.FC = () => {
         }
     };
 
-    const handleFolderSelect = (folderId: string) => {
-        setSelectedFolderId(folderId);
-        navigate(AppRoute.DASHBOARD);
-    };
-
     const handleAddFolder = async (name: string) => {
         const tempId = `folder_${Date.now()}`;
         const newFolder: Folder = {
@@ -953,7 +937,7 @@ const AppContent: React.FC = () => {
         return (
             <motion.div className="relative z-10 flex h-screen w-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 {currentRoute !== AppRoute.INTELLIGENCE && currentRoute !== AppRoute.RECORDING && currentRoute !== AppRoute.RESET_PASSWORD && currentRoute !== AppRoute.DASHBOARD && currentRoute !== AppRoute.SUBSCRIPTION && currentRoute !== AppRoute.SETTINGS && currentRoute !== AppRoute.INTEGRATIONS && currentRoute !== AppRoute.MANUAL && currentRoute !== AppRoute.AFFILIATES && (
-                    <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={setSelectedFolderId} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder} />
+                    <Sidebar currentRoute={currentRoute} onNavigate={navigate} activeFolderId={selectedFolderId} onSelectFolder={selectFolder} folders={folders} user={user} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onAddFolder={handleAddFolder} onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder} />
                 )}
 
                 <div id="tour-welcome" className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
@@ -977,7 +961,7 @@ const AppContent: React.FC = () => {
                             onUpdateRecording={handleUpdateRecording}
                             initialView={currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' : currentRoute === AppRoute.INTEGRATIONS ? 'integrations' : 'recordings'}
                             initialSettingsOpen={currentRoute === AppRoute.SETTINGS}
-                            onSelectFolder={setSelectedFolderId}
+                            onSelectFolder={selectFolder}
                             onUpdateUser={handleUpdateUser}
                             onAppStateChange={handleAppStateChange}
                             onAddFolder={handleAddFolder}

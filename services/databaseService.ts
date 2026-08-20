@@ -407,7 +407,10 @@ export const databaseService = {
         const dbUpdates: any = {};
         if (updates.title !== undefined) dbUpdates.title = updates.title;
         if (updates.description !== undefined) dbUpdates.description = updates.description;
-        if (updates.folderId !== undefined) dbUpdates.folder_id = updates.folderId;
+        // Cadena vacia sobre una columna uuid revienta el UPDATE entero en Postgres.
+        // El estado local ya se habia actualizado de forma optimista, asi que mover
+        // una grabacion a "sin proyecto" parecia funcionar y revertia al recargar.
+        if (updates.folderId !== undefined) dbUpdates.folder_id = updates.folderId || null;
         if (updates.status !== undefined) dbUpdates.status = updates.status;
         if (updates.segments !== undefined) {
             dbUpdates.segments = updates.segments;

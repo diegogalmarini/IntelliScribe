@@ -165,7 +165,9 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         onSelectFolder?.(folderId);
         setView('recordings');
         onNavigate(AppRoute.DASHBOARD); // Navigate to /dashboard
-        if (isMobile) setIsSidebarOpen(false);
+        // En movil ya NO se cierra el cajon: con el arbol, pulsar un proyecto
+        // tambien lo despliega, y cerrar el sidebar en el mismo gesto impedia ver
+        // lo que se acababa de abrir. Se cierra al elegir una grabacion.
     };
 
     const handleAskDiktalo = (recs: Recording[], title: string = t('askDiktalo') || 'Preguntar a Diktalo') => {
@@ -490,16 +492,38 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     }, [searchQuery, onSearch, useSemanticSearch]);
 
     const [tempRecording, setTempRecording] = useState<Recording | null>(null);
+    // El sidebar agrupa por proyecto, asi que necesita la lista COMPLETA: si le
+    // llegara ya filtrada, cada proyecto no seleccionado apareceria vacio.
+    const allRecordings = React.useMemo(() => {
+        if (tempRecording && !recordings.find(r => r.id === tempRecording.id)) return [tempRecording, ...recordings];
+        return recordings;
+    }, [recordings, tempRecording]);
+
+    // Sigue filtrada por proyecto porque define el alcance de "Preguntar a Diktalo":
+    // con un proyecto activo, la pregunta va sobre ese proyecto y no sobre todo.
     const displayedRecordings = React.useMemo(() => {
-        // ALWAYS use recordings as base for sidebar, ignoring search
-        // The Search functions via the SearchModal, which maintains its own filtered list (searchResults)
-        let base = recordings;
-        if (selectedFolderId && selectedFolderId !== 'ALL' && selectedFolderId !== 'FAVORITES') {
-            base = base.filter(r => r.folderId === selectedFolderId);
+        if (selectedFolderId && selectedFolderId !== 'ALL') {
+            return allRecordings.filter(r => r.folderId === selectedFolderId);
         }
-        if (tempRecording && !base.find(r => r.id === tempRecording.id)) return [tempRecording, ...base];
-        return base;
-    }, [recordings, tempRecording, selectedFolderId]); // REMOVED searchQuery, searchResults
+        return allRecordings;
+    }, [allRecordings, selectedFolderId]);
+
+    const sidebarProps = {
+        recordings: allRecordings,
+        selectedId,
+        onSelectRecording: handleSelectRecording,
+        user,
+        onRenameRecording,
+        onDeleteRecording: (id: string) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); },
+        onMoveRecording,
+        folders,
+        selectedFolderId,
+        onSelectFolder: handleSelectFolder,
+        onAddFolder,
+        onRenameFolder,
+        onDeleteFolder,
+        onOpenSearch: () => { setView('search'); if (isMobile) setIsSidebarOpen(false); }
+    };
 
     const activeRecording = (selectedId && tempRecording?.id === selectedId) ? tempRecording : recordings.find(r => r.id === selectedId) || searchResults.find(r => r.id === selectedId);
 
@@ -507,65 +531,12 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         <div id="intelligence-hub" className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
             <input ref={fileInputRef} type="file" accept="audio/*,.mp3,.wav,.m4a,.webm" onChange={handleFileUpload} className="hidden" />
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-surface-dark shadow-2xl transform transition-transform duration-300 md:hidden ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <MinimalSidebar
-                    recordings={displayedRecordings}
-                    selectedId={selectedId}
-                    onSelectRecording={handleSelectRecording}
-                    onNewRecording={handleNewRecording}
-                    userFirstName={user?.firstName || t('guestUser')}
-                    user={user}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    useSemanticSearch={useSemanticSearch}
-                    onSemanticToggle={() => setUseSemanticSearch(!useSemanticSearch)}
-                    onRenameRecording={onRenameRecording}
-                    onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }}
-                    onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)}
-                    folders={folders}
-                    selectedFolderId={selectedFolderId}
-                    onSelectFolder={handleSelectFolder}
-                    onLogoClick={handleLogoClick}
-                    currentView={view}
-                    onViewChange={setView}
-                    isOpen={isSidebarOpen}
-                    onToggle={() => setIsSidebarOpen(false)}
-                    isRecording={isRecording}
-                    onAddFolder={onAddFolder}
-                    onRenameFolder={onRenameFolder}
-                    onDeleteFolder={onDeleteFolder}
-                />
+                <MinimalSidebar {...sidebarProps} onToggle={() => setIsSidebarOpen(false)} />
             </div>
             {isMobile && isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />}
             <div className={`hidden md:block relative h-full bg-white dark:bg-surface-dark border-r border-black/[0.05] dark:border-white/[0.05] transition-all duration-300 overflow-hidden ${isSidebarOpen ? 'w-64' : 'w-0'}`}>
                 <div className="w-64 h-full">
-                    <MinimalSidebar
-                        recordings={displayedRecordings}
-                        selectedId={selectedId}
-                        onSelectRecording={handleSelectRecording}
-                        onNewRecording={handleNewRecording}
-                        userFirstName={user?.firstName || t('guestUser')}
-                        user={user}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        useSemanticSearch={useSemanticSearch}
-                        onSemanticToggle={() => setUseSemanticSearch(!useSemanticSearch)}
-                        onRenameRecording={onRenameRecording}
-                        onDeleteRecording={(id) => { onDeleteRecording(id); if (selectedId === id) setSelectedId(null); }}
-                        onMoveRecording={(id, fid) => onMoveRecording(id, fid === 'root' ? '' : fid)}
-                        folders={folders}
-                        selectedFolderId={selectedFolderId}
-                        onSelectFolder={handleSelectFolder}
-                        onLogoClick={handleLogoClick}
-                        currentView={view}
-                        onViewChange={setView}
-                        isOpen={isSidebarOpen}
-                        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                        isRecording={isRecording}
-                        onOpenSearch={() => { setView('search'); if (isMobile) setIsSidebarOpen(false); }}
-                        onAddFolder={onAddFolder}
-                        onRenameFolder={onRenameFolder}
-                        onDeleteFolder={onDeleteFolder}
-                    />
+                    <MinimalSidebar {...sidebarProps} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
                 </div>
             </div>
             <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
