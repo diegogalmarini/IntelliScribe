@@ -1,17 +1,122 @@
 # Diario de Desarrollo — Diktalo
 
 > Bitácora técnica viva del proyecto. Cada decisión, cada feature, cada bug resuelto.
-> Actualizado: 19 agosto 2026
+> Actualizado: 20 agosto 2026
 >
 > ⚠️ **Advertencia:** Este documento es contexto vivo, no spec de implementación. Validar siempre contra:
 > 1. El código real en `/api/`, `/services/`, `/pages/`
 > 2. `.agent/skills/` para estándares de IA y proceso
 > 3. `AGENTS.md` para reglas invariables del proyecto
 >
-> 📌 **Estado actual resumido (2026-08-19):**
-> Último hito documentado: 19 agosto 2026 (auditoría completa + saneamiento de seguridad en curso).
+> 📌 **Estado actual resumido (2026-08-20):**
+> Último hito documentado: 20 agosto 2026 (sidebar en árbol, multi-audio, coste de modelos, chunks caducados).
 > En curso: ver entrada más reciente.
 > Brújula de metodología: `AGENTS.md` + `CLAUDE.md`. Historial por fases: `docs/DEVELOPMENT_LOG.md`.
+
+---
+
+## Registro 2026-08-20 — Sidebar en árbol, multi-audio, coste de modelos y chunks caducados
+
+**Qué se hizo:**
+
+Sesión larga con cinco frentes. Todo desplegado a producción y verificado contra
+el sitio vivo, no solo en local.
+
+**1. Vigilante de modelos, y el criterio corregido.**
+El criterio de selección NO es "el modelo más nuevo" sino **el más barato que
+cumpla los requisitos reales de cada tarea**, porque el coste real es precio ×
+perfil de carga, no precio por token. Transcribir mueve mucha entrada (audio) y
+poca salida, y no razona: manda el precio de ENTRADA. Chatear sí razona y ahí la
+calidad se paga. `scripts/model-watch.ts` modela ese perfil por acción y avisa
+cuando se está pagando de más. Pasa de semanal a **diario**.
+
+Dos fallos del propio vigilante, encontrados al pasarlo por su propia prueba:
+proponía `gemini-embedding-001` para chatear (es el más barato por token y no
+puede generar texto), y el paso de CI leía `$?` después de un pipe a `tee`, con
+lo que capturaba el código de `tee` y **jamás habría abierto una incidencia**.
+
+Transcripción pasa a `gemini-3.1-flash-lite-preview`: $0,0155 por hora de audio
+frente a $0,0596, **3,8× menos**. Verificado contra la API que acepta audio
+inline, no solo que aparezca en el catálogo. El riesgo a vigilar no es la
+precisión de las palabras sino la **diarización** en grabaciones de varias voces.
+Para revertir: `gemini-3.7-flash` en `api/_utils/gemini.ts`.
+
+**2. Sidebar: de dos listas planas a un árbol.**
+Había dos listas independientes —carpetas arriba como filtro, grabaciones
+abajo—, así que una grabación nunca aparecía dentro de su proyecto. Ahora es un
+árbol con un solo contenedor con scroll. Se conserva el id `folder-list-section`
+porque lo consumen `WelcomeTour` y las acciones de resalte del asistente.
+
+Bugs arreglados por el camino: `databaseService` escribía `''` en `folder_id`,
+que es una columna `uuid`, así que mover a "sin proyecto" fallaba siempre y
+revertía al recargar; el buscador del sidebar móvil era inerte porque
+`onOpenSearch` solo se pasaba en escritorio; `'ALL'` y `null` convivían como
+centinela y el resaltado comparaba contra uno solo; el orden de proyectos se
+calculaba sobre la lista ya filtrada y se reordenaba bajo el cursor; una fecha
+inválida metía `NaN` en el orden; las carpetas de sistema se ocultaban por
+**nombre traducido**, así que un proyecto llamado "Favoritos" desaparecía; y
+había un `<button>` dentro de otro `<button>`.
+
+La revisión adversarial encontró **tres fallos que introdujo el propio
+rediseño**: al quitar la fila "Todas las grabaciones" no quedaba forma de volver
+a `'ALL'` (y como ese valor es también la carpeta destino de lo que se graba,
+las grabaciones nuevas caían en el último proyecto pulsado, en silencio); el
+efecto de auto-desplegar dependía del array `recordings`, cuya identidad cambia
+en cada `setRecordings`, y reabría lo que el usuario acababa de cerrar; y el
+dashboard monta el sidebar dos veces sin desmontar ninguna, con lo que las dos
+instancias se pisaban la clave de `localStorage`.
+
+**3. Multi-audio: atribución de hablante.**
+Cada fichero lleva su hablante asignado a mano en el uploader, pero esa certeza
+se tiraba y el hablante se deducía de las marcas de tiempo del modelo.
+Verificado en banco de pruebas con ficheros sintéticos de 48/44,1/16 kHz, mono y
+estéreo: `segmentOffsets` tenía 5 entradas para 3 ficheros con las dos últimas
+duplicadas, así que un segmento fechado al final indexaba `files[4]` y reventaba
+la importación entera; y con el primer fichero estéreo y otro mono,
+`getChannelData(1)` lanzaba `IndexSizeError`.
+
+La causa de la mala atribución era otra: los audios se pegaban **sin ninguna
+costura**, el modelo devolvía un único segmento cruzando la frontera entre dos
+hablantes y se atribuía entero al anterior por su marca de inicio. Se inserta
+silencio de 0,6 s entre ficheros.
+
+**Hipótesis descartada, anotada para que no vuelva:** se sospechó que mezclar
+frecuencias de muestreo desplazaba la línea de tiempo. **No es así** —
+`decodeAudioData` remuestrea todo a la del `AudioContext`, así que el mapeo ya
+era correcto para segmentos dentro de rango.
+
+**4. Chunks caducados: la causa de `Failed to fetch dynamically imported module`.**
+`DIKTALO-2Q` llevaba tres semanas abierto. No era la red del usuario: la regla
+comodín de `vercel.json` se aplicaba también a `/assets/`, así que un chunk
+retirado por un despliegue devolvía **200 con `index.html`** en vez de 404, y el
+navegador reventaba al parsear HTML como módulo ES. Comprobado por
+`content-type`: los tres ficheros de los eventos devolvían `text/html` de 2575
+bytes. Arreglado en `vercel.json` (404 real) y con `lib/lazyWithReload.ts`, que
+recarga una vez por sesión para rescatar la pestaña vieja, con guarda contra
+bucle.
+
+`DIKTALO-2R/2S` (`newRecording`) quedan explicados: el evento de las 07:30Z venía
+de bundles que ya no existen. Pestaña cargada antes del fix, no regresión.
+
+**5. Base de datos.**
+Aplicada `20260819_rate_limit_counters.sql`, que estaba pendiente y era crítica:
+`/api/ai` aplica el rate limit a `transcribe` con `failClosed: true`, así que sin
+la RPC **toda transcripción devolvía 503**. Confirmado además que existen
+`reset_monthly_usage`, `decrement_voice_credits` e `is_admin`.
+
+**Qué queda pendiente:**
+
+- **Cron `cron-cleanup-free` sin programar, a propósito.** Borraría 17 audios de
+  19 usuarios free en su primer disparo, irreversiblemente y sin backups.
+  Decisión de producto pendiente: avisar antes, subir la retención a 30 días, o
+  activarlo tal cual (el FAQ ya promete 7 días). `cron-reset-usage` sí queda
+  programado a diario a las 03:00 UTC.
+- **Verificar la diarización** con el modelo nuevo en una grabación de varias
+  voces.
+- El vigilante señala que el chat podría costar 4,1× menos (`pro-preview` →
+  `3.7-flash`), pero ahí manda la calidad del razonamiento.
+- Limpiar en Vercel las variables sueltas de Stripe y marcar secretos como
+  *Sensitive*. Ticket del plan Pro de Supabase sin respuesta.
 
 ---
 
