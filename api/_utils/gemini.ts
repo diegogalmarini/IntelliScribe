@@ -29,10 +29,22 @@ export const GEMINI_CONFIG = {
         summary: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.7 },
         chat: { preferredModel: 'gemini-3.1-pro-preview', temperature: 0.8 },
         support: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.9 },
-        // `gemini-3.1-flash-preview` NO EXISTE: Google devuelve 404. Cada
-        // transcripcion gastaba una llamada fallida y caia al primero de la
-        // cadena, que era el modelo Pro: cuatro veces el coste por token.
-        transcription: { preferredModel: 'gemini-3.7-flash', temperature: 0.1 },
+        // El criterio NO es "el modelo mas nuevo" sino el mas barato que cumpla:
+        // transcribir mueve mucha entrada (audio) y poca salida, y manda el
+        // precio de ENTRADA. Por hora de audio: flash-lite $0,0155 frente a
+        // $0,0596 de 3.7-flash, 3,8 veces menos por el mismo trabajo.
+        //
+        // El riesgo NO es la precision de las palabras sino la DIARIZACION:
+        // separar quien habla en una grabacion de varias voces es lo que peor
+        // hace un modelo lite. En multi-audio da igual, porque el hablante viene
+        // del fichero, pero en una grabacion normal si se nota.
+        //
+        // Para revertir, poner aqui 'gemini-3.7-flash' y desplegar.
+        //
+        // Antes habia `gemini-3.1-flash-preview`, que NO EXISTE: Google devuelve
+        // 404. Cada transcripcion gastaba una llamada fallida y caia al primero
+        // de la cadena, el modelo Pro, a cuatro veces el coste por token.
+        transcription: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.1 },
         embed: { preferredModel: 'gemini-embedding-001', temperature: 0, outputDimensionality: 768 }
     }
 };
