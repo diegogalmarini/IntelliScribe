@@ -1,11 +1,12 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { lazyWithReload } from './lib/lazyWithReload';
 import { apiFetch } from './lib/apiClient';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
 import { ToastProvider } from './components/Toast';
 
-const IntelligenceDashboard = lazy(() => import('./pages/intelligence/IntelligenceDashboard'));
+const IntelligenceDashboard = lazyWithReload(() => import('./pages/intelligence/IntelligenceDashboard'));
 
 import { Login } from './pages/Login';
 import { Manual } from './pages/Manual';
@@ -41,15 +42,15 @@ import { CookieConsentBanner } from './components/CookieConsentBanner';
 import * as Analytics from './utils/analytics';
 import { PublicLayout } from './layouts/PublicLayout';
 import { ErrorBoundary } from './components/ErrorBoundary';
-const AdminRoute = lazy(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
-const AdminOverview = lazy(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
-const AdminUsers = lazy(() => import('./pages/admin/Users').then(m => ({ default: m.Users })));
-const AdminFinancials = lazy(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
-const AdminPlans = lazy(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor })));
-const AdminMinutePacks = lazy(() => import('./pages/admin/MinuteSalesEditor').then(m => ({ default: m.MinuteSalesEditor }))); // NEW
-const AdminCallCredits = lazy(() => import('./pages/admin/CallCreditsEditor').then(m => ({ default: m.CallCreditsEditor }))); // NEW
-const AdminAnalytics = lazy(() => import('./pages/admin/Analytics').then(m => ({ default: m.Analytics }))); // NEW IMPORT
+const AdminRoute = lazyWithReload(() => import('./components/AdminRoute').then(m => ({ default: m.AdminRoute })));
+const AdminLayout = lazyWithReload(() => import('./pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const AdminOverview = lazyWithReload(() => import('./pages/admin/Overview').then(m => ({ default: m.Overview })));
+const AdminUsers = lazyWithReload(() => import('./pages/admin/Users').then(m => ({ default: m.Users })));
+const AdminFinancials = lazyWithReload(() => import('./pages/admin/Financials').then(m => ({ default: m.Financials })));
+const AdminPlans = lazyWithReload(() => import('./pages/admin/PlansEditor').then(m => ({ default: m.PlansEditor })));
+const AdminMinutePacks = lazyWithReload(() => import('./pages/admin/MinuteSalesEditor').then(m => ({ default: m.MinuteSalesEditor }))); // NEW
+const AdminCallCredits = lazyWithReload(() => import('./pages/admin/CallCreditsEditor').then(m => ({ default: m.CallCreditsEditor }))); // NEW
+const AdminAnalytics = lazyWithReload(() => import('./pages/admin/Analytics').then(m => ({ default: m.Analytics }))); // NEW IMPORT
 
 // --- Wrapper para páginas que necesitan scroll (FIX VISUAL) ---
 const ScrollablePage = ({ children }: { children: React.ReactNode }) => (
