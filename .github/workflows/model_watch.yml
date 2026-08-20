@@ -6,12 +6,17 @@ name: Vigilancia de modelos de IA
 # visiblemente: la cadena de fallback lo tapaba corriendo en el modelo Pro, a
 # cuatro veces el coste por token. Nadie se entero hasta que se miro a mano.
 #
-# Este cron existe para que la proxima vez avise el primer lunes.
+# Este cron existe para que la proxima vez avise al dia siguiente.
+#
+# Corre a diario, no semanal: un modelo puede desaparecer del catalogo
+# cualquier dia, y una semana transcribiendo en el modelo Pro por fallback
+# cuesta dinero real. Solo abre incidencia cuando algo esta roto, asi que
+# correr a diario no llena el repositorio de incidencias.
 
 on:
   schedule:
-    # Lunes a las 07:00 UTC, antes de la ejecucion del newsroom.
-    - cron: '0 7 * * 1'
+    # Todos los dias a las 07:00 UTC, antes de la ejecucion del newsroom.
+    - cron: '0 7 * * *'
   workflow_dispatch:
 
 permissions:
@@ -40,12 +45,14 @@ jobs:
         run: |
           set +e
           npx tsx scripts/model-watch.ts | tee informe.txt
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          # $? seria el codigo de `tee`, que siempre sale 0: sin PIPESTATUS
+          # este paso jamas detectaria un fallo del script.
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
       - name: Abrir incidencia si algo esta roto
         # El script sale con codigo 1 solo cuando hay un modelo en uso que ya no
         # existe o pertenece a una familia prohibida. Los candidatos nuevos y los
-        # precios caducados quedan en el log sin generar ruido semanal.
+        # precios caducados quedan en el log sin generar ruido diario.
         if: steps.watch.outputs.exit_code != '0'
         uses: actions/github-script@v7
         with:
@@ -62,7 +69,7 @@ jobs:
             });
 
             const cuerpo = [
-              'El chequeo semanal ha encontrado un modelo que el codigo invoca y que',
+              'El chequeo diario ha encontrado un modelo que el codigo invoca y que',
               'ya no existe en el catalogo del proveedor, o que pertenece a una familia',
               'prohibida por AGENTS.md.',
               '',
