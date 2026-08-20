@@ -81,6 +81,14 @@ const AppContent: React.FC = () => {
         return AppRoute.LANDING; // Root or any other path defaults to Landing
     };
 
+    // La grabacion abierta vive en la URL como /transcript/<id>. Antes solo
+    // existia en estado del componente, asi que al refrescar se perdia y volvias
+    // al inicio del dashboard teniendo que entrar otra vez en el audio.
+    const getInitialRecordingId = (): string | null => {
+        const m = window.location.pathname.match(/^\/transcript\/([0-9a-fA-F-]{36})$/);
+        return m ? m[1] : null;
+    };
+
     const [currentRoute, setCurrentRoute] = useState<AppRoute>(getInitialRoute());
     const location = useLocation();
     const navigateRR = useNavigate();
@@ -297,7 +305,7 @@ const AppContent: React.FC = () => {
     ];
     const [integrations, setIntegrations] = useState<IntegrationState[]>(defaultIntegrations);
 
-    const [activeRecordingId, setActiveRecordingId] = useState<string | null>(null);
+    const [activeRecordingId, setActiveRecordingId] = useState<string | null>(getInitialRecordingId());
     const [activeSearchQuery, setActiveSearchQuery] = useState<string>('');
 
     // --- REFRESHABLE FETCHERS ---
@@ -861,6 +869,12 @@ const AppContent: React.FC = () => {
 
     const handleSelectRecordingIntelligence = async (id: string) => {
         setActiveRecordingId(id);
+        // /transcript/<id> ya resuelve a la ruta DASHBOARD (ver getInitialRoute),
+        // asi que esto no cambia de vista: solo hace la seleccion recargable y
+        // compartible por enlace.
+        if (id && window.location.pathname !== `/transcript/${id}`) {
+            navigateRR(`/transcript/${id}`, { replace: true });
+        }
         const full = await databaseService.getRecordingDetails(id);
         if (full) {
             setRecordings(prev => prev.map(r => r.id === id ? full : r));

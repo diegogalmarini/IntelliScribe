@@ -396,11 +396,24 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     const handleCancelRecording = () => { setIsRecording(false); setSearchParams({}); };
     const handleCloseEditor = () => setIsEditorOpen(false);
 
+    // Mientras `tempRecording` coincide con la seleccion, `activeRecording` LEE DE
+    // EL y no del array `recordings` (ver la definicion de activeRecording mas
+    // abajo). Por eso cada handler que modifica la grabacion activa tiene que
+    // actualizar AMBOS: si solo actualiza `recordings`, la vista sigue pintando
+    // el objeto viejo y el cambio no aparece hasta refrescar.
+    //
+    // Es el mismo fallo que se corrigio el 2026-05-04 en handleGenerateTranscript
+    // y que quedo sin aplicar en estos tres.
+    const syncTempRecording = (id: string, updates: Partial<Recording>) => {
+        setTempRecording(prev => prev?.id === id ? ({ ...prev, ...updates } as Recording) : prev);
+    };
+
     const handleUpdateSpeaker = async (oldSpeaker: string, newSpeaker: string, currentSegments?: any[]) => {
         const segmentsToUse = currentSegments || activeRecording?.segments;
         if (!activeRecording || !Array.isArray(segmentsToUse)) return;
         const updatedSegments = segmentsToUse.map((s: any) => s.speaker === oldSpeaker ? { ...s, speaker: newSpeaker } : s);
         onUpdateRecording(activeRecording.id, { segments: updatedSegments });
+        syncTempRecording(activeRecording.id, { segments: updatedSegments as any });
         await databaseService.updateRecording(activeRecording.id, { segments: updatedSegments });
     };
 
@@ -410,12 +423,14 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         const updatedSegments = [...segmentsToUse];
         updatedSegments[index] = { ...updatedSegments[index], ...updates };
         onUpdateRecording(activeRecording.id, { segments: updatedSegments });
+        syncTempRecording(activeRecording.id, { segments: updatedSegments as any });
         await databaseService.updateRecording(activeRecording.id, { segments: updatedSegments });
     };
 
     const handleUpdateSummary = (summary: string) => {
         if (!selectedId) return;
         onUpdateRecording(selectedId, { summary });
+        syncTempRecording(selectedId, { summary });
         databaseService.updateRecording(selectedId, { summary }).catch(e => console.error(e));
     };
 
@@ -603,7 +618,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden bg-white dark:bg-background-dark">
-                    {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} isProcessing={isProcessingMultiAudio} /> : view === 'search' ? <SearchView searchQuery={searchQuery} onSearchChange={setSearchQuery} searchResults={searchResults} onSelectResult={(id) => { onSelectRecording(id); setSelectedId(id); setView('recordings'); }} isSearching={isSearching} useSemanticSearch={useSemanticSearch} onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => onRenameRecording(activeRecording.id, title)} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} /> : <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />}
+                    {showMultiAudioUploader ? <MultiAudioUploader user={user} onProcess={handleProcessMultiAudio} onCancel={() => setShowMultiAudioUploader(false)} isProcessing={isProcessingMultiAudio} /> : view === 'search' ? <SearchView searchQuery={searchQuery} onSearchChange={setSearchQuery} searchResults={searchResults} onSelectResult={(id) => { onSelectRecording(id); setSelectedId(id); setView('recordings'); }} isSearching={isSearching} useSemanticSearch={useSemanticSearch} onToggleSemantic={() => setUseSemanticSearch(!useSemanticSearch)} /> : view === 'subscription' ? <div className="h-full overflow-y-auto"><SubscriptionView user={user} /></div> : view === 'templates' ? <TemplateGallery onUseTemplate={() => { setView('recordings'); handleNewRecording(); }} /> : view === 'integrations' ? <div className="h-full overflow-y-auto"><Integrations integrations={user.integrations || []} user={user} onUpdateProfile={onUpdateUser} onToggle={(id) => onUpdateUser?.({ integrations: (user.integrations || []).map(int => int.id === id ? { ...int, connected: !int.connected } : int) })} /></div> : isEditorOpen && activeRecording ? <InlineEditor recording={activeRecording} user={user} onUpdateRecording={onUpdateRecording} onClose={handleCloseEditor} /> : isRecording ? <InlineRecorder user={user} onComplete={handleRecordingComplete} onCancel={handleCancelRecording} onStateChange={setRecorderStatus} /> : activeRecording ? <RecordingDetailView recording={activeRecording} user={user} onGenerateTranscript={!activeRecording.segments?.length ? handleGenerateTranscript : undefined} onRename={(title) => { onRenameRecording(activeRecording.id, title); syncTempRecording(activeRecording.id, { title }); }} onUpdateSpeaker={handleUpdateSpeaker} onUpdateSummary={handleUpdateSummary} onUpdateSegment={handleUpdateSegment} onUpdateRecording={onUpdateRecording} onAskDiktalo={() => handleAskDiktalo([activeRecording])} onDelete={(id) => { onDeleteRecording(id); setSelectedId(null); }} /> : <EmptyStateClean userName={user?.firstName || t('guestUser')} onAction={handleAction} />}
                 </div>
             </div>
             <SettingsModal user={user} isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} onUpdateUser={onUpdateUser} onNavigate={onNavigate} onLogout={onLogout} onAction={onAction} />
