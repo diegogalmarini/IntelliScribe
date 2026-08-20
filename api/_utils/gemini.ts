@@ -14,18 +14,25 @@
 
 export const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
+    // La cadena de fallback se recorre en orden cuando el modelo preferido falla.
+    // OJO: ponerla encabezada por un modelo caro significa que cualquier fallo del
+    // preferido dispara el gasto. Se ordena de barato a caro salvo para chat, que
+    // pide su preferido explicitamente.
     modelPriorities: [
-        'gemini-3.1-pro-preview',
-        'gemini-3.1-flash-preview',
+        'gemini-3.7-flash',
         'gemini-3.1-flash-lite-preview',
-        'gemini-2.5-pro',
-        'gemini-2.5-flash'
+        'gemini-3.1-pro-preview',
+        'gemini-2.5-flash',
+        'gemini-2.5-pro'
     ],
     actions: {
         summary: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.7 },
         chat: { preferredModel: 'gemini-3.1-pro-preview', temperature: 0.8 },
         support: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.9 },
-        transcription: { preferredModel: 'gemini-3.1-flash-preview', temperature: 0.1 },
+        // `gemini-3.1-flash-preview` NO EXISTE: Google devuelve 404. Cada
+        // transcripcion gastaba una llamada fallida y caia al primero de la
+        // cadena, que era el modelo Pro: cuatro veces el coste por token.
+        transcription: { preferredModel: 'gemini-3.7-flash', temperature: 0.1 },
         embed: { preferredModel: 'gemini-embedding-001', temperature: 0, outputDimensionality: 768 }
     }
 };

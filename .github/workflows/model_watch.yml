@@ -1,0 +1,95 @@
+name: Vigilancia de modelos de IA
+
+# Por que existe: el 19 de agosto de 2026 se descubrio que
+# `gemini-3.1-flash-preview` —el modelo de transcripcion, la funcion principal
+# del producto— habia dejado de existir en el catalogo de Google. No fallaba
+# visiblemente: la cadena de fallback lo tapaba corriendo en el modelo Pro, a
+# cuatro veces el coste por token. Nadie se entero hasta que se miro a mano.
+#
+# Este cron existe para que la proxima vez avise el primer lunes.
+
+on:
+  schedule:
+    # Lunes a las 07:00 UTC, antes de la ejecucion del newsroom.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Consultar catalogos y comparar con lo que usa el codigo
+        id: watch
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set +e
+          npx tsx scripts/model-watch.ts | tee informe.txt
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Abrir incidencia si algo esta roto
+        # El script sale con codigo 1 solo cuando hay un modelo en uso que ya no
+        # existe o pertenece a una familia prohibida. Los candidatos nuevos y los
+        # precios caducados quedan en el log sin generar ruido semanal.
+        if: steps.watch.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const informe = fs.readFileSync('informe.txt', 'utf8');
+            const titulo = 'Vigilancia de modelos: hay un modelo roto o prohibido en uso';
+
+            const abiertas = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'model-watch'
+            });
+
+            const cuerpo = [
+              'El chequeo semanal ha encontrado un modelo que el codigo invoca y que',
+              'ya no existe en el catalogo del proveedor, o que pertenece a una familia',
+              'prohibida por AGENTS.md.',
+              '',
+              'Mientras no se corrija, la cadena de fallback lo tapa: la peticion no',
+              'falla de cara al usuario, pero gasta una llamada de mas y corre en un',
+              'modelo que no es el elegido, normalmente mas caro.',
+              '',
+              'El mapa accion -> modelo esta en `api/_utils/gemini.ts`.',
+              '',
+              '```',
+              informe.slice(0, 60000),
+              '```',
+            ].join('\n');
+
+            if (abiertas.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: abiertas.data[0].number,
+                body: cuerpo
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: titulo,
+                body: cuerpo,
+                labels: ['model-watch']
+              });
+            }
