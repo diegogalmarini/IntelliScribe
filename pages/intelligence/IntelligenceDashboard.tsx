@@ -332,7 +332,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             }
 
             showToast(t('concatenatingAudio') || 'Concatenando...', 'info');
-            const { blob, segmentOffsets, totalDuration } = await concatenateAudios(files.map(f => f.file));
+            const { blob, speakerRanges, totalDuration } = await concatenateAudios(files.map(f => f.file));
 
             showToast(t('uploadingAudio') || 'Subiendo...', 'info');
             const audioUrl = await uploadAudio(blob, user.id!);
@@ -353,16 +353,30 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 segmentsToProcess = fullTranscription;
             }
 
+            // Quien habla NO se deduce: cada fichero lo trae asignado a mano en el
+            // uploader. Lo unico que hay que resolver es a que fichero pertenece
+            // cada segmento, comparando su marca de tiempo con el tramo real que
+            // ocupa cada audio dentro del concatenado.
+            const speakerAt = (seconds: number): number => {
+                for (let j = speakerRanges.length - 1; j >= 0; j--) {
+                    if (seconds >= speakerRanges[j].start) return j;
+                }
+                return 0;
+            };
+
             const allSegments: any[] = segmentsToProcess.map((seg: any, idx: number) => {
                 const segTime = timeToSeconds(seg.timestamp || '0:00');
-                let speakerIndex = 0;
-                for (let j = 0; j < segmentOffsets.length; j++) { if (segTime >= segmentOffsets[j]) speakerIndex = j; }
+                // Clamp obligatorio: las marcas de tiempo del modelo pueden superar
+                // la duracion real, y sin esto el indice se salia del array de
+                // ficheros y reventaba la importacion con un TypeError.
+                const speakerIndex = Math.min(speakerAt(segTime), files.length - 1);
+                const speaker = files[speakerIndex].assignedSpeaker;
                 return {
                     id: `seg-${idx}`,
                     timestamp: seg.timestamp || '00:00',
-                    speaker: files[speakerIndex].assignedSpeaker,
+                    speaker,
                     text: seg.text || '',
-                    speakerColor: getSpeakerColor(files[speakerIndex].assignedSpeaker),
+                    speakerColor: getSpeakerColor(speaker),
                 };
             });
 

@@ -22,8 +22,21 @@ export async function resampleAndMixDown(buffer: AudioBuffer, targetSampleRate: 
     return await offlineCtx.startRendering();
 }
 
+/** Tramo que ocupa un fichero dentro del audio unido, en segundos. */
+export interface SpeakerRange {
+    start: number;
+    end: number;
+}
+
 interface ConcatenationResult {
     blob: Blob;
+    /** Un tramo por fichero, en el mismo orden. */
+    speakerRanges: SpeakerRange[];
+    /**
+     * Inicio de cada fichero. Antes esta lista mezclaba inicios, finales y un
+     * duplicado del total, con lo que un segmento fechado al final del audio
+     * indexaba fuera del array de ficheros y reventaba la importacion entera.
+     */
     segmentOffsets: number[];
     totalDuration: number;
 }
@@ -135,67 +148,77 @@ export async function compressAudioFile(file: File): Promise<Blob> {
     return mp3Blob;
 }
 
+/** Silencio insertado entre audios, en segundos.
+ *
+ * Sin el, los ficheros quedan pegados sin costura audible y el modelo produce
+ * un unico segmento que cruza la frontera entre dos hablantes: ese segmento
+ * recibe una sola marca de tiempo, la de su inicio, y se atribuye entero al
+ * hablante equivocado.
+ */
+const SPEAKER_GAP_SECONDS = 0.6;
+
+/** Todo se normaliza a esta frecuencia ANTES de unir. */
+const TARGET_SAMPLE_RATE = 22050;
+
 export const concatenateAudios = async (audioFiles: File[]): Promise<ConcatenationResult> => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     try {
-        console.log(`[audioConcat] Starting concatenation of ${audioFiles.length} files`);
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        console.log(`[audioConcat] Uniendo ${audioFiles.length} ficheros`);
 
-        // 1. Decode all files
-        const audioBuffers: AudioBuffer[] = [];
+        // 1. Decodificar y normalizar CADA fichero a 22 kHz mono antes de unir.
+        //
+        // Antes se copiaban las muestras crudas de cada fichero dentro de un
+        // buffer creado con la frecuencia del PRIMERO. Con ficheros de origen
+        // distinto —una nota de voz de WhatsApp a 48 kHz junto a un mp3 a
+        // 44,1 kHz— eso reproduce el segundo a otra velocidad y desplaza toda
+        // la linea de tiempo a partir de ahi: las fronteras entre hablantes
+        // dejan de caer donde se cree y el audio se atribuye a quien no es.
+        // Normalizar primero elimina la deriva y, de paso, iguala los canales.
+        const buffers: AudioBuffer[] = [];
         for (const file of audioFiles) {
-            console.log(`[audioConcat] Decoding ${file.name}`);
             const arrayBuffer = await file.arrayBuffer();
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-            audioBuffers.push(audioBuffer);
+            const decoded = await audioContext.decodeAudioData(arrayBuffer);
+            console.log(`[audioConcat] ${file.name}: ${decoded.sampleRate}Hz ${decoded.numberOfChannels}ch ${decoded.duration.toFixed(1)}s`);
+            buffers.push(await resampleAndMixDown(decoded, TARGET_SAMPLE_RATE));
         }
 
-        console.log('[audioConcat] All files decoded');
+        const gapLength = Math.round(SPEAKER_GAP_SECONDS * TARGET_SAMPLE_RATE);
+        const totalLength =
+            buffers.reduce((acc, buf) => acc + buf.length, 0) +
+            gapLength * Math.max(0, buffers.length - 1);
 
-        // 2. Calculate total length and segment offsets
-        const totalDuration = audioBuffers.reduce((acc, buf) => acc + buf.duration, 0);
-        const totalLength = audioBuffers.reduce((acc, buf) => acc + buf.length, 0);
-        const numberOfChannels = audioBuffers[0].numberOfChannels;
+        const concatenated = audioContext.createBuffer(1, totalLength, TARGET_SAMPLE_RATE);
+        const channel = concatenated.getChannelData(0);
 
-        // 3. Create output buffer (in original sample rate first)
-        const concatenatedBuffer = audioContext.createBuffer(
-            numberOfChannels,
-            totalLength,
-            audioBuffers[0].sampleRate
-        );
-
-        // 4. Fill buffer
+        // 2. Volcar en orden, anotando el tramo real de cada hablante.
         let offset = 0;
-        const segmentOffsets: number[] = [0]; // Store cumulative durations for segment start times
-
-        for (const buffer of audioBuffers) {
-            for (let channel = 0; channel < numberOfChannels; channel++) {
-                concatenatedBuffer.getChannelData(channel).set(buffer.getChannelData(channel), offset);
-            }
-
+        const speakerRanges: SpeakerRange[] = [];
+        buffers.forEach((buffer, index) => {
+            channel.set(buffer.getChannelData(0), offset);
+            const start = offset / TARGET_SAMPLE_RATE;
             offset += buffer.length;
-            segmentOffsets.push(offset / concatenatedBuffer.sampleRate); // Add cumulative duration
-        }
-        segmentOffsets.push(totalDuration); // Ensure final offset is included
+            speakerRanges.push({ start, end: offset / TARGET_SAMPLE_RATE });
+            // El hueco ya es silencio: el buffer nace a cero, solo hay que saltarlo.
+            if (index < buffers.length - 1) offset += gapLength;
+        });
 
-        console.log(`[audioConcat] Resampling to 22kHz Mono... (Original: ${concatenatedBuffer.sampleRate}Hz, ${numberOfChannels}ch)`);
+        const totalDuration = totalLength / TARGET_SAMPLE_RATE;
 
-        // 5. Resample to 22kHz Mono
-        const resampledBuffer = await resampleAndMixDown(concatenatedBuffer, 22050);
-
-        console.log('[audioConcat] Encoding to MP3 via Worker...');
-        const audioBlob = await audioBufferToMp3Worker(resampledBuffer, 64);
-
-        console.log(`[audioConcat] MP3 Encoding complete, blob size: ${audioBlob.size} bytes (~${(audioBlob.size / 1024 / 1024).toFixed(2)} MB)`);
+        console.log('[audioConcat] Codificando a MP3...');
+        const audioBlob = await audioBufferToMp3Worker(concatenated, 64);
+        console.log(`[audioConcat] Listo: ${(audioBlob.size / 1024 / 1024).toFixed(2)} MB, ${totalDuration.toFixed(1)}s`);
 
         return {
             blob: audioBlob,
-            segmentOffsets,
+            speakerRanges,
+            segmentOffsets: speakerRanges.map(r => r.start),
             totalDuration
         };
-
     } catch (error) {
         console.error('[audioConcat] Concatenation failed:', error);
         throw error;
+    } finally {
+        await audioContext.close();
     }
 };
 

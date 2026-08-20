@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Folder } from 'lucide-react';
+import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
@@ -66,14 +66,9 @@ export const FolderModal: React.FC<FolderModalProps> = ({
                         className="relative w-full max-w-md bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 overflow-hidden"
                     >
                         <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                    <Folder className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                    {title}
-                                </h3>
-                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                {title}
+                            </h3>
                             <button
                                 onClick={onClose}
                                 className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
