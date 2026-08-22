@@ -6,11 +6,11 @@ import * as Analytics from '../utils/analytics';
 export const Footer: React.FC = () => {
     const { t } = useLanguage();
 
+    // Sin `backdrop-blur`: el footer es el ultimo elemento del documento, asi que
+    // no hay NADA pintado detras que desenfocar. Lo unico que hacia era obligar al
+    // compositor a rasterizar un backdrop de 1270x653 en cada fotograma del
+    // scroll, a cambio de cero efecto visible.
     return (
-        {/* Sin `backdrop-blur`: el footer es el ultimo elemento del documento, asi
-            que no hay NADA pintado detras que desenfocar. Lo unico que hacia era
-            obligar al compositor a rasterizar un backdrop de 1270x653 en cada
-            fotograma del scroll, a cambio de cero efecto visible. */}
         <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200/50 dark:border-white/10 py-16 px-4 transition-colors duration-200">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
                 {/* Logo & Tagline Area */}
