@@ -88,7 +88,19 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-200/30 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-slate-400/60 text-center md:text-left">
-                <p>&copy; {new Date().getFullYear()} Diktalo AI. {t('footerAllRights')}</p>
+                {/* La titular del copyright es la sociedad, no el producto. */}
+                <p>
+                    &copy; {new Date().getFullYear()}{' '}
+                    <a
+                        href="https://verailabs.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary transition-colors underline-offset-2 hover:underline"
+                    >
+                        VER AI Labs
+                    </a>
+                    . {t('footerAllRights')}
+                </p>
                 <div className="flex items-center justify-center md:justify-end gap-6">
                     <span className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>

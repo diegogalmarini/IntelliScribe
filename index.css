@@ -318,11 +318,22 @@
     margin-bottom: 0.5rem;
 }
 
+/* Reset heredado de imagenes. Ya NO declara `display`.
+ *
+ * Declararlo aqui rompia el ocultado de Tailwind: `.landing-page img` tiene
+ * especificidad (0,1,1) y le gana a `.hidden` (0,1,0), asi que `inline-block`
+ * resucitaba cualquier imagen oculta. El sintoma visible era el logo del footer,
+ * donde la variante de modo oscuro (`hidden dark:block`) se pintaba junto a la
+ * clara y se veia "Diktalo" dos veces.
+ *
+ * Excluir `.hidden` tampoco vale: `:not(.hidden)` sube la especificidad a
+ * (0,2,1) y entonces gana a `dark:hidden` (0,2,0), rompiendo el caso inverso en
+ * modo oscuro. Sin la declaracion, manda el preflight de Tailwind
+ * (`img { display: block }`) y cualquier utilidad de display gana como debe. */
 .landing-page img {
     border: 0;
     vertical-align: middle;
     max-width: 100%;
-    display: inline-block;
 }
 
 /* ============================================
