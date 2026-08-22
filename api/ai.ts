@@ -6,6 +6,7 @@ import { requireAuth } from "./_utils/auth.js";
 import { GEMINI_CONFIG, EMBEDDING_DIMENSIONS, createRunner } from "./_utils/gemini.js";
 import { resolveTemplatePrompt } from "../constants/aiPrompts.js";
 import { enforceRateLimit, RATE_RULES } from "./_utils/rate-limit.js";
+import { extraerIdDeYouTube, urlCanonica, duracionDesdeTokens, metadatosPublicos, FPS_TRANSCRIPCION } from "./_utils/youtube.js";
 
 // Initialize Sentry
 initSentry();
@@ -35,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // La transcripción es la acción que cuesta dinero por petición, así que ahí
     // se falla en cerrado. El resto lleva un límite más holgado y fail-open.
-    const rateOk = action === 'transcribe'
+    const rateOk = (action === 'transcribe' || action === 'transcribe-youtube')
         ? await enforceRateLimit(req, res, 'ai:transcribe', { userId: user.id }, RATE_RULES.transcribe, { failClosed: true })
         : await enforceRateLimit(req, res, 'ai', { userId: user.id }, RATE_RULES.ai);
     if (!rateOk) return;
@@ -271,6 +272,122 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     result = { segments: [], suggestedSpeakers: {} };
                 }
             }
+        }
+
+        // --- Action: transcribir un video de YouTube por URL ---
+        //
+        // Gemini ingiere la URL de forma nativa: Diktalo nunca descarga ni aloja
+        // el video. Ver api/_utils/youtube.ts para por que solo YouTube.
+        else if (action === 'transcribe-youtube') {
+            const videoId = extraerIdDeYouTube(payload?.url);
+            if (!videoId) {
+                return res.status(400).json({ error: 'INVALID_YOUTUBE_URL' });
+            }
+
+            // La URL que viaja a Gemini se construye desde el id ya validado, no
+            // se reenvia la cadena del cliente: asi ningun parametro suyo sale de
+            // aqui. Mismo criterio que el arreglo del SSRF en `transcribe`.
+            const videoUrl = urlCanonica(videoId);
+
+            // Cuota. Sin la Data API de YouTube no se puede saber la duracion
+            // ANTES de procesar, asi que aqui solo se comprueba que quede algo y
+            // se cobra lo realmente consumido despues.
+            const perfilRes = await fetch(
+                `${supabaseUrl}/rest/v1/profiles?id=eq.${user.id}&select=minutes_used,minutes_limit,extra_minutes`,
+                { headers: { Authorization: `Bearer ${supabaseServiceKey}`, apikey: supabaseServiceKey } }
+            );
+            const perfil = perfilRes.ok ? (await perfilRes.json())[0] : null;
+            if (perfil && perfil.minutes_limit !== -1) {
+                const disponibles = (perfil.minutes_limit || 0) + (perfil.extra_minutes || 0) - (perfil.minutes_used || 0);
+                if (disponibles <= 0) {
+                    return res.status(403).json({ error: 'QUOTA_EXCEEDED' });
+                }
+            }
+
+            const nombresIdioma: Record<string, string> = {
+                es: 'Spanish', en: 'English', de: 'German', it: 'Italian', pt: 'Portuguese'
+            };
+            const idiomaDestino = nombresIdioma[language] || 'English';
+
+            const salida = await runWithFallback('transcription', undefined, async (model) => {
+                const response = await model.generateContent({
+                    contents: [{
+                        role: 'user',
+                        parts: [
+                            {
+                                fileData: { fileUri: videoUrl, mimeType: 'video/*' },
+                                // 0.1 fps en vez del valor por defecto: medido, baja
+                                // el gasto 2,9x sin perder transcripcion, porque lo
+                                // que importa es el audio y no los fotogramas.
+                                videoMetadata: { fps: FPS_TRANSCRIPCION }
+                            },
+                            {
+                                text: `Transcribe the spoken audio of this video.
+ CRITICAL: The output MUST be entirely in ${idiomaDestino}. Translate if the audio is in another language.
+ Do NOT add any preamble, introduction or closing remark: return ONLY the JSON object.
+
+ SPEAKER IDENTIFICATION:
+ - Identify distinct speakers and label them SPEAKER_0, SPEAKER_1, ...
+ - If a name is said out loud, map the ID to that real name in 'suggestedSpeakers'.
+
+ Return a JSON object with:
+ 1. 'segments': array of objects with 'timestamp' (MM:SS), 'speaker' and 'text'.
+ 2. 'suggestedSpeakers': dictionary mapping speaker IDs to real names.`
+                            }
+                        ]
+                    }],
+                    generationConfig: { responseMimeType: 'application/json' }
+                });
+                const detalles = response.response?.usageMetadata?.promptTokensDetails || [];
+                const video = detalles.find((d: any) => d.modality === 'VIDEO');
+                return { texto: response.response.text() || '{}', tokensVideo: video?.tokenCount || 0 };
+            });
+
+            let datos: any;
+            try {
+                datos = JSON.parse(salida.texto);
+            } catch {
+                // Mismo saneado que `transcribe`: el modelo a veces envuelve el
+                // JSON en un bloque de codigo o deja una coma colgando.
+                const limpio = salida.texto
+                    .replace(/```json\s*([\s\S]*?)\s*```/, '$1')
+                    .replace(/,\s*]/g, ']')
+                    .replace(/,\s*}/g, '}');
+                try { datos = JSON.parse(limpio); } catch { datos = { segments: [], suggestedSpeakers: {} }; }
+            }
+
+            const durationSeconds = duracionDesdeTokens(salida.tokensVideo);
+
+            // Cobro en SERVIDOR. La ruta de subida de audio lo hace en el cliente
+            // y solo sobre el estado de React, asi que no se persiste; aqui no
+            // depende del navegador y no se puede saltar.
+            if (durationSeconds > 0) {
+                const minutos = Math.max(1, Math.ceil(durationSeconds / 60));
+                const cobro = await fetch(`${supabaseUrl}/rest/v1/rpc/increment_user_usage`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${supabaseServiceKey}`,
+                        apikey: supabaseServiceKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ p_user_id: user.id, p_minutes: minutos })
+                });
+                if (!cobro.ok) {
+                    console.error(`[AI_API] No se pudo cobrar ${minutos} min a ${user.id}: ${cobro.status}`);
+                    Sentry.captureMessage(`[YT] Cobro de minutos fallido para ${user.id}`, 'error');
+                }
+            }
+
+            const meta = await metadatosPublicos(videoId);
+
+            result = {
+                segments: Array.isArray(datos?.segments) ? datos.segments : [],
+                suggestedSpeakers: datos?.suggestedSpeakers || {},
+                durationSeconds,
+                title: meta?.titulo || `YouTube ${videoId}`,
+                author: meta?.autor || '',
+                sourceUrl: videoUrl
+            };
         }
 
         // --- Action: Traduccion de contenido dinamico de BD ---

@@ -147,3 +147,33 @@ export const generateTextEmbedding = async (text: string): Promise<number[]> => 
     return [];
   }
 };
+
+export interface YouTubeTranscription {
+  segments: TranscriptSegment[];
+  suggestedSpeakers: Record<string, string>;
+  durationSeconds: number;
+  title: string;
+  author: string;
+  sourceUrl: string;
+}
+
+/**
+ * Transcribe un video de YouTube a partir de su URL.
+ *
+ * La URL se valida y se cobra en SERVIDOR: aqui no se hace ninguna comprobacion
+ * de cuota porque seria trivial saltarsela. Los errores se propagan a proposito
+ * —al contrario que `transcribeAudio`, que devuelve vacio— porque el usuario
+ * tiene que enterarse de si su URL no vale o si se quedo sin minutos.
+ */
+export const transcribeYouTube = async (url: string, language: string = 'es'): Promise<YouTubeTranscription> => {
+  const response = await apiFetch('/api/ai', {
+    body: { action: 'transcribe-youtube', payload: { url }, language },
+  });
+
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    // Codigos que la UI traduce a un mensaje concreto.
+    throw new Error(json?.error || `YT_ERROR_${response.status}`);
+  }
+  return json.data as YouTubeTranscription;
+};

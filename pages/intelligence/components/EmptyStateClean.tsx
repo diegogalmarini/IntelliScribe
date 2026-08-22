@@ -1,10 +1,10 @@
 import React from 'react';
-import { Mic, Upload, MessageCircle, Chrome, ArrowRight } from 'lucide-react';
+import { Mic, Upload, MessageCircle, Chrome, ArrowRight, Youtube } from 'lucide-react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface EmptyStateCleanProps {
     userName: string;
-    onAction: (type: 'record' | 'upload' | 'multiaudio' | 'extension') => void;
+    onAction: (type: 'record' | 'upload' | 'multiaudio' | 'extension' | 'youtube') => void;
 }
 
 export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({ userName, onAction }) => {
@@ -44,11 +44,12 @@ export const EmptyStateClean: React.FC<EmptyStateCleanProps> = ({ userName, onAc
             </button>
 
             {/* Secondary Actions */}
-            <div className="grid grid-cols-3 gap-3 w-full max-w-lg">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-lg">
                 {[
                     { type: 'record' as const, icon: Mic, label: t('recordAudio') || 'Grabar Audio' },
                     { type: 'upload' as const, icon: Upload, label: t('uploadFile') || 'Subir Archivo' },
                     { type: 'multiaudio' as const, icon: MessageCircle, label: t('multi_audio_label') },
+                    { type: 'youtube' as const, icon: Youtube, label: t('youtube_label') },
                 ].map((action) => (
                     <button
                         key={action.type}

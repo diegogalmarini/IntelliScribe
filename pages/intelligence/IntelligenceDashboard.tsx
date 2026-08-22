@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { SearchView } from './components/SearchView';
 import { Recording, AppRoute, Folder, UserProfile, NoteItem, MediaItem } from '../../types';
 import { MinimalSidebar } from './components/MinimalSidebar';
+import { YouTubeImportModal } from './components/YouTubeImportModal';
+import type { YouTubeTranscription } from '../../services/geminiService';
 import { ProfileAvatar } from './components/ProfileAvatar';
 import { EmptyStateClean } from './components/EmptyStateClean';
 import { SettingsModal } from './components/SettingsModal';
@@ -288,7 +290,8 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
-    const handleAction = (type: 'record' | 'upload' | 'multiaudio' | 'extension') => {
+    const handleAction = (type: 'record' | 'upload' | 'multiaudio' | 'extension' | 'youtube') => {
+        if (type === 'youtube') setShowYouTubeModal(true);
         if (type === 'record') { setIsRecording(true); setSearchParams({ action: 'record' }); setSelectedId(null); }
         if (type === 'upload') fileInputRef.current?.click();
         if (type === 'multiaudio') setShowMultiAudioUploader(true);
@@ -403,6 +406,64 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
     };
 
+    /**
+     * Convierte una transcripcion de YouTube en una grabacion normal.
+     *
+     * `audioUrl` queda a null a proposito: no tenemos el fichero ni lo queremos,
+     * y la app ya sabe pintar grabaciones sin audio porque es el estado en el que
+     * las deja el cron de limpieza del plan Free. Asi el resumen, el chat y la
+     * exportacion a PDF funcionan sin tocar nada.
+     */
+    const handleYouTubeTranscribed = async (datos: YouTubeTranscription) => {
+        const segs = (datos.segments || []).map((seg: any, idx: number) => {
+            const nombre = datos.suggestedSpeakers?.[seg.speaker] || seg.speaker || 'SPEAKER_0';
+            return {
+                id: `seg-${idx}`,
+                timestamp: seg.timestamp || '00:00',
+                speaker: nombre,
+                text: seg.text || '',
+                speakerColor: getSpeakerColor(nombre)
+            };
+        });
+
+        const d = datos.durationSeconds || 0;
+        const hh = String(Math.floor(d / 3600)).padStart(2, '0');
+        const mm = String(Math.floor((d % 3600) / 60)).padStart(2, '0');
+        const ss = String(Math.floor(d % 60)).padStart(2, '0');
+
+        const nueva: Recording = {
+            id: '',
+            folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
+            title: datos.title,
+            description: datos.author ? `YouTube · ${datos.author}` : 'YouTube',
+            date: new Date().toISOString(),
+            duration: `${hh}:${mm}:${ss}`,
+            durationSeconds: d,
+            status: 'Completed',
+            tags: ['youtube'],
+            participants: new Set(segs.map(x => x.speaker)).size || 1,
+            audioUrl: undefined,
+            summary: null,
+            segments: segs,
+            notes: [],
+            media: [],
+            metadata: { sourceUrl: datos.sourceUrl } as any
+        };
+
+        const creada = await databaseService.createRecording(nueva);
+        if (!creada) {
+            showToast(t('youtube_err_generic'), 'error');
+            return;
+        }
+        setTempRecording(creada);
+        setView('recordings');
+        setSelectedId(creada.id);
+        setIsEditorOpen(false);
+        if (Analytics && typeof Analytics.trackEvent === 'function') {
+            Analytics.trackEvent('transcribe_youtube_success', { duration_seconds: d });
+        }
+    };
+
     const getSpeakerColor = (speaker: string): string => {
         const colors = ['from-blue-400 to-purple-500', 'from-green-400 to-emerald-500', 'from-orange-400 to-red-500', 'from-pink-400 to-rose-500', 'from-cyan-400 to-teal-500'];
         let hash = 0; for (let i = 0; i < speaker.length; i++) { hash = speaker.charCodeAt(i) + ((hash << 5) - hash); }
@@ -505,6 +566,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         return () => clearTimeout(timer);
     }, [searchQuery, onSearch, useSemanticSearch]);
 
+    const [showYouTubeModal, setShowYouTubeModal] = useState(false);
     const [tempRecording, setTempRecording] = useState<Recording | null>(null);
     // El sidebar agrupa por proyecto, asi que necesita la lista COMPLETA: si le
     // llegara ya filtrada, cada proyecto no seleccionado apareceria vacio.
@@ -544,6 +606,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     return (
         <div id="intelligence-hub" className="flex h-screen overflow-hidden bg-white dark:bg-background-dark relative">
             <input ref={fileInputRef} type="file" accept="audio/*,.mp3,.wav,.m4a,.webm" onChange={handleFileUpload} className="hidden" />
+            <YouTubeImportModal isOpen={showYouTubeModal} onClose={() => setShowYouTubeModal(false)} onTranscribed={handleYouTubeTranscribed} />
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-surface-dark shadow-2xl transform transition-transform duration-300 md:hidden ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <MinimalSidebar {...sidebarProps} onToggle={() => setIsSidebarOpen(false)} />
             </div>
