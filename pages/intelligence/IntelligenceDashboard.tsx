@@ -598,7 +598,8 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         onAddFolder,
         onRenameFolder,
         onDeleteFolder,
-        onOpenSearch: () => { setView('search'); if (isMobile) setIsSidebarOpen(false); }
+        onOpenSearch: () => { setView('search'); if (isMobile) setIsSidebarOpen(false); },
+        onNewAction: (tipo: 'record' | 'upload' | 'multiaudio' | 'youtube') => { handleAction(tipo); if (isMobile) setIsSidebarOpen(false); }
     };
 
     const activeRecording = (selectedId && tempRecording?.id === selectedId) ? tempRecording : recordings.find(r => r.id === selectedId) || searchResults.find(r => r.id === selectedId);

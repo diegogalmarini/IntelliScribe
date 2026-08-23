@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Recording, UserProfile, Folder } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { Search, ChevronDown, Menu } from 'lucide-react';
+import { Search, ChevronDown, Menu, Plus, Mic, Upload, MessageCircle, Youtube } from 'lucide-react';
 import { SidebarTree } from './SidebarTree';
 
 interface MinimalSidebarProps {
@@ -23,6 +23,8 @@ interface MinimalSidebarProps {
 
     onToggle: () => void;
     onOpenSearch?: () => void;
+    /** Crear algo nuevo desde cualquier punto, no solo desde el estado vacio. */
+    onNewAction?: (type: 'record' | 'upload' | 'multiaudio' | 'youtube') => void;
 }
 
 export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
@@ -40,10 +42,22 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
     onRenameFolder,
     onDeleteFolder,
     onToggle,
-    onOpenSearch
+    onOpenSearch,
+    onNewAction
 }) => {
     const { t } = useLanguage();
     const [statsCollapsed, setStatsCollapsed] = useState(false);
+    const [menuNuevoAbierto, setMenuNuevoAbierto] = useState(false);
+
+    // Grabar, subir, multi-audio y YouTube solo existian en el estado vacio, que
+    // desaparece en cuanto hay una grabacion seleccionada. Con veinte audios en
+    // la lista no habia forma de crear nada sin volver atras.
+    const accionesNuevo = [
+        { tipo: 'record' as const, icono: Mic, etiqueta: t('recordAudio') },
+        { tipo: 'upload' as const, icono: Upload, etiqueta: t('uploadFile') },
+        { tipo: 'multiaudio' as const, icono: MessageCircle, etiqueta: t('multi_audio_label') },
+        { tipo: 'youtube' as const, icono: Youtube, etiqueta: t('youtube_label') }
+    ];
 
     const iconButton = 'p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors';
 
@@ -53,9 +67,40 @@ export const MinimalSidebar: React.FC<MinimalSidebarProps> = ({
                 <button onClick={onToggle} className={iconButton} aria-label={t('menu')}>
                     <Menu size={20} strokeWidth={1.5} />
                 </button>
-                <button onClick={onOpenSearch} className={iconButton} aria-label={t('search')}>
-                    <Search size={20} strokeWidth={1.5} />
-                </button>
+                <div className="flex items-center gap-1">
+                    {onNewAction && (
+                        <div className="relative">
+                            <button
+                                onClick={() => setMenuNuevoAbierto(v => !v)}
+                                className={iconButton}
+                                aria-label={t('new_session_btn')}
+                                aria-expanded={menuNuevoAbierto}
+                            >
+                                <Plus size={20} strokeWidth={1.5} />
+                            </button>
+                            {menuNuevoAbierto && (
+                                <>
+                                    <div className="fixed inset-0 z-[100]" onClick={() => setMenuNuevoAbierto(false)} />
+                                    <div className="absolute right-0 top-11 w-52 bg-white dark:bg-[#2a2a2a] rounded-xl shadow-2xl border border-black/5 dark:border-white/10 py-1.5 z-[200]">
+                                        {accionesNuevo.map(a => (
+                                            <button
+                                                key={a.tipo}
+                                                onClick={() => { setMenuNuevoAbierto(false); onNewAction(a.tipo); }}
+                                                className="w-full text-left px-3 py-2 text-[13px] text-[#0d0d0d] dark:text-[#ececec] hover:bg-black/5 dark:hover:bg-white/10 flex items-center gap-2.5 transition-colors"
+                                            >
+                                                <a.icono size={15} strokeWidth={1.5} />
+                                                <span>{a.etiqueta}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+                    <button onClick={onOpenSearch} className={iconButton} aria-label={t('search')}>
+                        <Search size={20} strokeWidth={1.5} />
+                    </button>
+                </div>
             </div>
 
             {/* Uso del plan - plegable */}
