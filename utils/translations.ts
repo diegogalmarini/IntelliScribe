@@ -920,6 +920,8 @@ export const translations = {
     youtube_output_language: "Output language",
     transcript_edited_badge: "Edited transcript",
     transcript_edited_tooltip: "Filler words removed and grammar fixed. Not a verbatim record.",
+    sourceVideo: "Source video",
+    watchOnYoutube: "Watch on YouTube",
     step3_sync: "Automatic Sync",
     step4_memory: "Eternal Memory",
     hero_capture: "Capture",
@@ -2055,6 +2057,8 @@ export const translations = {
     youtube_output_language: "Idioma de salida",
     transcript_edited_badge: "Transcripción editada",
     transcript_edited_tooltip: "Se han quitado muletillas y corregido la gramática. No es un acta literal.",
+    sourceVideo: "Vídeo original",
+    watchOnYoutube: "Ver en YouTube",
     step3_sync: "Sync Automático",
     step4_memory: "Memoria Eterna",
 

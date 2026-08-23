@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { apiFetch } from '../../../lib/apiClient';
 import { Recording, UserProfile, NoteItem, MediaItem } from '../../../types';
-import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw } from 'lucide-react';
+import { Play, Pause, Download, FileText, Share2, MoreVertical, Calendar, Clock, Lock, Mic, Sparkles, Sun, Moon, BarChart3, MessageCircle, Loader2, Pencil, Check, X, Volume2, VolumeX, RefreshCw, Youtube, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -468,6 +468,21 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     };
 
     const hasTranscript = segments && segments.length > 0;
+
+    // Un id de YouTube son 11 caracteres de este alfabeto. Se extrae del metadato
+    // y se valida antes de construir la URL del reproductor: nunca se incrusta
+    // una cadena que venga de la base de datos sin comprobar.
+    const idVideoYouTube = (() => {
+        const url = recording.metadata?.sourceUrl;
+        if (typeof url !== 'string') return null;
+        const m = url.match(/[?&]v=([A-Za-z0-9_-]{11})(?:&|$)/);
+        return m ? m[1] : null;
+    })();
+
+    const hablantes = hasTranscript
+        ? [...new Set(segments.map((x: any) => x.speaker).filter(Boolean))]
+        : [];
+    const hablanteUnico = hablantes.length === 1 ? String(hablantes[0]) : null;
     const hasSummary = summary && summary.trim().length > 0;
 
     const handleTranscribeAudio = async () => {
@@ -794,9 +809,9 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                     {/* Audio Player Card */}
                     <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <FileText size={16} className="text-[#8e8e8e]" />
+                            {idVideoYouTube ? <Youtube size={16} className="text-red-600" /> : <FileText size={16} className="text-[#8e8e8e]" />}
                             <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
-                                {t('audioOriginal')}
+                                {idVideoYouTube ? t('sourceVideo') : t('audioOriginal')}
                             </h2>
                         </div>
 
@@ -879,6 +894,34 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                     {t('downloadAudio')}
                                 </PremiumFeatureButton>
                             </div>
+                        ) : idVideoYouTube ? (
+                            /* Esta grabacion no tiene fichero de audio a proposito: viene de
+                               una URL de YouTube y Diktalo nunca descarga el video. Decir
+                               "audio no disponible" sugeria que faltaba algo o habia fallado.
+                               Se usa youtube-nocookie, que no deja cookies de seguimiento
+                               hasta que el usuario le da al play. */
+                            <div className="space-y-3">
+                                <div className="relative w-full rounded-lg overflow-hidden bg-black" style={{ aspectRatio: '16 / 9' }}>
+                                    <iframe
+                                        src={`https://www.youtube-nocookie.com/embed/${idVideoYouTube}`}
+                                        title={recording.title}
+                                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        loading="lazy"
+                                        referrerPolicy="strict-origin-when-cross-origin"
+                                        className="absolute inset-0 w-full h-full border-0"
+                                    />
+                                </div>
+                                <a
+                                    href={`https://www.youtube.com/watch?v=${idVideoYouTube}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 text-[12px] text-[#676767] dark:text-[#c5c5c5] hover:text-primary transition-colors"
+                                >
+                                    <ExternalLink size={13} strokeWidth={1.5} />
+                                    {t('watchOnYoutube')}
+                                </a>
+                            </div>
                         ) : (
                             <p className="text-[12px] text-[#8e8e8e]">
                                 {t('audioNotReady')}
@@ -930,6 +973,15 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                     {/* Un texto al que un modelo ha quitado muletillas y arreglado
                                         la gramatica NO es un acta verbatim. Diktalo se usa para
                                         actas legales y notas medicas, asi que tiene que verse. */}
+                                    {hablanteUnico && (
+                                        <button
+                                            onClick={() => onUpdateSpeaker && handleStartEditSpeaker(hablanteUnico)}
+                                            className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline decoration-blue-400/50"
+                                            title="Clic para cambiar nombre"
+                                        >
+                                            {hablanteUnico}
+                                        </button>
+                                    )}
                                     {recording.metadata?.transcriptionMode === 'clean' && (
                                         <span
                                             title={t('transcript_edited_tooltip')}
@@ -1060,7 +1112,11 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                                                                     <X size={14} />
                                                                 </button>
                                                             </span>
-                                                        ) : (
+                                                        ) : hablanteUnico ? null : (
+                                                            /* Con un solo interlocutor, repetir su nombre en cada
+                                                               parrafo convierte un monologo en un falso dialogo.
+                                                               El nombre se muestra una vez arriba, y sigue siendo
+                                                               editable desde ahi. */
                                                             <span
                                                                 className="font-semibold text-blue-600 dark:text-blue-400 mr-1 cursor-pointer hover:underline decoration-blue-400/50"
                                                                 onClick={() => onUpdateSpeaker && handleStartEditSpeaker(segment.speaker!)}

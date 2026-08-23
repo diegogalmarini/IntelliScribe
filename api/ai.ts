@@ -75,7 +75,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const targetLangLabel = language === 'es' ? 'ESPAÑOL (SPANISH)' : 'ENGLISH';
-            const finalPrompt = `${systemPrompt}${visualContext}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
+            // Sin esto el modelo abre con "Aqui tienes la transcripcion corregida:"
+            // y esa linea acaba guardada dentro del resumen. Y con un solo
+            // interlocutor, prefijar su nombre en cada parrafo convierte un
+            // monologo en un falso dialogo.
+            const reglasSalida = `
+
+OUTPUT RULES:
+ - Do NOT add any preamble, introduction, meta-commentary or closing remark. Return ONLY the requested content.
+ - If the transcript has a single speaker, do NOT prefix every paragraph with their name.`;
+
+            const finalPrompt = `${systemPrompt}${visualContext}${reglasSalida}\n\nCRITICAL INSTRUCTION: Your entire response MUST be in ${targetLangLabel}. Do not use any other language.\n\nTranscript:\n${transcript}`;
 
             result = await runWithFallback('summary', undefined, async (model) => {
                 const response = await model.generateContent(finalPrompt);
