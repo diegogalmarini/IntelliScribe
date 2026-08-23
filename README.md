@@ -14,11 +14,16 @@ Diktalo is a complete **Conversational Intelligence Operating System** that unif
 - **Web Recorder:** High-fidelity browser-based voice recording
 - **Chrome Extension (MV3):** Capture tab audio (Meet, Teams, Zoom) without intrusive meeting bots
 - **Twilio Integration:** Record and process real phone calls automatically
-- **Multi-Audio Upload:** Upload 10+ files at once with parallel processing
+- **Multi-Audio Upload:** Upload 10+ files at once, one speaker per file
+- **YouTube by URL:** Paste a public video URL and get its transcript. Gemini ingests the URL natively, so Diktalo never downloads or stores the video
 
 ### 2. AI Intelligence Engine
-- **Accurate Transcription:** Whisper-class engine for verbatim text
-- **Thematic Summaries:** Auto-detect key topics, decisions, and action items
+- **Accurate Transcription:** Google Gemini processes the audio directly; there is no Whisper, AssemblyAI or Deepgram in the pipeline
+- **Transcript styles:** *Verbatim* keeps every hesitation; *Clean* removes filler
+  and fixes grammar while keeping everything that was said. Clean transcripts are
+  flagged in the UI, because an edited text cannot be presented as a verbatim record
+- **Thematic Summaries:** 60 templates, with a cross-cutting *Video* filter for
+  talks, tutorials and webinars
 - **Smart Chat (3 Levels):**
   - *Global Chat:* "Search all my meetings when we discussed budget"
   - *Folder Chat:* "Summarize Project X progress across these 5 recordings"
@@ -47,7 +52,10 @@ Diktalo is a complete **Conversational Intelligence Operating System** that unif
 **Backend:**
 - Vercel Serverless Functions
 - Supabase (PostgreSQL + Storage + Auth + Edge Functions)
-- Google Gemini 2.0 (Flash & Pro)
+- Google Gemini 3.x — see `api/_utils/gemini.ts` for the action-to-model map.
+  Families 1.0, 1.5 and 2.0 are forbidden (AGENTS.md); `scripts/model-watch.ts`
+  checks daily that every model in use still exists and flags when a cheaper one
+  would do the same job.
 - Twilio (phone integration)
 - Lemon Squeezy (payments)
 - Resend (transactional emails)
@@ -65,7 +73,7 @@ graph TD
     Ext --> Vercel
     Phone --> Webhook[Twilio Webhooks]
     
-    Vercel --> Gemini[Google Gemini 2.0]
+    Vercel --> Gemini[Google Gemini 3.x]
     Vercel --> Supabase[Supabase]
     
     Supabase --> DB[PostgreSQL]
@@ -93,7 +101,8 @@ Diktalo implements a dual-balance system for transcription minutes:
 2.  **Extra Minutes (Packs):** One-time purchases that **never expire**.
 
 ### Consumption Logic
-To maximize user value, the system implements a prioritized consumption flow in `databaseService.ts`:
+The prioritized consumption flow lives in the `increment_user_usage` PostgreSQL RPC
+(`supabase/migrations/20260224_usage_rpcs.sql`), not in the client:
 -   **Step 1:** Check if the user has available minutes in their monthly plan.
 -   **Step 2:** Deduct from the plan first (until exhausted).
 -   **Step 3:** Only then, deduct from the `extra_minutes` (Minute Packs) balance.
@@ -350,7 +359,7 @@ npx supabase functions serve lemon-webhook
 - [x] UUID-based checkout simplification (Lemon Squeezy)
 - [x] Bilingual email notifications (ES/EN)
 - [x] Transcription stability: Optimistic UI updates & Realtime stability
-- [x] Gemini 2.0 Upgrade: Improved speed and accuracy with latest Flash/Pro models
+- [x] Gemini 3.x: cost-based model selection, watched daily by `scripts/model-watch.ts`
 - [x] Emergency 404 fix (SPA rewrites for Vercel)
 - [x] File size validation (10MB limit)
 - [x] Zapier Integration: Connect Diktalo with 5,000+ apps via webhooks

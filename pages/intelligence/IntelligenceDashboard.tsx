@@ -457,7 +457,8 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             }
         };
 
-        const creada = await databaseService.createRecording(nueva);
+        // La transcripcion de YouTube ya cobro los minutos en servidor.
+        const creada = await databaseService.createRecording(nueva, { yaCobrado: true });
         if (!creada) {
             showToast(t('youtube_err_generic'), 'error');
             return;

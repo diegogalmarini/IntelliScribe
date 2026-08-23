@@ -348,7 +348,7 @@ export const databaseService = {
         };
     },
 
-    async createRecording(rec: Recording): Promise<Recording | null> {
+    async createRecording(rec: Recording, opciones: { yaCobrado?: boolean } = {}): Promise<Recording | null> {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return null;
 
@@ -388,9 +388,24 @@ export const databaseService = {
             await this.incrementStorage(user.id, rec.metadata.audioFileSize);
         }
 
-        // --- BILLING CORRECTION: Minutes are deducted ONLY upon Transcription/Processing ---
-        // We do NOT deduct minutes at creation time to avoid double-charging.
-        // The `incrementUsage` function is called by the TranscriptEditor/AI Service.
+        // Cobro de minutos.
+        //
+        // Este comentario decia que `incrementUsage` lo llamaba el editor o el
+        // servicio de IA. NO lo llamaba nadie: un grep por todo el repositorio
+        // devolvia cero llamantes. App.tsx actualizaba `minutesUsed` solo en el
+        // estado de React, asi que al recargar volvia del perfil sin incrementar
+        // y la cuota no se aplicaba entre sesiones.
+        //
+        // Se cobra aqui porque es el unico punto por el que pasan las tres rutas
+        // de cliente: grabacion en vivo, subida de fichero y multi-audio. No se
+        // puede cobrar desde `handleUpdateUser` porque escribe en `profiles` y
+        // `minutes_used` es columna protegida: el trigger revertiria el valor.
+        //
+        // `yaCobrado` existe para la ruta de YouTube, que cobra en servidor
+        // dentro de api/ai.ts y aqui se duplicaria.
+        if (!opciones.yaCobrado && rec.durationSeconds > 0) {
+            await this.incrementUsage(user.id, rec.durationSeconds);
+        }
 
         // Notes and Media are now stored as JSONB in the recordings table
         // No need for separate inserts
