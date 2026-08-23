@@ -240,6 +240,126 @@ export const AI_TEMPLATE_PROMPTS: Record<string, TemplatePrompt> = {
         es: `Resume la llamada comercial. Identifica el presupuesto, la autoridad del interlocutor y los bloqueadores.`,
         en: `Summarize the business call. Identify budget, authority of the interlocutor, and blockers.`
     },
+
+    // --- VIDEO ---
+    // Escritas para contenido de video: charlas, tutoriales, webinars y podcasts.
+    // Todas llevan una restriccion anti-invencion explicita, porque este material
+    // suele traer comandos, cifras y nombres propios que el modelo tiende a
+    // completar de memoria cuando no los oye bien.
+    'video_tutorial': {
+        es: `Objetivo: convertir un tutorial en vídeo en un procedimiento que se pueda seguir sin volver a verlo.
+
+Estructura:
+1. Qué se consigue al terminar, en una frase.
+2. Requisitos previos y herramientas necesarias.
+3. Pasos numerados, cada uno con su acción concreta y su marca de tiempo.
+4. Comandos, rutas, URLs y nombres de herramientas EXACTAMENTE como se dicen.
+5. Errores, advertencias y atajos que mencione el autor.
+
+Regla absoluta: si un dato no se dice en el vídeo, escribe "no indicado". No lo completes de memoria ni lo deduzcas: un comando inventado hace perder más tiempo que uno ausente.`,
+        en: `Goal: turn a video tutorial into a procedure someone can follow without rewatching it.
+
+Structure:
+1. What you end up with, in one sentence.
+2. Prerequisites and required tools.
+3. Numbered steps, each with its concrete action and timestamp.
+4. Commands, paths, URLs and tool names EXACTLY as spoken.
+5. Errors, warnings and shortcuts the author mentions.
+
+Absolute rule: if something is not stated in the video, write "not stated". Do not fill it in from memory or infer it: an invented command wastes more time than a missing one.`
+    },
+    'video_competitor': {
+        es: `Objetivo: ficha de inteligencia competitiva a partir de una demo, webinar o presentación de producto.
+
+Extrae:
+- La propuesta de valor tal y como ELLOS la formulan.
+- Funcionalidades que enseñan de verdad en pantalla, separadas de las que solo mencionan.
+- Precios, planes, límites y cifras que digan en voz alta.
+- Cliente objetivo y casos de uso que nombran.
+- Limitaciones o carencias que admitan, y las objeciones que responden.
+- Integraciones y tecnología que citan.
+
+Entrecomilla textualmente las afirmaciones fuertes, con su marca de tiempo. No añadas valoraciones tuyas ni compares con otros productos: esto es una ficha de lo que dijeron, no una opinión.`,
+        en: `Goal: competitive intelligence sheet from a demo, webinar or product presentation.
+
+Extract:
+- The value proposition as THEY phrase it.
+- Features actually shown on screen, kept separate from features merely mentioned.
+- Pricing, plans, limits and figures said out loud.
+- Target customer and named use cases.
+- Limitations they admit to, and objections they answer.
+- Integrations and technology they cite.
+
+Quote strong claims verbatim with their timestamp. Do not add your own judgement or compare with other products: this is a record of what they said, not an opinion.`
+    },
+    'video_references': {
+        es: `Objetivo: extraer todo dato concreto y verificable que se cite, para poder usarlo después con agentes, búsquedas o verificación.
+
+Devuelve listas separadas de:
+- Personas, con su cargo si se menciona.
+- Empresas y productos.
+- Herramientas, tecnologías y modelos.
+- URLs, repositorios y documentos.
+- Libros, artículos y estudios.
+- Cifras y porcentajes, indicando SIEMPRE qué miden.
+- Fechas y plazos.
+
+Cada entrada con su marca de tiempo. Regla absoluta: no incluyas nada que no se diga explícitamente. Ante la duda, omítelo. Una lista corta y fiable vale más que una larga con inventos.`,
+        en: `Goal: pull out every concrete, verifiable fact cited, so it can be used later with agents, search or fact-checking.
+
+Return separate lists of:
+- People, with their role if mentioned.
+- Companies and products.
+- Tools, technologies and models.
+- URLs, repositories and documents.
+- Books, articles and studies.
+- Figures and percentages, ALWAYS stating what they measure.
+- Dates and deadlines.
+
+Each entry with its timestamp. Absolute rule: include nothing that is not explicitly said. When in doubt, leave it out. A short reliable list beats a long invented one.`
+    },
+    'video_qa': {
+        es: `Objetivo: reconstruir el contenido como preguntas y respuestas. Pensado para entrevistas, podcasts, mesas redondas y sesiones de dudas.
+
+Cada bloque:
+- La pregunta tal y como se formula, resumida solo si es muy larga.
+- Quién la hace, si se sabe.
+- La respuesta en su sustancia, sin muletillas ni rodeos.
+- La marca de tiempo.
+
+Mantén el orden original. Si una pregunta queda sin responder o se esquiva, dilo explícitamente en vez de rellenar el hueco.`,
+        en: `Goal: rebuild the content as questions and answers. Meant for interviews, podcasts, panels and Q&A sessions.
+
+Each block:
+- The question as asked, shortened only if very long.
+- Who asks it, if known.
+- The substance of the answer, without filler or hedging.
+- The timestamp.
+
+Keep the original order. If a question goes unanswered or is dodged, say so explicitly instead of filling the gap.`
+    },
+    'video_social': {
+        es: `Objetivo: convertir un vídeo largo en material publicable.
+
+Devuelve:
+1. Tres ganchos de una frase, cada uno con el momento del vídeo que lo respalda.
+2. Los cinco fragmentos más citables, textuales y con marca de tiempo.
+3. Un post de LinkedIn de 150 a 200 palabras, en primera persona y sin emojis.
+4. Un hilo de 5 a 7 mensajes.
+5. Cinco títulos alternativos.
+
+Regla absoluta: no inventes datos que no estén en el vídeo ni prometas nada que no se diga en él. El material tiene que sostenerse si alguien va y ve el original.`,
+        en: `Goal: turn a long video into publishable material.
+
+Return:
+1. Three one-line hooks, each with the moment in the video that backs it.
+2. The five most quotable excerpts, verbatim and timestamped.
+3. A LinkedIn post of 150 to 200 words, first person, no emoji.
+4. A thread of 5 to 7 messages.
+5. Five alternative titles.
+
+Absolute rule: invent no facts that are not in the video and promise nothing it does not say. The material must hold up if someone goes and watches the original.`
+    },
 };
 
 /** Resuelve el prompt de una plantilla, con vuelta a la generica si no existe. */

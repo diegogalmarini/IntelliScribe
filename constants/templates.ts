@@ -1158,5 +1158,110 @@ export const AI_TEMPLATES: AITemplate[] = [
             en: ['Client Pain Points', 'Raised Objections', 'Follow-up Commitments', 'Sentiment Analysis']
         },
         systemPrompt: AI_TEMPLATE_PROMPTS['sales_call_summary']
-    }
+    },
+
+    // --- VIDEO ---
+    // Cinco plantillas pensadas para contenido de video y que no duplican
+    // ninguna de las seis ya marcadas con videoReady.
+    {
+        id: 'video_tutorial',
+        videoReady: true,
+        category: 'Education',
+        title: {
+            es: 'Tutorial paso a paso',
+            en: 'Step-by-step Tutorial'
+        },
+        description: {
+            es: 'Convierte un tutorial en un procedimiento que puedes seguir sin volver a ver el vídeo. Conserva comandos y herramientas tal cual se dicen.',
+            en: 'Turns a tutorial into a procedure you can follow without rewatching. Keeps commands and tools exactly as spoken.'
+        },
+        icon: ListChecks,
+        color: 'text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/30',
+        outline: {
+            es: ['Requisitos', 'Pasos numerados', 'Comandos exactos', 'Errores comunes'],
+            en: ['Prerequisites', 'Numbered steps', 'Exact commands', 'Common pitfalls']
+        },
+        systemPrompt: AI_TEMPLATE_PROMPTS['video_tutorial']
+    },
+    {
+        id: 'video_competitor',
+        videoReady: true,
+        category: 'Business',
+        title: {
+            es: 'Ficha de competidor',
+            en: 'Competitor Sheet'
+        },
+        description: {
+            es: 'Para demos y webinars ajenos. Qué prometen, qué enseñan de verdad, qué precios dicen y qué carencias admiten.',
+            en: 'For other companies demos and webinars. What they promise, what they actually show, prices said, gaps admitted.'
+        },
+        icon: Target,
+        color: 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30',
+        outline: {
+            es: ['Propuesta de valor', 'Funciones mostradas', 'Precios citados', 'Limitaciones admitidas'],
+            en: ['Value proposition', 'Features shown', 'Prices cited', 'Admitted limitations']
+        },
+        systemPrompt: AI_TEMPLATE_PROMPTS['video_competitor']
+    },
+    {
+        id: 'video_references',
+        videoReady: true,
+        category: 'Research',
+        title: {
+            es: 'Referencias y datos citados',
+            en: 'Cited References and Data'
+        },
+        description: {
+            es: 'Extrae personas, empresas, herramientas, URLs, cifras y fechas con su marca de tiempo. Ideal para alimentar agentes o verificar.',
+            en: 'Extracts people, companies, tools, URLs, figures and dates with timestamps. Ideal to feed agents or fact-check.'
+        },
+        icon: Search,
+        color: 'text-sky-600 bg-sky-100 dark:text-sky-400 dark:bg-sky-900/30',
+        outline: {
+            es: ['Personas y empresas', 'Herramientas y URLs', 'Cifras', 'Fechas'],
+            en: ['People and companies', 'Tools and URLs', 'Figures', 'Dates']
+        },
+        systemPrompt: AI_TEMPLATE_PROMPTS['video_references']
+    },
+    {
+        id: 'video_qa',
+        videoReady: true,
+        category: 'General',
+        title: {
+            es: 'Preguntas y respuestas',
+            en: 'Questions and Answers'
+        },
+        description: {
+            es: 'Reconstruye entrevistas, podcasts y sesiones de dudas emparejando cada pregunta con su respuesta. Marca las que quedan sin responder.',
+            en: 'Rebuilds interviews, podcasts and Q&A sessions pairing each question with its answer. Flags the unanswered ones.'
+        },
+        icon: MessageSquare,
+        color: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30',
+        outline: {
+            es: ['Pregunta', 'Quién la hace', 'Respuesta', 'Sin responder'],
+            en: ['Question', 'Who asks', 'Answer', 'Unanswered']
+        },
+        systemPrompt: AI_TEMPLATE_PROMPTS['video_qa']
+    },
+    {
+        id: 'video_social',
+        videoReady: true,
+        category: 'Periodismo',
+        title: {
+            es: 'Guion para redes',
+            en: 'Social Media Script'
+        },
+        description: {
+            es: 'Convierte un vídeo largo en material publicable: ganchos, fragmentos citables con marca de tiempo, post de LinkedIn y hilo.',
+            en: 'Turns a long video into publishable material: hooks, timestamped quotable excerpts, LinkedIn post and thread.'
+        },
+        icon: PenTool,
+        color: 'text-pink-600 bg-pink-100 dark:text-pink-400 dark:bg-pink-900/30',
+        outline: {
+            es: ['Ganchos', 'Fragmentos citables', 'Post de LinkedIn', 'Hilo'],
+            en: ['Hooks', 'Quotable excerpts', 'LinkedIn post', 'Thread']
+        },
+        systemPrompt: AI_TEMPLATE_PROMPTS['video_social']
+    },
+
 ];
