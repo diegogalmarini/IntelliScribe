@@ -13,6 +13,8 @@ interface AnalysisModalProps {
 const CATEGORIES = (lang: string) => [
     { id: 'all', label: lang === 'es' ? 'Todos los archivos' : 'All files', icon: LayoutGrid },
     { id: 'recent', label: lang === 'es' ? 'Usados recientemente' : 'Recently used', icon: Clock },
+    // Filtro transversal: cruza las categorias en vez de competir con ellas.
+    { id: 'video', label: lang === 'es' ? 'Vídeo' : 'Video', icon: Video },
     { type: 'divider' },
     { id: 'General', label: lang === 'es' ? 'General' : 'General', icon: Wand2 },
     { id: 'Business', label: lang === 'es' ? 'Reuniones y Negocios' : 'Meeting & Business', icon: Building2 },
@@ -29,7 +31,7 @@ const CATEGORIES = (lang: string) => [
 ];
 
 function UsersIcon(props: any) { return <Users {...props} /> }
-import { Users, Mic, Phone, Briefcase } from 'lucide-react';
+import { Users, Mic, Phone, Briefcase, Video } from 'lucide-react';
 
 const LANGUAGES = [
     { code: 'es', label: 'Español' },
@@ -69,6 +71,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({
 
             if (selectedCategory === 'all') return true;
             if (selectedCategory === 'recent') return true; // Placeholder logic for recent
+            if (selectedCategory === 'video') return template.videoReady === true;
 
             return template.category === selectedCategory;
         });

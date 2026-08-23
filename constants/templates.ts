@@ -52,6 +52,16 @@ import { AI_TEMPLATE_PROMPTS } from './aiPrompts';
 export interface AITemplate {
     id: string;
     category: 'General' | 'Business' | 'Medical' | 'Education' | 'Legal' | 'HR' | 'Product' | 'Personal' | 'Speech' | 'Call' | 'Consulting' | 'Periodismo' | 'Research';
+    /**
+     * Marca las plantillas que funcionan bien sobre video: charlas, webinars,
+     * tutoriales, podcasts.
+     *
+     * Es una bandera y no una categoria porque `category` es unica: convertir
+     * "Resumen Adaptativo" en categoria Video lo sacaria de General. Asi el
+     * filtro de Video cruza las categorias existentes en vez de competir con
+     * ellas, y una plantilla puede estar en las dos.
+     */
+    videoReady?: boolean;
     title: {
         es: string;
         en: string;
@@ -76,6 +86,7 @@ export const AI_TEMPLATES: AITemplate[] = [
     // --- GENERAL / SMART ---
     {
         id: 'adaptive',
+        videoReady: true,
         category: 'General',
         title: {
             es: 'Resumen Adaptativo (Autopilot)',
@@ -114,6 +125,7 @@ export const AI_TEMPLATES: AITemplate[] = [
     },
     {
         id: 'detailed',
+        videoReady: true,
         category: 'General',
         title: {
             es: 'Detallado y Estructurado',
@@ -152,6 +164,7 @@ export const AI_TEMPLATES: AITemplate[] = [
     },
     {
         id: 'brief',
+        videoReady: true,
         category: 'General',
         title: {
             es: 'Resumen Ejecutivo (Brief)',
@@ -171,6 +184,7 @@ export const AI_TEMPLATES: AITemplate[] = [
     },
     {
         id: 'mind_map_structure',
+        videoReady: true,
         category: 'General',
         title: {
             es: 'Estructura de Mapa Mental',
@@ -462,6 +476,7 @@ export const AI_TEMPLATES: AITemplate[] = [
     },
     {
         id: 'study_guide',
+        videoReady: true,
         category: 'Education',
         title: {
             es: 'Guía de Estudio',
@@ -519,6 +534,7 @@ export const AI_TEMPLATES: AITemplate[] = [
     },
     {
         id: 'workshop_summary',
+        videoReady: true,
         category: 'Education',
         title: {
             es: 'Resumen de Taller',

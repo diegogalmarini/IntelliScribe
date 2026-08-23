@@ -177,9 +177,44 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
     };
 
     // Simple markdown cleaner
+    /**
+     * Quita el prefijo de hablante cuando es el MISMO en todos los parrafos.
+     *
+     * Un monologo con "Jay:" delante de cada parrafo esta pintado como dialogo y
+     * ese prefijo no aporta nada. Solo se quita si es identico en TODOS: con dos
+     * o mas interlocutores el prefijo si distingue, y no se toca.
+     *
+     * Va en el pintado y no en el prompt porque asi arregla tambien los
+     * resumenes ya guardados, sin regenerar ni gastar un token.
+     */
+    const quitarHablanteRepetido = (texto: string): string => {
+        const parrafos = texto.split(/\n{2,}/).map(x => x.trim()).filter(Boolean);
+        if (parrafos.length < 2) return texto;
+
+        // Comparacion de cadenas y no expresion regular construida: un nombre
+        // como "Dr. Ruiz" lleva metacaracteres, y escaparlos a mano es justo
+        // donde se cuelan los fallos.
+        const corte = parrafos[0].indexOf(':');
+        if (corte < 1 || corte > 45) return texto;
+
+        let prefijo = parrafos[0].slice(0, corte + 1);
+        // Un prefijo con salto de linea no es un nombre de hablante.
+        if (prefijo.includes('\n')) return texto;
+
+        // "**Jay:**" lleva el cierre de negrita DETRAS de los dos puntos. Sin
+        // esto quedaria un "**" suelto al principio de cada parrafo.
+        if (prefijo.startsWith('**') && parrafos[0].slice(corte + 1, corte + 3) === '**') {
+            prefijo = parrafos[0].slice(0, corte + 3);
+        }
+
+        if (!parrafos.every(x => x.startsWith(prefijo))) return texto;
+        return parrafos.map(x => x.slice(prefijo.length).trimStart()).join('\n\n');
+    };
+
     const cleanMarkdown = (text: string | undefined) => {
         if (!text) return '';
-        return text.replace(/```markdown/g, '').replace(/```/g, '').trim();
+        const limpio = text.replace(/```markdown/g, '').replace(/```/g, '').trim();
+        return quitarHablanteRepetido(limpio);
     };
 
     // CRITICAL: Load full details from DB and prevent data loss on parent refresh
