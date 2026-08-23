@@ -6,7 +6,7 @@ import { requireAuth } from "./_utils/auth.js";
 import { GEMINI_CONFIG, EMBEDDING_DIMENSIONS, createRunner } from "./_utils/gemini.js";
 import { resolveTemplatePrompt } from "../constants/aiPrompts.js";
 import { enforceRateLimit, RATE_RULES } from "./_utils/rate-limit.js";
-import { extraerIdDeYouTube, urlCanonica, duracionDesdeTokens, metadatosPublicos, FPS_TRANSCRIPCION } from "./_utils/youtube.js";
+import { extraerIdDeYouTube, urlCanonica, duracionDesdeTokens, metadatosPublicos, metadatosDataApi, FPS_TRANSCRIPCION } from "./_utils/youtube.js";
 
 // Initialize Sentry
 initSentry();
@@ -297,10 +297,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 { headers: { Authorization: `Bearer ${supabaseServiceKey}`, apikey: supabaseServiceKey } }
             );
             const perfil = perfilRes.ok ? (await perfilRes.json())[0] : null;
-            if (perfil && perfil.minutes_limit !== -1) {
-                const disponibles = (perfil.minutes_limit || 0) + (perfil.extra_minutes || 0) - (perfil.minutes_used || 0);
-                if (disponibles <= 0) {
-                    return res.status(403).json({ error: 'QUOTA_EXCEEDED' });
+            const ilimitado = !perfil || perfil.minutes_limit === -1;
+            const disponibles = ilimitado
+                ? Infinity
+                : (perfil.minutes_limit || 0) + (perfil.extra_minutes || 0) - (perfil.minutes_used || 0);
+
+            if (disponibles <= 0) {
+                return res.status(403).json({ error: 'QUOTA_EXCEEDED' });
+            }
+
+            // Vuelo previo con la Data API: da la duracion REAL antes de gastar un
+            // solo token. Devuelve null si la API no esta disponible —por ejemplo
+            // con una clave restringida a la Generative Language API—, y entonces
+            // se degrada al comportamiento anterior: se procesa y se cobra despues.
+            const previo = await metadatosDataApi(videoId);
+
+            if (previo) {
+                if (previo.privado) {
+                    return res.status(404).json({ error: 'VIDEO_UNAVAILABLE' });
+                }
+                if (previo.enDirecto) {
+                    return res.status(400).json({ error: 'VIDEO_IS_LIVE' });
+                }
+                if (previo.duracionSegundos !== null && !ilimitado) {
+                    const minutosNecesarios = Math.max(1, Math.ceil(previo.duracionSegundos / 60));
+                    if (minutosNecesarios > disponibles) {
+                        return res.status(403).json({
+                            error: 'VIDEO_TOO_LONG',
+                            necesarios: minutosNecesarios,
+                            disponibles
+                        });
+                    }
                 }
             }
 
@@ -356,7 +383,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 try { datos = JSON.parse(limpio); } catch { datos = { segments: [], suggestedSpeakers: {} }; }
             }
 
-            const durationSeconds = duracionDesdeTokens(salida.tokensVideo);
+            // La duracion de la Data API es exacta; la derivada de tokens tiene un
+            // error medido del 0,8%. Se prefiere la primera cuando esta disponible.
+            const durationSeconds = previo?.duracionSegundos ?? duracionDesdeTokens(salida.tokensVideo);
 
             // Cobro en SERVIDOR. La ruta de subida de audio lo hace en el cliente
             // y solo sobre el estado de React, asi que no se persiste; aqui no
@@ -378,7 +407,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
             }
 
-            const meta = await metadatosPublicos(videoId);
+            // Si el vuelo previo ya trajo el titulo, no hace falta ir a oEmbed.
+            const meta = previo?.titulo ? { titulo: previo.titulo, autor: previo.autor } : await metadatosPublicos(videoId);
 
             result = {
                 segments: Array.isArray(datos?.segments) ? datos.segments : [],

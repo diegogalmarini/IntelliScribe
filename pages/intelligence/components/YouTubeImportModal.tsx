@@ -12,7 +12,10 @@ interface YouTubeImportModalProps {
 /** Traduce el codigo que devuelve el servidor a un mensaje util. */
 const claveDeError = (mensaje: string): string => {
     if (mensaje.includes('INVALID_YOUTUBE_URL')) return 'youtube_err_url';
+    if (mensaje.includes('VIDEO_TOO_LONG')) return 'youtube_err_too_long';
     if (mensaje.includes('QUOTA_EXCEEDED')) return 'youtube_err_quota';
+    if (mensaje.includes('VIDEO_UNAVAILABLE')) return 'youtube_err_unavailable';
+    if (mensaje.includes('VIDEO_IS_LIVE')) return 'youtube_err_live';
     return 'youtube_err_generic';
 };
 

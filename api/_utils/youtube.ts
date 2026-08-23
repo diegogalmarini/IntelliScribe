@@ -111,3 +111,64 @@ export async function metadatosPublicos(videoId: string): Promise<{ titulo: stri
         return null;
     }
 }
+
+/** Convierte una duración ISO 8601 de YouTube (PT1H2M3S) a segundos. */
+export function segundosDesdeISO(iso: unknown): number | null {
+    if (typeof iso !== 'string') return null;
+    const m = iso.match(/^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+    if (!m) return null;
+    const [, d, h, min, s] = m;
+    const total = (+(d || 0)) * 86400 + (+(h || 0)) * 3600 + (+(min || 0)) * 60 + (+(s || 0));
+    return Number.isFinite(total) ? total : null;
+}
+
+export interface DatosDataApi {
+    duracionSegundos: number | null;
+    titulo: string;
+    autor: string;
+    privado: boolean;
+    enDirecto: boolean;
+}
+
+/**
+ * Metadatos vía YouTube Data API v3: duración REAL antes de gastar un token.
+ *
+ * Devuelve `null` —y el llamante degrada al comportamiento sin tope duro— cuando
+ * la API no está disponible. Eso incluye el caso de una clave restringida a la
+ * Generative Language API, que responde 403 "blocked" aunque el proyecto tenga
+ * la API habilitada: habilitarla en el proyecto no basta, hay que permitirla
+ * también en la clave.
+ *
+ * Se prefiere `YOUTUBE_API_KEY` si existe, para poder tener una clave de mínimo
+ * privilegio separada de la que factura Gemini.
+ */
+export async function metadatosDataApi(videoId: string): Promise<DatosDataApi | null> {
+    const key = process.env.YOUTUBE_API_KEY || process.env.GEMINI_API_KEY;
+    if (!key) return null;
+
+    try {
+        const r = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet,status&id=${encodeURIComponent(videoId)}&key=${key}`,
+            { signal: AbortSignal.timeout(6000) }
+        );
+        if (!r.ok) {
+            console.warn(`[YT] Data API no disponible (${r.status}); se sigue sin tope duro de duracion.`);
+            return null;
+        }
+        const j: any = await r.json();
+        const item = j?.items?.[0];
+        // Un id bien formado que no existe devuelve items vacío: eso NO es "API
+        // no disponible", es un vídeo inexistente o privado, y hay que decirlo.
+        if (!item) return { duracionSegundos: null, titulo: '', autor: '', privado: true, enDirecto: false };
+
+        return {
+            duracionSegundos: segundosDesdeISO(item?.contentDetails?.duration),
+            titulo: typeof item?.snippet?.title === 'string' ? item.snippet.title.slice(0, 200) : '',
+            autor: typeof item?.snippet?.channelTitle === 'string' ? item.snippet.channelTitle.slice(0, 120) : '',
+            privado: item?.status?.privacyStatus === 'private',
+            enDirecto: item?.snippet?.liveBroadcastContent === 'live' || item?.snippet?.liveBroadcastContent === 'upcoming'
+        };
+    } catch {
+        return null;
+    }
+}
