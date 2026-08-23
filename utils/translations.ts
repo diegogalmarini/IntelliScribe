@@ -922,6 +922,7 @@ export const translations = {
     transcript_edited_tooltip: "Filler words removed and grammar fixed. Not a verbatim record.",
     sourceVideo: "Source video",
     watchOnYoutube: "Watch on YouTube",
+    footer_youtube: "YouTube Video",
     step3_sync: "Automatic Sync",
     step4_memory: "Eternal Memory",
     hero_capture: "Capture",
@@ -2059,6 +2060,7 @@ export const translations = {
     transcript_edited_tooltip: "Se han quitado muletillas y corregido la gramática. No es un acta literal.",
     sourceVideo: "Vídeo original",
     watchOnYoutube: "Ver en YouTube",
+    footer_youtube: "Vídeo de YouTube",
     step3_sync: "Sync Automático",
     step4_memory: "Memoria Eterna",
 

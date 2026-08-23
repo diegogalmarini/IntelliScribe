@@ -67,6 +67,7 @@ export const Footer: React.FC = () => {
                     <a href="/manual?id=subir-archivos" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_upload')}</a>
                     <a href="/manual?id=multi-audio" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">Multi-Audio</a>
                     <a href="/manual?id=grabadora-llamada" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_call_recorder')}</a>
+                    <a href="/manual?id=youtube" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_youtube')}</a>
                 </div>
 
                 {/* Column 4: Legal */}

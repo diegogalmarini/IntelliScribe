@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "last_updated": "2026-01-09",
+    "last_updated": "2026-08-23",
     "language": "es",
     "intents": [
         {
@@ -183,6 +183,102 @@
                 "change_language"
             ],
             "confidence_threshold": 0.75
+        },
+        {
+            "intent_id": "transcribe_youtube",
+            "category": "features",
+            "patterns": [
+                "transcribir youtube",
+                "video de youtube",
+                "puedo pegar una url",
+                "transcribir un video",
+                "youtube",
+                "pasar un video a texto",
+                "transcribir un enlace",
+                "video url",
+                "subir un video",
+                "transcribir vimeo",
+                "transcribir loom"
+            ],
+            "response_template": "Sí, puedes transcribir vídeos de YouTube. Pulsa el botón + en la barra lateral, elige YouTube y pega la URL de un vídeo público. Diktalo no descarga ni almacena el vídeo: la URL se envía a Google, que procesa su propia plataforma. El vídeo consume minutos de tu plan según su duración real. Solo funciona con vídeos públicos, y no con emisiones en directo. De momento solo YouTube: Vimeo o Loom requerirían descargar el fichero, lo que va contra sus términos.",
+            "related_intents": [
+                "youtube_language",
+                "transcript_mode"
+            ],
+            "confidence_threshold": 0.7
+        },
+        {
+            "intent_id": "youtube_language",
+            "category": "features",
+            "patterns": [
+                "video en ingles",
+                "transcribir a otro idioma",
+                "traducir el video",
+                "idioma de salida",
+                "video en ingles a espanol",
+                "cambiar idioma de la transcripcion"
+            ],
+            "response_template": "Puedes elegir el idioma de salida al pegar la URL, sea cual sea el idioma que se habla en el vídeo. Están disponibles español, inglés, portugués, francés, alemán e italiano. Así puedes ver contenido en inglés y quedarte con el texto en español directamente.",
+            "related_intents": [
+                "transcribe_youtube",
+                "transcript_mode"
+            ],
+            "confidence_threshold": 0.7
+        },
+        {
+            "intent_id": "transcript_mode",
+            "category": "features",
+            "patterns": [
+                "transcripcion limpia",
+                "transcripcion literal",
+                "diferencia entre limpia y literal",
+                "quitar muletillas",
+                "transcripcion editada",
+                "que significa transcripcion editada",
+                "acta literal"
+            ],
+            "response_template": "Hay dos estilos. Limpia quita muletillas, dudas y falsos arranques y corrige la gramática, pero conserva TODO lo que se dijo y en su orden: no resume ni omite. Literal transcribe exactamente lo dicho, con dudas incluidas. En vídeo el modo por defecto es Limpia, porque una transcripción traducida no puede ser literal. Las limpias llevan un distintivo visible 'Transcripción editada'. Si necesitas un acta con valor probatorio, usa Literal.",
+            "related_intents": [
+                "transcribe_youtube",
+                "video_templates"
+            ],
+            "confidence_threshold": 0.7
+        },
+        {
+            "intent_id": "video_templates",
+            "category": "features",
+            "patterns": [
+                "plantillas para video",
+                "que plantilla uso para un video",
+                "filtro video",
+                "plantilla tutorial",
+                "ficha de competidor",
+                "guion para redes",
+                "referencias citadas"
+            ],
+            "response_template": "Al generar un resumen tienes un filtro Vídeo en la columna izquierda. Dentro hay plantillas pensadas para este contenido: Tutorial paso a paso, que conserva comandos y URLs tal cual se dicen; Ficha de competidor, para demos y webinars ajenos; Referencias y datos citados, que extrae personas, herramientas, cifras y fechas con su marca de tiempo; Preguntas y respuestas, para entrevistas y podcasts; y Guion para redes. Además de las de propósito general.",
+            "related_intents": [
+                "transcribe_youtube",
+                "transcript_mode"
+            ],
+            "confidence_threshold": 0.7
+        },
+        {
+            "intent_id": "organize_projects",
+            "category": "features",
+            "patterns": [
+                "crear un proyecto",
+                "organizar grabaciones",
+                "carpetas",
+                "mover una grabacion",
+                "agrupar audios",
+                "proyectos"
+            ],
+            "response_template": "En la barra lateral, pulsa el + junto a 'Proyectos' para crear uno. Las grabaciones aparecen anidadas dentro de su proyecto y puedes desplegarlo o plegarlo. Para mover una grabación, abre su menú ··· y elige 'Mover a proyecto'. El proyecto que tengas seleccionado es también donde se guardan las grabaciones nuevas.",
+            "related_intents": [
+                "transcribe_youtube"
+            ],
+            "confidence_threshold": 0.7
         }
     ],
     "entities": [

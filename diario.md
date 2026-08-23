@@ -1,17 +1,105 @@
 # Diario de Desarrollo — Diktalo
 
 > Bitácora técnica viva del proyecto. Cada decisión, cada feature, cada bug resuelto.
-> Actualizado: 20 agosto 2026
+> Actualizado: 23 agosto 2026
 >
 > ⚠️ **Advertencia:** Este documento es contexto vivo, no spec de implementación. Validar siempre contra:
 > 1. El código real en `/api/`, `/services/`, `/pages/`
 > 2. `.agent/skills/` para estándares de IA y proceso
 > 3. `AGENTS.md` para reglas invariables del proyecto
 >
-> 📌 **Estado actual resumido (2026-08-20):**
-> Último hito documentado: 20 agosto 2026 (sidebar en árbol, multi-audio, coste de modelos, chunks caducados).
+> 📌 **Estado actual resumido (2026-08-23):**
+> Último hito documentado: 23 agosto 2026 (transcripción de vídeo de YouTube, estilos de transcripción, plantillas de vídeo).
 > En curso: ver entrada más reciente.
 > Brújula de metodología: `AGENTS.md` + `CLAUDE.md`. Historial por fases: `docs/DEVELOPMENT_LOG.md`.
+
+---
+
+## Registro 2026-08-23 — Transcripción de vídeo de YouTube, y documentarla
+
+**Qué se hizo:**
+
+Función nueva completa —transcribir un vídeo de YouTube pegando su URL— más los
+arreglos de interfaz que salieron al usarla.
+
+**Por qué solo YouTube, y por qué eso no es una limitación técnica.**
+Gemini ingiere una URL de YouTube de forma nativa vía `fileData.fileUri`: es
+Google procesando su propia plataforma. Diktalo nunca descarga ni aloja el
+vídeo, así que no hay que tocar el ToS de nadie. Para Vimeo o Loom habría que
+descargar el fichero, y eso sí viola sus términos. Esas irían por integración
+oficial con OAuth o no van.
+
+**Medido antes de escribir código.** Con `fps: 0.1` en vez del valor por
+defecto, el gasto baja 2,9× sin perder transcripción, porque para transcribir
+manda el audio y no los fotogramas. Dos vídeos, 19 s y 1299 s: 31,84 y 31,59
+tokens/s. Sale a **$0,0112 por hora de vídeo**, prácticamente lo mismo que
+transcribir el audio equivalente ($0,0115).
+
+Esa tasa estable permitió derivar la duración del contador de tokens de la
+propia API cuando no hay Data API. Se prefiere eso a la última marca de tiempo
+del transcript: en el vídeo de 1299 s reales, el modelo cerró en 1314 s (1,15 %
+de más) mientras los tokens daban 1303 s (0,31 %).
+
+**Tope duro de duración.** Con la YouTube Data API v3 se consulta la duración
+real antes de gastar un token, y se rechaza lo que no quepa en los minutos del
+usuario. Degrada limpiamente si la API no responde. Aviso para el futuro:
+habilitar la API en el proyecto de Google Cloud NO basta, hay que permitirla
+también en las restricciones de la clave; el 403 dice "blocked" en vez de "has
+not been used", y esa palabra es la que distingue un caso del otro. Como la
+Gemini API exige vinculación a cuenta de servicio y no convive con otras en la
+misma clave, se creó una `YOUTUBE_API_KEY` aparte, de mínimo privilegio.
+
+**Estilo de transcripción.** Una transcripción traducida NO puede ser literal:
+al traducir deja de ser verbatim. Pedir "literal + traducido", que es lo que
+hacía el prompt, producía inglés hablado calcado al español. Se añaden dos modos
+en una sola pasada, con 'clean' por defecto en vídeo, y el idioma de salida se
+elige por vídeo. Esto además ahorra una llamada entera: el flujo anterior
+transcribía literal y luego aplicaba la plantilla "Transcripción Literal
+(Limpia)" encima.
+
+El modo se guarda en `Recording.metadata` y las limpias llevan distintivo
+visible. Diktalo se usa para actas legales y notas médicas: un texto editado por
+un modelo no puede presentarse como verbatim sin dejar constancia.
+
+**Plantillas.** Filtro "Vídeo" implementado como bandera transversal
+`videoReady` y no como categoría nueva, porque `category` es única y marcar
+"Resumen Adaptativo" como Vídeo lo sacaría de General. Once plantillas en el
+filtro: seis existentes marcadas y cinco escritas para vídeo (Tutorial paso a
+paso, Ficha de competidor, Referencias y datos citados, Preguntas y respuestas,
+Guion para redes). Las cinco llevan restricción anti-invención explícita: el
+vídeo técnico trae comandos y cifras que el modelo tiende a completar de memoria.
+
+**Arreglos de interfaz que salieron de usarlo:**
+- La ficha decía "Audio no disponible" en grabaciones que no tienen audio a
+  propósito. Ahora muestra el vídeo incrustado con `youtube-nocookie`.
+- Con un solo interlocutor se repetía su nombre en cada párrafo, convirtiendo un
+  monólogo en falso diálogo. Se corrige en el pintado, así que arregla también
+  los resúmenes ya guardados sin regenerar.
+- Los resúmenes abrían con "Aquí tienes la transcripción corregida:" y esa línea
+  se guardaba dentro. Reglas de salida añadidas al prompt de `summary`, aplican
+  a las 60 plantillas.
+- Botón + fijo en la cabecera del sidebar: grabar, subir, multi-audio y YouTube
+  solo existían en el estado vacío, que desaparece al seleccionar una grabación.
+
+**Documentación.** Se documentó en las cuatro superficies: página nueva del
+manual en ES y EN registrada en `ManualViewer`, seis entradas en `FAQ.md`, cinco
+intents nuevos en `api/_data/knowledge-base.json` para que el bot de soporte
+sepa responder, y enlace en la columna "Métodos de Grabación" del footer.
+
+**Qué queda pendiente:**
+
+- **Medir el techo de duración.** Un vídeo de 22 min tardó 32 s con
+  `maxDuration: 300`. Uno de dos horas podría acercarse al límite y no se ha
+  medido.
+- **El cobro de minutos del audio subido sigue roto.** `App.tsx:544` actualiza
+  `minutesUsed` solo en el estado de React y `databaseService.incrementUsage` no
+  lo llama nadie: los minutos no se persisten. La ruta de YouTube sí cobra, en
+  servidor. Va en su propio arreglo.
+- El precache de 58,8 MB del service worker hace que los despliegues no lleguen
+  a los usuarios sin recarga forzada. Ha despistado la verificación cuatro veces
+  en esta sesión.
+- Sigue pendiente el cron `cron-cleanup-free` (17 audios de 19 usuarios free) y
+  la familia de selectores `.landing-page` con especificidad (0,1,1).
 
 ---
 

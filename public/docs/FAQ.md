@@ -48,6 +48,40 @@ Si tarda más de 30 min, refresca la página o contacta soporte.
 ### ¿Qué formatos de audio puedo subir?
 MP3, M4A, WAV, WEBM, OGG. Máximo 2GB por archivo.
 
+### ¿Puedo transcribir un vídeo de YouTube?
+
+Sí. Pulsa el botón **+** en la barra lateral, elige **YouTube** y pega la URL de un vídeo público.
+
+Diktalo no descarga ni almacena el vídeo: la URL se envía a Google, que procesa su propia plataforma, y Diktalo solo guarda el texto resultante. El vídeo consume minutos de tu plan según su duración real, igual que cualquier otra grabación.
+
+Solo funciona con **vídeos públicos**. Los privados, los no listados y las emisiones en directo no se pueden transcribir. Y de momento solo YouTube: Vimeo, Loom u otras plataformas requerirían descargar el fichero, lo que va contra sus términos de servicio.
+
+### ¿Puedo transcribir un vídeo en inglés y obtener el texto en español?
+
+Sí. Al pegar la URL puedes elegir el idioma de salida entre español, inglés, portugués, francés, alemán e italiano, independientemente del idioma que se hable en el vídeo.
+
+### ¿Qué diferencia hay entre transcripción "Limpia" y "Literal"?
+
+**Limpia** quita muletillas, dudas y falsos arranques, y corrige la gramática. Conserva **todo lo que se dijo y en su orden**: no resume ni omite nada. Cuando además se traduce, redacta en el idioma destino de forma natural en vez de palabra por palabra.
+
+**Literal** transcribe exactamente lo que se dijo, con dudas y repeticiones incluidas.
+
+En vídeo el modo por defecto es **Limpia**, porque una transcripción traducida no puede ser literal: al traducir deja de ser un acta verbatim. Las transcripciones limpias llevan un distintivo **"Transcripción editada"** visible. Si necesitas un acta con valor probatorio, usa **Literal**.
+
+### ¿Hay plantillas específicas para vídeos?
+
+Sí. Al generar un resumen verás un filtro **Vídeo** en la columna izquierda con las plantillas que mejor funcionan sobre este contenido: Tutorial paso a paso, Ficha de competidor, Referencias y datos citados, Preguntas y respuestas y Guion para redes, además de las de propósito general.
+
+### ¿Puedo organizar mis grabaciones en proyectos?
+
+Sí. En la barra lateral, pulsa el **+** junto a "Proyectos" para crear uno. Las grabaciones aparecen anidadas dentro de su proyecto, y puedes desplegarlo o plegarlo.
+
+Para mover una grabación, abre su menú **···** y elige **Mover a proyecto**. El proyecto que tengas seleccionado es también donde se guardarán las grabaciones nuevas que crees.
+
+### ¿Necesito tener derechos sobre el vídeo que transcribo?
+
+Sí, y es tu responsabilidad. Una transcripción literal de un vídeo ajeno es una reproducción de una obra con derechos. Antes de transcribir tienes que confirmar que tienes derecho a hacerlo.
+
 ---
 
 ## 💰 Planes y Límites

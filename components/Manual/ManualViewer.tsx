@@ -34,6 +34,13 @@ const MANUAL_SECTIONS: ManualSection[] = [
         difficulty: 'Principiante'
     },
     {
+        id: 'youtube',
+        title: 'Transcribir un vídeo de YouTube',
+        category: 'Métodos de Grabación',
+        path: '/docs/manual/es/02_metodos_grabacion/youtube.md',
+        difficulty: 'Principiante'
+    },
+    {
         id: 'ask-diktalo',
         title: 'ASK Diktalo - Los 3 Niveles',
         category: 'Inteligencia IA',
