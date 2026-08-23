@@ -332,9 +332,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const nombresIdioma: Record<string, string> = {
-                es: 'Spanish', en: 'English', de: 'German', it: 'Italian', pt: 'Portuguese'
+                es: 'Spanish', en: 'English', de: 'German', it: 'Italian', pt: 'Portuguese', fr: 'French'
             };
-            const idiomaDestino = nombresIdioma[language] || 'English';
+            // Idioma por video: puede no ser el de la interfaz. Se acota a la lista
+            // conocida para que nada del cliente entre suelto en el prompt.
+            const codigoIdioma = typeof payload?.targetLanguage === 'string' && nombresIdioma[payload.targetLanguage]
+                ? payload.targetLanguage
+                : language;
+            const idiomaDestino = nombresIdioma[codigoIdioma] || 'English';
+
+            // 'clean' por defecto para video: una transcripcion traducida NO puede
+            // ser literal —al traducir deja de ser verbatim—, y pedir ambas cosas
+            // produce ingles hablado calcado al español, con muletillas y modismos
+            // que no significan nada.
+            const modo: 'literal' | 'clean' = payload?.mode === 'literal' ? 'literal' : 'clean';
+
+            const instruccionModo = modo === 'literal'
+                ? `Transcribe VERBATIM. Keep filler words, false starts, repetitions and hesitations exactly as spoken.`
+                : `Transcribe what is said and then clean it up:
+ - Remove filler words, hesitations, false starts and accidental repetitions.
+ - Fix grammar and punctuation so each segment reads as well-formed prose.
+ - Render it as natural, idiomatic ${idiomaDestino}. Do NOT translate word for word.
+ ABSOLUTE CONSTRAINTS: keep EVERY idea that was actually said, in its original order.
+ Do NOT summarise. Do NOT omit content. Do NOT add anything that was not said.`;
 
             const salida = await runWithFallback('transcription', undefined, async (model) => {
                 const response = await model.generateContent({
@@ -352,6 +372,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                 text: `Transcribe the spoken audio of this video.
  CRITICAL: The output MUST be entirely in ${idiomaDestino}. Translate if the audio is in another language.
  Do NOT add any preamble, introduction or closing remark: return ONLY the JSON object.
+
+ ${instruccionModo}
 
  SPEAKER IDENTIFICATION:
  - Identify distinct speakers and label them SPEAKER_0, SPEAKER_1, ...
@@ -416,7 +438,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 durationSeconds,
                 title: meta?.titulo || `YouTube ${videoId}`,
                 author: meta?.autor || '',
-                sourceUrl: videoUrl
+                sourceUrl: videoUrl,
+                mode: modo,
+                targetLanguage: codigoIdioma
             };
         }
 

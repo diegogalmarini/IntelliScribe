@@ -3,6 +3,15 @@ import { X, Youtube, Loader2, Info } from 'lucide-react';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { transcribeYouTube, YouTubeTranscription } from '../../../services/geminiService';
 
+const IDIOMAS = [
+    { codigo: 'es', nombre: 'Español' },
+    { codigo: 'en', nombre: 'English' },
+    { codigo: 'pt', nombre: 'Português' },
+    { codigo: 'fr', nombre: 'Français' },
+    { codigo: 'de', nombre: 'Deutsch' },
+    { codigo: 'it', nombre: 'Italiano' }
+];
+
 interface YouTubeImportModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -23,6 +32,9 @@ export const YouTubeImportModal: React.FC<YouTubeImportModalProps> = ({ isOpen, 
     const { t, language } = useLanguage();
     const [url, setUrl] = useState('');
     const [aceptaDerechos, setAceptaDerechos] = useState(false);
+    // 'clean' por defecto: una transcripcion traducida no puede ser literal.
+    const [modo, setModo] = useState<'literal' | 'clean'>('clean');
+    const [idiomaSalida, setIdiomaSalida] = useState<string>(language);
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +53,7 @@ export const YouTubeImportModal: React.FC<YouTubeImportModalProps> = ({ isOpen, 
         setCargando(true);
         setError(null);
         try {
-            const datos = await transcribeYouTube(url.trim(), language);
+            const datos = await transcribeYouTube(url.trim(), language, { mode: modo, targetLanguage: idiomaSalida });
             if (!datos.segments || datos.segments.length === 0) {
                 setError(t('youtube_err_empty'));
                 return;
@@ -97,6 +109,49 @@ export const YouTubeImportModal: React.FC<YouTubeImportModalProps> = ({ isOpen, 
                 <div className="flex items-start gap-2 mt-3 text-[12px] text-[#8e8e8e]">
                     <Info size={14} strokeWidth={1.5} className="shrink-0 mt-0.5" />
                     <span>{t('youtube_only_public')}</span>
+                </div>
+
+                {/* Estilo e idioma, elegidos por video. */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                    <div>
+                        <span className="block text-[12px] font-medium text-[#676767] dark:text-[#c5c5c5] mb-2">
+                            {t('youtube_mode')}
+                        </span>
+                        <div className="flex gap-1.5">
+                            {(['clean', 'literal'] as const).map(m => (
+                                <button
+                                    key={m}
+                                    type="button"
+                                    onClick={() => setModo(m)}
+                                    disabled={cargando}
+                                    className={`flex-1 px-3 py-2 rounded-lg text-[12px] font-medium border transition-colors disabled:opacity-40 ${modo === m
+                                        ? 'border-primary bg-primary/5 text-primary'
+                                        : 'border-slate-200 dark:border-white/10 text-[#676767] dark:text-[#c5c5c5] hover:border-slate-300'
+                                        }`}
+                                >
+                                    {m === 'clean' ? t('youtube_mode_clean') : t('youtube_mode_literal')}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-[11px] text-[#8e8e8e] mt-1.5 leading-snug">
+                            {modo === 'clean' ? t('youtube_mode_clean_hint') : t('youtube_mode_literal_hint')}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-[12px] font-medium text-[#676767] dark:text-[#c5c5c5] mb-2" htmlFor="yt-idioma">
+                            {t('youtube_output_language')}
+                        </label>
+                        <select
+                            id="yt-idioma"
+                            value={idiomaSalida}
+                            onChange={e => setIdiomaSalida(e.target.value)}
+                            disabled={cargando}
+                            className="w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 rounded-lg text-[13px] text-[#0d0d0d] dark:text-white focus:outline-none focus:border-primary transition-colors disabled:opacity-40"
+                        >
+                            {IDIOMAS.map(i => <option key={i.codigo} value={i.codigo}>{i.nombre}</option>)}
+                        </select>
+                    </div>
                 </div>
 
                 {/* La responsabilidad sobre los derechos del contenido es del usuario:

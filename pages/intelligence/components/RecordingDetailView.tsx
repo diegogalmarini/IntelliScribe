@@ -922,11 +922,22 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
                     {hasTranscript ? (
                         <div className="bg-white dark:bg-card-dark rounded-xl border border-black/[0.05] dark:border-white/[0.05] p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                     <FileText size={16} className="text-[#8e8e8e]" />
                                     <h2 className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider">
                                         {t('transcription') || 'Transcripción'}
                                     </h2>
+                                    {/* Un texto al que un modelo ha quitado muletillas y arreglado
+                                        la gramatica NO es un acta verbatim. Diktalo se usa para
+                                        actas legales y notas medicas, asi que tiene que verse. */}
+                                    {recording.metadata?.transcriptionMode === 'clean' && (
+                                        <span
+                                            title={t('transcript_edited_tooltip')}
+                                            className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                                        >
+                                            {t('transcript_edited_badge')}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="flex gap-2">
                                     <button

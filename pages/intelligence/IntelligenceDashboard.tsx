@@ -447,7 +447,14 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             segments: segs,
             notes: [],
             media: [],
-            metadata: { sourceUrl: datos.sourceUrl } as any
+            // El modo se guarda porque cambia lo que el documento ES: un texto
+            // editado por un modelo no puede presentarse como acta verbatim sin
+            // dejar constancia.
+            metadata: {
+                sourceUrl: datos.sourceUrl,
+                transcriptionMode: datos.mode,
+                transcriptionLanguage: datos.targetLanguage
+            }
         };
 
         const creada = await databaseService.createRecording(nueva);

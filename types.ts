@@ -35,6 +35,25 @@ export interface RecordingMetadata {
   }>;
   speakers?: string[]; // NEW: Unique list of speaker names for Isabella Context
   audioFileSize?: number; // Size in bytes for storage tracking
+
+  /** URL de origen cuando la grabacion no viene de un fichero propio. */
+  sourceUrl?: string;
+
+  /**
+   * Como se produjo el texto.
+   *
+   * 'literal' es verbatim: muletillas y falsos arranques incluidos.
+   * 'clean' quita las muletillas y arregla la gramatica conservando TODO lo
+   * dicho y su orden.
+   *
+   * Se guarda porque cambia lo que el documento ES. Diktalo se usa para actas
+   * legales y notas medicas, y un texto editado por un modelo no puede
+   * presentarse como verbatim sin dejar constancia.
+   */
+  transcriptionMode?: 'literal' | 'clean';
+
+  /** Idioma en el que se pidio la transcripcion, que puede no ser el del audio. */
+  transcriptionLanguage?: string;
 }
 
 export interface Folder {

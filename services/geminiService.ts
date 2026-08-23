@@ -155,6 +155,15 @@ export interface YouTubeTranscription {
   title: string;
   author: string;
   sourceUrl: string;
+  mode: 'literal' | 'clean';
+  targetLanguage: string;
+}
+
+export interface OpcionesYouTube {
+  /** 'clean' quita muletillas conservando todo lo dicho. 'literal' es verbatim. */
+  mode?: 'literal' | 'clean';
+  /** Idioma de salida. Por defecto, el de la interfaz. */
+  targetLanguage?: string;
 }
 
 /**
@@ -165,9 +174,17 @@ export interface YouTubeTranscription {
  * —al contrario que `transcribeAudio`, que devuelve vacio— porque el usuario
  * tiene que enterarse de si su URL no vale o si se quedo sin minutos.
  */
-export const transcribeYouTube = async (url: string, language: string = 'es'): Promise<YouTubeTranscription> => {
+export const transcribeYouTube = async (
+  url: string,
+  language: string = 'es',
+  opciones: OpcionesYouTube = {}
+): Promise<YouTubeTranscription> => {
   const response = await apiFetch('/api/ai', {
-    body: { action: 'transcribe-youtube', payload: { url }, language },
+    body: {
+      action: 'transcribe-youtube',
+      payload: { url, mode: opciones.mode, targetLanguage: opciones.targetLanguage },
+      language
+    },
   });
 
   const json = await response.json().catch(() => ({}));
