@@ -65,19 +65,25 @@ export const urlCanonica = (videoId: string) => `https://www.youtube.com/watch?v
 /**
  * Tokens de vídeo que consume un segundo con `fps: 0.1`.
  *
- * Medido contra la API con dos vídeos de tamaños muy distintos:
- *   - 19 s   ->    605 tokens = 31,8 tok/s
- *   - 1314 s -> 41.039 tokens = 31,2 tok/s
+ * Medido contra la API con dos vídeos de tamaños muy distintos, contrastando
+ * contra la duración REAL que da la Data API y no contra la última marca de
+ * tiempo del transcript:
+ *   - 19 s   ->    605 tokens = 31,84 tok/s
+ *   - 1299 s -> 41.039 tokens = 31,59 tok/s
  *
  * La tasa es estable, así que sirve para derivar la duración del vídeo a partir
  * del contador de tokens que devuelve la propia API. Se usa eso y no la última
  * marca de tiempo de la transcripción porque el contador es metadato facturable
- * y la marca la escribe el modelo, que puede inventársela.
+ * y la marca la escribe el modelo: en ese vídeo de 1299 s reales, el modelo
+ * cerró en 1314 s, un 1,15 % de más, mientras que los tokens daban 1303 s.
+ *
+ * Este valor solo se usa cuando la Data API no está disponible; con ella la
+ * duración es exacta.
  *
  * Con `fps` por defecto la tasa sube a ~89 tok/s: casi tres veces más caro por
  * el mismo trabajo, porque para transcribir manda el audio, no los fotogramas.
  */
-export const TOKENS_VIDEO_POR_SEGUNDO = 31.5;
+export const TOKENS_VIDEO_POR_SEGUNDO = 31.7;
 
 /** Fotogramas por segundo que se piden a Gemini. Ver la constante de arriba. */
 export const FPS_TRANSCRIPCION = 0.1;
