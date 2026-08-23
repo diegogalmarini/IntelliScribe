@@ -832,6 +832,29 @@ const AppContent: React.FC = () => {
         }
     };
 
+    /**
+     * Refleja los minutos consumidos en el contador del sidebar sin ir a la BD.
+     *
+     * Quien los PERSISTE es la RPC `increment_user_usage`, llamada desde
+     * databaseService.createRecording. Esto es solo para que la cifra en
+     * pantalla no espere a la siguiente carga. No puede usar handleUpdateUser
+     * porque ese escribe en `profiles` y `minutes_used` es columna protegida.
+     */
+    const handleUsageCharged = (segundos: number) => {
+        if (!segundos || segundos <= 0) return;
+        const minutos = Math.max(1, Math.ceil(segundos / 60));
+        setUser(prev => {
+            if (!prev?.subscription) return prev;
+            return {
+                ...prev,
+                subscription: {
+                    ...prev.subscription,
+                    minutesUsed: (prev.subscription.minutesUsed || 0) + minutos
+                }
+            };
+        });
+    };
+
     const handleDeleteRecording = async (id: string) => {
         const recording = recordings.find(r => r.id === id);
         if (!recording || !supabaseUser) return;
@@ -963,6 +986,7 @@ const AppContent: React.FC = () => {
                             initialView={currentRoute === AppRoute.SUBSCRIPTION ? 'subscription' : currentRoute === AppRoute.INTEGRATIONS ? 'integrations' : 'recordings'}
                             initialSettingsOpen={currentRoute === AppRoute.SETTINGS}
                             onSelectFolder={selectFolder}
+                            onUsageCharged={handleUsageCharged}
                             onUpdateUser={handleUpdateUser}
                             onAppStateChange={handleAppStateChange}
                             onAddFolder={handleAddFolder}

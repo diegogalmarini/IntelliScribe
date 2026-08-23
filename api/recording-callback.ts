@@ -93,29 +93,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const queryTo = query.to as string;
         const numberToCall = queryTo ? decodeURIComponent(queryTo) : (body.To || query.To || '');
         const tier = getTierForNumber(numberToCall);
-        const creditsToDeduct = minutesCharged * tier.multiplier;
+        // Se consumen primero los minutos incluidos en el plan y solo despues
+        // los creditos comprados. Antes se descontaban creditos desde el primer
+        // minuto y `call_minutes_used` no lo incrementaba nadie, asi que un
+        // Business+ con 300 minutos incluidos gastaba creditos sin llegar a usar
+        // ni uno de los suyos. La prioridad plan -> creditos vive entera en la
+        // RPC, igual que en increment_user_usage para los minutos de audio.
+        console.log(`[REC-CALLBACK] Consumiendo ${minutesCharged} min (x${tier.multiplier})`);
 
-        console.log(`💰 [REC-CALLBACK] Deducting ${creditsToDeduct} credits`);
+        // Se guarda en la grabacion el reparto real entre plan y creditos, para
+        // poder auditar despues por que se cobro lo que se cobro.
+        let consumo: { del_plan?: number; creditos?: number } | null = null;
 
         try {
-            const rpcResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/decrement_voice_credits`, {
+            const rpcResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/consume_call_minutes`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${supabaseServiceKey}`,
                     'apikey': supabaseServiceKey,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ p_user_id: userId, p_amount: creditsToDeduct })
+                body: JSON.stringify({
+                    p_user_id: userId,
+                    p_minutes: minutesCharged,
+                    p_multiplier: tier.multiplier
+                })
             });
             if (!rpcResponse.ok) {
                 const errText = await rpcResponse.text();
-                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_DEDUCTION_FAILED', { amount: creditsToDeduct }, errText);
+                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALL_CONSUMPTION_FAILED', { minutes: minutesCharged, multiplier: tier.multiplier }, errText);
             } else {
-                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_DEDUCTION_SUCCESS', { amount: creditsToDeduct });
+                consumo = await rpcResponse.json().catch(() => null);
+                await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALL_CONSUMPTION_SUCCESS', { minutes: minutesCharged, multiplier: tier.multiplier, detalle: consumo });
             }
         } catch (rpcErr: any) {
             console.warn('[REC-CALLBACK] RPC Error:', rpcErr.message);
-            await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CREDIT_RPC_ERROR', { amount: creditsToDeduct }, rpcErr.message);
+            await logDiagnostic(supabaseUrl, supabaseServiceKey, userId, 'CALL_CONSUMPTION_ERROR', { minutes: minutesCharged, multiplier: tier.multiplier }, rpcErr.message);
         }
 
         // Step 3: Download & Upload
@@ -168,7 +181,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             tags: ['phone-call'],
             metadata: {
                 voice_tier: tier.id,
-                credits_deducted: creditsToDeduct,
+                minutes_charged: minutesCharged,
+                plan_minutes_used: consumo?.del_plan ?? null,
+                credits_deducted: consumo?.creditos ?? null,
                 twilio_sid: RecordingSid,
                 call_sid: callSid
             },

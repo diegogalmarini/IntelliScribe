@@ -40,6 +40,15 @@ interface IntelligenceDashboardProps {
     user: UserProfile;
     onLogout: () => void;
     onUpdateUser?: (updates: Partial<UserProfile>) => void;
+    /**
+     * Refleja en pantalla los minutos recien consumidos.
+     *
+     * SOLO estado local: no puede pasar por `onUpdateUser`, que escribe en
+     * `profiles`, porque `minutes_used` es columna protegida por el trigger de
+     * escalada y el valor se revertiria. Quien persiste es la RPC
+     * `increment_user_usage` desde databaseService.createRecording.
+     */
+    onUsageCharged?: (minutos: number) => void;
     onSearch?: (query: string) => Promise<Recording[]>;
     onRecordingComplete: (url: string, durationSeconds: number, customTitle: string, notes: NoteItem[], media: MediaItem[], audioBlob?: Blob) => Promise<Recording | void> | void;
     onUpdateRecording: (id: string, updates: Partial<Recording>) => Promise<void>;
@@ -66,6 +75,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     user,
     onLogout,
     onUpdateUser,
+    onUsageCharged,
     onSearch,
     onRecordingComplete,
     onUpdateRecording,
@@ -254,6 +264,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                         }
                     };
                     const createdRecording = await databaseService.createRecording(recordingData);
+                    if (createdRecording) onUsageCharged?.(recordingData.durationSeconds || 0);
                     if (!createdRecording) throw new Error("Error al crear el registro.");
 
                     setTempRecording(createdRecording);
@@ -393,6 +404,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
             };
 
             const createdRecording = await databaseService.createRecording(currentRecording);
+            if (createdRecording) onUsageCharged?.(currentRecording.durationSeconds || 0);
             setTempRecording(createdRecording);
             if (Analytics && typeof Analytics.trackEvent === 'function') {
                 Analytics.trackEvent('process_multi_audio_success', { duration_seconds: Math.floor(totalDuration), file_count: files.length, transcription_language: targetLang });
@@ -459,6 +471,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
 
         // La transcripcion de YouTube ya cobro los minutos en servidor.
         const creada = await databaseService.createRecording(nueva, { yaCobrado: true });
+        if (creada) onUsageCharged?.(d);
         if (!creada) {
             showToast(t('youtube_err_generic'), 'error');
             return;
