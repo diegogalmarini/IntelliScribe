@@ -12,8 +12,35 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Increase limit to 5MB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+
+        // Solo el esqueleto de la app. Antes esto incluia `png` y `svg`, con lo
+        // que precacheaba TODAS las imagenes del build —las del blog, las de
+        // features, los mockups— y la primera visita se descargaba 58,8 MB en
+        // segundo plano.
+        //
+        // Efecto secundario peor que el peso: hasta que ese precache no termina,
+        // el service worker nuevo no activa y el usuario sigue viendo el bundle
+        // anterior. Es la razon de que los despliegues tarden en llegar.
+        globPatterns: ['**/*.{js,css,html}'],
+
+        // Las imagenes se cachean cuando se piden, no antes. Quien no entre al
+        // blog no descarga sus imagenes.
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'diktalo-imagenes',
+              expiration: {
+                maxEntries: 80,
+                maxAgeSeconds: 30 * 24 * 60 * 60,
+                purgeOnQuotaError: true
+              },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          }
+        ]
       },
       manifest: {
         name: 'Diktalo - AI Meeting Assistant',
