@@ -13,9 +13,11 @@ interface AnalysisModalProps {
 const CATEGORIES = (lang: string) => [
     { id: 'all', label: lang === 'es' ? 'Todos los archivos' : 'All files', icon: LayoutGrid },
     { id: 'recent', label: lang === 'es' ? 'Usados recientemente' : 'Recently used', icon: Clock },
-    // Filtro transversal: cruza las categorias en vez de competir con ellas.
-    { id: 'video', label: lang === 'es' ? 'Vídeo' : 'Video', icon: Video },
+    // La linea separa las vistas generales (todo, recientes) de los filtros de
+    // contenido. Video es un filtro, asi que va DEBAJO: encabeza esa lista
+    // porque cruza todas las categorias en vez de ser una mas.
     { type: 'divider' },
+    { id: 'video', label: lang === 'es' ? 'Vídeo' : 'Video', icon: Video },
     { id: 'General', label: lang === 'es' ? 'General' : 'General', icon: Wand2 },
     { id: 'Business', label: lang === 'es' ? 'Reuniones y Negocios' : 'Meeting & Business', icon: Building2 },
     { id: 'Speech', label: lang === 'es' ? 'Discurso' : 'Speech', icon: Mic },
