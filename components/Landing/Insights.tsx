@@ -61,7 +61,7 @@ export const Insights: React.FC = () => {
                             viewport={{ once: true }}
                             className="relative bg-slate-900 rounded-[2.5rem] p-4 shadow-2xl border border-white/10"
                         >
-                            <div className="bg-background-dark rounded-2xl overflow-hidden border border-white/5 aspect-video flex flex-col p-8">
+                            <div className="bg-background-dark rounded-2xl overflow-hidden border border-white/5 min-h-[320px] flex flex-col p-6 md:p-8">
                                 {/* Header Minimalista */}
                                 <div className="flex justify-between items-center mb-8">
                                     <div className="flex gap-2">
