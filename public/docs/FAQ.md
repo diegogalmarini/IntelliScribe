@@ -88,7 +88,7 @@ Sí, y es tu responsabilidad. Una transcripción literal de un vídeo ajeno es u
 
 ### ¿Qué incluye el plan Free?
 - ✅ 24 minutos/mes de grabación
-- ✅ Almacenamiento de 7 días
+- ✅ Almacenamiento de 30 días
 - ✅ Transcripción automática
 - ✅ Chat básico con IA
 - ✅ Exportar a TXT y PDF

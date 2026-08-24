@@ -726,7 +726,7 @@ export const translations = {
     downloadFailed: "Failed to download audio file.",
     storageUsage: "Storage Usage",
     storageUsed: "used of",
-    storageRetention: "Free tier uses retention-based cleanup (7 days)",
+    storageRetention: "Free tier uses retention-based cleanup (30 days)",
     storageNoLimit: "No storage limit",
 
     // Landing Page (New)
@@ -1935,7 +1935,7 @@ export const translations = {
     downloadFailed: "Error al descargar el archivo de audio.",
     storageUsage: "Uso de Almacenamiento",
     storageUsed: "usado de",
-    storageRetention: "Plan gratuito usa limpieza basada en retención (7 días)",
+    storageRetention: "Plan gratuito usa limpieza basada en retención (30 días)",
     storageNoLimit: "Sin límite de almacenamiento",
 
     // Landing Page (New)

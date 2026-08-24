@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
 const CRON_SECRET = process.env.CRON_SECRET;
-const FREE_TIER_RETENTION_DAYS = 7;
+// 30 y no 7: en el primer disparo con 7 dias se habrian borrado 17 audios de
+// 19 usuarios beta sin previo aviso. Con 30 el mecanismo queda activo sin
+// borrar nada de golpe; se bajara a 7 cuando se avise a los usuarios.
+const FREE_TIER_RETENTION_DAYS = 30;
 
 /**
  * Vercel Cron Job - Free Tier Cleanup
- * Runs daily to delete audio files older than 7 days for free users
+ * Runs daily to delete audio files older than FREE_TIER_RETENTION_DAYS for free users
  * Preserves database records (metadata/transcriptions)
  */
 export default async function handler(req: any, res: any) {
