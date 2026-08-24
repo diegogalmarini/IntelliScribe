@@ -116,7 +116,9 @@ export const Landing: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Pa
                     </motion.div>
                 </section>
 
-                <Features />
+                <section id="features">
+                    <Features />
+                </section>
 
                 <Insights />
 

@@ -15,10 +15,10 @@ export const Footer: React.FC = () => {
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
                 {/* Logo & Tagline Area */}
                 <div className="lg:col-span-1 flex flex-col items-center md:items-start text-center md:text-left">
-                    <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                    <button type="button" aria-label="Diktalo" className="flex items-center gap-3 mb-6 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                         <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto dark:hidden transition-all" />
                         <img src="/logo-diktalo-b.svg" alt="Diktalo Logo" className="h-8 w-auto hidden dark:block transition-all" />
-                    </div>
+                    </button>
                     <p className="text-slate-500 dark:text-slate-400 text-xs font-medium max-w-xs mb-8 leading-relaxed">
                         {t('footerTagline')}
                     </p>
@@ -81,11 +81,11 @@ export const Footer: React.FC = () => {
                 {/* Column 5: Contact */}
                 <div className="flex flex-col items-center md:items-start text-center md:text-left gap-4">
                     <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-2 opacity-50">{t('footer_contact')}</h4>
-                    <a href="/about" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">About Us</a>
+                    <a href="/about" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footer_about')}</a>
                     <a href="/affiliates" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('affiliates_title')}</a>
                     <a href="/contact" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footerContactUs')}</a>
                     <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
-                        <a href="https://x.com/diktalo" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-all">
+                        <a href="https://x.com/diktalo" target="_blank" rel="noopener noreferrer" aria-label="Diktalo en X" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-all">
                             <span className="material-symbols-outlined text-base">share</span>
                         </a>
                     </div>

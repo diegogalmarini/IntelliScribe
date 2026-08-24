@@ -64,13 +64,13 @@ export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Par
         <>
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-20 transition-all">
                 <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+                    <a href="/" aria-label="Diktalo" className="flex items-center gap-3 cursor-pointer" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
                         {effectiveTheme === 'dark' ? (
                             <img src="/logo-diktalo-b.svg" alt="Diktalo Logo" className="h-8 w-auto transition-all" />
                         ) : (
                             <img src="/logo-diktalo.svg" alt="Diktalo Logo" className="h-8 w-auto transition-all" />
                         )}
-                    </div>
+                    </a>
 
                     {/* Desktop Nav */}
                     <div className="hidden lg:flex items-center gap-12">
@@ -101,10 +101,10 @@ export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Par
                                     </div>
                                     <div className="flex flex-col items-start">
                                         <p className="text-[13px] font-bold text-slate-900 dark:text-white leading-none mb-0.5">
-                                            {user.firstName === 'User' ? 'Mi Cuenta' : `${user.firstName} ${user.lastName}`}
+                                            {user.firstName === 'User' ? t('nav_my_account') : `${user.firstName} ${user.lastName}`}
                                         </p>
                                         <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Ir al Dashboard</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">{t('nav_go_dashboard')}</span>
                                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:translate-x-0.5 transition-transform">
                                                 <path d="M5 12h14"></path>
                                                 <path d="M12 5l7 7-7 7"></path>
@@ -133,6 +133,8 @@ export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Par
                     <div className="lg:hidden flex items-center gap-4">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            aria-expanded={isMenuOpen}
+                            aria-label={t('menu')}
                             className="p-2 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors"
                         >
                             <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>

@@ -89,7 +89,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077aa74b589511abe0a_SuisseIntl-LightItalic.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-LightItalic.woff2)format("woff2");
     font-weight: 300;
     font-style: italic;
     font-display: swap
@@ -97,7 +97,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee0770a164715e7342cd2_SuisseIntl-ThinItalic.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-ThinItalic.woff2)format("woff2");
     font-weight: 100;
     font-style: italic;
     font-display: swap
@@ -105,7 +105,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee0776352122ba15e2c53_SuisseIntl-RegularItalic.woff2)format("woff2"), url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077f85caea832e35fd6_SuisseIntl-BookItalic.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-RegularItalic.woff2)format("woff2"), url(/fonts/SuisseIntl-BookItalic.woff2)format("woff2");
     font-weight: 400;
     font-style: italic;
     font-display: swap
@@ -113,7 +113,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077b6a37c18bd0b209b_SuisseIntl-Medium.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-Medium.woff2)format("woff2");
     font-weight: 500;
     font-style: normal;
     font-display: swap
@@ -121,7 +121,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077082d44e307d7f697_SuisseIntl-SemiBold.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-SemiBold.woff2)format("woff2");
     font-weight: 600;
     font-style: normal;
     font-display: swap
@@ -129,7 +129,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077d12dfab8d2e02955_SuisseIntl-UltraLight.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-UltraLight.woff2)format("woff2");
     font-weight: 200;
     font-style: normal;
     font-display: swap
@@ -137,7 +137,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee07798d2950af3563776_SuisseIntl-BoldItalic.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-BoldItalic.woff2)format("woff2");
     font-weight: 700;
     font-style: italic;
     font-display: swap
@@ -145,7 +145,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077522cd4f210730552_SuisseIntl-MediumItalic.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-MediumItalic.woff2)format("woff2");
     font-weight: 500;
     font-style: italic;
     font-display: swap
@@ -153,7 +153,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077f85caea832e35fd3_SuisseIntl-SemiBoldItalic.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-SemiBoldItalic.woff2)format("woff2");
     font-weight: 600;
     font-style: italic;
     font-display: swap
@@ -161,7 +161,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee0775fe5c08f90fe5210_SuisseIntl-Light.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-Light.woff2)format("woff2");
     font-weight: 300;
     font-style: normal;
     font-display: swap
@@ -169,7 +169,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee07751ada6549e645bb0_SuisseIntl-Bold.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-Bold.woff2)format("woff2");
     font-weight: 700;
     font-style: normal;
     font-display: swap
@@ -177,7 +177,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077d9d28b4d49ac248b_SuisseIntl-Thin.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-Thin.woff2)format("woff2");
     font-weight: 100;
     font-style: normal;
     font-display: swap
@@ -185,7 +185,7 @@
 
 @font-face {
     font-family: Suisseintl;
-    src: url(https://cdn.prod.website-files.com/66643a14df53b71d1ed72d08/666ee077ec1feaf48c42eef7_SuisseIntl-Regular.woff2)format("woff2");
+    src: url(/fonts/SuisseIntl-Regular.woff2)format("woff2");
     font-weight: 400;
     font-style: normal;
     font-display: swap

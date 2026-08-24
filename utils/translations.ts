@@ -770,7 +770,7 @@ export const translations = {
 
 
     // Expanded FAQs
-    faqHeader: "Frequently Asked Questions",
+    faqHeader: "FAQ",
     faqPrivQ: "Is my data and voice secure?",
     faqPrivA: "Absolutely. We use seguridad de grado bancario at rest and máxima seguridad en tránsito. Your recordings are private by design; they are never sold to third parties or used to train public models. We are GDPR and SOC2 compliant in nuestro sistema de inteligencia global.",
     faqHardwareQ: "¿Necesito un dispositivo físico o hardware especial?",
@@ -816,7 +816,7 @@ export const translations = {
     insightsFeature1: "Verified verbatim transcripts",
     insightsFeature2: "Automated executive briefings",
     insightsFeature3: "Secure cloud indexing",
-    insightsAiAnalysis: "Sistema activo",
+    insightsAiAnalysis: "System active",
 
     // Solutions Section
     solSectionTag: "Solutions",
@@ -923,6 +923,12 @@ export const translations = {
     sourceVideo: "Source video",
     watchOnYoutube: "Watch on YouTube",
     footer_youtube: "YouTube Video",
+    pricing_loading: "Loading plans...",
+    pricing_ai_assistant_row: "AI assistant available 24/7",
+    testimonials_tag: "Testimonials",
+    nav_my_account: "My Account",
+    nav_go_dashboard: "Go to Dashboard",
+    footer_about: "About Us",
     step3_sync: "Automatic Sync",
     step4_memory: "Eternal Memory",
     hero_capture: "Capture",
@@ -1969,7 +1975,7 @@ export const translations = {
 
 
     // Expanded FAQs
-    faqHeader: "Preguntas Frecuentes",
+    faqHeader: "FAQ",
     faqPrivQ: "¿Es segura mi información y mi voz?",
     faqPrivA: "Totalmente. Utilizamos encriptación AES-256 en reposo y TLS 1.3 en tránsito. Tus grabaciones son privadas por diseño; nunca se venden a terceros ni se usan para entrenar modelos públicos. Cumplimos con estándares GDPR y SOC2 en nuestra infraestructura.",
     faqHardwareQ: "¿Necesito el dispositivo Plaud o hardware especial?",
@@ -2089,6 +2095,12 @@ export const translations = {
     sourceVideo: "Vídeo original",
     watchOnYoutube: "Ver en YouTube",
     footer_youtube: "Vídeo de YouTube",
+    pricing_loading: "Cargando planes...",
+    pricing_ai_assistant_row: "Asistente IA disponible 24/7",
+    testimonials_tag: "Testimonios",
+    nav_my_account: "Mi Cuenta",
+    nav_go_dashboard: "Ir al Dashboard",
+    footer_about: "Sobre Nosotros",
     step3_sync: "Sync Automático",
     step4_memory: "Memoria Eterna",
 

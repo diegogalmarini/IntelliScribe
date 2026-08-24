@@ -125,7 +125,7 @@ export const Testimonials: React.FC = () => {
         <section className="py-24 bg-slate-50 dark:bg-slate-900/50 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16">
-                    <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Testimonios</p>
+                    <p className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">{t('testimonials_tag')}</p>
                     <h2 className="h2 home text-slate-900 dark:text-white">
                         {t('heroReview')}
                     </h2>

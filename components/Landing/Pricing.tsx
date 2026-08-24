@@ -63,7 +63,7 @@ export const Pricing: React.FC = () => {
         fetchData();
     }, [language]); // Re-fetch when language changes
 
-    if (loading) return <div className="py-24 text-center">Cargando ofertas...</div>;
+    if (loading) return <div className="py-24 text-center">{t('pricing_loading')}</div>;
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-24 relative">
@@ -77,17 +77,24 @@ export const Pricing: React.FC = () => {
 
                 {/* Toggle Anual */}
                 <div className="mt-8 flex justify-center items-center gap-4">
-                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>{t('pricing_monthly')}</span>
+                    <span className={`text-sm ${billingInterval === 'monthly' ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>{t('pricing_monthly')}</span>
+                    {/* role=switch + aria-checked: sin ellos un lector de pantalla
+                        anunciaba "boton" a secas, sin nombre ni estado. Y las
+                        etiquetas activas usaban text-slate-900 sin variante dark:
+                        invisibles sobre fondo oscuro. */}
                     <button
+                        role="switch"
+                        aria-checked={billingInterval === 'annual'}
+                        aria-label={t('pricing_annual')}
                         onClick={() => setBillingInterval(prev => prev === 'monthly' ? 'annual' : 'monthly')}
-                        className={`relative w-14 h-8 rounded-full transition-colors ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-slate-300'}`}
+                        className={`relative w-14 h-8 rounded-full transition-colors ${billingInterval === 'annual' ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}
                     >
                         <motion.div
                             className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow"
                             animate={{ x: billingInterval === 'annual' ? 24 : 0 }}
                         />
                     </button>
-                    <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
+                    <span className={`text-sm ${billingInterval === 'annual' ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
                         {t('pricing_annual')} <span className="text-green-600 font-bold ml-1">{t('pricing_discount')}</span>
                     </span>
                 </div>
@@ -255,7 +262,7 @@ export const Pricing: React.FC = () => {
                             </tr>
                             <tr>
                                 <td className="p-4 border-b border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
-                                    Asistente IA disponible 24/7
+                                    {t('pricing_ai_assistant_row')}
                                 </td>
                                 {plans.map(p => (
                                     <td key={p.id} className="p-4 border-b border-slate-100 dark:border-slate-800 text-center">
