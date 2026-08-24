@@ -2,6 +2,7 @@
 import React, { useState, Fragment } from 'react';
 import { AppRoute, UserProfile, Folder } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { MSymbol } from './ui/MSymbol';
 
 interface SidebarProps {
   currentRoute: AppRoute;
@@ -99,7 +100,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
           <button onClick={onClose} className="md:hidden text-slate-400 hover:text-slate-600">
-            <span className="material-symbols-outlined">close</span>
+            <MSymbol name="close" />
           </button>
         </div>
 
@@ -113,9 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
-              <span className={`material-symbols-outlined ${currentRoute === AppRoute.DASHBOARD && activeFolderId === 'ALL' ? 'material-symbols-filled' : ''}`}>
-                dashboard
-              </span>
+              <MSymbol name="dashboard" />
               {t('dashboard')}
             </button>
 
@@ -126,9 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
-              <span className={`material-symbols-outlined ${currentRoute === AppRoute.INTEGRATIONS ? 'material-symbols-filled' : ''}`}>
-                extension
-              </span>
+              <MSymbol name="extension" />
               {t('integrations')}
             </button>
 
@@ -139,9 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
-              <span className={`material-symbols-outlined ${currentRoute === AppRoute.SUBSCRIPTION ? 'material-symbols-filled' : ''}`}>
-                workspace_premium
-              </span>
+              <MSymbol name="workspace_premium" fill={currentRoute === AppRoute.SUBSCRIPTION} />
               {t('plans')}
             </button>
 
@@ -152,9 +147,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
-              <span className={`material-symbols-outlined ${currentRoute === AppRoute.SETTINGS ? 'material-symbols-filled' : ''}`}>
-                settings
-              </span>
+              <MSymbol name="settings" fill={currentRoute === AppRoute.SETTINGS} />
               {t('settings')}
             </button>
           </nav>
@@ -168,7 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="text-slate-400 hover:text-primary transition-colors"
                 title={t('newFolder')}
               >
-                <span className="material-symbols-outlined text-[18px]">add</span>
+                <MSymbol name="add" size={18} />
               </button>
             </div>
 
@@ -181,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       ? 'bg-primary/10 text-primary dark:text-blue-400'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                       }`}>
-                    <span className={`material-symbols-outlined text-[20px] ${activeFolderId === folder.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'}`}>{folder.icon}</span>
+                    <MSymbol name={folder.icon} size={20} className={`${activeFolderId === folder.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'}`} />
                     <span className="truncate flex-1 text-left">{folder.name}</span>
                   </button>
 
@@ -190,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id); }}
                       className="absolute right-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all p-1"
                     >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                      <MSymbol name="delete" size={16} />
                     </button>
                   )}
                 </div>
@@ -201,7 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {isCreatingFolder && (
               <form onSubmit={submitNewFolder} className="mt-2 px-3 animate-in fade-in slide-in-from-top-2">
                 <div className="flex items-center gap-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-border-dark rounded-lg px-2 py-1">
-                  <span className="material-symbols-outlined text-slate-400 text-[18px]">folder</span>
+                  <MSymbol name="folder" size={18} className="text-slate-400" />
                   <input
                     autoFocus
                     type="text"
@@ -243,9 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
-              <span className={`material-symbols-outlined ${currentRoute === AppRoute.MANUAL ? 'material-symbols-filled' : ''}`}>
-                help
-              </span>
+              <MSymbol name="help" fill={currentRoute === AppRoute.MANUAL} />
               {t('help')}
             </button>
           </div>
@@ -337,11 +328,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => onNavigate(AppRoute.ADMIN_OVERVIEW)}
               className="w-full flex items-center gap-3 px-4 py-3 mb-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg transition-all group border border-amber-500/30"
             >
-              <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
+              <MSymbol name="admin_panel_settings" size={20} />
               <span className="flex-1 font-medium text-left">Admin Dashboard</span>
-              <span className="material-symbols-outlined text-sm opacity-50 group-hover:opacity-100 transition-opacity">
-                arrow_forward
-              </span>
+              <MSymbol name="arrow_forward" size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
             </button>
           )}
 
@@ -367,7 +356,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate uppercase">{user.subscription.planId === 'pro' ? t('planPro') : user.subscription.planId === 'business' ? t('planBiz') : user.subscription.planId === 'business_plus' ? t('planBizPlus') : t('planFree')}</p>
               </div>
             </div>
-            <span className="material-symbols-outlined text-slate-400">more_vert</span>
+            <MSymbol name="more_vert" className="text-slate-400" />
           </button>
         </div>
       </aside>

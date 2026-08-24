@@ -5,6 +5,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import * as Analytics from '../utils/analytics';
 import { useToast } from '../components/Toast';
+import { MSymbol } from '../components/ui/MSymbol';
 
 interface LiveRecordingProps {
     onNavigate: (route: AppRoute) => void;
@@ -503,7 +504,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
             <div className="mb-6">
                 <div className="flex flex-wrap gap-2 mb-2 items-center">
                     <button onClick={() => onNavigate(AppRoute.DASHBOARD)} className="text-slate-500 dark:text-text-secondary text-sm font-medium hover:underline">{t('dashboard')}</button>
-                    <span className="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+                    <MSymbol name="chevron_right" size={14} className="text-slate-400" />
                     <span className="text-slate-900 dark:text-white text-sm font-medium">{t('recording')}</span>
                 </div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -523,7 +524,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 <>
                                     <h1 className="text-slate-900 dark:text-white text-2xl md:text-3xl font-bold truncate">{sessionTitle}</h1>
                                     <button onClick={() => setIsEditingTitle(true)} className="text-slate-400 hover:text-primary transition-colors">
-                                        <span className="material-symbols-outlined text-xl">edit</span>
+                                        <MSymbol name="edit" size={20} />
                                     </button>
                                 </>
                             )}
@@ -554,13 +555,13 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         <button
                                             onClick={() => setCallMethod('external')}
                                             className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${callMethod === 'external' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                                            <span className="material-symbols-outlined text-[14px]">speaker_phone</span>
+                                            <MSymbol name="speaker_phone" size={14} />
                                             {t('methodExternal')}
                                         </button>
                                         <button
                                             onClick={() => setCallMethod('voip')}
                                             className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1 ${callMethod === 'voip' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 shadow-sm border border-green-500/20' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                                            <span className="material-symbols-outlined text-[14px]">dialpad</span>
+                                            <MSymbol name="dialpad" size={14} />
                                             {t('methodVoip')}
                                         </button>
                                     </div>
@@ -589,7 +590,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                             <div className={`absolute top-0 left-0 right-0 border-b text-xs px-4 py-2 z-20 text-center animate-in fade-in slide-in-from-top-2 ${callMethod === 'voip' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}>
                                 {callMethod === 'voip' ? (
                                     <span className="flex items-center justify-center gap-2">
-                                        <span className="material-symbols-outlined text-sm">headset_mic</span>
+                                        <MSymbol name="headset_mic" size={14} />
                                         {t('voipFeatureDesc')}
                                     </span>
                                 ) : (
@@ -605,11 +606,11 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     disabled={isRecording && !isPaused}
                                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#111722]/80 backdrop-blur border border-border-light dark:border-border-dark text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#1e2736] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <span className="material-symbols-outlined text-sm">mic</span>
+                                    <MSymbol name="mic" size={14} />
                                     <span className="max-w-[150px] truncate">
                                         {inputDevices.find(d => d.deviceId === selectedDeviceId)?.label || 'Default Microphone'}
                                     </span>
-                                    <span className="material-symbols-outlined text-sm">expand_more</span>
+                                    <MSymbol name="expand_more" size={14} />
                                 </button>
 
                                 {showInputMenu && (
@@ -627,7 +628,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                 }}
                                                 className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-[#232f48] transition-colors ${selectedDeviceId === device.deviceId ? 'text-primary bg-primary/5' : 'text-slate-700 dark:text-slate-300'}`}
                                             >
-                                                <span className={`material-symbols-outlined text-sm ${selectedDeviceId === device.deviceId ? 'opacity-100' : 'opacity-0'}`}>check</span>
+                                                <MSymbol name="check" size={14} className={`${selectedDeviceId === device.deviceId ? 'opacity-100' : 'opacity-0'}`} />
                                                 <span className="truncate">
                                                     {device.label || `Microphone ${device.deviceId.slice(0, 5)}...`}
                                                 </span>
@@ -646,12 +647,12 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         <span>{t('callingAs')}</span>
                                         {user?.phoneVerified ? (
                                             <span className="text-primary mt-1 flex items-center gap-1">
-                                                <span className="material-symbols-outlined text-sm">verified</span>
+                                                <MSymbol name="verified" size={14} />
                                                 {callerId}
                                             </span>
                                         ) : (
                                             <button onClick={() => onNavigate(AppRoute.SETTINGS)} className="text-yellow-500 mt-1 flex items-center gap-1 hover:underline">
-                                                <span className="material-symbols-outlined text-sm">warning</span>
+                                                <MSymbol name="warning" size={14} />
                                                 {t('setupCallerId')}
                                             </button>
                                         )}
@@ -679,7 +680,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         onClick={handleDial}
                                         disabled={!phoneNumber}
                                         className="size-16 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30 flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <span className="material-symbols-outlined text-3xl">call</span>
+                                        <MSymbol name="call" size={30} />
                                     </button>
                                 </div>
                             ) : (
@@ -697,7 +698,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                             {callStatus === 'connecting' && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-background-light/90 dark:bg-surface-dark/90 z-20">
                                     <div className="size-16 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mb-4 animate-pulse">
-                                        <span className="material-symbols-outlined text-4xl">wifi_calling_3</span>
+                                        <MSymbol name="wifi_calling_3" className="text-4xl" />
                                     </div>
                                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('connecting')}</h3>
                                     <p className="text-slate-500">{phoneNumber}</p>
@@ -710,7 +711,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         <p className="text-slate-400 dark:text-slate-500 font-medium bg-surface-light/80 dark:bg-surface-dark/80 px-4 py-2 rounded-full backdrop-blur-sm border border-border-light dark:border-border-dark">
                                             {recordingMode === 'call' ? t('methodExternal') : t('readyCapture')}
                                         </p>
-                                        {recordingMode === 'call' && <span className="material-symbols-outlined text-slate-500 text-3xl">phone_iphone</span>}
+                                        {recordingMode === 'call' && <MSymbol name="phone_iphone" size={30} className="text-slate-500" />}
                                     </div>
                                 </div>
                             )}
@@ -728,7 +729,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                             onClick={handleMark}
                                             className="group flex flex-col items-center gap-1 text-slate-500 hover:text-red-500 transition-colors">
                                             <div className="size-10 md:size-12 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center bg-transparent group-hover:bg-red-500/10 group-hover:border-red-500 transition-all">
-                                                <span className="material-symbols-outlined text-xl md:text-2xl">flag</span>
+                                                <MSymbol name="flag" size={20} className="md:text-2xl" />
                                             </div>
                                             <span className="hidden md:block text-xs font-medium">{t('mark')}</span>
                                         </button>
@@ -744,7 +745,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         <button
                                             onClick={endCall}
                                             className="size-16 md:size-20 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 text-white flex items-center justify-center transition-all transform hover:scale-105" title="Hang Up">
-                                            <span className="material-symbols-outlined text-3xl md:text-4xl">call_end</span>
+                                            <MSymbol name="call_end" size={30} className="md:text-4xl" />
                                         </button>
                                     )
                                 ) : (
@@ -752,7 +753,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                         <button
                                             onClick={startRecording}
                                             className="size-16 md:size-20 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 text-white flex items-center justify-center transition-all transform hover:scale-105" title="Start Recording">
-                                            <span className="material-symbols-outlined text-3xl md:text-4xl">mic</span>
+                                            <MSymbol name="mic" size={30} className="md:text-4xl" />
                                         </button>
                                     ) : (
                                         <>
@@ -789,7 +790,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                         touchAction: 'manipulation'
                                                     }}
                                                     className="size-14 md:size-16 rounded-full bg-slate-900 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title="Hold to Stop">
-                                                    <span className="material-symbols-outlined text-2xl md:text-3xl">stop</span>
+                                                    <MSymbol name="stop" className="md:text-3xl" />
                                                 </button>
                                                 <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-normal text-black dark:text-white uppercase whitespace-nowrap transition-opacity text-center mt-2 leading-tight">
                                                     Hold (3s)
@@ -830,7 +831,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                                         touchAction: 'manipulation'
                                                     }}
                                                     className="size-14 md:size-16 rounded-full bg-slate-400 text-white flex items-center justify-center transition-all active:scale-95 z-10 relative" title={isPaused ? "Tap to Resume" : "Hold to Pause"}>
-                                                    <span className="material-symbols-outlined text-2xl md:text-3xl">{isPaused ? 'play_arrow' : 'pause'}</span>
+                                                    <MSymbol name={isPaused ? 'play_arrow' : 'pause'} className="md:text-3xl" />
                                                 </button>
                                                 <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-[10px] font-normal text-black dark:text-white uppercase whitespace-nowrap transition-opacity text-center mt-2 leading-tight">
                                                     {isPaused ? 'Resume' : 'Hold (2s)'}
@@ -876,7 +877,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 <>
                                     {notes.length === 0 && !isRecording && (
                                         <div className="flex flex-col items-center justify-center flex-1 text-slate-400 opacity-60">
-                                            <span className="material-symbols-outlined text-4xl mb-2">edit_note</span>
+                                            <MSymbol name="edit_note" className="text-4xl mb-2" />
                                             <p className="text-sm">Notes you take will appear here.</p>
                                         </div>
                                     )}
@@ -895,7 +896,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                 <>
                                     {mediaItems.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center flex-1 text-slate-400 opacity-60">
-                                            <span className="material-symbols-outlined text-4xl mb-2">image</span>
+                                            <MSymbol name="image" className="text-4xl mb-2" />
                                             <p className="text-sm text-center">Upload whiteboards, slides, or<br />photos to add context.</p>
                                         </div>
                                     ) : (
@@ -930,7 +931,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                             onClick={handleSendNote}
                                             className="p-1.5 text-primary hover:text-primary-hover rounded-md hover:bg-primary/10 transition-colors"
                                             disabled={!currentNote.trim()}>
-                                            <span className="material-symbols-outlined text-xl">send</span>
+                                            <MSymbol name="send" size={20} />
                                         </button>
                                     </div>
                                 </div>
@@ -946,7 +947,7 @@ export const LiveRecording: React.FC<LiveRecordingProps> = ({ onNavigate, onReco
                                     <button
                                         onClick={handleUploadClick}
                                         className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg h-24 text-slate-500 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all group">
-                                        <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">cloud_upload</span>
+                                        <MSymbol name="cloud_upload" className="group-hover:scale-110 transition-transform" />
                                         <span className="text-sm font-medium">{t('uploadImage')}</span>
                                     </button>
                                     <p className="text-[10px] text-center text-slate-400">{t('supportedFormats')}</p>

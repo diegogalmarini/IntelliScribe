@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppRoute } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { MSymbol } from './ui/MSymbol';
 
 interface LimitReachedModalProps {
     onClose: () => void;
@@ -23,13 +24,13 @@ export const LimitReachedModal: React.FC<LimitReachedModalProps> = ({ onClose, o
                     onClick={onClose}
                     className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                 >
-                    <span className="material-symbols-outlined text-2xl">close</span>
+                    <MSymbol name="close" />
                 </button>
 
                 {/* Icon */}
                 <div className="flex justify-center mb-6">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white text-5xl">block</span>
+                        <MSymbol name="block" className="text-white text-5xl" />
                     </div>
                 </div>
 

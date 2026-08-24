@@ -11,6 +11,7 @@ import { logger } from '../../../services/loggingService';
 import { WaveformVisualizer } from '../../../components/WaveformVisualizer';
 import { supabase } from '../../../lib/supabase';
 import { useToast } from '../../../components/Toast';
+import { MSymbol } from '../../../components/ui/MSymbol';
 
 interface InlineEditorProps {
     recording: Recording;
@@ -682,7 +683,7 @@ ${fullTranscript}`;
     if (isLoadingDetails) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-slate-50 dark:bg-[#0f1117] text-slate-500 dark:text-slate-400">
-                <span className="material-symbols-outlined text-4xl animate-spin mb-4 text-primary">progress_activity</span>
+                <MSymbol name="progress_activity" className="text-4xl animate-spin mb-4 text-primary" />
                 <p>{t('loading')}...</p>
             </div>
         );
@@ -699,7 +700,7 @@ ${fullTranscript}`;
                 <header className="flex items-center justify-between whitespace-nowrap bg-white dark:bg-background-dark px-6 py-3">
                     <div className="flex items-center gap-4 text-slate-900 dark:text-white flex-shrink min-w-0">
                         <div className="size-8 text-[#8e8e8e] hover:text-[#0d0d0d] dark:hover:text-white cursor-pointer flex items-center justify-center rounded-full hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all" onClick={onClose}>
-                            <span className="material-symbols-outlined text-xl">close</span>
+                            <MSymbol name="close" size={20} />
                         </div>
                         <div className="flex flex-col min-w-0">
                             <div className="flex items-center gap-2">
@@ -719,7 +720,7 @@ ${fullTranscript}`;
                                             {recording.title}
                                         </h2>
                                         <button onClick={() => setIsEditingTitle(true)} className="text-[#8e8e8e] hover:text-blue-600 transition-colors flex items-center">
-                                            <span className="material-symbols-outlined text-xs">edit</span>
+                                            <MSymbol name="edit" size={12} />
                                         </button>
                                     </>
                                 )}
@@ -741,9 +742,9 @@ ${fullTranscript}`;
                                 className="flex items-center h-8 px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50"
                             >
                                 {isTranscribing ? (
-                                    <span className="material-symbols-outlined animate-spin text-base">sync</span>
+                                    <MSymbol name="sync" size={16} className="animate-spin" />
                                 ) : (
-                                    <span className="material-symbols-outlined text-base">refresh</span>
+                                    <MSymbol name="refresh" size={16} />
                                 )}
                                 <span className="hidden md:inline">Regenerar</span>
                             </button>
@@ -755,12 +756,12 @@ ${fullTranscript}`;
                                 disabled={segments.length === 0 || isSummarizing}
                                 className="flex items-center h-8 px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50">
                                 {isSummarizing ? (
-                                    <span className="material-symbols-outlined animate-spin text-base">sync</span>
+                                    <MSymbol name="sync" size={16} className="animate-spin" />
                                 ) : (
-                                    <span className="material-symbols-outlined text-base">analytics</span>
+                                    <MSymbol name="analytics" size={16} />
                                 )}
                                 <span className="hidden md:inline">{isSummarizing ? t('thinking') : t('summarize')}</span>
-                                <span className="material-symbols-outlined text-xs opacity-50">expand_more</span>
+                                <MSymbol name="expand_more" size={12} className="opacity-50" />
                             </button>
                             {showTemplateMenu && (
                                 <div className="absolute right-0 top-10 w-64 bg-white dark:bg-[#1e2736] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
@@ -776,9 +777,9 @@ ${fullTranscript}`;
                                             key={tpl.id}
                                             onClick={() => { setSelectedTemplate(tpl.id); handleSummarize(); setShowTemplateMenu(false); }}
                                             className="w-full text-left px-4 py-2 text-xs text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/5 flex items-center gap-2 group transition-colors">
-                                            <span className={`material-symbols-outlined text-lg ${selectedTemplate === tpl.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'}`}>{tpl.icon}</span>
+                                            <MSymbol name={tpl.icon} size={18} className={`${selectedTemplate === tpl.id ? 'text-primary' : 'text-slate-400 group-hover:text-primary'}`} />
                                             <span>{tpl.label}</span>
-                                            {selectedTemplate === tpl.id && <span className="ml-auto material-symbols-outlined text-sm text-primary">check</span>}
+                                            {selectedTemplate === tpl.id && <MSymbol name="check" size={14} className="ml-auto text-primary" />}
                                         </button>
                                     ))}
                                 </div>
@@ -789,7 +790,7 @@ ${fullTranscript}`;
                             onClick={(e) => { e.stopPropagation(); setShowChat(!showChat); }}
                             disabled={segments.length === 0}
                             className={`flex items-center h-8 px-3 rounded-full text-xs font-semibold transition-all gap-1.5 ${showChat ? 'bg-primary text-white' : 'bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
-                            <span className="material-symbols-outlined text-base">auto_awesome</span>
+                            <MSymbol name="auto_awesome" size={16} />
                             <span className="hidden md:inline">{t('askDiktalo')}</span>
                         </button>
 
@@ -798,7 +799,7 @@ ${fullTranscript}`;
                             disabled={!recording.audioUrl}
                             title={user.subscription.planId === 'free' ? t('downloadRequiresPro') : t('downloadAudio')}
                             className={`flex items-center h-8 px-3 rounded-full text-xs font-semibold transition-all gap-1.5 ${user.subscription.planId === 'free' ? 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-400 opacity-50 cursor-not-allowed' : 'bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-[#2f3e5c] disabled:opacity-50'}`}>
-                            <span className="material-symbols-outlined text-base">{user.subscription.planId === 'free' ? 'lock' : 'download'}</span>
+                            <MSymbol name={user.subscription.planId === 'free' ? 'lock' : 'download'} size={16} />
                             <span className="hidden md:inline text-[10px] md:text-xs">Audio</span>
                         </button>
 
@@ -807,16 +808,14 @@ ${fullTranscript}`;
                                 onClick={(e) => { e.stopPropagation(); setShowExportMenu(!showExportMenu); }}
                                 disabled={segments.length === 0}
                                 className="flex items-center h-8 w-8 md:w-auto md:px-3 rounded-full bg-slate-200 dark:bg-[#232f48] text-slate-900 dark:text-white text-xs font-semibold hover:bg-slate-300 dark:hover:bg-[#2f3e5c] transition-all gap-1.5 disabled:opacity-50">
-                                <span className="material-symbols-outlined text-base">ios_share</span>
+                                <MSymbol name="ios_share" size={16} />
                                 <span className="hidden md:inline">{t('export')}</span>
                             </button>
                             {showExportMenu && (
                                 <div className="absolute right-0 top-10 w-48 bg-white dark:bg-[#1e2736] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                                     {['txt', 'srt', 'json', 'clipboard'].map((fmt) => (
                                         <button key={fmt} onClick={() => { handleExport(fmt as any); setShowExportMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/5 flex items-center gap-2 transition-colors">
-                                            <span className="material-symbols-outlined text-base text-slate-400">
-                                                {fmt === 'txt' ? 'description' : fmt === 'srt' ? 'closed_caption' : fmt === 'json' ? 'data_object' : 'content_copy'}
-                                            </span>
+                                            <MSymbol name={fmt === 'txt' ? 'description' : fmt === 'srt' ? 'closed_caption' : fmt === 'json' ? 'data_object' : 'content_copy'} size={16} className="text-slate-400" />
                                             <span className="uppercase">{fmt}</span>
                                         </button>
                                     ))}
@@ -832,7 +831,7 @@ ${fullTranscript}`;
                         onClick={togglePlay}
                         disabled={!signedAudioUrl}
                         className={`size-10 rounded-full text-white flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 flex-shrink-0 ${!signedAudioUrl ? 'bg-gray-400 dark:bg-gray-700 opacity-50' : 'bg-primary shadow-lg shadow-primary/20'}`}>
-                        <span className="material-symbols-outlined text-2xl">{isPlaying ? 'pause' : 'play_arrow'}</span>
+                        <MSymbol name={isPlaying ? 'pause' : 'play_arrow'} />
                     </button>
 
                     <div className="flex-1 flex flex-col gap-1 min-w-0">
@@ -868,7 +867,7 @@ ${fullTranscript}`;
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowSpeedMenu(!showSpeedMenu); }}
                                 className="flex items-center gap-1.5 h-8 px-2.5 bg-slate-200 dark:bg-white/5 rounded-full border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 text-[10px] font-bold hover:text-slate-900 dark:hover:text-white transition-all">
-                                <span className="material-symbols-outlined text-base">speed</span>
+                                <MSymbol name="speed" size={16} />
                                 {playbackRate}x
                             </button>
                             {showSpeedMenu && (
@@ -890,7 +889,7 @@ ${fullTranscript}`;
                         {supportsSetSinkId && outputDevices.length > 0 && (
                             <div className="relative">
                                 <div className="flex items-center gap-1.5 h-8 px-2.5 bg-slate-200 dark:bg-white/5 rounded-full border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300">
-                                    <span className="material-symbols-outlined text-base">volume_up</span>
+                                    <MSymbol name="volume_up" size={16} />
                                     <select
                                         value={selectedOutputId}
                                         onChange={handleOutputChange}
@@ -916,7 +915,7 @@ ${fullTranscript}`;
                         {segments.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-[50vh] text-center">
                                 <div className="size-20 rounded-full bg-blue-50 dark:bg-blue-900/10 flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
-                                    <span className="material-symbols-outlined text-4xl">mic</span>
+                                    <MSymbol name="mic" className="text-4xl" />
                                 </div>
                                 <h3 className="text-xl font-semibold text-[#0d0d0d] dark:text-white mb-2">{t('noTranscript')}</h3>
                                 <p className="text-[#8e8e8e] max-w-xs mb-8">{t('readyToTranscribe')}</p>
@@ -926,12 +925,12 @@ ${fullTranscript}`;
                                     className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50 flex items-center gap-2 text-sm">
                                     {isTranscribing ? (
                                         <>
-                                            <span className="material-symbols-outlined animate-spin text-lg">sync</span>
+                                            <MSymbol name="sync" size={18} className="animate-spin" />
                                             {t('processing')}
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-lg">auto_awesome</span>
+                                            <MSymbol name="auto_awesome" size={18} />
                                             {t('generateTranscript')}
                                         </>
                                     )}
@@ -983,7 +982,7 @@ ${fullTranscript}`;
                                                     </div>
                                                     <div className="relative flex flex-col items-center gap-1 bg-slate-50 dark:bg-[#1a1a1a] px-4">
                                                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 flex items-center gap-1.5 shadow-sm">
-                                                            <span className="material-symbols-outlined text-sm">calendar_today</span>
+                                                            <MSymbol name="calendar_today" size={14} />
                                                             {new Date(temporalMeta.recordedAt).toLocaleDateString('es-ES', {
                                                                 weekday: 'long',
                                                                 year: 'numeric',
@@ -995,7 +994,7 @@ ${fullTranscript}`;
                                                         </span>
                                                         {timeGapDisplay && (
                                                             <span className="text-[10px] font-medium text-amber-600 dark:text-amber-500 flex items-center gap-1">
-                                                                <span className="material-symbols-outlined text-[12px]">schedule</span>
+                                                                <MSymbol name="schedule" size={12} />
                                                                 {timeGapDisplay}
                                                             </span>
                                                         )}
@@ -1075,7 +1074,7 @@ ${fullTranscript}`;
                                                                     }}
                                                                     className={`text-[10px] font-black uppercase tracking-[0.15em] cursor-pointer hover:underline px-0.5 transition-all bg-gradient-to-r ${segment.speakerColor} bg-clip-text text-transparent flex items-center gap-1`}
                                                                 >
-                                                                    {segment.speakerProfileId && <span className="material-symbols-outlined text-[12px]">verified</span>}
+                                                                    {segment.speakerProfileId && <MSymbol name="verified" size={12} />}
                                                                     {formatSpeakerName(segment.speaker)}
                                                                 </span>
                                                             )}
@@ -1105,7 +1104,7 @@ ${fullTranscript}`;
                                                                             className="h-8 w-12 object-cover rounded shadow-sm border border-slate-200 dark:border-white/10 group-hover/photo:scale-110 transition-transform"
                                                                         />
                                                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/photo:opacity-100 flex items-center justify-center rounded transition-opacity">
-                                                                            <span className="material-symbols-outlined text-white text-[14px]">zoom_in</span>
+                                                                            <MSymbol name="zoom_in" size={14} className="text-white" />
                                                                         </div>
                                                                     </div>
                                                                 );
@@ -1128,7 +1127,7 @@ ${fullTranscript}`;
                         {(recording.notes && recording.notes.length > 0) || (recording.media && recording.media.length > 0) ? (
                             <div className="mt-12 pt-8 border-t border-slate-200 dark:border-white/5">
                                 <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">note</span>
+                                    <MSymbol name="note" className="text-primary" />
                                     {'Notas y Adjuntos'}
                                 </h3>
 
@@ -1167,7 +1166,7 @@ ${fullTranscript}`;
                                                     </p>
                                                 </div>
                                                 <div className="flex-shrink-0">
-                                                    <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 text-lg">edit_note</span>
+                                                    <MSymbol name="edit_note" size={18} className="text-amber-600 dark:text-amber-500" />
                                                 </div>
                                             </div>
                                         ))}
@@ -1203,7 +1202,7 @@ ${fullTranscript}`;
                                                         >
                                                             {media.timestamp}
                                                         </button>
-                                                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-500 text-lg">image</span>
+                                                        <MSymbol name="image" size={18} className="text-blue-600 dark:text-blue-500" />
                                                     </div>
 
                                                     {/* Image Preview */}
@@ -1235,11 +1234,11 @@ ${fullTranscript}`;
                 <div className="w-80 md:w-96 border-l border-slate-200 dark:border-white/5 bg-white dark:bg-[#0b0f17] flex flex-col shadow-2xl absolute right-0 top-0 bottom-0 z-[60] animate-in slide-in-from-right duration-300">
                     <div className="p-4 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white">
                         <h3 className="text-sm font-bold flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary text-lg">auto_awesome</span>
+                            <MSymbol name="auto_awesome" size={18} className="text-primary" />
                             {t('askDiktalo')}
                         </h3>
                         <button onClick={() => setShowChat(false)} className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
-                            <span className="material-symbols-outlined text-xl">close</span>
+                            <MSymbol name="close" size={20} />
                         </button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -1284,7 +1283,7 @@ ${fullTranscript}`;
                                 onClick={handleAskDiktalo}
                                 disabled={!query.trim() || isTyping}
                                 className="absolute right-2 top-1.5 p-1 text-primary hover:bg-primary/10 rounded-full transition-colors disabled:opacity-50">
-                                <span className="material-symbols-outlined">send</span>
+                                <MSymbol name="send" />
                             </button>
                         </div>
                     </div>
@@ -1297,28 +1296,28 @@ ${fullTranscript}`;
                     <div className="bg-white dark:bg-[#111722] rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 dark:border-white/10">
                         <div className="p-5 border-b border-slate-200 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-[#111722] text-slate-900 dark:text-white">
                             <h3 className="text-base font-bold flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+                                <MSymbol name="auto_awesome" size={20} className="text-primary" />
                                 {t('meetingSummary')}
                             </h3>
                             <button onClick={() => setShowSummaryModal(false)} className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
-                                <span className="material-symbols-outlined text-xl">close</span>
+                                <MSymbol name="close" size={20} />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 md:p-10 prose prose-invert prose-sm md:prose-base max-w-none">
                             {isSummarizing ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-                                    <span className="material-symbols-outlined text-4xl animate-spin mb-4 text-primary">sync</span>
+                                    <MSymbol name="sync" className="text-4xl animate-spin mb-4 text-primary" />
                                     <p className="text-sm">{t('thinking')}...</p>
                                 </div>
                             ) : summaryError ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-center px-4">
-                                    <span className="material-symbols-outlined text-4xl text-red-500 mb-4">error</span>
+                                    <MSymbol name="error" className="text-4xl text-red-500 mb-4" />
                                     <p className="text-sm text-slate-400 mb-6">{summaryError}</p>
                                     <button
                                         onClick={handleSummarize}
                                         className="flex items-center gap-2 px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full text-sm font-bold border border-white/10 transition-all"
                                     >
-                                        <span className="material-symbols-outlined text-sm">replay</span>
+                                        <MSymbol name="replay" size={14} />
                                         {t('retry') || 'Retry'}
                                     </button>
                                 </div>

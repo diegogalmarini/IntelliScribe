@@ -15,6 +15,7 @@ import {
     Filter,
     Calendar
 } from 'lucide-react';
+import { MSymbol } from '../../components/ui/MSymbol';
 
 /**
  * Admin Users Page (CRM)
@@ -394,10 +395,8 @@ export const Users: React.FC = () => {
                                             </div>
                                             {user.lastDeviceType && (
                                                 <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                                                    <span className="material-symbols-outlined text-[10px] scale-75">
-                                                        {user.lastDeviceType === 'Mobile' ? 'smartphone' :
-                                                            user.lastDeviceType === 'Tablet' ? 'tablet' : 'desktop_windows'}
-                                                    </span>
+                                                    <MSymbol name={user.lastDeviceType === 'Mobile' ? 'smartphone' :
+                                                            user.lastDeviceType === 'Tablet' ? 'tablet' : 'desktop_windows'} size={10} className="scale-75" />
                                                     {user.lastDeviceType}
                                                 </div>
                                             )}

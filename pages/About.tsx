@@ -5,6 +5,7 @@ import { Navbar } from '../components/Landing/Navbar';
 import { Footer } from '../components/Footer';
 import { UserProfile } from '../types';
 import { PERSONALITIES } from '../utils/supportPersonalities';
+import { MSymbol } from '../components/ui/MSymbol';
 
 export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
     const { t, language } = useLanguage();
@@ -300,7 +301,7 @@ export const About: React.FC<{ user?: UserProfile }> = ({ user }) => {
                                                 ))}
                                             </div>
                                             <div className="flex items-center justify-center gap-2 text-slate-400">
-                                                <span className="material-symbols-outlined text-[1rem]">location_on</span>
+                                                <MSymbol name="location_on" className="text-[1rem]" />
                                                 <span className="text-[0.6rem] font-black uppercase tracking-widest">{persona.city}</span>
                                             </div>
                                         </div>

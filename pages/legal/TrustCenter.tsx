@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Shield, Lock, Eye, Database, Server, FileText, CheckCircle, Cpu } from 'lucide-react';
 import { LegalLayout } from '../../layouts/LegalLayout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { MSymbol } from '../../components/ui/MSymbol';
 
 export const TrustCenter: React.FC = () => {
     const { t, language } = useLanguage();
@@ -74,7 +75,7 @@ export const TrustCenter: React.FC = () => {
                     <div className="space-y-6 relative z-10">
                         <div className="flex gap-4 items-start">
                             <div className="p-1 bg-red-500/20 rounded text-red-400 mt-1">
-                                <span className="material-symbols-outlined">close</span>
+                                <MSymbol name="close" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-lg mb-1">{t('trust_ai_q')}</h4>

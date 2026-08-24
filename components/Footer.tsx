@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import * as Analytics from '../utils/analytics';
+import { MSymbol } from './ui/MSymbol';
 
 
 export const Footer: React.FC = () => {
@@ -86,7 +87,7 @@ export const Footer: React.FC = () => {
                     <a href="/contact" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-xs font-semibold">{t('footerContactUs')}</a>
                     <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
                         <a href="https://x.com/diktalo" target="_blank" rel="noopener noreferrer" aria-label="Diktalo en X" className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:text-primary transition-all">
-                            <span className="material-symbols-outlined text-base">share</span>
+                            <MSymbol name="share" size={16} />
                         </a>
                     </div>
                 </div>

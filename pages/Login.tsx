@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import * as Analytics from '../utils/analytics';
+import { MSymbol } from '../components/ui/MSymbol';
 
 interface LoginProps {
     onNavigate: (route: AppRoute) => void;
@@ -161,7 +162,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     <div className="max-w-[400px] w-full mx-auto text-center">
                         <div className="mb-6 flex justify-center">
                             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                                <span className="material-symbols-outlined text-3xl text-green-600 dark:text-green-400">mark_email_read</span>
+                                <MSymbol name="mark_email_read" size={30} className="text-green-600 dark:text-green-400" />
                             </div>
                         </div>
                         <h1 className="text-2xl font-bold text-[#1f1f1f] dark:text-white mb-4">
@@ -173,7 +174,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50 mb-8">
                             <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2 text-left">
-                                <span className="material-symbols-outlined text-sm mt-0.5 shrink-0">info</span>
+                                <MSymbol name="info" size={14} className="mt-0.5 shrink-0" />
                                 <span>Si no lo ves en tu bandeja de entrada, revisa la carpeta de <strong>SPAM</strong> o "Promociones".</span>
                             </p>
                         </div>
@@ -304,9 +305,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                     setShowPassword(!showPassword);
                                 }}
                             >
-                                <span className="material-symbols-outlined text-[18px]">
-                                    {showPassword ? 'visibility' : 'visibility_off'}
-                                </span>
+                                <MSymbol name={showPassword ? 'visibility' : 'visibility_off'} size={18} />
                             </button>
                         </div>
 
@@ -336,7 +335,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                             className="mt-2 w-full h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-[15px] shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoggingIn ? (
-                                <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
+                                <MSymbol name="progress_activity" size={18} className="animate-spin" />
                             ) : (
                                 <span>{isSignUp ? t('signUpForDiktalo') : (isSignUp ? t('signUpBtn') : t('loginBtn'))}</span>
                             )}
@@ -363,7 +362,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                                             checked={agreedToTerms}
                                             onChange={(e) => setAgreedToTerms(e.target.checked)}
                                         />
-                                        <span className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-y-1/2 pointer-events-none text-[8px] material-symbols-outlined font-bold">check</span>
+                                        <MSymbol name="check" size={8} className="absolute text-white dark:text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-y-1/2 pointer-events-none" />
                                     </div>
                                     <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug select-none">
                                         {t('agreeTerms')?.replace('{country}', 'España')} <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-800">{t('userAgreement')}</a> & <a href="#" className="underline decoration-1 underline-offset-2 text-black dark:text-white hover:text-gray-800">{t('privacyPolicy')}</a>.
@@ -387,7 +386,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     <div className="flex flex-wrap justify-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                         {features.map((feature) => (
                             <div key={feature.key} className="flex items-center gap-2 px-2 py-1 transition-opacity opacity-80 hover:opacity-100 cursor-default">
-                                <span className={`material-symbols-outlined text-[20px] text-slate-500 dark:text-slate-400`}>{feature.icon}</span>
+                                <MSymbol name={feature.icon} size={20} className={`text-slate-500 dark:text-slate-400`} />
                                 <span className="text-[14px] font-medium text-slate-600 dark:text-slate-300">{t(feature.key as any)}</span>
                             </div>
                         ))}

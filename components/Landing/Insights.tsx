@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { MSymbol } from '../ui/MSymbol';
 
 export const Insights: React.FC = () => {
     const { t } = useLanguage();
@@ -45,7 +46,7 @@ export const Insights: React.FC = () => {
                                     className="flex items-center gap-4 text-slate-700 dark:text-slate-200 font-bold"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                        <span className="material-symbols-outlined text-primary text-xl">{feature.icon}</span>
+                                        <MSymbol name={feature.icon} size={20} className="text-primary" />
                                     </div>
                                     <span className="text-lg">{t(feature.key as any)}</span>
                                 </motion.div>
@@ -117,10 +118,10 @@ export const Insights: React.FC = () => {
                                 {/* Controles (Literalmente como en el original) */}
                                 <div className="mt-8 flex justify-center gap-6">
                                     <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-primary cursor-pointer hover:bg-primary/30 transition-all shadow-lg active:scale-95">
-                                        <span className="material-symbols-outlined text-lg">pause</span>
+                                        <MSymbol name="pause" size={18} />
                                     </div>
                                     <div className="w-11 h-11 rounded-full bg-red-500 flex items-center justify-center text-white cursor-pointer hover:scale-105 transition-all shadow-xl active:scale-95">
-                                        <span className="material-symbols-outlined text-lg">stop</span>
+                                        <MSymbol name="stop" size={18} />
                                     </div>
                                 </div>
                             </div>

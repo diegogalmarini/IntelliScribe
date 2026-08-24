@@ -19,6 +19,7 @@ import {
     AlertCircle,
     PlusCircle
 } from 'lucide-react';
+import { MSymbol } from './ui/MSymbol';
 
 
 interface DialerProps {
@@ -341,7 +342,7 @@ export const Dialer: React.FC<DialerProps> = ({ user, onNavigate, onUserUpdated,
                         className="fixed bottom-6 right-6 w-14 h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-colors"
                         title="Verify phone to make calls"
                     >
-                        <span className="material-symbols-outlined text-2xl text-white">call</span>
+                        <MSymbol name="call" className="text-white" />
                     </button>
 
                     {/* Verification Modal */}

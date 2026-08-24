@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './Manual.css';
 import { SupportBot } from '../components/SupportBot/SupportBot';
 import { useLanguage } from '../contexts/LanguageContext';
+import { MSymbol } from '../components/ui/MSymbol';
 
 interface ManualSection {
     id: string;
@@ -228,7 +229,7 @@ export const Manual: React.FC = () => {
 
                             <div className="relative w-full md:w-80">
                                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="material-symbols-outlined text-slate-400 text-[18px]">search</span>
+                                    <MSymbol name="search" size={18} className="text-slate-400" />
                                 </span>
                                 <input
                                     type="text"

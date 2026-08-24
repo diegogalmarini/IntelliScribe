@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Recording } from '../../types';
 import { adminService } from '../../services/adminService';
+import { MSymbol } from '../ui/MSymbol';
 
 interface Props {
     userId: string;
@@ -35,7 +36,7 @@ export const UserRecordingsModal: React.FC<Props> = ({ userId, userName, onClose
                 <div className="flex items-center justify-between p-6 border-b border-slate-700">
                     <div>
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            <span className="material-symbols-outlined text-blue-400">visibility</span>
+                            <MSymbol name="visibility" className="text-blue-400" />
                             Ghost Mode: {userName}
                         </h2>
                         <p className="text-sm text-slate-400 mt-1">Read-only view of user recordings</p>
@@ -44,7 +45,7 @@ export const UserRecordingsModal: React.FC<Props> = ({ userId, userName, onClose
                         onClick={onClose}
                         className="p-1 hover:bg-slate-700 rounded-lg transition-colors"
                     >
-                        <span className="material-symbols-outlined text-slate-400">close</span>
+                        <MSymbol name="close" className="text-slate-400" />
                     </button>
                 </div>
 
@@ -52,15 +53,11 @@ export const UserRecordingsModal: React.FC<Props> = ({ userId, userName, onClose
                 <div className="flex-1 overflow-auto p-6">
                     {loading ? (
                         <div className="flex items-center justify-center h-full">
-                            <div className="animate-spin material-symbols-outlined text-3xl text-amber-400">
-                                progress_activity
-                            </div>
+                            <MSymbol name="progress_activity" size={30} className="animate-spin text-amber-400" />
                         </div>
                     ) : recordings.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-center">
-                            <span className="material-symbols-outlined text-5xl text-slate-600 mb-3">
-                                mic_off
-                            </span>
+                            <MSymbol name="mic_off" className="text-5xl text-slate-600 mb-3" />
                             <p className="text-slate-400">No recordings found for this user</p>
                         </div>
                     ) : (

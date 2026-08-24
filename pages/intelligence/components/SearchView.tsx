@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Search, X, Mic } from 'lucide-react';
 import { Recording } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { MSymbol } from '../../../components/ui/MSymbol';
 
 interface SearchViewProps {
     searchQuery: string;
@@ -107,7 +108,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                                 >
                                     <div className="flex items-center gap-4 min-w-0 flex-1">
                                         <div className="flex-shrink-0 p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full group-hover:bg-white dark:group-hover:bg-blue-900/40 transition-colors">
-                                            <span className="material-symbols-outlined">graphic_eq</span>
+                                            <MSymbol name="graphic_eq" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <h3 className="text-base text-[#1f1f1f] dark:text-[#e3e3e3] truncate font-normal">

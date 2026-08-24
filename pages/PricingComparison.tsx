@@ -7,6 +7,7 @@ import { PlanConfig, MinutePack, UserProfile } from '../types';
 import { Check, Plus, Minus, Zap, Shield, Users, Globe } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { VoiceRatesTable } from '../components/VoiceRatesTable';
+import { MSymbol } from '../components/ui/MSymbol';
 
 interface PricingComparisonProps {
     user?: UserProfile;
@@ -367,7 +368,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
                         <div className="grid gap-10">
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 text-left flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-slate-400">help</span>
+                                    <MSymbol name="help" className="text-slate-400" />
                                     ¿Qué incluye la transcripción ilimitada en el plan Pro?
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -377,7 +378,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
 
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 text-left flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-slate-400">hub</span>
+                                    <MSymbol name="hub" className="text-slate-400" />
                                     ¿Cómo funciona la integración con Zapier en Diktalo?
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -387,7 +388,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ user }) =>
 
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 text-left flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-slate-400">verified_user</span>
+                                    <MSymbol name="verified_user" className="text-slate-400" />
                                     ¿Es seguro usar Diktalo para información sensible?
                                 </h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -433,7 +434,7 @@ const PlanFeature = ({ text, icon }: { text: string; icon?: 'check' | 'zap' | 'a
         <div className="mt-0.5 flex-shrink-0 text-blue-500">
             {icon === 'zap' ? <Zap size={16} className="fill-blue-500/20" /> :
                 icon === 'ask' ? <span className="text-xs font-black border border-blue-500 rounded px-1">AI</span> :
-                    icon === 'star' ? <span className="material-symbols-outlined text-[16px]">star</span> :
+                    icon === 'star' ? <MSymbol name="star" size={16} /> :
                         <Check size={16} strokeWidth={3} />}
         </div>
         <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">{text}</span>

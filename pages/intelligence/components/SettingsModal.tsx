@@ -17,6 +17,7 @@ import { supabase } from '../../../lib/supabase'; // Import Supabase client
 import { useToast } from '../../../components/Toast';
 import * as Analytics from '../../../utils/analytics';
 import { PERSONALITIES } from '../../../utils/supportPersonalities';
+import { MSymbol } from '../../../components/ui/MSymbol';
 
 
 interface SettingsModalProps {
@@ -930,7 +931,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                             }}
                                                             className="flex items-center gap-2 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors uppercase tracking-wider"
                                                         >
-                                                            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                                                            <MSymbol name="auto_awesome" size={14} />
                                                             {t('startGuidedTourAction') || 'Lanzar Tour Guiado'}
                                                         </button>
                                                     </div>
@@ -1453,7 +1454,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     {testStatus === 'loading' ? (
                                         <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
                                     ) : (
-                                        <span className="material-symbols-outlined text-lg">flask</span>
+                                        <MSymbol name="flask" size={18} />
                                     )}
                                     {testStatus === 'loading' ? t('testing') || 'Probando...' : t('zapierTestConnection') || 'Probar Conexión'}
                                 </button>

@@ -5,6 +5,7 @@ import { AppRoute } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { LanguageSelector } from '../components/LanguageSelector';
+import { MSymbol } from '../components/ui/MSymbol';
 
 interface ResetPasswordProps {
     onNavigate: (route: AppRoute) => void;
@@ -85,9 +86,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none"
             title={show ? "Hide password" : "Show password"}
         >
-            <span className="material-symbols-outlined text-xl">
-                {show ? 'visibility' : 'visibility_off'}
-            </span>
+            <MSymbol name={show ? 'visibility' : 'visibility_off'} size={20} />
         </button>
     );
 
@@ -95,7 +94,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
         <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto mt-20 p-8 bg-white dark:bg-surface-dark rounded-2xl shadow-xl border border-slate-100 dark:border-border-dark animate-fade-in-up">
             <div className="mb-8 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary">
-                    <span className="material-symbols-outlined text-4xl">lock_reset</span>
+                    <MSymbol name="lock_reset" className="text-4xl" />
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                     {t('resetPassword') || 'Reset Password'}
@@ -159,7 +158,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
                     className="mt-4 w-full h-12 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-wait">
                     {loading ? (
                         <>
-                            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                            <MSymbol name="progress_activity" className="animate-spin" />
                             <span>Updating...</span>
                         </>
                     ) : (

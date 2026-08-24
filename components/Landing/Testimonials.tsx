@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { MSymbol } from '../ui/MSymbol';
 import { testimonialsData, Testimonial } from '../../utils/testimonialsData';
 
 // Utility to shuffle array
@@ -49,16 +50,13 @@ const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }
                     <div className="flex gap-0.5 mb-4 items-center">
                         <div className="flex gap-0.5">
                             {Array.from({ length: 5 }).map((_, s) => (
-                                <span
+                                <MSymbol
                                     key={s}
-                                    className="material-symbols-outlined text-[18px]"
-                                    style={{
-                                        fontVariationSettings: "'FILL' 1",
-                                        color: s < testimonial.stars ? '#f59e0b' : '#e2e8f0'
-                                    }}
-                                >
-                                    star
-                                </span>
+                                    name="star"
+                                    size={18}
+                                    fill
+                                    className={s < testimonial.stars ? 'text-amber-500' : 'text-slate-200 dark:text-slate-700'}
+                                />
                             ))}
                         </div>
                     </div>

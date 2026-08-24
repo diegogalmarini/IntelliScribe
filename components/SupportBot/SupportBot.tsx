@@ -5,6 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Recording, UserProfile } from '../../types';
 import * as Analytics from '../../utils/analytics';
 import { databaseService } from '../../services/databaseService';
+import { MSymbol } from '../ui/MSymbol';
 
 interface SupportBotProps {
     position?: 'left' | 'right';
@@ -276,7 +277,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary/20"
                         >
-                            <span className="material-symbols-outlined text-sm">play_circle</span>
+                            <MSymbol name="play_circle" size={14} />
                             Abrir "{title}"
                         </button>
                     );
@@ -312,7 +313,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
                         >
-                            <span className="material-symbols-outlined text-sm">{icon}</span>
+                            <MSymbol name={icon} size={14} />
                             {label}
                         </button>
                     );
@@ -363,9 +364,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                 : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 shadow-sm'
                                 }`}
                         >
-                            <span className={`material-symbols-outlined text-sm ${isSearching ? 'animate-spin' : ''}`}>
-                                {isSearching ? 'progress_activity' : 'search'}
-                            </span>
+                            <MSymbol name={isSearching ? 'progress_activity' : 'search'} size={14} className={`${isSearching ? 'animate-spin' : ''}`} />
                             {isSearching ? t('deepSearchStatus') : t('deepSearchAction')}
                         </button>
                     );
@@ -393,7 +392,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                 }}
                                 className="mt-3 w-full py-2.5 px-4 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all border border-slate-200 dark:border-white/10"
                             >
-                                <span className="material-symbols-outlined text-sm">person_add</span>
+                                <MSymbol name="person_add" size={14} />
                                 {t('talkToAgent').replace('{name}', nextAgent.name)}
                             </button>
                         );
@@ -414,7 +413,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-indigo-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
                         >
-                            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                            <MSymbol name="auto_awesome" size={14} />
                             {t('startGuidedTourAction')}
                         </button>
                     );
@@ -431,7 +430,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
                         >
-                            <span className="material-symbols-outlined text-sm">visibility</span>
+                            <MSymbol name="visibility" size={14} />
                             {t('showMeWhere')}
                         </button>
                     );
@@ -450,7 +449,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                 }}
                                 className="mt-3 w-full py-2.5 px-4 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-200 transition-all border border-red-200 dark:border-red-900/30"
                             >
-                                <span className="material-symbols-outlined text-sm">delete</span>
+                                <MSymbol name="delete" size={14} />
                                 {t('confirmDeleteRecording').replace('{title}', rec.title)}
                             </button>
                         );
@@ -471,7 +470,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                 }}
                                 className="mt-3 w-full py-2.5 px-4 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-all border border-blue-200 dark:border-blue-900/30"
                             >
-                                <span className="material-symbols-outlined text-sm">edit</span>
+                                <MSymbol name="edit" size={14} />
                                 {t('confirmRenameRecording').replace('{title}', newTitle)}
                             </button>
                         );
@@ -489,7 +488,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-200 transition-all border border-emerald-200 dark:border-emerald-900/30"
                         >
-                            <span className="material-symbols-outlined text-sm">create_new_folder</span>
+                            <MSymbol name="create_new_folder" size={14} />
                             {t('confirmCreateFolder').replace('{title}', name)}
                         </button>
                     );
@@ -509,7 +508,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                             }}
                             className="mt-3 w-full py-2.5 px-4 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-amber-200 transition-all border border-amber-200 dark:border-amber-900/30"
                         >
-                            <span className="material-symbols-outlined text-sm">drive_file_move</span>
+                            <MSymbol name="drive_file_move" size={14} />
                             {rec ? t('confirmDeleteRecording').replace('Delete', 'Move').replace('Borrar', 'Mover').replace('{title}', rec.title) : t('moveToFolderAction')}
                         </button>
                     );
@@ -598,7 +597,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                 }}
                                 className="hover:rotate-90 transition-transform p-1.5 rounded-full hover:bg-white/10"
                             >
-                                <span className="material-symbols-outlined">close</span>
+                                <MSymbol name="close" />
                             </button>
                         </div>
 
@@ -637,7 +636,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                                             }}
                                                             className={`p-1 rounded-md transition-colors ${m.feedback === 'up' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 'text-slate-400 hover:text-green-500 hover:bg-green-50'}`}
                                                         >
-                                                            <span className="material-symbols-outlined text-sm">thumb_up</span>
+                                                            <MSymbol name="thumb_up" size={14} />
                                                         </button>
                                                         <button
                                                             type="button"
@@ -654,7 +653,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                                             }}
                                                             className={`p-1 rounded-md transition-colors ${m.feedback === 'down' ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
                                                         >
-                                                            <span className="material-symbols-outlined text-sm">thumb_down</span>
+                                                            <MSymbol name="thumb_down" size={14} />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -692,7 +691,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                                     disabled={!input.trim() || isTyping}
                                     className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-primary rounded-lg text-white flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all font-bold"
                                 >
-                                    <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                                    <MSymbol name="arrow_upward" size={18} />
                                 </button>
                             </div>
                             <p className="text-[10px] text-center text-slate-400 mt-2">
@@ -717,9 +716,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                 className={`h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-white transition-all transform pointer-events-auto cursor-grab active:cursor-grabbing ${isOpen ? 'bg-slate-900 rotate-90' : 'bg-primary'
                     }`}
             >
-                <span className="material-symbols-outlined text-3xl">
-                    {isOpen ? 'close' : 'chat_bubble'}
-                </span>
+                <MSymbol name={isOpen ? 'close' : 'chat_bubble'} size={30} />
             </motion.button >
         </motion.div >
     );

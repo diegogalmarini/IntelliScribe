@@ -6,6 +6,7 @@ import { ThemeToggle } from '../ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UserProfile } from '../../types';
+import { MSymbol } from '../ui/MSymbol';
 
 export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Partial<UserProfile>) => void }> = ({ user, onUpdateUser }) => {
     const { t } = useLanguage();
@@ -137,7 +138,7 @@ export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Par
                             aria-label={t('menu')}
                             className="p-2 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors"
                         >
-                            <span className="material-symbols-outlined">{isMenuOpen ? 'close' : 'menu'}</span>
+                            <MSymbol name={isMenuOpen ? 'close' : 'menu'} />
                         </button>
                     </div>
                 </div>

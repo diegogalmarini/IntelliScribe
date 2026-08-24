@@ -27,6 +27,7 @@ import { useToast } from '../../components/Toast';
 import * as Analytics from '../../utils/analytics';
 import { concatenateAudios, timeToSeconds } from '../../services/audioConcat';
 import { Integrations } from '../Integrations';
+import { MSymbol } from '../../components/ui/MSymbol';
 
 interface IntelligenceDashboardProps {
     onNavigate: (route: AppRoute) => void;
@@ -647,7 +648,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                                 onClick={() => setIsSidebarOpen(true)}
                                 className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors"
                             >
-                                <span className="material-symbols-outlined">menu</span>
+                                <MSymbol name="menu" />
                             </button>
                         )}
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { RefreshCw, Sparkles, Share2, Loader2, Trash2 } from 'lucide-react';
 import { PremiumFeatureButton } from './PremiumFeatureButton';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { MSymbol } from '../../../components/ui/MSymbol';
 
 interface RecordingActionsProps {
     isTranscribing: boolean;
@@ -49,7 +50,7 @@ export const RecordingActions: React.FC<RecordingActionsProps> = ({
                     {isZapierSyncing ? (
                         <Loader2 size={14} className="animate-spin" />
                     ) : (
-                        <span className="material-symbols-outlined text-[16px] group-hover:animate-pulse">bolt</span>
+                        <MSymbol name="bolt" size={16} className="group-hover:animate-pulse" />
                     )}
                     <span className="hidden md:inline">{isZapierSyncing ? 'Syncing...' : 'Zapier Sync'}</span>
                 </button>

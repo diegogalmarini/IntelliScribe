@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import { MSymbol } from '../ui/MSymbol';
 
 interface ManualSection {
     id: string;
@@ -142,15 +143,13 @@ export const ManualViewer: React.FC = () => {
                             onClick={() => setIsSidebarOpen(false)}
                             className="md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
                         >
-                            <span className="material-symbols-outlined">close</span>
+                            <MSymbol name="close" />
                         </button>
                     </div>
 
                     {/* Search */}
                     <div className="relative">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                            search
-                        </span>
+                        <MSymbol name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
                             placeholder="Buscar en el manual..."
@@ -201,7 +200,7 @@ export const ManualViewer: React.FC = () => {
                         href="/docs/FAQ.md"
                         className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                        <span className="material-symbols-outlined text-base">help</span>
+                        <MSymbol name="help" size={16} />
                         Ver FAQ (Preguntas Frecuentes)
                     </a>
                 </div>
@@ -216,7 +215,7 @@ export const ManualViewer: React.FC = () => {
                         className={`${isSidebarOpen ? 'hidden' : 'flex'
                             } items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg`}
                     >
-                        <span className="material-symbols-outlined">menu</span>
+                        <MSymbol name="menu" />
                         <span className="text-sm font-medium">Ver Índice</span>
                     </button>
 
@@ -225,10 +224,10 @@ export const ManualViewer: React.FC = () => {
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-slate-600 dark:text-slate-400">¿Te ayudó?</span>
                             <button className="p-2 hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg transition-colors">
-                                <span className="material-symbols-outlined">thumb_up</span>
+                                <MSymbol name="thumb_up" />
                             </button>
                             <button className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg transition-colors">
-                                <span className="material-symbols-outlined">thumb_down</span>
+                                <MSymbol name="thumb_down" />
                             </button>
                         </div>
                     </div>

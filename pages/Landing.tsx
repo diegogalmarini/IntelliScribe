@@ -17,6 +17,7 @@ import * as Analytics from '../utils/analytics';
 import { faqPool, FAQItemData } from '../utils/faqData';
 import { blogPosts } from '../utils/blogData';
 import { Link } from 'react-router-dom';
+import { MSymbol } from '../components/ui/MSymbol';
 
 const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onToggle: () => void }> = ({ question, answer, isOpen, onToggle }) => {
     return (
@@ -31,7 +32,7 @@ const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onT
                     {question}
                 </h4>
                 <div className={`size-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-primary text-white rotate-45' : 'bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary'}`}>
-                    <span className="material-symbols-outlined text-[20px]">add</span>
+                    <MSymbol name="add" size={20} />
                 </div>
             </button>
             <AnimatePresence>
@@ -182,8 +183,8 @@ export const Landing: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Pa
                                                 e.currentTarget.style.display = 'none';
                                                 e.currentTarget.parentElement?.classList.add('bg-gradient-to-br', 'from-primary/20', 'to-brand-violet/20', 'flex', 'items-center', 'justify-center');
                                                 const icon = document.createElement('span');
-                                                icon.className = 'material-symbols-outlined text-4xl text-white/20';
-                                                icon.innerText = 'newspaper';
+                                                icon.className = 'text-4xl opacity-30';
+                                                icon.innerText = '📰';
                                                 e.currentTarget.parentElement?.appendChild(icon);
                                             }}
                                         />

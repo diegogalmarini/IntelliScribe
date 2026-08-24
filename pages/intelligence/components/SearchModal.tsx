@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Search, X, Mic } from 'lucide-react';
 import { Recording } from '../../../types';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { MSymbol } from '../../../components/ui/MSymbol';
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -86,7 +87,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                             className={`p-2 rounded-full transition-colors ${useSemanticSearch ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/40' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                             title="AI Semantic Search"
                         >
-                            <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+                            <MSymbol name="auto_awesome" size={20} />
                         </button>
                         {searchQuery && (
                             <button onClick={() => onSearch('')} className="p-1 text-gray-400 hover:text-gray-600">
@@ -100,7 +101,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                 <div className="flex-1 overflow-y-auto p-2 bg-white dark:bg-[#1a1a1a]">
                     {isSearching ? (
                         <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                            <span className="material-symbols-outlined animate-spin text-3xl mb-2">sync</span>
+                            <MSymbol name="sync" size={30} className="animate-spin mb-2" />
                             <p className="text-sm">Buscando...</p>
                         </div>
                     ) : searchResults.length > 0 ? (
@@ -115,7 +116,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                                     className="w-full flex items-center gap-4 px-4 py-3 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors text-left group"
                                 >
                                     <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg group-hover:bg-white dark:group-hover:bg-blue-900/40 transition-colors">
-                                        <span className="material-symbols-outlined">graphic_eq</span>
+                                        <MSymbol name="graphic_eq" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-medium text-gray-900 dark:text-white truncate">
@@ -132,15 +133,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                                             )}
                                         </p>
                                     </div>
-                                    <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 group-hover:text-blue-500 transition-colors">
-                                        arrow_forward
-                                    </span>
+                                    <MSymbol name="arrow_forward" className="text-gray-300 dark:text-gray-600 group-hover:text-blue-500 transition-colors" />
                                 </button>
                             ))}
                         </div>
                     ) : searchQuery ? (
                         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                            <span className="material-symbols-outlined text-4xl mb-2 opacity-50">search_off</span>
+                            <MSymbol name="search_off" className="text-4xl mb-2 opacity-50" />
                             <p>{t('no_results_found_short')}</p>
                         </div>
                     ) : (

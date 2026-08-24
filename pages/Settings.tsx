@@ -6,6 +6,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { uploadAvatar, checkStorageLimit } from '../services/storageService';
 import { supabase } from '../lib/supabase';
+import { MSymbol } from '../components/ui/MSymbol';
 
 type SettingsTab = 'profile' | 'security' | 'notifications' | 'developer';
 
@@ -258,7 +259,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                                             {t('verifyDescPart1')}
                                             <span className="inline-flex items-center justify-center w-5 h-5 bg-orange-500 text-white rounded-full align-middle mx-1 shadow-sm transform hover:scale-110 transition-transform cursor-pointer">
-                                                <span className="material-symbols-outlined text-[12px] leading-none">call</span>
+                                                <MSymbol name="call" size={12} className="leading-none" />
                                             </span>
                                             {t('verifyDescPart2')}
                                         </p>
@@ -297,7 +298,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                             {user.subscription?.planId === 'free' ? (
                                 <div className="p-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl">
                                     <div className="flex items-start gap-3">
-                                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">info</span>
+                                        <MSymbol name="info" className="text-blue-600 dark:text-blue-400" />
                                         <div>
                                             <p className="text-blue-900 dark:text-blue-200 text-sm font-medium mb-1">
                                                 {t('storageNoLimit')}
@@ -310,7 +311,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                 </div>
                             ) : isLoadingStorage ? (
                                 <div className="flex items-center justify-center p-8">
-                                    <span className="material-symbols-outlined animate-spin text-primary text-2xl">progress_activity</span>
+                                    <MSymbol name="progress_activity" className="animate-spin text-primary" />
                                 </div>
                             ) : (
                                 <div className="space-y-4">
@@ -346,7 +347,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     {/* Warning if close to limit */}
                                     {(storageUsed / storageLimit) > 0.9 && (
                                         <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg">
-                                            <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-lg">warning</span>
+                                            <MSymbol name="warning" size={18} className="text-red-600 dark:text-red-400" />
                                             <p className="text-red-700 dark:text-red-300 text-xs">
                                                 Storage almost full. Please delete old recordings or upgrade your plan.
                                             </p>
@@ -462,7 +463,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
                             {loadingToken ? (
                                 <div className="flex items-center justify-center p-8">
-                                    <span className="material-symbols-outlined animate-spin text-primary text-2xl">progress_activity</span>
+                                    <MSymbol name="progress_activity" className="animate-spin text-primary" />
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-4">
@@ -474,9 +475,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                         onClick={handleCopyToken}
                                         className="self-start flex items-center gap-2 px-4 py-2 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-lg font-medium transition-colors"
                                     >
-                                        <span className="material-symbols-outlined text-[18px]">
-                                            {tokenCopied ? 'check_circle' : 'content_copy'}
-                                        </span>
+                                        <MSymbol name={tokenCopied ? 'check_circle' : 'content_copy'} size={18} />
                                         {tokenCopied ? 'Copiado!' : 'Copiar Token'}
                                     </button>
                                 </div>
@@ -484,7 +483,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
                             <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl">
                                 <h5 className="text-blue-900 dark:text-blue-200 text-sm font-bold mb-2 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">info</span>
+                                    <MSymbol name="info" size={18} />
                                     Cómo usar
                                 </h5>
                                 <ol className="text-blue-700 dark:text-blue-300 text-xs space-y-1 ml-4 list-decimal">
@@ -497,7 +496,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
 
                             <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl">
                                 <p className="text-red-700 dark:text-red-300 text-xs flex items-start gap-2">
-                                    <span className="material-symbols-outlined text-[16px] mt-0.5">warning</span>
+                                    <MSymbol name="warning" size={16} className="mt-0.5" />
                                     <span><strong>Importante:</strong> No compartas este token con nadie. Da acceso completo a tu cuenta de Diktalo.</span>
                                 </p>
                             </div>
@@ -514,7 +513,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#2f3e5c] border border-slate-300 dark:border-border-dark rounded-lg text-slate-700 dark:text-white text-sm font-medium transition-colors"
                             >
-                                <span className="material-symbols-outlined text-[18px]">download</span>
+                                <MSymbol name="download" size={18} />
                                 Instrucciones de Instalación
                             </a>
                         </section>
@@ -560,7 +559,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                 {/* Feedback Toast */}
                 {feedback && (
                     <div className={`fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-xl text-sm font-medium animate-in fade-in zoom-in slide-in-from-top-4 flex items-center gap-2 z-50 ${feedback.type === 'success' ? 'bg-brand-green/10 text-brand-green border border-brand-green/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
-                        <span className="material-symbols-outlined text-lg">{feedback.type === 'success' ? 'check_circle' : 'error'}</span>
+                        <MSymbol name={feedback.type === 'success' ? 'check_circle' : 'error'} size={18} />
                         {feedback.message}
                     </div>
                 )}
@@ -583,7 +582,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     onClick={() => setActiveTab('profile')}
                                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors font-medium text-sm w-full text-left ${activeTab === 'profile' ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20 font-bold' : 'text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 border-transparent'}`}
                                 >
-                                    <span className={`material-symbols-outlined text-[20px] ${activeTab === 'profile' ? 'material-symbols-filled' : ''}`}>person</span>
+                                    <MSymbol name="person" size={20} fill={activeTab === 'profile'} />
                                     {t('myProfile')}
                                 </button>
                                 <button
@@ -591,7 +590,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     onClick={() => setActiveTab('security')}
                                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors font-medium text-sm w-full text-left ${activeTab === 'security' ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20 font-bold' : 'text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 border-transparent'}`}
                                 >
-                                    <span className={`material-symbols-outlined text-[20px] ${activeTab === 'security' ? 'material-symbols-filled' : ''}`}>shield</span>
+                                    <MSymbol name="shield" size={20} fill={activeTab === 'security'} />
                                     {t('security')}
                                 </button>
                                 <button
@@ -599,7 +598,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     onClick={() => setActiveTab('notifications')}
                                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors font-medium text-sm w-full text-left ${activeTab === 'notifications' ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20 font-bold' : 'text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 border-transparent'}`}
                                 >
-                                    <span className={`material-symbols-outlined text-[20px] ${activeTab === 'notifications' ? 'material-symbols-filled' : ''}`}>notifications</span>
+                                    <MSymbol name="notifications" size={20} fill={activeTab === 'notifications'} />
                                     {t('notifications')}
                                 </button>
                                 <button
@@ -607,7 +606,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                     onClick={() => setActiveTab('developer')}
                                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors font-medium text-sm w-full text-left ${activeTab === 'developer' ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20 font-bold' : 'text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 border-transparent'}`}
                                 >
-                                    <span className={`material-symbols-outlined text-[20px] ${activeTab === 'developer' ? 'material-symbols-filled' : ''}`}>code</span>
+                                    <MSymbol name="code" size={20} fill={activeTab === 'developer'} />
                                     Developer
                                 </button>
                             </div>
@@ -640,7 +639,7 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
                                             )}
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <span className="material-symbols-outlined text-white">photo_camera</span>
+                                            <MSymbol name="photo_camera" className="text-white" />
                                         </div>
                                     </div>
 

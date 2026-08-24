@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VisualHighlighter } from './VisualHighlighter';
+import { MSymbol } from '../ui/MSymbol';
 
 interface WelcomeTourProps {
     onComplete: () => void;
@@ -118,7 +119,7 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({ onComplete, onStartBot
                     >
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white">
-                                <span className="material-symbols-outlined">auto_awesome</span>
+                                <MSymbol name="auto_awesome" />
                             </div>
                             <div>
                                 <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-xs">

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { MSymbol } from './ui/MSymbol';
 
 export const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -12,13 +13,9 @@ export const ThemeToggle: React.FC = () => {
       title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
     >
       {theme === 'light' ? (
-        <span className="material-symbols-outlined text-[24px] text-orange-500 material-symbols-filled drop-shadow-sm">
-          light_mode
-        </span>
+        <MSymbol name="light_mode" fill className="text-orange-500 drop-shadow-sm" />
       ) : (
-        <span className="material-symbols-outlined text-[24px] text-blue-400 material-symbols-filled drop-shadow-sm">
-          dark_mode
-        </span>
+        <MSymbol name="dark_mode" fill className="text-blue-400 drop-shadow-sm" />
       )}
     </button>
   );

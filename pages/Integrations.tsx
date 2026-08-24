@@ -6,6 +6,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useToast } from '../components/Toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MSymbol } from '../components/ui/MSymbol';
 
 interface IntegrationsProps {
     integrations?: IntegrationState[];
@@ -73,12 +74,12 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
                 <div className="p-6 border-b border-slate-100 dark:border-border-dark flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="size-10 rounded-lg bg-[#FF4A00] flex items-center justify-center">
-                            <span className="material-symbols-outlined text-white">bolt</span>
+                            <MSymbol name="bolt" className="text-white" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('zapierTitle') || 'Zapier Custom Webhook'}</h3>
                     </div>
                     <button onClick={() => setConfigId(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                        <span className="material-symbols-outlined text-slate-500">close</span>
+                        <MSymbol name="close" className="text-slate-500" />
                     </button>
                 </div>
 
@@ -122,11 +123,11 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
                             {testStatus === 'loading' ? (
                                 <div className="size-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
                             ) : testStatus === 'success' ? (
-                                <span className="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                <MSymbol name="check_circle" size={18} className="text-green-500" />
                             ) : testStatus === 'error' ? (
-                                <span className="material-symbols-outlined text-red-500 text-lg">error</span>
+                                <MSymbol name="error" size={18} className="text-red-500" />
                             ) : (
-                                <span className="material-symbols-outlined text-lg">flask</span>
+                                <MSymbol name="flask" size={18} />
                             )}
                             {testStatus === 'loading' ? t('zapierTesting') || 'Testing...' : t('zapierTestConnection') || 'Test Connection'}
                         </button>
@@ -150,7 +151,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
                     <ThemeToggle />
                     <LanguageSelector />
                     <div className="relative group hidden sm:block">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-text-secondary">search</span>
+                        <MSymbol name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-text-secondary" />
                         <input className="bg-white dark:bg-card-dark border border-slate-300 dark:border-border-dark text-slate-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-48 md:w-64 pl-10 p-2.5 placeholder-slate-500 dark:placeholder-text-secondary transition-all" placeholder={t('searchPlaceholder')} type="text" />
                     </div>
                 </div>
@@ -164,7 +165,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
                             <p className="text-slate-500 dark:text-text-secondary text-sm md:text-base">{t('manageConnections')}</p>
                         </div>
                         <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-medium px-5 py-2.5 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95">
-                            <span className="material-symbols-outlined text-[20px]">add</span>
+                            <MSymbol name="add" size={20} />
                             {t('newAutoFlow')}
                         </button>
                     </div>
@@ -181,7 +182,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
                                     {isLocked && (
                                         <div className="absolute inset-0 z-10 bg-white/40 dark:bg-black/40 backdrop-blur-[1px] flex items-center justify-center">
                                             <div className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 animate-bounce">
-                                                <span className="material-symbols-outlined text-sm text-amber-500">lock</span>
+                                                <MSymbol name="lock" size={14} className="text-amber-500" />
                                                 <span className="text-[10px] font-black uppercase text-slate-700 dark:text-slate-300">Business Plan Required</span>
                                             </div>
                                         </div>
@@ -194,7 +195,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({ integrations = [], u
                                         </div>
                                     </div>
                                     <div className="mb-4 size-12 rounded-lg bg-slate-100 dark:bg-white flex items-center justify-center p-2 text-black" style={{ backgroundColor: item.color === '#4A154B' ? '#4A154B' : 'white' }}>
-                                        <span className={`material-symbols-outlined text-3xl ${item.color === '#4A154B' ? 'text-white' : 'text-black'}`}>{item.icon}</span>
+                                        <MSymbol name={item.icon} size={30} className={`${item.color === '#4A154B' ? 'text-white' : 'text-black'}`} />
                                     </div>
                                     <h4 className="text-slate-900 dark:text-white font-bold text-lg">{item.name}</h4>
                                     <p className="text-slate-500 dark:text-text-secondary text-sm mt-1 mb-6 line-clamp-2">{item.description}</p>

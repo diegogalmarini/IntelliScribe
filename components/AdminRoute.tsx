@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminService } from '../services/adminService';
 import { AppRoute } from '../types';
+import { MSymbol } from './ui/MSymbol';
 
 interface Props {
     children: React.ReactNode;
@@ -42,9 +43,7 @@ export const AdminRoute: React.FC<Props> = ({ children, onNavigate }) => {
             <div className="flex flex-col items-center justify-center h-screen bg-slate-900 text-white">
                 <div className="flex flex-col items-center gap-4">
                     <div className="animate-spin">
-                        <span className="material-symbols-outlined text-5xl text-amber-400">
-                            shield_person
-                        </span>
+                        <MSymbol name="shield_person" className="text-5xl text-amber-400" />
                     </div>
                     <p className="text-lg">Verifying admin access...</p>
                 </div>
@@ -57,9 +56,7 @@ export const AdminRoute: React.FC<Props> = ({ children, onNavigate }) => {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-slate-900 text-white">
                 <div className="flex flex-col items-center gap-4 text-center max-w-md">
-                    <span className="material-symbols-outlined text-6xl text-red-500">
-                        block
-                    </span>
+                    <MSymbol name="block" className="text-6xl text-red-500" />
                     <h1 className="text-2xl font-bold">Access Denied</h1>
                     <p className="text-slate-400">
                         This area is restricted to administrators only.

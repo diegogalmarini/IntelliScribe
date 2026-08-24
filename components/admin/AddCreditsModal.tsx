@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminUser } from '../../types';
+import { MSymbol } from '../ui/MSymbol';
 
 type AssetType = 'transcription' | 'voice';
 type CreditType = 'limit' | 'used' | 'balance';
@@ -58,7 +59,7 @@ export const AddCreditsModal: React.FC<Props> = ({ user, onClose, onConfirm }) =
                         onClick={onClose}
                         className="p-1 hover:bg-white/5 rounded transition-colors text-slate-400 hover:text-white"
                     >
-                        <span className="material-symbols-outlined text-[20px]">close</span>
+                        <MSymbol name="close" size={20} />
                     </button>
                 </div>
 

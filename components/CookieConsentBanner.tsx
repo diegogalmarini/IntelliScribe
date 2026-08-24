@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { initGA } from '../utils/analytics';
+import { MSymbol } from './ui/MSymbol';
 
 // Extend Window interface for Analytics
 declare global {
@@ -91,7 +92,7 @@ export const CookieConsentBanner: React.FC = () => {
                     <div className="bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-6">
                         <div className="flex items-start gap-4">
                             <div className="p-3 bg-primary/10 rounded-xl">
-                                <span className="material-symbols-outlined text-primary text-2xl">cookie</span>
+                                <MSymbol name="cookie" className="text-primary" />
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-slate-900 dark:text-white mb-2">

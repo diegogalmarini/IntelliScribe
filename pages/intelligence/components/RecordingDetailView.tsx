@@ -20,6 +20,7 @@ import { UpgradeModal } from '../../../components/UpgradeModal';
 import { RecordingActions } from './RecordingActions';
 import { PremiumFeatureButton } from './PremiumFeatureButton';
 import * as Analytics from '../../../utils/analytics';
+import { MSymbol } from '../../../components/ui/MSymbol';
 
 
 
@@ -78,7 +79,7 @@ const AttachmentThumbnail = ({ attachment, timeLabel, onTimestampClick, onImageC
                     title={t('viewImage')}
                 >
                     <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        <MSymbol name="visibility" size={20} />
                     </div>
                 </button>
             </div>
