@@ -24,9 +24,9 @@ export const Solutions: React.FC = () => {
             icon: Briefcase,
             color: 'text-primary',
             bg: 'bg-primary/10',
-            title: 'Cerrar tratos, no transcribir audios.',
-            desc: 'Antes pasaba horas pasando las notas de mis llamadas a Salesforce. Ahora Diktalo extrae el presupuesto y las objeciones por mí mientras hablo.',
-            features: ['Sincronización con CRM', 'Detección de Objeciones', 'Análisis BANT'],
+            title: t('sol_sales_title'),
+            desc: t('sol_sales_desc'),
+            features: [t('sol_sales_f1'), t('sol_sales_f2'), t('sol_sales_f3')],
             image: '/images/features-sales-real.png'
         },
         {
@@ -37,7 +37,7 @@ export const Solutions: React.FC = () => {
             bg: 'bg-primary/10',
             title: t('sol_medical_title'),
             desc: t('sol_medical_desc'),
-            features: ['SOAP Notes', 'Patient Privacy', 'EHR Ready'],
+            features: [t('sol_medical_f1'), t('sol_medical_f2'), t('sol_medical_f3')],
             image: '/images/features-medical-real.png'
         },
         {
@@ -46,9 +46,9 @@ export const Solutions: React.FC = () => {
             icon: Scale,
             color: 'text-primary',
             bg: 'bg-primary/10',
-            title: 'Precisión absoluta en cada acta.',
-            desc: 'En mi despacho, cada detalle cuenta. Diktalo me permite grabar las deposiciones y obtener un acta estructurada con marcas de tiempo críticas al instante.',
-            features: ['Actas Verbatim', 'Marcas de Tiempo', 'Búsqueda Semántica'],
+            title: t('sol_legal_title'),
+            desc: t('sol_legal_desc'),
+            features: [t('sol_legal_f1'), t('sol_legal_f2'), t('sol_legal_f3')],
             image: '/images/features-legal-real.png'
         },
         {
@@ -57,9 +57,9 @@ export const Solutions: React.FC = () => {
             icon: Users,
             color: 'text-primary',
             bg: 'bg-primary/10',
-            title: 'Entrevistas que revelan talento.',
-            desc: 'Me permite centrarme al 100% en el lenguaje no verbal del candidato. La IA resume las fortalezas y debilidades de la entrevista automáticamente.',
-            features: ['Resumen de Candidato', 'Culture Fit Insight', 'Extracción de Skills'],
+            title: t('sol_hr_title'),
+            desc: t('sol_hr_desc'),
+            features: [t('sol_hr_f1'), t('sol_hr_f2'), t('sol_hr_f3')],
             image: '/images/features-hr-real.png'
         },
         {
@@ -68,9 +68,9 @@ export const Solutions: React.FC = () => {
             icon: Code2,
             color: 'text-primary',
             bg: 'bg-primary/10',
-            title: 'Del feedback al roadmap.',
-            desc: 'Grabo las sesiones de testing y Diktalo agrupa los dolores de los usuarios. Es como tener un investigador de UX trabajando 24/7.',
-            features: ['User Pain Points', 'Clustering de Feedback', 'Export a Jira/Linear'],
+            title: t('sol_product_title'),
+            desc: t('sol_product_desc'),
+            features: [t('sol_product_f1'), t('sol_product_f2'), t('sol_product_f3')],
             image: '/images/features-product-real.png'
         },
         {
@@ -79,9 +79,9 @@ export const Solutions: React.FC = () => {
             icon: GraduationCap,
             color: 'text-primary',
             bg: 'bg-primary/10',
-            title: 'Captura el conocimiento real.',
-            desc: 'Para mis investigaciones de campo, Diktalo es vital. Convierte horas de entrevistas y clases en apuntes perfectos y citas citables en un clic.',
-            features: ['Resumen por Temas', 'Extracción de Citas', 'Soporte Multilingüe'],
+            title: t('sol_edu_title'),
+            desc: t('sol_edu_desc'),
+            features: [t('sol_edu_f1'), t('sol_edu_f2'), t('sol_edu_f3')],
             image: '/images/features-edu-real.png'
         }
     ];
