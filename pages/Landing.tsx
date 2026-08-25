@@ -26,7 +26,8 @@ const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onT
         >
             <button
                 onClick={onToggle}
-                className="w-full py-6 flex items-center justify-between text-left focus:outline-none"
+                aria-expanded={isOpen}
+                className="w-full py-6 flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg"
             >
                 <h4 className={`text-base md:text-lg font-bold transition-colors duration-300 ${isOpen ? 'text-primary' : 'text-slate-900 dark:text-white group-hover:text-primary'}`}>
                     {question}

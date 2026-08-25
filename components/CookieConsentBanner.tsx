@@ -57,7 +57,18 @@ export const CookieConsentBanner: React.FC = () => {
 
         // 2. Functional (Custom integrations if any)
         if (settings.functional) {
-            console.log("🍪 [Cookies] Enabling Functional Scripts...");
+            // El rastreo de afiliados de Lemon Squeezy pone cookies de
+            // atribucion: antes se cargaba estaticamente en index.html, antes
+            // de que el usuario decidiera nada. Ahora solo con consentimiento,
+            // y una sola vez.
+            if (!document.getElementById('ls-affiliates')) {
+                (window as any).lemonSqueezyAffiliateConfig = { store: 'diktalosaas' };
+                const s = document.createElement('script');
+                s.id = 'ls-affiliates';
+                s.src = 'https://lmsqueezy.com/affiliate.js';
+                s.defer = true;
+                document.head.appendChild(s);
+            }
         }
     };
 
