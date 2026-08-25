@@ -25,6 +25,8 @@ const claveDeError = (mensaje: string): string => {
     if (mensaje.includes('QUOTA_EXCEEDED')) return 'youtube_err_quota';
     if (mensaje.includes('VIDEO_UNAVAILABLE')) return 'youtube_err_unavailable';
     if (mensaje.includes('VIDEO_IS_LIVE')) return 'youtube_err_live';
+    if (mensaje.includes('VIDEO_OVER_MAX_LENGTH')) return 'youtube_err_maxlen';
+    if (mensaje.includes('TRANSCRIPT_TRUNCATED')) return 'youtube_err_truncated';
     return 'youtube_err_generic';
 };
 

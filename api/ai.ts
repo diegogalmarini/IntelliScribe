@@ -337,6 +337,17 @@ OUTPUT RULES:
                 if (previo.enDirecto) {
                     return res.status(400).json({ error: 'VIDEO_IS_LIVE' });
                 }
+                // Tope de 75 minutos, medido con un video real de 90: la clase
+                // densa producia 65.520 tokens de salida, el maximo del modelo,
+                // y el JSON llegaba TRUNCADO (finishReason MAX_TOKENS, 0
+                // segmentos parseables). A ~730 tokens/min de habla densa, 75
+                // minutos deja margen. El tiempo de pared no era el limite:
+                // 182 s para 90 min contra los 300 s de la funcion.
+                const MAX_SEGUNDOS_VIDEO = 75 * 60;
+                if (previo.duracionSegundos !== null && previo.duracionSegundos > MAX_SEGUNDOS_VIDEO) {
+                    return res.status(400).json({ error: 'VIDEO_OVER_MAX_LENGTH', maxMinutos: 75 });
+                }
+
                 if (previo.duracionSegundos !== null && !ilimitado) {
                     const minutosNecesarios = Math.max(1, Math.ceil(previo.duracionSegundos / 60));
                     if (minutosNecesarios > disponibles) {
@@ -407,8 +418,16 @@ OUTPUT RULES:
                 });
                 const detalles = response.response?.usageMetadata?.promptTokensDetails || [];
                 const video = detalles.find((d: any) => d.modality === 'VIDEO');
-                return { texto: response.response.text() || '{}', tokensVideo: video?.tokenCount || 0 };
+                const finishReason = response.response?.candidates?.[0]?.finishReason;
+                return { texto: response.response.text() || '{}', tokensVideo: video?.tokenCount || 0, finishReason };
             });
+
+            // Si el modelo agoto la salida, el transcript esta INCOMPLETO y el
+            // saneador podria rescatar un JSON parcial: el usuario pagaria
+            // creyendo que tiene el video entero. Mejor fallar con claridad.
+            if (salida.finishReason === 'MAX_TOKENS') {
+                return res.status(422).json({ error: 'TRANSCRIPT_TRUNCATED' });
+            }
 
             let datos: any;
             try {

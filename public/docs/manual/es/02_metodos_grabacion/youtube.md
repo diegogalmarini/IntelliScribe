@@ -61,6 +61,7 @@ Antes de procesar, Diktalo comprueba la duración del vídeo. Si no cabe en los 
 
 *   **Solo vídeos públicos.** Los privados o no listados no se pueden leer.
 *   **No se pueden transcribir emisiones en directo.** Espera a que la emisión termine.
+*   **Máximo 75 minutos por vídeo.** Los más largos desbordan el límite de salida del modelo y la transcripción llegaría incompleta.
 *   **Solo YouTube.** Vimeo, Loom u otras plataformas no están soportadas por ahora: para esas habría que descargar el fichero, y eso va contra sus términos de servicio.
 
 ---

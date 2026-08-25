@@ -61,6 +61,7 @@ Before processing, Diktalo checks the video length. If it does not fit in your r
 
 *   **Public videos only.** Private or unlisted ones cannot be read.
 *   **Live broadcasts cannot be transcribed.** Wait until the broadcast ends.
+*   **75 minutes maximum per video.** Longer ones exceed the model output limit and the transcript would arrive incomplete.
 *   **YouTube only.** Vimeo, Loom and other platforms are not supported for now: those would require downloading the file, which goes against their terms of service.
 
 ---
