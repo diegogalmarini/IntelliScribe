@@ -348,7 +348,7 @@ export const TranscriptEditor: React.FC<TranscriptEditorProps> = ({
 
             // Transcribe using the signed URL
             const targetLang = user.transcriptionLanguage || language || 'es';
-            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
+            const result = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl, user?.transcriptionMode || 'literal');
 
             // Handle both legacy array and new object return types
             let finalSegments: TranscriptSegment[] = [];

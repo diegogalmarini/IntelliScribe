@@ -238,13 +238,21 @@ OUTPUT RULES:
             };
             const targetLanguageName = languageNames[language] || 'English';
 
+            // 'literal' por defecto en audio propio: aqui viven las actas. En
+            // video el defecto es 'clean' (ver transcribe-youtube). Mismas
+            // restricciones anti-resumen que alli.
+            const modoAudio = payload?.mode === 'clean' ? 'clean' : 'literal';
+            const instruccionModoAudio = modoAudio === 'clean'
+                ? ' STYLE: clean transcript. Remove filler words, hesitations, false starts and accidental repetitions; fix grammar and punctuation. ABSOLUTE CONSTRAINTS: keep EVERY idea that was said, in its original order. Do NOT summarise, omit or add anything.'
+                : ' STYLE: VERBATIM. Keep filler words, false starts and repetitions exactly as spoken.';
+
             result = await runWithFallback('transcription', undefined, async (model) => {
                 const response = await model.generateContent({
                     contents: [{
                         parts: [
                             { inlineData: { mimeType: mimeType || 'audio/mp3', data: finalBase64 } },
                             {
-                                text: `Transcribe this audio conversation. 
+                                text: `Transcribe this audio conversation.${instruccionModoAudio} 
  CRITICAL INSTRUCTION: The output MUST be entirely in ${targetLanguageName}. 
  If the audio contains any other language, you MUST translate it accurately into ${targetLanguageName} while transcribing. 
  

@@ -358,6 +358,7 @@ const AppContent: React.FC = () => {
                 timezone: data.timezone || localStorage.getItem(`diktalo_settings_timezone_${supabaseUser.id}`) || prev.timezone,
                 language: (data.language || localStorage.getItem(`diktalo_settings_language_${supabaseUser.id}`) || 'es') as 'en' | 'es',
                 transcriptionLanguage: data.transcription_language || localStorage.getItem(`diktalo_settings_transcription_lang_${supabaseUser.id}`) || prev.transcriptionLanguage,
+                transcriptionMode: (localStorage.getItem(`diktalo_settings_transcription_mode_${supabaseUser.id}`) as 'literal' | 'clean') || prev.transcriptionMode || 'literal',
                 notificationSettings: data.notification_settings || JSON.parse(localStorage.getItem(`diktalo_settings_notifications_${supabaseUser.id}`) || 'null') || prev.notificationSettings,
                 role: data.role || 'Member',
                 createdAt: data.created_at,
@@ -826,6 +827,7 @@ const AppContent: React.FC = () => {
             if (updatedUser.timezone) localStorage.setItem(`diktalo_settings_timezone_${targetUserId}`, updatedUser.timezone);
             if (updatedUser.notificationSettings) localStorage.setItem(`diktalo_settings_notifications_${targetUserId}`, JSON.stringify(updatedUser.notificationSettings));
             if (updatedUser.transcriptionLanguage) localStorage.setItem(`diktalo_settings_transcription_lang_${targetUserId}`, updatedUser.transcriptionLanguage);
+            if (updatedUser.transcriptionMode) localStorage.setItem(`diktalo_settings_transcription_mode_${targetUserId}`, updatedUser.transcriptionMode);
             if (updatedUser.language) localStorage.setItem(`diktalo_settings_language_${targetUserId}`, updatedUser.language);
             if (updatedUser.hasCompletedTour) localStorage.setItem(`diktalo_tour_seen_${targetUserId}`, 'true');
             await databaseService.updateUserProfile(targetUserId, updatedUser);

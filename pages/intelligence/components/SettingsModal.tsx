@@ -863,6 +863,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                                 ]}
                                             />
                                         </div>
+                                        <div className="flex items-center justify-between mt-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-900 dark:text-white">{t('transcription_mode_label')}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('transcription_mode_desc')}</p>
+                                            </div>
+                                            <CustomSelect
+                                                className="w-40"
+                                                value={user.transcriptionMode || 'literal'}
+                                                onChange={(val) => {
+                                                    handleUpdateUser({ transcriptionMode: val as 'literal' | 'clean' });
+                                                    triggerSaveFeedback();
+                                                }}
+                                                options={[
+                                                    { value: 'literal', label: t('youtube_mode_literal') },
+                                                    { value: 'clean', label: t('youtube_mode_clean') }
+                                                ]}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

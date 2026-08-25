@@ -85,10 +85,11 @@ export const transcribeAudio = async (
   audioBase64?: string,
   mimeType?: string,
   language: string = 'en',
-  audioUrl?: string
+  audioUrl?: string,
+  mode: 'literal' | 'clean' = 'literal'
 ): Promise<{ segments: Partial<TranscriptSegment>[], suggestedSpeakers?: Record<string, string> }> => {
   try {
-    const result = await callAIEndpoint('transcribe', { audioBase64, mimeType, audioUrl }, language);
+    const result = await callAIEndpoint('transcribe', { audioBase64, mimeType, audioUrl, mode }, language);
 
     // Check if result is already in the new format { segments, suggestedSpeakers }
     if (result && result.segments && Array.isArray(result.segments)) {

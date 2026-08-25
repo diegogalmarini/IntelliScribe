@@ -556,7 +556,7 @@ export const RecordingDetailView = ({ recording, user, onGenerateTranscript, onR
 
             // Transcribe using Gemini service
             const targetLang = user.transcriptionLanguage || 'es';
-            const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(undefined, mimeType, targetLang, currentSignedUrl);
+            const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(undefined, mimeType, targetLang, currentSignedUrl, user?.transcriptionMode || 'literal');
 
             // CRITICAL: Only update if we got valid results
             const segmentsToMap = Array.isArray(rawSegments) ? rawSegments : [];

@@ -275,7 +275,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     const signedUrl = await getSignedAudioUrl(audioUrl);
                     if (signedUrl) {
                         const targetLang = user.transcriptionLanguage || 'es';
-                        const { segments: rawSegments } = await transcribeAudio(undefined, file.type, targetLang, signedUrl);
+                        const { segments: rawSegments } = await transcribeAudio(undefined, file.type, targetLang, signedUrl, user?.transcriptionMode || 'literal');
                         if (rawSegments && rawSegments.length > 0) {
                             await databaseService.updateRecording(createdRecording.id, { segments: rawSegments as any, status: 'Completed' });
                             setTempRecording(prev => prev ? ({ ...prev, segments: rawSegments as any, status: 'Completed' }) : null);
@@ -540,7 +540,7 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
         }
         try {
             const urlToUse = await getSignedAudioUrl(activeRecording.audioUrl);
-            const { segments: rawSegments } = await transcribeAudio(undefined, undefined, user.transcriptionLanguage || 'es', urlToUse!);
+            const { segments: rawSegments } = await transcribeAudio(undefined, undefined, user.transcriptionLanguage || 'es', urlToUse!, user?.transcriptionMode || 'literal');
 
             // Defensive validation
             const segments = Array.isArray(rawSegments) ? rawSegments : [];

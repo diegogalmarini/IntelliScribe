@@ -160,6 +160,14 @@ export interface UserProfile {
   timezone?: string; // New field
   language?: 'en' | 'es'; // Interface language persistence
   transcriptionLanguage?: string; // Default transcription language persistence
+  /**
+   * Estilo por defecto al transcribir audio propio. 'literal' (verbatim) es el
+   * defecto A PROPOSITO: aqui viven las actas legales y las notas medicas, al
+   * contrario que en video, donde el defecto es 'clean'. Se persiste solo en
+   * localStorage: no hay columna en profiles y mapear una inexistente haria
+   * fallar el PATCH entero (PostgREST rechaza el update completo).
+   */
+  transcriptionMode?: 'literal' | 'clean';
   integrations?: IntegrationState[]; // NEW: Moved here for unified state
   notificationSettings?: {
     email: {

@@ -389,7 +389,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
             // Transcribe using the signed URL
             const targetLang = user.transcriptionLanguage || language || 'es';
-            const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl);
+            const { segments: rawSegments, suggestedSpeakers } = await transcribeAudio(base64, mimeType, targetLang, signedAudioUrl, user?.transcriptionMode || 'literal');
 
             // Defensive check for rawSegments
             const validatedSegments = Array.isArray(rawSegments) ? rawSegments : [];
