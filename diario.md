@@ -1,17 +1,81 @@
 # Diario de Desarrollo — Diktalo
 
 > Bitácora técnica viva del proyecto. Cada decisión, cada feature, cada bug resuelto.
-> Actualizado: 24 agosto 2026
+> Actualizado: 25 agosto 2026
 >
 > ⚠️ **Advertencia:** Este documento es contexto vivo, no spec de implementación. Validar siempre contra:
 > 1. El código real en `/api/`, `/services/`, `/pages/`
 > 2. `.agent/skills/` para estándares de IA y proceso
 > 3. `AGENTS.md` para reglas invariables del proyecto
 >
-> 📌 **Estado actual resumido (2026-08-24):**
-> Último hito documentado: 24 agosto 2026 (cobro real de cuota, dieta de la PWA, migración completa a lucide, crons activos).
+> 📌 **Estado actual resumido (2026-08-25):**
+> Último hito documentado: 25 agosto 2026 (parpadeo de GPU resuelto, consentimiento real de cookies, techo de 75 min en YouTube, Limpia/Literal en audio subido, typecheck a cero).
 > En curso: ver entrada más reciente.
 > Brújula de metodología: `AGENTS.md` + `CLAUDE.md`. Historial por fases: `docs/DEVELOPMENT_LOG.md`.
+
+---
+
+## Registro 2026-08-25 — Parpadeo de GPU, consentimiento real, techo de YouTube y typecheck a cero
+
+**Qué se hizo:**
+
+**1. El parpadeo/pantalla negra en la sección azul del CTA era la GPU, no React.**
+El detalle clave lo dio el usuario: pasaba también en incógnito, donde el banner
+de cookies siempre está visible. El banner y la navbar usaban `backdrop-blur-xl`
+flotando sobre contenido saturado, y las barras del waveform de Insights animaban
+`height` en bucle infinito (layout thrash continuo). Combinado, tumbaba el driver
+gráfico hasta el punto de tener que suspender el equipo. Arreglo: fondos sólidos
+en banner y navbar (`bg-white/95` + `transition-colors`), waveform a `scaleY`
+(solo compositor) y el glow de Solutions contenido a `inset-0` — que además era
+el único overflow horizontal de la página.
+
+**2. Privacidad de la landing: nada de terceros antes del consentimiento.**
+- Inter dejó de venir de Google Fonts: autoalojada en `/fonts/` (woff2 variable,
+  latin + latin-ext, 130 KB), fuera los preconnect a googleapis/gstatic.
+- El script de afiliados de Lemon Squeezy ya no va estático en `index.html`:
+  `applyConsent()` lo inyecta solo si el usuario acepta cookies funcionales.
+- El vídeo del Hero pasa a `youtube-nocookie.com`.
+- Borradas 6 imágenes muertas de `public/images` (3,4 MB) y el acordeón del FAQ
+  gana `aria-expanded` + anillo de foco visible.
+
+**3. Techo real de YouTube, medido con un vídeo de 90 minutos.**
+No es el tiempo de pared (182 s contra los 300 de la función): es la SALIDA del
+modelo. Una clase densa de 90 min agotó los 65.520 tokens de salida
+(finishReason MAX_TOKENS) y el JSON llegó truncado con 0 segmentos parseables.
+A ~730 tokens/min de habla densa, el tope queda en 75 minutos: pre-check en
+`transcribe-youtube` (400 `VIDEO_OVER_MAX_LENGTH`) y detección de truncado
+(422 `TRANSCRIPT_TRUNCATED`) ANTES de parsear y antes de cobrar minutos.
+Documentado en el manual ES/EN.
+
+**4. Limpia/Literal también para audio subido.**
+Selector nuevo en Ajustes (por defecto Literal: actas y registros con valor
+probatorio). Se persiste SOLO en localStorage: mapear una columna inexistente en
+`profiles` haría 400 el PATCH entero (trampa PostgREST ya conocida). El modo
+viaja como 5º parámetro de `transcribeAudio` desde los 5 call sites; el
+multi-audio se queda en literal a propósito (los timestamps reparten hablantes).
+
+**5. El chat pasa a `gemini-3.7-flash` (4,1× más barato).**
+El RAG hace el trabajo pesado; el modelo solo redacta sobre chunks ya
+recuperados. ~$0,0039/pregunta. Nota de reversión en `api/_utils/gemini.ts`.
+
+**6. Typecheck completo de la app: 38 errores → 0.**
+Los que escondían bugs reales: TemplateGallery renderizaba objetos `{es,en}`
+crudos en la galería de plantillas; el código inline del manual salía con
+estilo de bloque (react-markdown v10 eliminó la prop `inline`); el deep-link
+`/settings` nunca abría el modal de ajustes; InlineEditor usaba un estado
+inexistente y estados fuera del union de `Recording`. `RecordingCard` era
+código muerto y se eliminó. El typecheck completo sigue siendo informativo
+(solo `tsconfig.api.json` bloquea el build), pero ya está en verde.
+
+**Por qué:** todo era la lista diferida que el usuario autorizó en bloque el
+24-25 de agosto, con el parpadeo como prioridad por hacer el equipo inutilizable.
+
+**Pendiente / siguiente:**
+- Usuario: confirmar que el parpadeo desapareció tras el deploy, y la prueba
+  multi-voz pendiente (valida flash-lite en diarización).
+- Ticket de Supabase Pro sigue sin respuesta.
+- Opcional: convertir el typecheck completo en bloqueante ahora que está a cero
+  (meterlo también en el workflow del newsroom antes del commit del bot).
 
 ---
 
