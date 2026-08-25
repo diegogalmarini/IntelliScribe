@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/Landing/Navbar';
 import { Footer } from '../components/Footer';
-import { UserProfile } from '../types';
-import { blogPosts, BlogPost } from '../utils/blogData';
+import { UserProfile, BlogPost } from '../types';
+import { blogPosts } from '../utils/blogData';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -427,7 +427,7 @@ export const Blog: React.FC<BlogProps> = ({ user }) => {
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0b0f17] transition-colors duration-300 gpu-accelerated">
-            <Navbar user={user} onNavigate={handleNavigate} />
+            <Navbar user={user} />
 
             <main className="w-full">
                 {currentPost ? renderPost(currentPost) : renderIndex()}

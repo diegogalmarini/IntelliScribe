@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, Sparkles, ArrowRight, X, Check } from 'lucide-react';
 import { AI_TEMPLATES, AITemplate } from '../../constants/templates';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface TemplateGalleryProps {
     onUseTemplate: (templateId: string) => void;
 }
 
 export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onUseTemplate }) => {
+    const { language } = useLanguage();
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTemplate, setSelectedTemplate] = useState<AITemplate | null>(null);
@@ -16,11 +18,11 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onUseTemplate 
     const filteredTemplates = useMemo(() => {
         return AI_TEMPLATES.filter(template => {
             const matchesCategory = selectedCategory === 'All' || template.category === selectedCategory;
-            const matchesSearch = template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                template.description.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = template.title[language].toLowerCase().includes(searchQuery.toLowerCase()) ||
+                template.description[language].toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
-    }, [selectedCategory, searchQuery]);
+    }, [selectedCategory, searchQuery, language]);
 
     const handleUseTemplate = (templateId: string) => {
         onUseTemplate(templateId);
@@ -89,10 +91,10 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onUseTemplate 
                                     <template.icon size={24} />
                                 </div>
                                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-blue-500 transition-colors">
-                                    {template.title}
+                                    {template.title[language]}
                                 </h3>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3 mb-4 flex-1">
-                                    {template.description}
+                                    {template.description[language]}
                                 </p>
                                 <div className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
                                     <span className="bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">
@@ -134,7 +136,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onUseTemplate 
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        {selectedTemplate.title}
+                                        {selectedTemplate.title[language]}
                                     </h2>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-sm text-slate-500 dark:text-slate-400">
@@ -159,7 +161,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onUseTemplate 
                         <div className="p-6 overflow-y-auto">
                             <div className="prose prose-slate dark:prose-invert max-w-none">
                                 <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
-                                    {selectedTemplate.description}
+                                    {selectedTemplate.description[language]}
                                 </p>
 
                                 <div className="bg-slate-50 dark:bg-surface-dark rounded-xl p-6 border border-slate-200 dark:border-white/5">
@@ -167,7 +169,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onUseTemplate 
                                         Estructura del Resumen (Outline)
                                     </h3>
                                     <ul className="space-y-3">
-                                        {selectedTemplate.outline.map((item, index) => (
+                                        {selectedTemplate.outline[language].map((item, index) => (
                                             <li key={index} className="flex items-start gap-3 text-slate-700 dark:text-slate-200">
                                                 <div className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
                                                 <span className="text-sm font-medium">{item}</span>

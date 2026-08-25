@@ -263,19 +263,21 @@ export const ManualViewer: React.FC = () => {
                                                 rel={props.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                                             />
                                         ),
-                                        // Custom rendering for code blocks
-                                        code: ({ node, inline, ...props }) =>
-                                            inline ? (
-                                                <code
-                                                    {...props}
-                                                    className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-sm font-mono"
-                                                />
-                                            ) : (
-                                                <code
-                                                    {...props}
-                                                    className="block p-4 bg-slate-50 dark:bg-slate-900 rounded-lg overflow-x-auto"
-                                                />
-                                            ),
+                                        // react-markdown v9+ ya no pasa `inline`: el codigo de
+                                        // bloque llega envuelto en <pre>, asi que el estilo de
+                                        // bloque va ahi y el <pre> anula el estilo pill del hijo.
+                                        pre: ({ node, ...props }) => (
+                                            <pre
+                                                {...props}
+                                                className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg overflow-x-auto text-sm font-mono [&>code]:bg-transparent [&>code]:p-0"
+                                            />
+                                        ),
+                                        code: ({ node, ...props }) => (
+                                            <code
+                                                {...props}
+                                                className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-sm font-mono"
+                                            />
+                                        ),
                                     }}
                                 >
                                     {content}

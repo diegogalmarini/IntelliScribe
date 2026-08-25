@@ -42,7 +42,7 @@ export const SubscriptionConfirm: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0b0f17] transition-colors duration-300">
-            <Navbar user={null} onNavigate={(path) => navigate(path)} />
+            <Navbar />
 
             <main className="pt-40 pb-24 px-6">
                 <div className="max-w-xl mx-auto text-center">

@@ -937,7 +937,7 @@ const AppContent: React.FC = () => {
             );
         }
         if (currentRoute === AppRoute.CONFIRM_SUBSCRIPTION) return <SubscriptionConfirm />;
-        if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onUpdateUser={handleUpdateUser} onNavigate={navigate} /><Contact /><Footer /></>;
+        if (currentRoute === AppRoute.CONTACT) return <><Navbar user={user} onUpdateUser={handleUpdateUser} /><Contact /><Footer /></>;
         if (currentRoute === AppRoute.LOGIN) return <Login onNavigate={navigate} />;
 
         const isAdminRoute = currentRoute === AppRoute.ADMIN_OVERVIEW || currentRoute === AppRoute.ADMIN_USERS || currentRoute === AppRoute.ADMIN_FINANCIALS || currentRoute === AppRoute.ADMIN_PLANS || currentRoute === AppRoute.ADMIN_MINUTE_PACKS || currentRoute === AppRoute.ADMIN_CALL_CREDITS || currentRoute === AppRoute.ADMIN_ANALYTICS; // NEW ROUTE

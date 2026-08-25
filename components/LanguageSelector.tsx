@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import type { Language } from '../utils/translations';
 
 interface LanguageSelectorProps {
   onLanguageChange?: (lang: Language) => void;

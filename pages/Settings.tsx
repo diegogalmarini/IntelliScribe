@@ -30,8 +30,11 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUpdateUser, onLogout
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const tab = params.get('tab');
-        if (tab === 'credits') {
-            setActiveTab('credits');
+        // 'credits' no es una pestaña de esta pagina: el union SettingsTab no la
+        // incluye y no hay contenido que renderizar. El deep-link antiguo cae en
+        // la pestaña por defecto en vez de fijar un estado imposible.
+        if (tab === 'security' || tab === 'notifications' || tab === 'developer') {
+            setActiveTab(tab);
         }
     }, []);
 

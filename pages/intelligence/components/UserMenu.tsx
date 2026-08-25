@@ -11,7 +11,6 @@ import {
     Moon,
     Monitor,
     LogOut,
-    LogOut,
     ChevronDown,
     ShieldCheck
 } from 'lucide-react';

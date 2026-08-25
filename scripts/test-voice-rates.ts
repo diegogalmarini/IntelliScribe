@@ -1,4 +1,4 @@
-import { getTierForNumber } from '../api/_utils/voice-rates';
+import { getTierForNumber } from '../utils/voiceRates';
 
 const testCases = [
     { number: '+1 555 123 4567', expected: 'STANDARD' },

@@ -62,6 +62,8 @@ interface IntelligenceDashboardProps {
     onDeleteFolder?: (id: string) => Promise<void>;
     onAction?: (type: string, payload?: any) => void;
     initialView?: 'recordings' | 'subscription' | 'integrations' | 'templates'; // ADDED
+    /** Abre el modal de ajustes al entrar por la ruta /settings. */
+    initialSettingsOpen?: boolean;
 }
 
 const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
@@ -88,7 +90,8 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     onRenameFolder,
     onDeleteFolder,
     onAction,
-    initialView // ADDED
+    initialView, // ADDED
+    initialSettingsOpen
 }) => {
     const { t, language } = useLanguage();
     const { showToast } = useToast();
@@ -109,7 +112,13 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
     }, [initialView]);
 
     const [selectedId, setSelectedId] = useState<string | null>(activeRecordingId || null);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(initialSettingsOpen ?? false);
+
+    // El dashboard sigue montado al navegar entre sus rutas: sin este efecto,
+    // entrar en /settings desde dentro de la app no abriria el modal.
+    useEffect(() => {
+        if (initialSettingsOpen) setIsSettingsOpen(true);
+    }, [initialSettingsOpen]);
     const [isRecording, setIsRecording] = useState(searchParams.get('action') === 'record');
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
     const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
@@ -566,9 +575,12 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                     const mapped: Recording[] = results.map(r => ({
                         id: r.recording_id,
                         title: r.recording_title,
+                        description: '',
                         date: r.recording_date,
+                        duration: '00:00:00',
                         status: 'Completed',
                         folderId: null,
+                        tags: [],
                         durationSeconds: 0,
                         participants: 0,
                         audioUrl: '',

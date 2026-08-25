@@ -53,6 +53,15 @@ interface DBMedia {
 
 // --- SERVICE ---
 
+interface SpeakerProfile {
+    id: string;
+    user_id: string;
+    name: string;
+    /** Rasgos de voz o notas que ayudan a reconocer al hablante. */
+    description?: string | null;
+    created_at?: string;
+}
+
 export const databaseService = {
 
     // --- FOLDERS ---

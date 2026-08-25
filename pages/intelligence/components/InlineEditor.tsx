@@ -42,6 +42,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
     // Limit Modal State
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
 
     // Title Editing State
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -366,7 +367,7 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
 
         setIsTranscribing(true);
         // Inform the DB that we started (Phase 3: Background Tracking)
-        onUpdateRecording(recording.id, { status: 'Transcribing...' });
+        onUpdateRecording(recording.id, { status: 'Processing' });
 
         try {
             let mimeType = 'audio/mp3';
@@ -420,7 +421,9 @@ export const InlineEditor: React.FC<InlineEditorProps> = ({
             logger.error('Failed to transcribe', { error, recordingId: recording.id, language }, user.id);
             const errMsg = error.message || (language === 'es' ? "Error al transcribir. Intenta de nuevo o verifica el tamaño del audio." : "Failed to transcribe. Please try again or check audio size.");
             showToast(errMsg, 'error');
-            onUpdateRecording(recording.id, { status: 'Failed' });
+            // El union de status no tiene valor de fallo: Draft deja la
+            // grabacion reintentable y el toast ya ha informado del error.
+            onUpdateRecording(recording.id, { status: 'Draft' });
         } finally {
             setIsTranscribing(false);
         }

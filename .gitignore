@@ -45,3 +45,4 @@ temp_*.txt
 # Se ignoran en vez de borrarse: son notas del usuario, no ficheros del repo.
 claude_seo.md
 claude_web.md
+.tmpwork/

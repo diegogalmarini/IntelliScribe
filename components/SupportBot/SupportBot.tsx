@@ -181,7 +181,7 @@ export const SupportBot: React.FC<SupportBotProps> = ({
         // TRACK: Support Bot Message Sent
         if (Analytics && typeof Analytics.trackEvent === 'function') {
             Analytics.trackEvent('support_bot_message_sent', {
-                agent_name: agent.name.es,
+                agent_name: agent.name,
                 is_authenticated: !!user?.id
             });
         }
@@ -217,7 +217,12 @@ export const SupportBot: React.FC<SupportBotProps> = ({
                     : undefined,
             };
 
-            const response = await supportChat(userMsg, messages, language, agent.id, clientContext);
+            // Los mensajes 'system' (avisos de UI, p. ej. cambio de agente) no
+            // forman parte de la conversacion que ve el modelo.
+            const historial = messages.flatMap(m =>
+                m.role === 'system' ? [] : [{ role: m.role, content: m.content }]
+            );
+            const response = await supportChat(userMsg, historial, language, agent.id, clientContext);
 
             // Simulation of natural typing delay
             const delayBase = 1000;
