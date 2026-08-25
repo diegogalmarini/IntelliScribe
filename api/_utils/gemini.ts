@@ -27,7 +27,12 @@ export const GEMINI_CONFIG = {
     ],
     actions: {
         summary: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.7 },
-        chat: { preferredModel: 'gemini-3.1-pro-preview', temperature: 0.8 },
+        // 3.7-flash y no el Pro: 4,1x mas barato por pregunta ($0,0039 frente a
+        // $0,0160) y el trabajo pesado del chat lo hace la recuperacion RAG, no
+        // el razonamiento puro. Es el mismo criterio que la transcripcion: el
+        // mas barato que cumpla. Si las respuestas empeoran, revertir aqui a
+        // 'gemini-3.1-pro-preview'.
+        chat: { preferredModel: 'gemini-3.7-flash', temperature: 0.8 },
         support: { preferredModel: 'gemini-3.1-flash-lite-preview', temperature: 0.9 },
         // El criterio NO es "el modelo mas nuevo" sino el mas barato que cumpla:
         // transcribir mueve mucha entrada (audio) y poca salida, y manda el
