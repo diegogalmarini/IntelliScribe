@@ -81,11 +81,12 @@ export const Insights: React.FC = () => {
                                         {[...Array(15)].map((_, i) => (
                                             <motion.div
                                                 key={i}
+                                                style={{ height: '100%', originY: 1 }}
                                                 animate={{
-                                                    height: [
-                                                        `${20 + Math.random() * 60}%`,
-                                                        `${40 + Math.random() * 40}%`,
-                                                        `${20 + Math.random() * 60}%`
+                                                    scaleY: [
+                                                        0.2 + Math.random() * 0.6,
+                                                        0.4 + Math.random() * 0.4,
+                                                        0.2 + Math.random() * 0.6
                                                     ]
                                                 }}
                                                 transition={{

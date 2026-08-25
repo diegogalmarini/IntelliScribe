@@ -63,7 +63,7 @@ export const Navbar: React.FC<{ user?: UserProfile; onUpdateUser?: (updates: Par
 
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 h-20 transition-all">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-white/5 h-20 transition-colors">
                 <div className="max-w-[1400px] mx-auto px-6 h-full flex justify-between items-center">
                     <a href="/" aria-label="Diktalo" className="flex items-center gap-3 cursor-pointer" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
                         {effectiveTheme === 'dark' ? (

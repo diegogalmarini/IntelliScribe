@@ -89,7 +89,7 @@ export const CookieConsentBanner: React.FC = () => {
                     exit={{ y: 100, opacity: 0 }}
                     className="fixed bottom-4 left-4 right-4 md:left-8 md:right-auto md:max-w-md z-50"
                 >
-                    <div className="bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-6">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-6">
                         <div className="flex items-start gap-4">
                             <div className="p-3 bg-primary/10 rounded-xl">
                                 <MSymbol name="cookie" className="text-primary" />
