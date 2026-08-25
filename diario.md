@@ -1,17 +1,105 @@
 # Diario de Desarrollo — Diktalo
 
 > Bitácora técnica viva del proyecto. Cada decisión, cada feature, cada bug resuelto.
-> Actualizado: 23 agosto 2026
+> Actualizado: 24 agosto 2026
 >
 > ⚠️ **Advertencia:** Este documento es contexto vivo, no spec de implementación. Validar siempre contra:
 > 1. El código real en `/api/`, `/services/`, `/pages/`
 > 2. `.agent/skills/` para estándares de IA y proceso
 > 3. `AGENTS.md` para reglas invariables del proyecto
 >
-> 📌 **Estado actual resumido (2026-08-23):**
-> Último hito documentado: 23 agosto 2026 (transcripción de vídeo de YouTube, estilos de transcripción, plantillas de vídeo).
+> 📌 **Estado actual resumido (2026-08-24):**
+> Último hito documentado: 24 agosto 2026 (cobro real de cuota, dieta de la PWA, migración completa a lucide, crons activos).
 > En curso: ver entrada más reciente.
 > Brújula de metodología: `AGENTS.md` + `CLAUDE.md`. Historial por fases: `docs/DEVELOPMENT_LOG.md`.
+
+---
+
+## Registro 2026-08-24 — Cobro real de cuota, dieta de la PWA y adiós a la fuente de iconos
+
+**Qué se hizo:**
+
+**1. El cobro de minutos no funcionaba, en ninguna de las dos monedas.**
+- Audio: `databaseService.incrementUsage` existía y llamaba a la RPC correcta,
+  pero un grep devolvía CERO llamantes; un comentario afirmaba que "lo llama el
+  editor" y no era verdad. `App.tsx` solo tocaba el estado de React, así que la
+  cuota no se aplicaba entre sesiones. Ahora se cobra en `createRecording`, el
+  único punto por el que pasan las tres rutas de cliente. YouTube pasa
+  `yaCobrado: true` porque ya cobra en servidor.
+- Llamadas: `call_limit` (300 min en Business+) se mostraba en el sidebar pero
+  nadie incrementaba `call_minutes_used`, y cada llamada quemaba créditos
+  comprados desde el primer minuto. RPC nueva `consume_call_minutes` con
+  prioridad plan → créditos; los minutos del plan solo cubren multiplicador 1
+  (zona estándar), que es lo que promete la landing. Aplicada en producción y
+  probada por REST.
+- El contador del sidebar se refresca en local vía `onUsageCharged`; no puede ir
+  por `handleUpdateUser` porque `minutes_used` es columna protegida por el
+  trigger anti-escalada.
+
+**2. La PWA pesaba 58,8 MB y por eso los despliegues no llegaban.**
+`globPatterns` incluía `png` y `svg`: precacheaba todas las imágenes del build.
+Hasta terminar ese precache el service worker nuevo no activa, así que los
+usuarios seguían viendo el bundle anterior — falseó nuestra verificación cuatro
+veces. Ahora solo se precachea el esqueleto (js/css/html): 131 entradas →
+33, 58.882 KiB → 4.641 KiB. Y los cuatro iconos PWA eran el MISMO fichero de
+1024×1024 renombrado: favicon de 982 KB → 8,5 KB, total de iconos 1.999 KB →
+264 KB. Verificado que `index.html` sigue precacheado y el `navigateFallback`
+intacto, o el modo offline se habría roto en silencio.
+
+**3. Lote de la auditoría de la landing (56 hallazgos, verificados y refutados
+por workflow adversarial).**
+- La familia entera de `.landing-page h1..h5/p/a/li` tenía especificidad (0,1,1)
+  y le ganaba a cualquier utilidad de Tailwind, incluidas `md:`/`lg:`: la
+  tipografía no escalaba en ningún tamaño. Envueltas en `:where()` → (0,0,1):
+  gana al reset (va después en el fichero) y pierde contra utilidades. NO se usó
+  `:where(.landing-page h2)` porque (0,0,0) perdería contra el propio reset y
+  seis superficies (legales, About, Afiliados, Roadmap) se quedarían sin
+  tipografía. Verificado con comparación controlada contra producción.
+- Solutions estaba medio sin traducir y con el idioma invertido por ficha; 28
+  claves nuevas y cero literales.
+- Los 57 avatares de testimonios se pedían a xsgames.co (IP de cada visitante a
+  un tercero no listado como subprocesador). Locales, redimensionados a 96×96:
+  2,2 MB → 147 KB.
+- Las 14 Suisse se servían desde el CDN de Webflow DE OTRO PROYECTO: si esa
+  cuenta muere, la tipografía entera desaparece. Locales en `public/fonts/`.
+- Restos de i18n (Pricing, Testimonials, Navbar, footer), el eyebrow del FAQ que
+  duplicaba el título, `insightsAiAnalysis` en castellano dentro del bloque EN,
+  el ancla `/#features` que apuntaba al vacío, ids duplicados
+  `solutions`/`pricing`, el mockup de Insights recortado (aspect-video con
+  contenido fijo: 84 px cortados medidos a 1100 px), y accesibilidad básica
+  (switch del toggle de precios, logos como enlace/botón, aria-expanded del
+  menú móvil, el enlace a X que se anunciaba "share").
+
+**4. Crons de negocio: los dos activos por fin.**
+`cron-reset-usage` a las 03:00 y `cron-cleanup-free` a las 03:30 con retención
+subida de 7 a 30 días — con 7, el primer disparo habría borrado 17 audios de 19
+usuarios beta sin aviso. FAQ y ajustes pasan a decir 30 para no prometer una
+cosa y hacer otra.
+
+**5. Los 189 usos de Material Symbols migrados a lucide y la fuente retirada.**
+Componente puente `components/ui/MSymbol.tsx` con el mapa de 115 nombres,
+verificado contra los exports reales de lucide-react ANTES de escribir nada.
+183 por script (tamaño derivado del font-size), 6 a mano. El typecheck cazó
+tres fallos del propio script (imports dentro de un import multilínea, un
+className duplicado). Verificado en navegador: 0 ligaduras, 71 SVG en la
+landing, estrellas rellenas, consola limpia. Un nombre futuro sin mapear pinta
+interrogante y avisa, en vez del fallo silencioso de la ligadura.
+
+**Qué queda pendiente:**
+
+- **Diego: probar la diarización** con una grabación de varias voces (valida el
+  cambio a flash-lite, 3,8× más barato). Si mezcla hablantes, revertir es una
+  línea en `api/_utils/gemini.ts`.
+- **Diego: limpiar Vercel** (borrar `STRIPE_*`, marcar secretos Sensitive) y el
+  ticket del plan Pro de Supabase.
+- Menores diferidos: Google Fonts (Inter) bloquea el render y carga antes del
+  consentimiento; el script de afiliados de Lemon Squeezy también; el embed del
+  Hero usa youtube.com con cookies (el de la ficha de grabación ya usa
+  nocookie); imágenes muertas en `public/images`; el foco del acordeón del FAQ;
+  los 38 errores de TS preexistentes fuera del gate de `api/`.
+- Medir el techo de duración de YouTube con un vídeo de 1–2 h antes de
+  anunciarlo; valorar extender el selector Limpia/Literal al audio subido (con
+  Literal por defecto ahí).
 
 ---
 
