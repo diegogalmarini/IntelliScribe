@@ -154,7 +154,7 @@ export const Solutions: React.FC = () => {
 
                             {/* Lado R: Imagen Situacional con Overlay */}
                             <div className="order-1 lg:order-2 relative">
-                                <div className={`absolute -inset-8 ${activeContent.bg.replace('/10', '/30')} blur-[80px] rounded-full opacity-40 pointers-events-none`}></div>
+                                <div className={`absolute inset-0 ${activeContent.bg.replace('/10', '/30')} blur-[80px] rounded-full opacity-40 pointer-events-none`}></div>
                                 <motion.div
                                     className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900"
                                 >
