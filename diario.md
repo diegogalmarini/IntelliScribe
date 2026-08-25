@@ -15,6 +15,63 @@
 
 ---
 
+## Registro 2026-08-25 (2) — Auditoría del newsroom y adiós a Make: LinkedIn y X en directo
+
+**Qué se hizo:**
+
+**1. Diagnóstico de por qué murió la distribución social.**
+El escenario de Make estaba Inactive con 14 artículos en cola (~5 semanas sin
+publicar, desde finales de julio). Make desactiva escenarios tras errores
+consecutivos; las pistas apuntan al ciclo OAuth de X (refresh tokens de un solo
+uso: una ejecución fallida a mitad rompe la cadena para siempre) y/o al token
+de LinkedIn de 60 días. NO reactivar el escenario sin vaciar la cola: soltaría
+14 posts de golpe.
+
+**2. Auditoría del newsroom (79 artículos publicados, 46 keywords pendientes):**
+- El bot podía tumbar todos los deploys: `blogData.ts` está en `utils/`, dentro
+  del gate de tipos del build, y el workflow hacía push sin typecheck. Ahora
+  `npx tsc --noEmit` corre ANTES del commit del bot.
+- Modelo de artículos `gemini-2.5-flash` → `gemini-3.7-flash` (el mismo del
+  chat; a 12 artículos/mes el coste es irrelevante, manda la prosa).
+- El CSV mezcla artículos y landings comerciales: la siguiente keyword en cola
+  era `/transcripcion-reuniones` (landing) y se habría quemado como blog post.
+  Ahora el parser solo consume filas `/blog/...`.
+- Slug drift: el prompt permitía "close variant" del slug; si el modelo se
+  desviaba, la keyword nunca se marcaba publicada → duplicados. El slug ahora
+  lo fija el CSV.
+- Los 77 artículos del bot no llevaban JSON-LD aunque `Blog.tsx` lo renderiza.
+  Ahora se genera schema BlogPosting determinísticamente (sin llamada IA).
+- `npm install` → `npm ci` en CI.
+
+**3. Publicación directa en LinkedIn y X, sin Make (`scripts/social_publish.ts`).**
+- Nuevo paso del workflow DESPUÉS del push (espera a que la URL responda).
+- LinkedIn: página de empresa vía Community Management API (refresh token de
+  365 días como secret; el access de 60 días se renueva en cada run;
+  reautorización manual 1 vez/año con `scripts/linkedin_auth.ts`).
+- X: OAuth 1.0a con 4 secrets estáticos que NO caducan — elimina de raíz la
+  rotación de refresh tokens que mató a Make. Librería `twitter-api-v2`.
+  El tweet es un campo nuevo del JSON del newsroom (máx 200 chars + URL).
+- Una red sin secrets se omite con aviso (cero regresión hasta configurar);
+  una red configurada que falla pone el run en rojo (visibilidad, lo que Make
+  nunca dio). Modo `--slug` para backfill de los 14 artículos perdidos.
+- Handoff entre pasos por `.newsroom-social.json` (gitignored).
+
+**Por qué:** el usuario quiere captación por contenido en ambas redes y Make
+llevaba un mes caído en silencio. Menos servicios externos, fallos visibles.
+
+**Pendiente / siguiente:**
+- USUARIO: crear la app de LinkedIn (developers.linkedin.com, producto
+  Community Management API, redirect http://localhost:8888/callback) y la de X
+  (developer.x.com, tier Free, permisos Read+Write, keys OAuth 1.0a de la
+  cuenta de marca). Cargar los 8 secrets en GitHub Actions.
+- Tras los secrets: probar con `npx tsx scripts/social_publish.ts --slug <x>`
+  y backfill gradual de los mejores artículos de la cola muerta.
+- Desactivar/borrar el escenario de Make y su webhook cuando lo nuevo ruede.
+- La "biblia" de modelos (`optimizing-gemini-models/SKILL.md`) sigue citando
+  la serie 3.1 como frontier — refrescarla.
+
+---
+
 ## Registro 2026-08-25 — Parpadeo de GPU, consentimiento real, techo de YouTube y typecheck a cero
 
 **Qué se hizo:**

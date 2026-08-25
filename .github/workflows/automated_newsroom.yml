@@ -24,18 +24,23 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Newsroom Script
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SOCIAL_WEBHOOK_URL: ${{ secrets.SOCIAL_WEBHOOK_URL }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: npx tsx scripts/automated_newsroom.ts
 
       - name: Regenerate Sitemap
         run: node scripts/generate-sitemap.js
+
+      # blogData.ts vive dentro del gate de tipos del build de Vercel: un
+      # articulo mal generado bloquearia TODOS los deploys. Mejor que falle
+      # aqui, antes del commit, y el run quede en rojo sin publicar nada.
+      - name: Typecheck before commit
+        run: npx tsc --noEmit
 
       - name: Commit and Push Changes
         run: |
@@ -45,3 +50,19 @@ jobs:
           git commit -m "chore(blog): auto-generate article and images via newsroom" || echo "No changes to commit"
           git pull --rebase origin main
           git push origin main
+
+      # Publicacion directa en LinkedIn y X (sin Make). Va despues del push
+      # para que el articulo este desplegado; el script ademas espera a que
+      # la URL responda. Si una red configurada falla, el run sale en rojo
+      # pero el articulo ya esta publicado en el blog.
+      - name: Publish to LinkedIn and X
+        env:
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LINKEDIN_ORG_ID: ${{ secrets.LINKEDIN_ORG_ID }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+        run: npx tsx scripts/social_publish.ts

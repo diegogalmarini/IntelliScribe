@@ -43,6 +43,7 @@ const AUTHORS = [
 interface KeywordRow {
     keyword: string;
     seedKeyword: string;
+    page: string;
     slug: string;
     topic: string;
     pageType: string;
@@ -60,18 +61,22 @@ function parseKeywordsCSV(): KeywordRow[] {
 
     return lines.slice(1).map(line => {
         const cols = line.split(',');
-        const slug = (cols[3] || '').replace(/^\/blog\//, '').replace(/^\//, '').trim();
+        const page = (cols[3] || '').trim();
         return {
             keyword: (cols[1] || '').trim(),
             seedKeyword: (cols[2] || '').trim(),
-            slug,
+            page,
+            slug: page.replace(/^\/blog\//, '').trim(),
             topic: (cols[4] || '').trim(),
             pageType: (cols[5] || 'Informational').trim(),
             tags: (cols[6] || '').split(' ').filter(Boolean),
             volume: parseInt(cols[7] || '0', 10),
             difficulty: parseInt(cols[8] || '50', 10),
         };
-    }).filter(row => row.keyword && row.slug);
+        // El CSV mezcla articulos (/blog/...) con landings comerciales (/...).
+        // El newsroom solo debe consumir los primeros: una keyword de landing
+        // publicada como post quema la keyword sin crear la pagina que pedia.
+    }).filter(row => row.keyword && row.page.startsWith('/blog/') && row.slug);
 }
 
 function getPublishedSlugs(): Set<string> {
@@ -142,8 +147,10 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
 
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    // Mismo modelo que el chat de la app: a 3 articulos/semana el coste es
+    // irrelevante y aqui manda la calidad de prosa del contenido flagship.
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.7-flash",
         generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -182,20 +189,26 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
     - CTA: "Lee el artículo completo en Diktalo.com: [URL]"
     - Hashtags: 6-8 relevant ones including #Diktalo.
 
+    TWEET FORMAT (for X):
+    - Max 200 characters of text (the URL is appended separately and counts 23 chars).
+    - One sharp hook sentence in Spanish + at most 2 hashtags. No emojis beyond one optional.
+    - Do NOT include any URL placeholder in the tweet text.
+
     **CRITICAL**: Return ONLY a VALID JSON object. Escape all internal double quotes.
 
     JSON SCHEMA:
     {
       "article": {
         "title": "string",
-        "slug": "string (use suggested slug or close variant)",
+        "slug": "string (use EXACTLY the suggested slug)",
         "excerpt": "string (150-160 chars, includes target keyword)",
         "content": "string (full markdown article)",
         "aeoAnswer": "string (2 sentences, direct answer)",
         "category": "string",
         "tags": ["string"]
       },
-      "linkedin": "string"
+      "linkedin": "string",
+      "tweet": "string"
     }
     `;
 
@@ -228,14 +241,24 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
                 console.warn("⚠️ 'linkedin' field missing in JSON. Generating fallback from excerpt.");
                 data.linkedin = `🚀 Nuevo artículo en Diktalo: ${data.article.title}\n\n${data.article.excerpt}\n\nLee más aquí: [URL]`;
             }
+            if (!data.tweet) {
+                console.warn("⚠️ 'tweet' field missing in JSON. Generating fallback from title.");
+                data.tweet = `${data.article.title} #Diktalo`;
+            }
+
+            // El slug lo fija el CSV, no el modelo: si el modelo lo variara, la
+            // keyword nunca se marcaria como publicada y se reseleccionaria en
+            // cada run generando articulos duplicados.
+            data.article.slug = kw.slug;
 
             const category = data.article.category || "Innovación";
             const author = AUTHORS.find(a => a.categories.includes(category)) || AUTHORS[1];
+            const fecha = new Date().toISOString().split('T')[0];
 
             return {
                 blog: {
                     id: Date.now().toString(),
-                    date: new Date().toISOString().split('T')[0],
+                    date: fecha,
                     author: author.name,
                     authorRole: author.role,
                     authorImage: author.image,
@@ -246,8 +269,10 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
                     category,
                     tags: data.article.tags?.length ? data.article.tags : kw.tags.length ? kw.tags : ["diktalo", "ia"],
                     aeoAnswer: data.article.aeoAnswer || data.article.excerpt || "",
+                    // jsonLd se rellena en runNewsroom, cuando ya existe la imagen
                 },
-                linkedin: data.linkedin
+                linkedin: data.linkedin,
+                tweet: data.tweet
             };
 
         } catch (error) {
@@ -260,6 +285,27 @@ async function generateAuthoritativeContent(kw: KeywordRow) {
 
     console.error("❌ All generation attempts failed.");
     throw lastError;
+}
+
+// Schema.org BlogPosting, mismo formato que los articulos manuales antiguos.
+// Blog.tsx lo inyecta en un <script type="application/ld+json"> si existe;
+// hasta ahora los articulos del bot salian sin structured data.
+function buildJsonLd(title: string, excerpt: string, author: string, date: string, slug: string, image: string): string {
+    return JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: title,
+        description: excerpt,
+        author: { "@type": "Person", name: author },
+        publisher: {
+            "@type": "Organization",
+            name: "Diktalo",
+            logo: { "@type": "ImageObject", url: "https://diktalo.com/logo-diktalo.png" }
+        },
+        datePublished: date,
+        mainEntityOfPage: `https://diktalo.com/blog/${slug}`,
+        image: image.startsWith('http') ? image : `https://diktalo.com${image}`
+    }, null, 2);
 }
 
 async function fetchImageFromPexels(slug: string, category: string, tags: string[]): Promise<string | null> {
@@ -437,6 +483,7 @@ async function runNewsroom() {
 
         // Generate Image
         data.blog.image = await generateImage(data.blog.title, data.blog.slug, data.blog.excerpt, data.blog.category, data.blog.tags);
+        data.blog.jsonLd = buildJsonLd(data.blog.title, data.blog.excerpt, data.blog.author, data.blog.date, data.blog.slug, data.blog.image);
 
         // Inject to Blog
         const blogData = fs.readFileSync(BLOG_DATA_PATH, 'utf-8');
@@ -453,41 +500,25 @@ async function runNewsroom() {
             console.log("✅ Blog Updated with V5 Article.");
         }
 
-        // Distribution
-        const webhookUrl = process.env.SOCIAL_WEBHOOK_URL;
-        if (webhookUrl && webhookUrl.startsWith("http")) {
-            const payload = {
-                title: data.blog.title,
-                url: `https://diktalo.com/blog/${data.blog.slug}`,
-                image_url: data.blog.image.startsWith('http') ? data.blog.image : `https://diktalo.com${data.blog.image}`,
-                linkedin_text: data.linkedin
-                    .replace(/\[URL\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
-                    .replace(/\[LINK_AL_ARTICULO\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
-                    .replace(/\[LINK\]/gi, `https://diktalo.com/blog/${data.blog.slug}`)
-            };
-
-            console.log(`📤 Sending payload to Make (URL: ${webhookUrl})...`);
-
-            try {
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    console.log("✅ Alpha LinkedIn post sent to Make.");
-                } else {
-                    console.error(`❌ Failed to send LinkedIn post to Make. Status: ${response.status}`);
-                    const errorText = await response.text();
-                    console.error(`Response content: ${errorText}`);
-                }
-            } catch (netError) {
-                console.error(`❌ Network error sending to Make: ${(netError as Error).message}`);
-            }
-        } else {
-            console.warn("⚠️ SOCIAL_WEBHOOK_URL is missing or invalid (must start with http). Skipping distribution.");
-        }
+        // Distribution handoff: la publicacion en LinkedIn/X ya no pasa por
+        // Make. Este fichero (gitignored) lo consume scripts/social_publish.ts
+        // en un paso posterior del workflow, DESPUES del push, para que el
+        // articulo este desplegado cuando salgan los posts.
+        const articleUrl = `https://diktalo.com/blog/${data.blog.slug}`;
+        const handoff = {
+            slug: data.blog.slug,
+            title: data.blog.title,
+            url: articleUrl,
+            image_path: data.blog.image.startsWith('http') ? null : data.blog.image,
+            image_url: data.blog.image.startsWith('http') ? data.blog.image : `https://diktalo.com${data.blog.image}`,
+            linkedin_text: data.linkedin
+                .replace(/\[URL\]/gi, articleUrl)
+                .replace(/\[LINK_AL_ARTICULO\]/gi, articleUrl)
+                .replace(/\[LINK\]/gi, articleUrl),
+            tweet_text: data.tweet
+        };
+        fs.writeFileSync(path.join(process.cwd(), '.newsroom-social.json'), JSON.stringify(handoff, null, 2));
+        console.log("📤 Social handoff written to .newsroom-social.json");
 
         console.log("✨ Newsroom cycle completed successfully.");
     } catch (error) {
