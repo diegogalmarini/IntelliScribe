@@ -43,10 +43,19 @@ export const MultiAudioUploader: React.FC<MultiAudioUploaderProps> = ({ user, on
     ];
 
     const parseAudioFilename = (filename: string): Date | null => {
-        const match = filename.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
-        if (!match) return null;
-        const [_, year, month, day, hour, min, sec] = match;
-        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(min), parseInt(sec));
+        // WhatsApp Escritorio: "WhatsApp Audio 2026-09-05 at 16.02.27.mp3"
+        const escritorio = filename.match(/(\d{4})-(\d{2})-(\d{2}) at (\d{2})\.(\d{2})\.(\d{2})/);
+        if (escritorio) {
+            const [_, year, month, day, hour, min, sec] = escritorio;
+            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(min), parseInt(sec));
+        }
+        // WhatsApp movil: "PTT-20260905-WA0012.opus", "AUD-20260905-WA0003.m4a"
+        const movil = filename.match(/(?:PTT|AUD)-(\d{4})(\d{2})(\d{2})-WA/);
+        if (movil) {
+            const [_, year, month, day] = movil;
+            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        }
+        return null;
     };
 
     const getAudioDuration = (file: File): Promise<number> => {

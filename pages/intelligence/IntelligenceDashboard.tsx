@@ -404,9 +404,19 @@ const IntelligenceDashboard: React.FC<IntelligenceDashboardProps> = ({
                 };
             });
 
+            // El titulo lleva la fecha de la conversacion (la mas antigua que
+            // el uploader haya sacado de los nombres de archivo). Si ningun
+            // nombre lleva fecha, la de hoy: new Date(null) daba 1/1/1970.
+            const fechasArchivos = files
+                .map(f => (f.extractedDate ? new Date(f.extractedDate) : null))
+                .filter((d): d is Date => !!d && !isNaN(d.getTime()));
+            const fechaConversacion = fechasArchivos.length
+                ? new Date(Math.min(...fechasArchivos.map(d => d.getTime())))
+                : new Date();
+
             const currentRecording: Recording = {
                 id: '', folderId: selectedFolderId === 'ALL' ? null : selectedFolderId,
-                title: `Multi-Audio - ${new Date(files[0].extractedDate).toLocaleDateString()}`,
+                title: `Multi-Audio - ${fechaConversacion.toLocaleDateString()}`,
                 description: `${files.length} audios`, date: new Date().toISOString(),
                 duration: `${Math.floor(totalDuration / 3600).toString().padStart(2, '0')}:${Math.floor((totalDuration % 3600) / 60).toString().padStart(2, '0')}:${Math.floor(totalDuration % 60).toString().padStart(2, '0')}`,
                 durationSeconds: Math.floor(totalDuration), status: 'Completed', tags: ['multi-audio'], participants: new Set(files.map(f => f.assignedSpeaker)).size,
